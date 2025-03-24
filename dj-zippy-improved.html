@@ -1,0 +1,222 @@
+import React from 'react';
+import ReactDOM from 'react-dom';
+import './styles.css';
+
+function App() {
+  return (
+    <div className="app">
+      <Header />
+      <main>
+        <ListenBookSection />
+        <StatsSection />
+        <GallerySection />
+        <FeaturedSetsSection />
+        <GenresSection />
+        <GigMapSection />
+        <ContactSection />
+      </main>
+      <Footer />
+    </div>
+  );
+}
+
+function Header() {
+  return (
+    <header className="header">
+      <div className="container">
+        <a href="/" className="logo">DJ ZIPPY</a>
+        <nav>
+          <ul className="nav-links">
+            <li><a href="#listen">Listen Now</a></li>
+            <li><a href="#stats">Stats</a></li>
+            <li><a href="#gallery">Gallery</a></li>
+            <li><a href="#sets">Sets</a></li>
+            <li><a href="#genres">Genres</a></li>
+            <li><a href="#map">Map</a></li>
+            <li><a href="#contact">Book Me</a></li>
+          </ul>
+        </nav>
+        <button className="menu-toggle">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </header>
+  );
+}
+
+function ListenBookSection() {
+  return (
+    <section id="listen" className="hero-section">
+      <div className="container">
+        <div className="hero-content">
+          <h1>DJ ZIPPY</h1>
+          <p>Experience the sound that moved 6,700+ people across 32 venues</p>
+          <div className="cta-buttons">
+            <a href="#sets" className="btn btn-primary">Listen Now</a>
+            <a href="#contact" className="btn btn-outline">Book Me</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function StatsSection() {
+  const stats = [
+    { icon: 'headphones', number: '62', text: 'Total Gigs' },
+    { icon: 'map-marker', number: '32', text: 'Unique Venues' },
+    { icon: 'clock', number: '244h', text: 'Performance Time' },
+    { icon: 'users', number: '6,732', text: 'People Entertained' },
+    { icon: 'heart', number: '11', text: 'Volunteer Gigs' }
+  ];
+
+  return (
+    <section id="stats" className="stats-section">
+      <div className="container">
+        <h2>Performance Stats</h2>
+        <div className="stats-grid">
+          {stats.map((stat, index) => (
+            <div className="stat-card" key={index}>
+              <i className={`fas fa-${stat.icon}`}></i>
+              <h3>{stat.number}</h3>
+              <p>{stat.text}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function GallerySection() {
+  const images = [
+    { src: '/api/placeholder/600/400', alt: 'DJ Zippy at Exit Festival', caption: 'Exit Festival 2024' },
+    { src: '/api/placeholder/600/400', alt: 'Club Performance', caption: 'Techno Night' },
+    { src: '/api/placeholder/600/400', alt: 'Festival Crowd', caption: 'Summer Festival' },
+    { src: '/api/placeholder/600/400', alt: 'DJ Booth', caption: 'Club XYZ' }
+  ];
+
+  return (
+    <section id="gallery" className="gallery-section">
+      <div className="container">
+        <h2>Gallery</h2>
+        <div className="gallery-grid">
+          {images.map((image, index) => (
+            <div className="gallery-item" key={index}>
+              <img src={image.src} alt={image.alt} />
+              <div className="overlay">
+                <p>{image.caption}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function FeaturedSetsSection() {
+  const sets = [
+    'https://www.youtube.com/embed/pbT603mKdsc',
+    'https://www.youtube.com/embed/c39a4eCIKYs',
+    'https://www.youtube.com/embed/K0G4l0Nun5M',
+    'https://www.mixcloud.com/widget/iframe/?hide_cover=1&light=1&feed=%2Fzovumezippy%2Fsummer-house-dance-mix-for-asfm%2F'
+  ];
+
+  return (
+    <section id="sets" className="sets-section">
+      <div className="container">
+        <h2>Featured Sets</h2>
+        <div className="sets-grid">
+          {sets.map((src, index) => (
+            <div className="set-item" key={index}>
+              <iframe src={src} allowFullScreen title={`DJ Set ${index + 1}`}></iframe>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function GenresSection() {
+  const genres = [
+    'House', 'Techno', 'Tech House', 'RnB', 'HipHop', 
+    'Dance', 'Pop', 'Trap', 'Rap', 'Drill', 
+    'Komerc', 'Turbo Folk', 'Kafana', 'Domaći Trap', 
+    'Ex-YU', '90s', '2000s', '2010s'
+  ];
+
+  return (
+    <section id="genres" className="genres-section">
+      <div className="container">
+        <h2>Genres</h2>
+        <div className="genres-grid">
+          {genres.map((genre, index) => (
+            <div className="genre-pill" key={index}>
+              {genre}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function GigMapSection() {
+  return (
+    <section id="map" className="map-section">
+      <div className="container">
+        <h2>Gig Map</h2>
+        <div className="map-container">
+          <iframe 
+            src="https://www.google.com/maps/d/u/0/embed?mid=1abcEXAMPLEMAPID" 
+            title="DJ Zippy Gig Map"
+            allowFullScreen
+          ></iframe>
+        </div>
+        <p className="map-note">*Mapa prikazuje lokacije nastupa</p>
+      </div>
+    </section>
+  );
+}
+
+function ContactSection() {
+  return (
+    <section id="contact" className="contact-section">
+      <div className="container">
+        <h2>Connect With Me & Book</h2>
+        <div className="contact-content">
+          <p>Ready to elevate your event with energetic beats?</p>
+          <a href="https://linktr.ee/zovumezippy" className="btn btn-primary" target="_blank" rel="noopener noreferrer">
+            My Linktree
+          </a>
+          <div className="social-links">
+            <a href="#" aria-label="Facebook"><i className="fab fa-facebook-f"></i></a>
+            <a href="#" aria-label="Instagram"><i className="fab fa-instagram"></i></a>
+            <a href="#" aria-label="SoundCloud"><i className="fab fa-soundcloud"></i></a>
+            <a href="#" aria-label="YouTube"><i className="fab fa-youtube"></i></a>
+          </div>
+          <div className="contact-info">
+            <p><i className="fas fa-envelope"></i> booking@djzippy.com</p>
+            <p><i className="fas fa-phone"></i> +381 60 123 456</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Footer() {
+  return (
+    <footer className="footer">
+      <div className="container">
+        <p>&copy; 2025 DJ Zippy. All rights reserved.</p>
+      </div>
+    </footer>
+  );
+}
+
+ReactDOM.render(<App />, document.getElementById('root'));
