@@ -1,222 +1,908 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
-import './styles.css';
-
-function App() {
-  return (
-    <div className="app">
-      <Header />
-      <main>
-        <ListenBookSection />
-        <StatsSection />
-        <GallerySection />
-        <FeaturedSetsSection />
-        <GenresSection />
-        <GigMapSection />
-        <ContactSection />
-      </main>
-      <Footer />
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DJ Zippy | Professional DJ</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <style>
+    :root {
+      --primary: #FF6B00;
+      --primary-light: #FF8533;
+      --primary-dark: #CC5500;
+      --dark: #000; /* Changed to black */
+      --darker: #000;
+      --light: #fff;
+      --gray: #333;
+      --light-gray: #aaa;
+      --card-bg: rgba(25, 25, 25, 0.8);
+      --card-hover: rgba(40, 40, 40, 0.9);
+      --transition: all 0.3s ease;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Montserrat', Arial, sans-serif;
+      background-color: var(--dark);
+      color: var(--light);
+      line-height: 1.6;
+      overflow-x: hidden;
+      background: #000; /* Changed to solid black background */
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+    
+    /* Header Styles */
+    header {
+      position: relative;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      overflow: hidden;
+      background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)), url('/api/placeholder/1600/900') center/cover no-repeat;
+    }
+    
+    .header-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(45deg, var(--primary-dark), var(--primary));
+      opacity: 0.3;
+      z-index: 1;
+    }
+    
+    .header-content {
+      position: relative;
+      z-index: 2;
+      max-width: 800px;
+    }
+    
+    .logo {
+      font-size: 4rem;
+      font-weight: 800;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      color: var(--primary); /* Changed to solid orange text */
+      text-shadow: 0 0 20px rgba(255, 107, 0, 0.5);
+    }
+    
+    .tagline {
+      font-size: 1.5rem;
+      color: var(--light);
+      margin-bottom: 2rem;
+      font-weight: 300;
+    }
+    
+    .btn {
+      display: inline-block;
+      padding: 0.8rem 2rem;
+      background: linear-gradient(45deg, var(--primary-dark), var(--primary));
+      color: var(--light);
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      text-decoration: none;
+      cursor: pointer;
+      transition: var(--transition);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin: 0.5rem;
+    }
+    
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    .btn-outline {
+      background: transparent;
+      border: 2px solid var(--primary);
+    }
+    
+    .btn-outline:hover {
+      background: linear-gradient(45deg, var(--primary-dark), var(--primary));
+    }
+    
+    /* Navigation */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      padding: 1.5rem 0;
+      z-index: 100;
+      transition: var(--transition);
+    }
+    
+    .nav-scrolled {
+      background-color: rgba(0, 0, 0, 0.95);
+      padding: 0.8rem 0;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+    }
+    
+    .nav-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .nav-logo {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--primary); /* Changed to solid orange */
+      text-decoration: none;
+    }
+    
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+    
+    .nav-links a {
+      color: var(--light);
+      text-decoration: none;
+      font-weight: 500;
+      transition: var(--transition);
+      position: relative;
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--primary); /* Changed to solid orange */
+      transition: var(--transition);
+    }
+    
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+    
+    .hamburger {
+      display: none;
+      cursor: pointer;
+    }
+    
+    .hamburger div {
+      width: 25px;
+      height: 3px;
+      background-color: var(--light);
+      margin: 5px;
+      transition: var(--transition);
+    }
+    
+    /* Sections */
+    section {
+      padding: 4rem 0;
+    }
+    
+    .section-title {
+      text-align: center;
+      margin-bottom: 3rem;
+      position: relative;
+    }
+    
+    .section-title h2 {
+      font-size: 2.2rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+    
+    .section-title::after {
+      content: '';
+      display: block;
+      width: 60px;
+      height: 3px;
+      background: var(--primary); /* Changed to solid orange */
+      margin: 1rem auto;
+    }
+    
+    /* Stats Section */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr); /* Fixed to show all 5 in one row */
+      gap: 1rem; /* Reduced gap */
+    }
+    
+    .stat-card {
+      background: var(--card-bg);
+      border-radius: 4px;
+      padding: 1rem; /* Reduced padding */
+      text-align: center;
+      transition: var(--transition);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      border-left: 3px solid var(--primary);
+      height: 160px; /* Reduced height */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .stat-card:hover {
+      transform: translateY(-5px);
+      background: var(--card-hover);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    .stat-icon {
+      font-size: 1.8rem; /* Reduced size */
+      margin-bottom: 0.5rem; /* Reduced margin */
+      color: var(--primary);
+    }
+    
+    .stat-number {
+      font-size: 1.8rem; /* Reduced size */
+      font-weight: 700;
+      margin-bottom: 0.3rem;
+      color: var(--primary); /* Changed to solid orange */
+    }
+    
+    .stat-text {
+      font-size: 0.8rem; /* Reduced size */
+      color: var(--light-gray);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    /* Genres Section */
+    .genres-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 1rem;
+    }
+    
+    .genre-pill {
+      background: var(--card-bg);
+      border-radius: 4px;
+      padding: 0.7rem 0;
+      text-align: center;
+      transition: var(--transition);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 0.9rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      border-bottom: 2px solid transparent;
+    }
+    
+    .genre-pill:hover {
+      border-bottom: 2px solid var(--primary);
+      transform: translateY(-3px);
+    }
+    
+    /* Music Section */
+    .music-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+    
+    .music-embed {
+      border-radius: 4px;
+      overflow: hidden;
+      height: 300px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      transition: var(--transition);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .music-embed:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+      border-color: var(--primary);
+    }
+    
+    /* Map Section */
+    .map-container {
+      position: relative;
+      height: 500px;
+      border-radius: 4px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .map-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.2);
+      pointer-events: none;
+      border-radius: 4px;
+    }
+    
+    .map-embed {
+      width: 100%;
+      height: 100%;
+      border-radius: 4px;
+    }
+    
+    .map-caption {
+      margin-top: 1rem;
+      text-align: center;
+      color: var(--light-gray);
+      font-size: 0.9rem;
+    }
+    
+    /* Gallery Section */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+    }
+    
+    .gallery-item {
+      position: relative;
+      border-radius: 4px;
+      overflow: hidden;
+      height: 250px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    
+    .gallery-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: var(--transition);
+    }
+    
+    .gallery-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+      display: flex;
+      align-items: flex-end;
+      padding: 1.5rem;
+      opacity: 0;
+      transition: var(--transition);
+    }
+    
+    .gallery-item:hover .gallery-overlay {
+      opacity: 1;
+    }
+    
+    .gallery-item:hover .gallery-img {
+      transform: scale(1.1);
+    }
+    
+    .gallery-caption {
+      color: var(--light);
+      font-size: 1rem;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+    }
+    
+    /* Contact Section */
+    .social-links {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      margin-top: 2rem;
+    }
+    
+    .social-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 50px;
+      height: 50px;
+      border-radius: 4px;
+      background: var(--card-bg);
+      color: var(--light);
+      font-size: 1.2rem;
+      text-decoration: none;
+      transition: var(--transition);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .social-link:hover {
+      transform: translateY(-5px);
+      background: linear-gradient(45deg, var(--primary-dark), var(--primary));
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    }
+    
+    /* Footer */
+    footer {
+      background-color: var(--darker);
+      padding: 3rem 0 1rem;
+      text-align: center;
+    }
+    
+    .footer-content {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+    
+    .footer-col h3 {
+      font-size: 1.2rem;
+      margin-bottom: 1.5rem;
+      position: relative;
+      display: inline-block;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .footer-col h3::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 0;
+      width: 50px;
+      height: 2px;
+      background: var(--primary); /* Changed to solid orange */
+    }
+    
+    .footer-col p {
+      color: var(--light-gray);
+      margin-bottom: 1rem;
+    }
+    
+    .footer-links {
+      list-style: none;
+    }
+    
+    .footer-links li {
+      margin-bottom: 0.8rem;
+    }
+    
+    .footer-links a {
+      color: var(--light-gray);
+      text-decoration: none;
+      transition: var(--transition);
+    }
+    
+    .footer-links a:hover {
+      color: var(--primary);
+    }
+    
+    .copyright {
+      padding-top: 2rem;
+      border-top: 1px solid var(--gray);
+      color: var(--light-gray);
+      font-size: 0.9rem;
+    }
+    
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .fade-in {
+      animation: fadeIn 1s ease forwards;
+    }
+    
+    /* Media Queries */
+    @media (max-width: 992px) {
+      .logo {
+        font-size: 3rem;
+      }
+      
+      .tagline {
+        font-size: 1.3rem;
+      }
+      
+      .stats-grid {
+        grid-template-columns: repeat(3, 1fr); /* Show 3 in a row on medium screens */
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .hamburger {
+        display: block;
+        z-index: 101;
+      }
+      
+      .nav-links {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 70%;
+        height: 100vh;
+        background-color: rgba(0, 0, 0, 0.95);
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        transition: var(--transition);
+        z-index: 100;
+      }
+      
+      .nav-links.active {
+        right: 0;
+      }
+      
+      .nav-links a {
+        font-size: 1.2rem;
+        margin: 1rem 0;
+      }
+      
+      .hamburger.active div:nth-child(1) {
+        transform: rotate(45deg) translate(8px, 5px);
+      }
+      
+      .hamburger.active div:nth-child(2) {
+        opacity: 0;
+      }
+      
+      .hamburger.active div:nth-child(3) {
+        transform: rotate(-45deg) translate(8px, -5px);
+      }
+      
+      .section-title h2 {
+        font-size: 1.8rem;
+      }
+      
+      .logo {
+        font-size: 2.5rem;
+      }
+      
+      .tagline {
+        font-size: 1.1rem;
+      }
+      
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr); /* Show 2 in a row on small screens */
+      }
+    }
+    
+    @media (max-width: 576px) {
+      .stat-card {
+        padding: 1rem;
+        height: 150px;
+      }
+      
+      .stat-icon {
+        font-size: 1.5rem;
+      }
+      
+      .stat-number {
+        font-size: 1.5rem;
+      }
+      
+      .section-title h2 {
+        font-size: 1.6rem;
+      }
+      
+      .gallery-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .logo {
+        font-size: 2rem;
+      }
+      
+      .stats-grid {
+        grid-template-columns: 1fr; /* Show 1 in a row on very small screens */
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav id="navbar">
+    <div class="container nav-container">
+      <a href="#" class="nav-logo">DJ Zippy</a>
+      
+      <div class="hamburger" id="hamburger">
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
+      
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#music">Music</a></li>
+        <li><a href="#genres">Genres</a></li>
+        <li><a href="#stats">Stats</a></li>
+        <li><a href="#map">Gig Map</a></li>
+        <li><a href="#gallery">Gallery</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
     </div>
-  );
-}
+  </nav>
 
-function Header() {
-  return (
-    <header className="header">
-      <div className="container">
-        <a href="/" className="logo">DJ ZIPPY</a>
-        <nav>
-          <ul className="nav-links">
-            <li><a href="#listen">Listen Now</a></li>
+  <header>
+    <div class="header-overlay"></div>
+    <div class="header-content">
+      <h1 class="logo">DJ Zippy</h1>
+      <p class="tagline">Bringing the beat to over 6,700 people across 32 unique venues</p>
+      <div>
+        <a href="#music" class="btn">Listen Now</a>
+        <a href="#contact" class="btn btn-outline">Book Me</a>
+      </div>
+    </div>
+  </header>
+
+  <section id="music">
+    <div class="container">
+      <div class="section-title">
+        <h2>Featured Sets</h2>
+      </div>
+      
+      <div class="music-container">
+        <div class="music-embed">
+          <iframe src="https://www.youtube.com/embed/pbT603mKdsc" allowfullscreen width="100%" height="100%"></iframe>
+        </div>
+        
+        <div class="music-embed">
+          <iframe src="https://www.youtube.com/embed/c39a4eCIKYs" allowfullscreen width="100%" height="100%"></iframe>
+        </div>
+        
+        <div class="music-embed">
+          <iframe src="https://www.youtube.com/embed/K0G4l0Nun5M" allowfullscreen width="100%" height="100%"></iframe>
+        </div>
+      </div>
+      
+      <div style="margin-top: 2rem;">
+        <div class="music-embed">
+          <iframe src="https://www.mixcloud.com/widget/iframe/?hide_cover=1&light=1&feed=%2Fzovumezippy%2Fsummer-house-dance-mix-for-asfm%2F" allowfullscreen width="100%" height="100%"></iframe>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="genres" style="background-color: #000;">
+    <div class="container">
+      <div class="section-title">
+        <h2>Music Genres</h2>
+      </div>
+      
+      <div class="genres-grid">
+        <div class="genre-pill">House</div>
+        <div class="genre-pill">Techno</div>
+        <div class="genre-pill">Tech House</div>
+        <div class="genre-pill">RnB</div>
+        <div class="genre-pill">Hip Hop</div>
+        <div class="genre-pill">Dance</div>
+        <div class="genre-pill">Pop</div>
+        <div class="genre-pill">Trap</div>
+        <div class="genre-pill">Rap</div>
+        <div class="genre-pill">Drill</div>
+        <div class="genre-pill">Komerc</div>
+        <div class="genre-pill">Turbo Folk</div>
+        <div class="genre-pill">Kafana</div>
+        <div class="genre-pill">Domaći Trap</div>
+        <div class="genre-pill">Ex-YU</div>
+        <div class="genre-pill">90s</div>
+        <div class="genre-pill">2000s</div>
+        <div class="genre-pill">2010s</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="stats">
+    <div class="container">
+      <div class="section-title">
+        <h2>Performance Stats</h2>
+      </div>
+      
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-music"></i>
+          </div>
+          <div class="stat-number">62</div>
+          <div class="stat-text">Total Gigs</div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-map-marker-alt"></i>
+          </div>
+          <div class="stat-number">32</div>
+          <div class="stat-text">Unique Venues</div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-clock"></i>
+          </div>
+          <div class="stat-number">244+</div>
+          <div class="stat-text">Hours of Performance</div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-users"></i>
+          </div>
+          <div class="stat-number">6,732</div>
+          <div class="stat-text">People Entertained</div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="fas fa-heart"></i>
+          </div>
+          <div class="stat-number">11</div>
+          <div class="stat-text">Volunteer Shows</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="map" style="background-color: #000;">
+    <div class="container">
+      <div class="section-title">
+        <h2>Gig Map</h2>
+      </div>
+      
+      <div class="map-container">
+        <div class="map-overlay"></div>
+        <iframe class="map-embed" src="https://www.google.com/maps/d/u/0/embed?mid=1abcEXAMPLEMAPID" allowfullscreen></iframe>
+      </div>
+      
+      <p class="map-caption">*Mapa prikazuje lokacije mojih nastupa širom regiona</p>
+    </div>
+  </section>
+
+  <section id="gallery">
+    <div class="container">
+      <div class="section-title">
+        <h2>Photo Gallery</h2>
+      </div>
+      
+      <div class="gallery-grid">
+        <div class="gallery-item">
+          <img src="/api/placeholder/600/400" alt="DJ Zippy at Exit Festival" class="gallery-img" />
+          <div class="gallery-overlay">
+            <div class="gallery-caption">Exit Festival 2024</div>
+          </div>
+        </div>
+        
+        <div class="gallery-item">
+          <img src="/api/placeholder/600/400" alt="Club Gig" class="gallery-img" />
+          <div class="gallery-overlay">
+            <div class="gallery-caption">Showcase at Club XYZ</div>
+          </div>
+        </div>
+        
+        <div class="gallery-item">
+          <img src="/api/placeholder/600/400" alt="Festival Crowd" class="gallery-img" />
+          <div class="gallery-overlay">
+            <div class="gallery-caption">Summer Festival 2024</div>
+          </div>
+        </div>
+        
+        <div class="gallery-item">
+          <img src="/api/placeholder/600/400" alt="DJ Zippy Performing" class="gallery-img" />
+          <div class="gallery-overlay">
+            <div class="gallery-caption">New Year's Eve Party</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact" style="background-color: #000;">
+    <div class="container">
+      <div class="section-title">
+        <h2>Connect With Me</h2>
+      </div>
+      
+      <div style="text-align: center; max-width: 600px; margin: 0 auto;">
+        <p style="margin-bottom: 2rem; color: var(--light-gray);">Book me for your next event or follow me on social media to stay updated with my latest mixes and upcoming gigs.</p>
+        
+        <a href="https://linktr.ee/zovumezippy" target="_blank" class="btn">My Linktree</a>
+      </div>
+      
+      <div class="social-links">
+        <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+        <a href="#" class="social-link"><i class="fab fa-soundcloud"></i></a>
+        <a href="#" class="social-link"><i class="fab fa-mixcloud"></i></a>
+        <a href="#" class="social-link"><i class="fab fa-youtube"></i></a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-col">
+          <h3>About DJ Zippy</h3>
+          <p>Professional DJ with experience spanning over 60+ gigs across 32 venues, bringing energetic sets to more than 6,700 people.</p>
+        </div>
+        
+        <div class="footer-col">
+          <h3>Contact Info</h3>
+          <ul class="footer-links">
+            <li><i class="fas fa-envelope"></i> <a href="mailto:booking@djzippy.com">booking@djzippy.com</a></li>
+            <li><i class="fas fa-phone"></i> <a href="tel:+38160123456">+381 60 123 456</a></li>
+          </ul>
+        </div>
+        
+        <div class="footer-col">
+          <h3>Quick Links</h3>
+          <ul class="footer-links">
+            <li><a href="#music">Music</a></li>
             <li><a href="#stats">Stats</a></li>
             <li><a href="#gallery">Gallery</a></li>
-            <li><a href="#sets">Sets</a></li>
-            <li><a href="#genres">Genres</a></li>
-            <li><a href="#map">Map</a></li>
-            <li><a href="#contact">Book Me</a></li>
+            <li><a href="#contact">Book Now</a></li>
           </ul>
-        </nav>
-        <button className="menu-toggle">
-          <span></span>
-          <span></span>
-          <span></span>
-        </button>
-      </div>
-    </header>
-  );
-}
-
-function ListenBookSection() {
-  return (
-    <section id="listen" className="hero-section">
-      <div className="container">
-        <div className="hero-content">
-          <h1>DJ ZIPPY</h1>
-          <p>Experience the sound that moved 6,700+ people across 32 venues</p>
-          <div className="cta-buttons">
-            <a href="#sets" className="btn btn-primary">Listen Now</a>
-            <a href="#contact" className="btn btn-outline">Book Me</a>
-          </div>
         </div>
       </div>
-    </section>
-  );
-}
-
-function StatsSection() {
-  const stats = [
-    { icon: 'headphones', number: '62', text: 'Total Gigs' },
-    { icon: 'map-marker', number: '32', text: 'Unique Venues' },
-    { icon: 'clock', number: '244h', text: 'Performance Time' },
-    { icon: 'users', number: '6,732', text: 'People Entertained' },
-    { icon: 'heart', number: '11', text: 'Volunteer Gigs' }
-  ];
-
-  return (
-    <section id="stats" className="stats-section">
-      <div className="container">
-        <h2>Performance Stats</h2>
-        <div className="stats-grid">
-          {stats.map((stat, index) => (
-            <div className="stat-card" key={index}>
-              <i className={`fas fa-${stat.icon}`}></i>
-              <h3>{stat.number}</h3>
-              <p>{stat.text}</p>
-            </div>
-          ))}
-        </div>
+      
+      <div class="copyright">
+        &copy; 2025 DJ Zippy. All rights reserved.
       </div>
-    </section>
-  );
-}
+    </div>
+  </footer>
 
-function GallerySection() {
-  const images = [
-    { src: '/api/placeholder/600/400', alt: 'DJ Zippy at Exit Festival', caption: 'Exit Festival 2024' },
-    { src: '/api/placeholder/600/400', alt: 'Club Performance', caption: 'Techno Night' },
-    { src: '/api/placeholder/600/400', alt: 'Festival Crowd', caption: 'Summer Festival' },
-    { src: '/api/placeholder/600/400', alt: 'DJ Booth', caption: 'Club XYZ' }
-  ];
-
-  return (
-    <section id="gallery" className="gallery-section">
-      <div className="container">
-        <h2>Gallery</h2>
-        <div className="gallery-grid">
-          {images.map((image, index) => (
-            <div className="gallery-item" key={index}>
-              <img src={image.src} alt={image.alt} />
-              <div className="overlay">
-                <p>{image.caption}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function FeaturedSetsSection() {
-  const sets = [
-    'https://www.youtube.com/embed/pbT603mKdsc',
-    'https://www.youtube.com/embed/c39a4eCIKYs',
-    'https://www.youtube.com/embed/K0G4l0Nun5M',
-    'https://www.mixcloud.com/widget/iframe/?hide_cover=1&light=1&feed=%2Fzovumezippy%2Fsummer-house-dance-mix-for-asfm%2F'
-  ];
-
-  return (
-    <section id="sets" className="sets-section">
-      <div className="container">
-        <h2>Featured Sets</h2>
-        <div className="sets-grid">
-          {sets.map((src, index) => (
-            <div className="set-item" key={index}>
-              <iframe src={src} allowFullScreen title={`DJ Set ${index + 1}`}></iframe>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function GenresSection() {
-  const genres = [
-    'House', 'Techno', 'Tech House', 'RnB', 'HipHop', 
-    'Dance', 'Pop', 'Trap', 'Rap', 'Drill', 
-    'Komerc', 'Turbo Folk', 'Kafana', 'Domaći Trap', 
-    'Ex-YU', '90s', '2000s', '2010s'
-  ];
-
-  return (
-    <section id="genres" className="genres-section">
-      <div className="container">
-        <h2>Genres</h2>
-        <div className="genres-grid">
-          {genres.map((genre, index) => (
-            <div className="genre-pill" key={index}>
-              {genre}
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function GigMapSection() {
-  return (
-    <section id="map" className="map-section">
-      <div className="container">
-        <h2>Gig Map</h2>
-        <div className="map-container">
-          <iframe 
-            src="https://www.google.com/maps/d/u/0/embed?mid=1abcEXAMPLEMAPID" 
-            title="DJ Zippy Gig Map"
-            allowFullScreen
-          ></iframe>
-        </div>
-        <p className="map-note">*Mapa prikazuje lokacije nastupa</p>
-      </div>
-    </section>
-  );
-}
-
-function ContactSection() {
-  return (
-    <section id="contact" className="contact-section">
-      <div className="container">
-        <h2>Connect With Me & Book</h2>
-        <div className="contact-content">
-          <p>Ready to elevate your event with energetic beats?</p>
-          <a href="https://linktr.ee/zovumezippy" className="btn btn-primary" target="_blank" rel="noopener noreferrer">
-            My Linktree
-          </a>
-          <div className="social-links">
-            <a href="#" aria-label="Facebook"><i className="fab fa-facebook-f"></i></a>
-            <a href="#" aria-label="Instagram"><i className="fab fa-instagram"></i></a>
-            <a href="#" aria-label="SoundCloud"><i className="fab fa-soundcloud"></i></a>
-            <a href="#" aria-label="YouTube"><i className="fab fa-youtube"></i></a>
-          </div>
-          <div className="contact-info">
-            <p><i className="fas fa-envelope"></i> booking@djzippy.com</p>
-            <p><i className="fas fa-phone"></i> +381 60 123 456</p>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function Footer() {
-  return (
-    <footer className="footer">
-      <div className="container">
-        <p>&copy; 2025 DJ Zippy. All rights reserved.</p>
-      </div>
-    </footer>
-  );
-}
-
-ReactDOM.render(<App />, document.getElementById('root'));
+  <script>
+    // Navigation scroll effect
+    window.addEventListener('scroll', function() {
+      const navbar = document.getElementById('navbar');
+      if (window.scrollY > 50) {
+        navbar.classList.add('nav-scrolled');
+      } else {
+        navbar.classList.remove('nav-scrolled');
+      }
+    });
+    
+    // Mobile menu toggle
+    const hamburger = document.getElementById('hamburger');
+    const navLinks = document.getElementById('navLinks');
+    
+    hamburger.addEventListener('click', function() {
+      hamburger.classList.toggle('active');
+      navLinks.classList.toggle('active');
+    });
+    
+    // Close mobile menu when clicking a link
+    const links = document.querySelectorAll('.nav-links a');
+    links.forEach(link => {
+      link.addEventListener('click', function() {
+        hamburger.classList.remove('active');
+        navLinks.classList.remove('active');
+      });
+    });
+    
+    // Smooth scrolling and fix for buttons on homepage
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        const targetId = this.getAttribute('href');
+        if (targetId === '#') return;
+        
+        const targetElement = document.querySelector(targetId);
+        if (targetElement) {
+          window.scrollTo({
+            top: targetElement.offsetTop - 80,
+            behavior: 'smooth'
+          });
+        }
+      });
+    });
+  </script>
+</body>
+</html>
+</antArtif
