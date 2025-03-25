@@ -17,6 +17,15 @@ lightboxOverlay.addEventListener('click', () => {
     lightboxOverlay.classList.remove('active');
 });
 
+// Lazy load images in the gallery
+const galleryImages = document.querySelectorAll('.gallery-img');
+galleryImages.forEach((img) => {
+    img.setAttribute('loading', 'lazy');
+    img.addEventListener('load', () => {
+        img.classList.add('loaded');
+    });
+});
+
 // Navigation scroll effect
 window.addEventListener("scroll", function () {
   const navbar = document.getElementById("navbar");
@@ -62,3 +71,4 @@ document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
     }
   });
 });
+

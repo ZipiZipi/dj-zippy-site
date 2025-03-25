@@ -498,9 +498,8 @@ footer {
 @keyframes fadeIn {
     from {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateY(10px);
     }
-
     to {
         opacity: 1;
         transform: translateY(0);
@@ -509,6 +508,16 @@ footer {
 
 .fade-in {
     animation: fadeIn 1s ease forwards;
+}
+
+/* Lazy loading styles for images */
+img[loading="lazy"] {
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+img[loading="lazy"].loaded {
+    opacity: 1;
 }
 
 /* Media Queries */
@@ -602,6 +611,7 @@ footer {
         font-size: 2rem;
     }
 }
+
 /* Lightbox Styles */
 .lightbox-overlay {
     position: fixed;
@@ -632,7 +642,147 @@ footer {
     from {
         opacity: 0;
     }
+
     to {
         opacity: 1;
+    }
+}
+
+.vinyl-container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 300px;
+    width: 300px;
+    margin: 0 auto;
+}
+
+.vinyl {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: url('images/vinyl.png') no-repeat center center;
+    background-size: cover;
+    border-radius: 50%;
+    animation: spin 10s linear infinite;
+}
+
+.centered-text {
+    position: absolute;
+    color: white;
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-align: center;
+    z-index: 1;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (max-width: 768px) {
+    .vinyl-container {
+        height: 200px;
+        width: 200px;
+    }
+
+    .centered-text {
+        font-size: 1rem;
+    }
+}
+
+.vinyl-small {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    background: url('images/vinyl.png') no-repeat center center;
+    background-size: cover;
+    border-radius: 50%;
+    animation: spin 10s linear infinite;
+    z-index: -1;
+}
+
+.nav-logo {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: white;
+    text-align: center;
+}
+
+.nav-logo-text {
+    position: relative;
+    z-index: 1;
+    font-family: 'Pacifico', cursive;
+}
+
+.vinyl-container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 300px;
+    width: 300px;
+    margin: 0 auto;
+}
+
+.vinyl {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: url('images/vinyl.png') no-repeat center center;
+    background-size: cover;
+    border-radius: 50%;
+    animation: spin 10s linear infinite;
+}
+
+.centered-text {
+    position: absolute;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    z-index: 1;
+}
+
+.logo {
+    font-size: 8rem;
+    text-align: bottom;
+    font-family: 'Pacifico', cursive;
+    /* Increased font size for the logo */
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (max-width: 768px) {
+    .vinyl-container {
+        height: 200px;
+        width: 200px;
+    }
+
+    .centered-text {
+        font-size: 1rem;
+    }
+
+    .logo {
+        font-size: 2.5rem;
+        /* Adjusted font size for smaller screens */
     }
 }
