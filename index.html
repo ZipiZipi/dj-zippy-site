@@ -2,7 +2,6 @@
 <html lang="en" class="scroll-smooth">
 
 <head>
-    <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=AW-975400552"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -11,7 +10,6 @@
 
         gtag('config', 'AW-975400552');
     </script>
-    <!-- Google Tag Manager -->
     <script>(function (w, d, s, l, i) {
             w[l] = w[l] || []; w[l].push({
                 'gtm.start':
@@ -20,8 +18,6 @@
                 j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
                     'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
         })(window, document, 'script', 'dataLayer', 'GTM-KLGKHMGM');</script>
-    <!-- End Google Tag Manager -->
-    <!-- Event snippet for Page view conversion page -->
     <script>
         gtag('event', 'conversion', {
             'send_to': 'AW-975400552/SSyaCLDFqqMbEOjcjdED',
@@ -35,7 +31,12 @@
     <meta name="description"
         content="Official website of Zippy (DJ Zippy). House Music Therapy creator from Belgrade, Serbia. Curator, selector, and vibe architect. Book now for events.">
     <link rel="canonical" href="https://www.zippydj.com/" />
-    <link rel="icon" href="images/zippy-icon">
+<link rel="icon" type="image/png" href="/images/favicon-96x96.png" sizes="96x96" />
+<link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
+<link rel="shortcut icon" href="/images/favicon.ico" />
+<link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png" />
+<meta name="apple-mobile-web-app-title" content="Zippy" />
+<link rel="manifest" href="/images/site.webmanifest" />
 
     <script type="application/ld+json">
     {
@@ -68,122 +69,29 @@
     }
     </script>
 
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Inter:wght@300;400;600&display=swap"
         rel="stylesheet">
 
-    <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            orange: '#FF5500', // High energy orange
-                            black: '#050505',
-                            dark: '#0A0A0A',
-                            gray: '#1F1F1F'
-                        }
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        display: ['Unbounded', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
-
-    <style>
-        /* Custom Utilities */
-        body {
-            background-color: #050505;
-            color: #ffffff;
-        }
-
-        .chart-container {
-            position: relative;
-            width: 100%;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-            height: 300px;
-            max-height: 400px;
-        }
-
-        .glass-panel {
-            background: rgba(30, 30, 30, 0.4);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 85, 0, 0.1);
-        }
-
-        .nav-link {
-            position: relative;
-        }
-
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 2px;
-            bottom: -4px;
-            left: 0;
-            background-color: #FF5500;
-            transition: width 0.3s;
-        }
-
-        .nav-link:hover::after {
-            width: 100%;
-        }
-
-        /* Glitch effect for H1 */
-        .glitch-text:hover {
-            text-shadow: 2px 0 #FF5500, -2px 0 #00E5FF;
-        }
-    </style>
-
-    <!-- Chosen Palette: Dark Mode Industrial (Black/Dark Gray) with High-Energy Orange accents (#FF5500) to represent the House/Techno atmosphere. -->
-
-    <!-- Application Structure Plan: 
-         1. **Hero Section (First Impression):** Immediate establishment of identity ("House Music Therapy") and visual vibe. Clear CTA for booking.
-         2. **The Selector (About):** Highlighting the "Selector" USP over production. Defining the philosophy.
-         3. **Credibility & Trust (Partners):** Highlighting "Kult Talents" and "Go2 Travel" to prove reliability and industry vetting.
-         4. **The Sound (Media):** Spotify and Mixcloud integration. Separation of "Therapy" (House) and "Versatility" (Travel/Techno).
-         5. **Tour Dates (Schedule):** Highlighting the specific requested gigs (Club Kult, Charlie Bar).
-         6. **Connect (Footer):** RA.co link, Socials, Booking Form. 
-    -->
-
-    <!-- Visualization & Content Choices: 
-         - **Doughnut Chart:** To show genre distribution (House dominant, Techno secondary). Goal: Inform booker of musical range.
-         - **Radar Chart:** To show "DJ Attributes" (Reliability, Crowd Reading, Energy, Selection). Goal: Visualize soft skills that matter to club owners.
-         - **Cards:** For Gigs and Partners. Goal: Clean organization of text-heavy reliability proofs.
-         - **Interactive Player Mockups:** Since we can't embed real heavy iframes easily in a template, we use styled buttons that link out, ensuring fast load times.
-    -->
-
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body class="overflow-x-hidden selection:bg-brand-orange selection:text-white">
 
-    <!-- Navigation -->
     <nav class="fixed top-0 w-full z-50 bg-brand-black/90 backdrop-blur-md border-b border-white/5">
         <div class="container mx-auto px-6 sm:px-8 lg:px-12 py-4 flex justify-between items-center">
             <a href="https://www.zippydj.com" class="font-display font-bold text-2xl tracking-tighter">
                 ZIPPY<span class="text-brand-orange">.</span>
             </a>
 
-            <!-- Desktop Menu -->
             <div class="hidden md:flex space-x-8 text-sm font-semibold tracking-wide uppercase text-gray-300">
                 <a href="#about" class="nav-link hover:text-white transition-colors">The Selector</a>
                 <a href="#music" class="nav-link hover:text-white transition-colors">Music</a>
@@ -191,13 +99,11 @@
                 <a href="#contact" class="text-brand-orange hover:text-white transition-colors">Book Now</a>
             </div>
 
-            <!-- Mobile Button -->
             <button id="mobile-menu-btn" class="md:hidden text-white focus:outline-none">
                 <i class="fa-solid fa-bars text-xl"></i>
             </button>
         </div>
 
-        <!-- Mobile Menu -->
         <div id="mobile-menu"
             class="hidden md:hidden bg-brand-dark border-t border-white/10 p-4 sm:p-6 flex flex-col space-y-4">
             <a href="#about" class="text-gray-300 hover:text-brand-orange">The Selector</a>
@@ -207,9 +113,7 @@
         </div>
     </nav>
 
-    <!-- Hero Section -->
     <section class="min-h-screen flex items-center justify-center relative bg-brand-black pt-16 sm:pt-20">
-        <!-- Abstract Background Glow -->
         <div
             class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] bg-brand-orange/10 blur-[120px] rounded-full pointer-events-none">
         </div>
@@ -238,10 +142,8 @@
                 </a>
             </div>
 
-            <!-- Social Proof Strip -->
             <div
                 class="mt-20 flex justify-center items-center gap-4 sm:gap-8 md:gap-16 opacity-50 grayscale hover:grayscale-0 transition-all duration-500 flex-wrap">
-                <!-- Using Text/Icon representations for partners as placeholders for logos -->
                 <div class="flex items-center gap-2" title="Kult Talents Member">
                     <i class="fa-solid fa-star text-xl"></i>
                     <span class="font-display font-bold text-lg sm:text-xl">KULT TALENTS</span>
@@ -258,7 +160,6 @@
         </div>
     </section>
 
-    <!-- About Section: The Selector -->
     <section id="about" class="py-16 sm:py-24 bg-brand-dark border-t border-white/5">
         <div class="container mx-auto px-6 sm:px-8 lg:px-12">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
@@ -299,11 +200,13 @@
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div class="p-6 glass-panel rounded-lg border-l-4 border-brand-orange">
                                         <h4 class="text-xl font-bold text-white mb-2">KULT TALENTS</h4>
-                                        <p class="text-sm">Platform for those who dare to experiment, learn, and evolve — the artists who will soon define tomorrow’s sound.</p>
+                                        <p class="text-sm">Platform for those who dare to experiment, learn, and evolve
+                                            — the artists who will soon define tomorrow’s sound.</p>
                                     </div>
                                     <div class="p-6 glass-panel rounded-lg border-l-4 border-brand-orange">
                                         <h4 class="text-xl font-bold text-white mb-2">IZUVANJE</h4>
-                                        <p class="text-sm">Non-EDM party concept blending all kinds of genres and generations operating since 2022.</p>
+                                        <p class="text-sm">Non-EDM party concept blending all kinds of genres and
+                                            generations operating since 2022.</p>
                                     </div>
                                 </div>
                             </div>
@@ -314,7 +217,6 @@
         </div>
     </section>
 
-    <!-- Music Section -->
     <section id="music" class="py-16 sm:py-24 bg-brand-dark border-t border-white/5 relative overflow-hidden">
         <div class="container mx-auto px-6 sm:px-8 lg:px-12 relative z-10">
             <div class="text-center md:flex md:justify-between md:items-end mb-12">
@@ -333,10 +235,8 @@
                 </div>
             </div>
 
-            <!-- Content Grid (Dynamic JS Filter target) -->
             <div id="music-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- Content injected via JS -->
-            </div>
+                </div>
 
             <div class="mt-12 text-center">
                 <a id="platform-link" href="https://www.youtube.com/" target="_blank"
@@ -347,14 +247,12 @@
         </div>
     </section>
 
-    <!-- Dates / Schedule -->
     <section id="dates" class="py-8 sm:py-16 bg-brand-black">
         <div class="container mx-auto px-6 sm:px-8 lg:px-12">
             <h2 class="font-display text-3xl md:text-4xl font-bold mb-8 text-center">Upcoming <span
                     class="text-brand-orange">Therapy</span></h2>
 
             <div class="space-y-1 flex flex-col items-center">
-                <!-- Gig Item 1 (Upcoming - RayBar) -->
                 <div class="w-full">
                     <div
                         class="flex flex-col md:flex-row items-center bg-brand-gray p-2 rounded-lg border-l-4 border-brand-orange hover:bg-white/5 transition-colors">
@@ -375,7 +273,6 @@
                     </div>
                 </div>
 
-                <!-- Gig Item 2 (Upcoming - Charlie Bar) -->
                 <div class="w-full">
                     <div
                         class="flex flex-col md:flex-row items-center bg-brand-gray p-2 rounded-lg border-l-4 border-brand-orange hover:bg-white/5 transition-colors">
@@ -397,7 +294,6 @@
                     </div>
                 </div>
 
-                <!-- Gig Item 3 (Past - Kult) -->
                 <div class="w-full opacity-60">
                     <div
                         class="flex flex-col md:flex-row items-center bg-brand-gray p-2 rounded-lg border-l-4 border-white hover:border-brand-orange hover:bg-white/5 transition-all">
@@ -418,7 +314,6 @@
                     </div>
                 </div>
 
-                <!-- Gig Item 4 (Past - Dance Arena) -->
                 <div class="w-full opacity-60">
                     <div
                         class="flex flex-col md:flex-row items-center bg-brand-gray p-2 rounded-lg border-l-4 border-white hover:border-brand-orange hover:bg-white/5 transition-all">
@@ -434,7 +329,7 @@
                             <span class="text-gray-400 text-xs md:text-sm">13/07/2025 | 21:00 - 23:00</span>
                         </div>
                         <div class="md:w-1/4 flex justify-center md:justify-end flex-shrink-0">
-                            <a href="https://www.instagram.com/p/DMDrGdzoEca/?hl=en&amp;img_index=2"
+                            <a href="https://www.instagram.com/p/DMDrGdzoEca/?hl=en&img_index=2"
                                 class="px-3 md:px-4 py-2 bg-transparent border border-white/30 text-white text-xs md:text-sm font-bold uppercase hover:border-brand-orange hover:text-brand-orange transition-colors">Info</a>
                         </div>
                     </div>
@@ -443,11 +338,9 @@
         </div>
     </section>
 
-    <!-- Footer / Contact -->
     <footer id="contact" class="bg-brand-dark pt-16 sm:pt-20 pb-10 border-t border-white/10">
         <div class="container mx-auto px-6 sm:px-8 lg:px-12">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-16">
-                <!-- Contact Info -->
                 <div>
                     <h2 class="font-display text-4xl font-bold mb-6">Let's <span
                             class="text-brand-orange">Connect</span></h2>
@@ -487,7 +380,6 @@
                     </div>
                 </div>
 
-                <!-- Simple Form -->
                 <form class="space-y-4">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <input type="text" placeholder="Name"
@@ -507,241 +399,12 @@
             </div>
 
             <div class="mt-20 pt-8 border-t border-white/5 text-center text-gray-600 text-sm">
-                &copy; 2024 DJ Zippy. All Rights Reserved. House Music Therapy.
+                © 2024 DJ Zippy. All Rights Reserved. House Music Therapy.
             </div>
         </div>
     </footer>
 
-    <!-- JavaScript Logic -->
-    <script>
-        // Data Store
-        const appData = {
-            mixes: [
-                {
-                    title: "House Music Therapy / #LetsMixIt Contest",
-                    genre: "House / Tech House",
-                    desc: "High-energy rooftop set recorded in Novi Sad for the #LetsMixIt competition.",
-                    icon: "fa-solid fa-play",
-                    link: "https://www.youtube.com/watch?v=IzkAZcbyCSI",
-                    thumbnail: "https://img.youtube.com/vi/IzkAZcbyCSI/maxresdefault.jpg",
-                    alt: "Zippy's Let's Mix It Submission - House and Tech House mix",
-                    featured: true
-                },
-                {
-                    title: "House Music Therapy / Deep & Tech Grooves",
-                    genre: "Deep House / Tech House",
-                    desc: "A curated mix blending deep basslines with rhythmic tech house elements.",
-                    icon: "fa-solid fa-play",
-                    link: "https://www.youtube.com/watch?v=c1M_dMg_CcU",
-                    thumbnail: "https://img.youtube.com/vi/c1M_dMg_CcU/maxresdefault.jpg",
-                    alt: "Zippy's House Therapy Session - Deep House mix",
-                    featured: false
-                },
-                {
-                    title: "EXIT 2024 | AS FM Stage Live",
-                    genre: "Tech House",
-                    desc: "Full live performance recording from the AS FM stage at Exit Festival 2024.",
-                    icon: "fa-solid fa-play",
-                    link: "https://www.youtube.com/watch?v=pbT603mKdsc",
-                    thumbnail: "https://img.youtube.com/vi/pbT603mKdsc/maxresdefault.jpg",
-                    alt: "Zippy's Deep House Vibes - House music selection",
-                    featured: false
-                },
-                {
-                    title: "EXIT 2024 | AS FM Stage Full Show",
-                    genre: "Tech House",
-                    desc: "The complete high-energy audio recording from the Exit Festival performance.",
-                    icon: "fa-brands fa-mixcloud",
-                    link: "https://www.mixcloud.com/zovumezippy/exit-2024-zippy-live-at-as-fm-stage-full-show/",
-                    thumbnail: "",
-                    alt: "Zippy's House Music Therapy Vol. 12 - MixCloud set",
-                    featured: false
-                },
-                {
-                    title: "House Music Therapy / Deep & Tech Grooves",
-                    genre: "Deep Tech",
-                    desc: "Studio mix focused on sophisticated, deeper layers of house music.",
-                    icon: "fa-brands fa-mixcloud",
-                    link: "https://www.mixcloud.com/zovumezippy/house-music-therapy-with-dj-zippy-deep-and-tech-grooves/",
-                    thumbnail: "",
-                    alt: "Zippy's Club Kult Warmup - MixCloud set",
-                    featured: false
-                },
-                {
-                    title: "House Music Therapy / Live from Singing Forest",
-                    genre: "House / Organic House",
-                    desc: "Live set recorded in nature, blending house rhythms with an open-air vibe.",
-                    icon: "fa-brands fa-mixcloud",
-                    link: "https://www.mixcloud.com/zovumezippy/house-music-therapy-with-dj-zippy-live-from-singing-forest/",
-                    thumbnail: "",
-                    alt: "Zippy's Live from Singing Forest - MixCloud set",
-                    featured: false
-                }
-            ],
-            playlists: [
-                {
-                    title: "Selector's Choice: House",
-                    genre: "Spotify Playlist",
-                    desc: "Tracks that never leave my USB.",
-                    icon: "fa-brands fa-spotify",
-                    link: "https://open.spotify.com/playlist/1760y5mR1hdF7PdnAErYRA",
-                    thumbnail: "",
-                    alt: "Zippy's Selector Choice House - Spotify playlist"
-                },
-                {
-                    title: "Afterhours Techno",
-                    genre: "Spotify Playlist",
-                    desc: "When the lights go down and the mood gets darker.",
-                    icon: "fa-brands fa-spotify",
-                    link: "https://open.spotify.com/playlist/17bauJGzLkXVRa89n3WEF0",
-                    thumbnail: "",
-                    alt: "Zippy's Afterhours Techno - Spotify playlist"
-                },
-                {
-                    title: "Tech House Essentials",
-                    genre: "Spotify Playlist",
-                    desc: "Driving beats and underground selections.",
-                    icon: "fa-brands fa-spotify",
-                    link: "https://open.spotify.com/playlist/04y1SsxxufHRI92QPbrIo3",
-                    thumbnail: "",
-                    alt: "Zippy's Tech House Essentials - Spotify playlist"
-                }
-            ]
-        };
-
-        // DOM Elements
-        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-        const mobileMenu = document.getElementById('mobile-menu');
-        const musicGrid = document.getElementById('music-grid');
-        const btnYoutube = document.getElementById('filter-youtube');
-        const btnMixcloud = document.getElementById('filter-mixcloud');
-        const btnSpotify = document.getElementById('filter-spotify');
-        const platformLink = document.getElementById('platform-link');
-
-        // State
-        let currentFilter = 'youtube';
-
-        // --- Platform Link Update ---
-        function updatePlatformLink(platform) {
-            let url, icon, text;
-            if (platform === 'youtube') {
-                url = 'https://www.youtube.com/@zovumezippy/';
-                icon = 'fa-brands fa-youtube';
-                text = 'View full profile on YouTube';
-            } else if (platform === 'mixcloud') {
-                url = 'https://www.mixcloud.com/zovumezippy/';
-                icon = 'fa-brands fa-mixcloud';
-                text = 'View full profile on MixCloud';
-            } else if (platform === 'spotify') {
-                url = 'https://open.spotify.com/user/31aj2g4yokqhpoxwkpo5odxegsle';
-                icon = 'fa-brands fa-spotify';
-                text = 'View full profile on Spotify';
-            }
-            platformLink.href = url;
-            platformLink.innerHTML = `<i class="${icon}"></i> ${text}`;
-        }
-
-        // --- Navigation Logic ---
-        mobileMenuBtn.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-        });
-
-        document.querySelectorAll('.nav-link, #mobile-menu a').forEach(link => {
-            link.addEventListener('click', () => {
-                mobileMenu.classList.add('hidden');
-            });
-        });
-
-        // --- Content Rendering ---
-        function renderMusic(type) {
-            musicGrid.innerHTML = '';
-            let data;
-            if (type === 'youtube') {
-                data = appData.mixes.filter(item => item.icon === 'fa-solid fa-play');
-            } else if (type === 'mixcloud') {
-                data = appData.mixes.filter(item => item.icon === 'fa-brands fa-mixcloud');
-            } else if (type === 'spotify') {
-                data = appData.playlists;
-            } else {
-                data = appData.mixes; // fallback
-            }
-
-            data.forEach((item, index) => {
-                const card = document.createElement('div');
-                card.className = 'group bg-brand-gray border border-white/5 p-0 overflow-hidden relative rounded-xl hover:border-brand-orange/50 transition-all duration-300 animate-fade-in';
-                // Add slight delay for cascade effect
-                card.style.animationDelay = `${index * 100}ms`;
-
-                const featuredBadge = item.featured ?
-                    `<div class="absolute top-4 right-4 bg-brand-orange text-white text-xs font-bold px-2 py-1 rounded z-20">FEATURED</div>` : '';
-
-                card.innerHTML = `
-                    <div class="h-48 bg-gradient-to-br from-gray-800 to-black relative flex items-center justify-center overflow-hidden">
-                         ${item.thumbnail ? `<img src="${item.thumbnail}" alt="${item.alt}" class="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:scale-110 transition-transform duration-700">` : ''}
-                         <div class="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-colors"></div>
-                         <div class="w-16 h-16 rounded-full border-2 border-white/50 flex items-center justify-center z-10 group-hover:bg-brand-orange group-hover:border-brand-orange transition-all cursor-pointer">
-                            <a href="${item.link}" target="_blank" class="w-full h-full flex items-center justify-center">
-                                <i class="${item.icon} text-2xl text-white"></i>
-                            </a>
-                         </div>
-                         ${featuredBadge}
-                    </div>
-                    <div class="p-6">
-                        <div class="text-xs text-brand-orange font-bold uppercase mb-2">${item.genre}</div>
-                        <h3 class="text-xl font-bold text-white mb-2 leading-tight">${item.title}</h3>
-                        <p class="text-gray-400 text-sm mb-4">${item.desc}</p>
-                        <a href="${item.link}" class="inline-block text-sm font-bold border-b border-white/20 pb-1 hover:text-brand-orange hover:border-brand-orange transition-colors">LISTEN NOW</a>
-                    </div>
-                `;
-                musicGrid.appendChild(card);
-            });
-        }
-
-        // --- Event Listeners for Filter ---
-        btnYoutube.addEventListener('click', () => {
-            currentFilter = 'youtube';
-            btnYoutube.classList.add('text-white', 'border-brand-orange');
-            btnYoutube.classList.remove('text-gray-500', 'border-transparent');
-            btnMixcloud.classList.remove('text-white', 'border-brand-orange');
-            btnMixcloud.classList.add('text-gray-500', 'border-transparent');
-            btnSpotify.classList.remove('text-white', 'border-brand-orange');
-            btnSpotify.classList.add('text-gray-500', 'border-transparent');
-            renderMusic('youtube');
-            updatePlatformLink('youtube');
-        });
-
-        btnMixcloud.addEventListener('click', () => {
-            currentFilter = 'mixcloud';
-            btnMixcloud.classList.add('text-white', 'border-brand-orange');
-            btnMixcloud.classList.remove('text-gray-500', 'border-transparent');
-            btnYoutube.classList.remove('text-white', 'border-brand-orange');
-            btnYoutube.classList.add('text-gray-500', 'border-transparent');
-            btnSpotify.classList.remove('text-white', 'border-brand-orange');
-            btnSpotify.classList.add('text-gray-500', 'border-transparent');
-            renderMusic('mixcloud');
-            updatePlatformLink('mixcloud');
-        });
-
-        btnSpotify.addEventListener('click', () => {
-            currentFilter = 'spotify';
-            btnSpotify.classList.add('text-white', 'border-brand-orange');
-            btnSpotify.classList.remove('text-gray-500', 'border-transparent');
-            btnYoutube.classList.remove('text-white', 'border-brand-orange');
-            btnYoutube.classList.add('text-gray-500', 'border-transparent');
-            btnMixcloud.classList.remove('text-white', 'border-brand-orange');
-            btnMixcloud.classList.add('text-gray-500', 'border-transparent');
-            renderMusic('spotify');
-            updatePlatformLink('spotify');
-        });
-
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            renderMusic('youtube');
-            updatePlatformLink('youtube');
-            initCharts();
-        });
-
-    </script>
+    <script src="script.js"></script>
 </body>
 
 </html>
