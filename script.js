@@ -253,8 +253,4 @@ if (btnSpotify) {
 document.addEventListener('DOMContentLoaded', () => {
     renderMusic('youtube');
     updatePlatformLink('youtube');
-    // Warning: initCharts is called here but was not defined in the source code provided.
-    if (typeof initCharts === 'function') {
-        initCharts();
-    }
 });

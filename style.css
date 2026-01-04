@@ -4,16 +4,6 @@ body {
     color: #ffffff;
 }
 
-.chart-container {
-    position: relative;
-    width: 100%;
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
-    height: 300px;
-    max-height: 400px;
-}
-
 .glass-panel {
     background: rgba(30, 30, 30, 0.4);
     backdrop-filter: blur(10px);
