@@ -17,7 +17,6 @@
 /* Go to style.css, copy everything (glitch effects, animations, glass-panel), */
 /* and paste it right here below this line. */
 /* Custom Utilities */
-@layer base{
 @layer base {
   section {
     position: relative;
@@ -50,7 +49,6 @@
     pointer-events: none;
     z-index: 20;
   }
-}
 }
 @layer components{
 body {
