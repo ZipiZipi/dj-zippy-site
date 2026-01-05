@@ -236,47 +236,49 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Contact form
-// This replaces the previous code
+// CONNECTION TEST: If you don't see this alert, your script.js is not linked correctly in HTML
+// alert("JS is linked!"); 
+
 document.addEventListener("DOMContentLoaded", () => {
-  const contactForm = document.querySelector('form[name="contact"]');
+    const form = document.getElementById('contact-form');
+    const btn = document.getElementById('submit-btn');
 
-  if (!contactForm) {
-    console.error("Form not found! Check your HTML name attribute.");
-    return;
-  }
+    if (!form) {
+        console.error("Form NOT found by ID. Check your HTML.");
+        return;
+    }
 
-  contactForm.addEventListener("submit", function(e) {
-    e.preventDefault(); // This STOPS the redirect
-    console.log("Form submission intercepted!");
+    form.addEventListener("submit", function(e) {
+        e.preventDefault(); // STOPS REDIRECT
+        
+        console.log("Submission intercepted successfully.");
+        
+        btn.disabled = true;
+        btn.innerText = "SENDING...";
 
-    const formData = new FormData(this);
-    const submitBtn = this.querySelector('button[type="submit"]');
-    
-    submitBtn.disabled = true;
-    submitBtn.innerText = "SENDING...";
+        const formData = new FormData(form);
 
-    fetch("/", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams(formData).toString(),
-    })
-    .then((response) => {
-      if (response.ok) {
-        submitBtn.innerText = "REQUEST SENT!";
-        contactForm.reset();
-      } else {
-        throw new Error("Response not ok");
-      }
-    })
-    .catch((error) => {
-      console.error(error);
-      alert("Error sending. Try again or email directly.");
-    })
-    .finally(() => {
-      setTimeout(() => {
-        submitBtn.disabled = false;
-        submitBtn.innerText = "SEND REQUEST";
-      }, 3000);
+        fetch("/", {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: new URLSearchParams(formData).toString(),
+        })
+        .then(res => {
+            if (res.ok) {
+                btn.innerText = "DONE!";
+                form.reset();
+            } else {
+                btn.innerText = "ERROR";
+            }
+        })
+        .catch(() => {
+            btn.innerText = "ERROR";
+        })
+        .finally(() => {
+            setTimeout(() => {
+                btn.disabled = false;
+                btn.innerText = "SEND REQUEST";
+            }, 3000);
+        });
     });
-  });
 });
