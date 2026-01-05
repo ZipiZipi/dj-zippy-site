@@ -236,46 +236,47 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Contact form
-const contactForm = document.querySelector('form[name="contact"]');
+// This replaces the previous code
+document.addEventListener("DOMContentLoaded", () => {
+  const contactForm = document.querySelector('form[name="contact"]');
 
-if (contactForm) {
-  contactForm.addEventListener("submit", async (e) => {
-    e.preventDefault();
+  if (!contactForm) {
+    console.error("Form not found! Check your HTML name attribute.");
+    return;
+  }
 
-    const formData = new FormData(contactForm);
-    const submitBtn = contactForm.querySelector('button[type="submit"]');
-    const originalBtnText = submitBtn.innerText;
+  contactForm.addEventListener("submit", function(e) {
+    e.preventDefault(); // This STOPS the redirect
+    console.log("Form submission intercepted!");
 
-    // Visual feedback: Loading
+    const formData = new FormData(this);
+    const submitBtn = this.querySelector('button[type="submit"]');
+    
     submitBtn.disabled = true;
     submitBtn.innerText = "SENDING...";
 
-    try {
-      const response = await fetch("/", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams(formData).toString(),
-      });
-
+    fetch("/", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams(formData).toString(),
+    })
+    .then((response) => {
       if (response.ok) {
-        // Success: Show message and reset
         submitBtn.innerText = "REQUEST SENT!";
-        submitBtn.classList.replace('bg-brand-orange', 'bg-green-600');
         contactForm.reset();
-        
-        setTimeout(() => {
-          submitBtn.innerText = originalBtnText;
-          submitBtn.disabled = false;
-          submitBtn.classList.replace('bg-green-600', 'bg-brand-orange');
-        }, 3000);
       } else {
-        throw new Error("Form submission failed");
+        throw new Error("Response not ok");
       }
-    } catch (error) {
-      // Error handling
-      alert("Something went wrong. Please email directly at veljkoned@gmail.com");
-      submitBtn.disabled = false;
-      submitBtn.innerText = originalBtnText;
-    }
+    })
+    .catch((error) => {
+      console.error(error);
+      alert("Error sending. Try again or email directly.");
+    })
+    .finally(() => {
+      setTimeout(() => {
+        submitBtn.disabled = false;
+        submitBtn.innerText = "SEND REQUEST";
+      }, 3000);
+    });
   });
-}
+});
