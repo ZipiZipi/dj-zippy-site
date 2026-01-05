@@ -328,18 +328,23 @@
                     </div>
                 </div>
 
-                <form class="space-y-4" netlify>
+                <form name="contact" method="POST" data-netlify="true" class="space-y-4">
+                    <input type="hidden" name="form-name" value="contact" />
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <input type="text" placeholder="Name"
+                        <input type="text" name="name" placeholder="Name" required
                             class="w-full bg-brand-black border border-white/10 p-4 text-white focus:border-brand-orange focus:outline-none rounded">
-                        <input type="text" placeholder="Venue/Event"
+                        <input type="text" name="venue" placeholder="Venue/Event" required
                             class="w-full bg-brand-black border border-white/10 p-4 text-white focus:border-brand-orange focus:outline-none rounded">
                     </div>
-                    <input type="email" placeholder="Email Address"
+                    
+                    <input type="email" name="email" placeholder="Email Address" required
                         class="w-full bg-brand-black border border-white/10 p-4 text-white focus:border-brand-orange focus:outline-none rounded">
-                    <textarea rows="4" placeholder="Tell me about the gig..."
+                    
+                    <textarea name="message" rows="4" placeholder="Tell me about the gig..." required
                         class="w-full bg-brand-black border border-white/10 p-4 text-white focus:border-brand-orange focus:outline-none rounded"></textarea>
-                    <button type="button"
+                    
+                    <button type="submit"
                         class="w-full bg-brand-orange text-white font-bold py-4 hover:bg-white hover:text-brand-black transition-colors uppercase tracking-widest">
                         Send Request
                     </button>
