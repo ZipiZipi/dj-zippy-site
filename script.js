@@ -1,23 +1,3 @@
-/* Tailwind Configuration */
-tailwind.config = {
-    theme: {
-        extend: {
-            colors: {
-                brand: {
-                    orange: '#FF5500', // High energy orange
-                    black: '#050505',
-                    dark: '#0A0A0A',
-                    gray: '#1F1F1F'
-                }
-            },
-            fontFamily: {
-                sans: ['Inter', 'sans-serif'],
-                display: ['Unbounded', 'sans-serif'],
-            }
-        }
-    }
-};
-
 /* Application Logic */
 
 // Data Store

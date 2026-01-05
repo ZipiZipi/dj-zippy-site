@@ -1,4 +1,23 @@
+/* 1. The Tailwind Import */
+@import "tailwindcss";
+
+/* 2. Your Configuration */
+@theme {
+  --color-brand-orange: #ff6b00;
+  --color-brand-black: #000000;
+  --color-brand-dark: #111111;
+  --color-brand-gray: #1f1f1f;
+
+  --font-display: "Unbounded", sans-serif;
+  --font-body: "Inter", sans-serif;
+}
+
+
+/* 3. PASTE YOUR CUSTOM CSS HERE */
+/* Go to style.css, copy everything (glitch effects, animations, glass-panel), */
+/* and paste it right here below this line. */
 /* Custom Utilities */
+@layer components{
 body {
     background-color: #050505;
     color: #ffffff;
@@ -32,4 +51,5 @@ body {
 /* Glitch effect for H1 */
 .glitch-text:hover {
     text-shadow: 2px 0 #FF5500, -2px 0 #00E5FF;
+}
 }
