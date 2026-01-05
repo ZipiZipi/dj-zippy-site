@@ -1,4 +1,7 @@
 User-agent: *
-Allow: /
+Disallow: /admin/
+Disallow: /api/
+Disallow: /search/
+Disallow: /*?* # Blocks messy URL parameters (optional, depends on your URL structure)
 
 Sitemap: https://www.zippydj.com/sitemap.xml
