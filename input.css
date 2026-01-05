@@ -17,6 +17,41 @@
 /* Go to style.css, copy everything (glitch effects, animations, glass-panel), */
 /* and paste it right here below this line. */
 /* Custom Utilities */
+@layer base{
+@layer base {
+  section {
+    position: relative;
+    /* Ensure the section itself doesn't hide the pseudo-elements */
+    z-index: 1; 
+  }
+
+  /* Top Fade */
+  section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 15vh; /* Increased for a smoother blend */
+    background: linear-gradient(to bottom, #000000 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 20;
+  }
+
+  /* Bottom Fade */
+  section::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 15vh;
+    background: linear-gradient(to top, #000000 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 20;
+  }
+}
+}
 @layer components{
 body {
     background-color: #050505;
