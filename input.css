@@ -3,7 +3,7 @@
 
 /* 2. Your Configuration */
 @theme {
-  --color-brand-orange: #ff6b00;
+  --color-brand-orange: #FF5500;
   --color-brand-black: #000000;
   --color-brand-dark: #111111;
   --color-brand-gray: #1f1f1f;
@@ -50,6 +50,7 @@
     z-index: 20;
   }
 }
+
 @layer components{
 body {
     background-color: #050505;
