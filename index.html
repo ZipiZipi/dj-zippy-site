@@ -17,7 +17,6 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png" />
     <meta name="apple-mobile-web-app-title" content="Zippy" />
     <link rel="manifest" href="/images/site.webmanifest" />
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
@@ -40,6 +39,7 @@
                 <a href="#about" class="nav-link hover:text-white transition-colors">The Selector</a>
                 <a href="#music" class="nav-link hover:text-white transition-colors">Music</a>
                 <a href="#dates" class="nav-link hover:text-white transition-colors">Dates</a>
+                <a href="/links.html" class="nav-link hover:text-white transition-colors">Links</a>
                 <a href="#contact" class="text-brand-orange hover:text-white transition-colors">Book Now</a>
             </div>
 
@@ -53,56 +53,57 @@
             <a href="#about" class="text-gray-300 hover:text-brand-orange">The Selector</a>
             <a href="#music" class="text-gray-300 hover:text-brand-orange">Music</a>
             <a href="#dates" class="text-gray-300 hover:text-brand-orange">Dates</a>
+            <a href="/links.html" class="text-gray-300 hover:text-brand-orange">Links</a>
             <a href="#contact" class="text-brand-orange font-bold">Book Now</a>
         </div>
     </nav>
 
-    <section isolate relative class="min-h-screen flex items-center justify-center relative bg-brand-black pt-16 sm:pt-20">
-        <div
-            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] bg-brand-orange/10 blur-[120px] rounded-full pointer-events-none">
-        </div>
+    <section class="isolate relative min-h-screen flex flex-col items-center justify-center bg-brand-black pt-16 sm:pt-20 overflow-hidden">
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] bg-brand-orange/10 blur-[120px] rounded-full pointer-events-none">
+    </div>
 
-        <div class="container mx-auto px-6 sm:px-8 lg:px-12 text-center z-10">
-            <p
-                class="text-brand-orange font-bold tracking-[0.3em] text-sm md:text-base mb-4 uppercase animate-fade-in-up">
-                Welcome to the session</p>
-            <h1
-                class="font-display text-5xl md:text-7xl lg:text-9xl font-black mb-6 leading-tight glitch-text cursor-default">
-                HOUSE<br>MUSIC<br><span
-                    class="text-transparent bg-clip-text bg-gradient-to-r from-brand-orange to-white">THERAPY</span>
-            </h1>
-            <p class="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto mb-10 font-light">
-                DJ Zippy curating frequencies, not just tracks. A selector dedicated to the groove, the vibe, and the
-                journey.
-            </p>
-            <div class="flex flex-col md:flex-row justify-center gap-4">
-                <a href="#music"
-                    class="px-8 py-4 bg-white text-black font-bold uppercase tracking-wider hover:bg-brand-orange hover:text-white transition-all duration-300">
-                    Listen to Mixes
-                </a>
-                <a href="#contact"
-                    class="px-8 py-4 border border-white/20 hover:border-brand-orange hover:text-brand-orange transition-all duration-300 uppercase tracking-wider font-bold">
-                    Contact for Booking
-                </a>
-            </div>
+    <div class="container mx-auto px-6 sm:px-8 lg:px-12 text-center z-10">
+        <p class="text-brand-orange font-bold tracking-[0.3em] text-sm md:text-base mb-4 uppercase animate-fade-in-up">
+            Welcome to the session
+        </p>
 
-            <div
-                class="mt-20 flex justify-center items-center gap-4 sm:gap-8 md:gap-16 opacity-50 grayscale hover:grayscale-0 transition-all duration-500 flex-wrap">
-                <div class="flex items-center gap-2" title="Kult Talents Member">
-                    <i class="fa-solid fa-star text-xl"></i>
-                    <span class="font-display font-bold text-lg sm:text-xl">KULT TALENTS</span>
-                </div>
-                <div class="flex items-center gap-2" title="Trusted by Go2 Travel">
-                    <i class="fa-solid fa-plane text-xl"></i>
-                    <span class="font-display font-bold text-lg sm:text-xl">GO2 TRAVEL</span>
-                </div>
-                <div class="flex items-center gap-2" title="Resident Advisor">
-                    <span class="font-display font-bold text-lg sm:text-xl bg-white text-black px-1">RA</span>
-                    <span class="font-display font-bold text-lg sm:text-xl">RESIDENT ADVISOR</span>
-                </div>
-            </div>
+        <h1 class="font-display text-5xl md:text-7xl lg:text-9xl font-black leading-none glitch-text cursor-default mb-0 md:mb-2">
+            ZIPPY
+        </h1>
+
+        <h2 class="font-display text-2xl md:text-4xl lg:text-6xl font-black mb-6 text-transparent bg-clip-text bg-gradient-to-r from-brand-orange to-white tracking-tight">
+            HOUSE MUSIC THERAPY
+        </h2>
+
+        <p class="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto mb-10 font-light">
+            DJ Zippy curating frequencies, not just tracks. A selector dedicated to the groove, the vibe, and the journey.
+        </p>
+
+        <div class="flex flex-col md:flex-row justify-center gap-4">
+            <a href="#music" class="px-8 py-4 bg-white text-black font-bold uppercase tracking-wider hover:bg-brand-orange hover:text-white transition-all duration-300">
+                Listen to Mixes
+            </a>
+            <a href="#contact" class="px-8 py-4 border border-white/20 hover:border-brand-orange hover:text-brand-orange transition-all duration-300 uppercase tracking-wider font-bold">
+                Contact for Booking
+            </a>
         </div>
-    </section>
+    </div>
+
+    <div class="mt-12 md:mt-20 flex justify-center items-center gap-6 sm:gap-8 md:gap-16 opacity-50 grayscale hover:grayscale-0 transition-all duration-500 flex-wrap z-10 px-4">
+        <div class="flex items-center gap-2" title="Kult Talents Member">
+            <i class="fa-solid fa-star text-xl"></i>
+            <span class="font-display font-bold text-lg sm:text-xl">KULT TALENTS</span>
+        </div>
+        <div class="flex items-center gap-2" title="Trusted by Go2 Travel">
+            <i class="fa-solid fa-plane text-xl"></i>
+            <span class="font-display font-bold text-lg sm:text-xl">GO2 TRAVEL</span>
+        </div>
+        <div class="flex items-center gap-2" title="Resident Advisor">
+            <span class="font-display font-bold text-lg sm:text-xl bg-white text-black px-1">RA</span>
+            <span class="font-display font-bold text-lg sm:text-xl">RESIDENT ADVISOR</span>
+        </div>
+    </div>
+</section>
 
     <section isolate relative id="about" class="py-16 sm:py-24 bg-brand-black border-t border-white/5">
         <div class="container mx-auto px-6 sm:px-8 lg:px-12">
@@ -122,23 +123,21 @@
                                 class="text-brand-orange">Selector.</span></h2>
 
                         <div class="space-y-6 text-gray-400 font-light leading-relaxed">
+                             <p>
+                                His brand, <span class="text-white font-semibold">House Music Therapy</span>, is built on the belief that the right
+                                groove can heal. While his foundation is strictly <span class="text-white font-semibold">House</span>, Zippy adapts to the energy of the
+                                night, shifting into <span class="text-white font-semibold">Techno</span> when the atmosphere demands darker, driving rhythms.
+                            </p>
                             <p>
                                 In an era dominated by production credits, the art of selection is the true therapy. DJ
-                                Zippy specializes in reading the room, bridging the gap between the DJ booth and the
+                                Zippy specializes in <strong>reading the room</strong>, bridging the gap between the DJ booth and the
                                 dancefloor.
                             </p>
                             <p>
-                                His brand, <strong>House Music Therapy</strong>, is built on the belief that the right
-                                groove can heal. While his foundation is strictly House, he adapts to the energy of the
-                                night, shifting into Techno when the atmosphere demands darker, driving rhythms.
-                            </p>
-                            <p>
-                                <span class="text-white font-semibold">Reliability is key.</span> Through his
+                                <strong>Reliability is key.</strong> Through his
                                 collaboration with <strong class="text-white">Go2 Travel</strong>, DJ Zippy has proven
-                                his adaptability, handling diverse crowds and non-EDM requirements with professional
-                                precision, making him a safe and exciting bet for any promoter.
+                                his adaptability, making him a safe and exciting bet for any promoter.
                             </p>
-
                             <div class="pt-6">
                                 <h3 class="text-white font-display text-xl mb-4">Proud Member of:</h3>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -377,111 +376,124 @@
             'currency': 'EUR'
         });
     </script>
-    <script type="application/ld+json">
+<script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "Person",
-  "name": "Zippy",
-  "alternateName": ["DJ Zippy", "Zippy DJ", "Zovumezippy", "Zipi"],
-  "url": "https://www.zippydj.com",
-  "image": "https://www.zippydj.com/images/zippy-official-logo.png",
-  "description": "Zippy is a House and Tech-House selector based in Belgrade, Serbia, known for the 'House Music Therapy' mix series and performances at major regional clubs.",
-  "jobTitle": "DJ / Selector",
-  "mainEntityOfPage": "https://www.zippydj.com",
-  "knowsAbout": ["House Music", "Tech House", "Electronic Dance Music", "Selection"],
-  "homeLocation": {
-    "@type": "Place",
-    "name": "Belgrade, Serbia",
-    "address": {
-      "@type": "PostalAddress",
-      "addressLocality": "Belgrade",
-      "addressCountry": "RS"
-    }
-  },
-  "sameAs": [
-    "https://www.youtube.com/@zovumezippy",
-    "https://www.instagram.com/zovumezippy",
-    "https://www.mixcloud.com/zovumezippy/",
-    "https://ra.co/dj/zippy-2"
-  ],
-  "performerIn": [
-    {
-      "@type": "Event",
-      "name": "Zippy live @ EXIT Festival 2025 - Dance Arena Stage",
-      "startDate": "2025-07-13T21:00",
-      "endDate": "2025-07-13T23:00",
-      "eventStatus": "https://schema.org/EventScheduled",
-      "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
-      "location": {
-        "@type": "Place",
-        "name": "Petrovaradin Fortress",
-        "address": {
-          "@type": "PostalAddress",
-          "addressLocality": "Novi Sad",
-          "addressCountry": "RS"
-        }
-      },
-      "organizer": {
-        "@type": "Organization",
-        "name": "EXIT Festival"
-      },
-      "description": "House Music Therapy set on the Dance Arena Stage."
-    },
-    {
-      "@type": "Event",
-      "name": "Zippy live @ EXIT Festival 2025 - Free Students Stage",
-      "startDate": "2025-07-12T02:00",
-      "endDate": "2025-07-12T04:00",
-      "eventStatus": "https://schema.org/EventScheduled",
-      "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
-      "location": {
-        "@type": "Place",
-        "name": "Petrovaradin Fortress",
-        "address": {
-          "@type": "PostalAddress",
-          "addressLocality": "Novi Sad",
-          "addressCountry": "RS"
-        }
-      },
-      "organizer": {
-        "@type": "Organization",
-        "name": "EXIT Festival"
+  "@type": "ProfilePage",
+  "mainEntity": {
+    "@type": "MusicGroup",
+    "@id": "https://www.zippydj.com/#zippy",
+    "name": "Zippy",
+    "alternateName": [
+      "DJ Zippy",
+      "Zippy DJ",
+      "Zovumezippy",
+      "Zipi"
+    ],
+    "url": "https://www.zippydj.com",
+    "image": "https://www.zippydj.com/images/your-image.webp",
+    "description": "Zippy is a House and Tech-House selector based in Belgrade, Serbia, known for the 'House Music Therapy' mix series and performances at major regional clubs.",
+    "genre": [
+      "House Music",
+      "Tech House",
+      "Electronic Dance Music"
+    ],
+    "homeLocation": {
+      "@type": "Place",
+      "name": "Belgrade, Serbia",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Belgrade",
+        "addressCountry": "RS"
       }
     },
-    {
-      "@type": "Event",
-      "name": "Zippy live @ EXIT Festival 2024 - ASFM Stage",
-      "startDate": "2024-07-12T22:00",
-      "endDate": "2024-07-12T23:00",
-      "eventStatus": "https://schema.org/EventScheduled",
-      "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
-      "location": {
-        "@type": "Place",
-        "name": "Petrovaradin Fortress",
-        "address": {
-          "@type": "PostalAddress",
-          "addressLocality": "Novi Sad",
-          "addressCountry": "RS"
+    "sameAs": [
+      "https://www.instagram.com/zovumezippy",
+      "https://soundcloud.com/zovumezippy",
+      "https://www.youtube.com/@zovumezippy",
+      "https://ra.co/dj/zippy-2",
+      "https://www.mixcloud.com/zovumezippy/",
+      "https://open.spotify.com/user/31aj2g4yokqhpoxwkpo5odxegsle"
+    ],
+    "subjectOf": {
+      "@type": "VideoObject",
+      "name": "EXIT 2024 | Zippy live at AS FM Stage FULL SHOW",
+      "description": "Zippy live performance at EXIT Festival 2024, AS FM Stage.",
+      "thumbnailUrl": "https://img.youtube.com/vi/pbT603mKdsc/maxresdefault.jpg",
+      "uploadDate": "2024-08-09",
+      "duration": "PT1H8S",
+      "contentUrl": "https://www.youtube.com/watch?v=pbT603mKdsc",
+      "embedUrl": "https://www.youtube.com/embed/pbT603mKdsc"
+    },
+    "event": [
+      {
+        "@type": "Event",
+        "name": "Zippy live @ EXIT Festival 2025 - Dance Arena Stage",
+        "startDate": "2025-07-13T21:00",
+        "endDate": "2025-07-13T23:00",
+        "eventStatus": "https://schema.org/EventScheduled",
+        "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+        "location": {
+          "@type": "Place",
+          "name": "Petrovaradin Fortress",
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Novi Sad",
+            "addressCountry": "RS"
+          }
+        },
+        "organizer": {
+          "@type": "Organization",
+          "name": "EXIT Festival"
+        },
+        "description": "House Music Therapy set on the Dance Arena Stage."
+      },
+      {
+        "@type": "Event",
+        "name": "Zippy live @ EXIT Festival 2025 - Free Students Stage",
+        "startDate": "2025-07-12T02:00",
+        "endDate": "2025-07-12T04:00",
+        "eventStatus": "https://schema.org/EventScheduled",
+        "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+        "location": {
+          "@type": "Place",
+          "name": "Petrovaradin Fortress",
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Novi Sad",
+            "addressCountry": "RS"
+          }
+        },
+        "organizer": {
+          "@type": "Organization",
+          "name": "EXIT Festival"
         }
       },
-      "organizer": {
-        "@type": "Organization",
-        "name": "EXIT Festival"
+      {
+        "@type": "Event",
+        "name": "Zippy live @ EXIT Festival 2024 - ASFM Stage",
+        "startDate": "2024-07-12T22:00",
+        "endDate": "2024-07-12T23:00",
+        "eventStatus": "https://schema.org/EventScheduled",
+        "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+        "location": {
+          "@type": "Place",
+          "name": "Petrovaradin Fortress",
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Novi Sad",
+            "addressCountry": "RS"
+          }
+        },
+        "organizer": {
+          "@type": "Organization",
+          "name": "EXIT Festival"
+        }
       }
-    }
-  ],
-  "subjectOf": {
-    "@type": "VideoObject",
-    "name": "EXIT 2024 | Zippy live at AS FM Stage FULL SHOW",
-    "description": "Zippy live performance at EXIT Festival 2024, AS FM Stage.",
-    "thumbnailUrl": "https://img.youtube.com/vi/pbT603mKdsc/maxresdefault.jpg",
-    "uploadDate": "2024-08-09",
-    "duration": "PT1H8S",
-    "contentUrl": "https://www.youtube.com/watch?v=pbT603mKdsc",
-    "embedUrl": "https://www.youtube.com/embed/pbT603mKdsc"
+    ]
   }
 }
-    </script>
+</script>
 </body>
 
 </html>

@@ -65,29 +65,29 @@ const appData = {
     ],
     playlists: [
         {
-            title: "Selector's Choice: House",
+            title: "House Music Therapy with DJ Zippy",
             genre: "Spotify Playlist",
             desc: "Tracks that never leave my USB.",
             icon: "fa-brands fa-spotify",
-            link: "https://open.spotify.com/playlist/37i9dQZF1E368pMv0vH6mS", // Example Spotify link
+            link: "https://open.spotify.com/playlist/1760y5mR1hdF7PdnAErYRA", // Example Spotify link
             thumbnail: "",
             alt: "Zippy's Selector Choice House - Spotify playlist"
         },
         {
-            title: "Afterhours Techno",
+            title: "Guilty Trep Pleasures with DJ Zippy",
             genre: "Spotify Playlist",
             desc: "When the lights go down and the mood gets darker.",
             icon: "fa-brands fa-spotify",
-            link: "https://open.spotify.com/playlist/37i9dQZF1E368pMv0vH6mS",
+            link: "https://open.spotify.com/playlist/17bauJGzLkXVRa89n3WEF0",
             thumbnail: "",
             alt: "Zippy's Afterhours Techno - Spotify playlist"
         },
         {
-            title: "Tech House Essentials",
+            title: "Chill Balkan RnB Vibes with DJ Zippy",
             genre: "Spotify Playlist",
-            desc: "Driving beats and underground selections.",
+            desc: "Chill summer vibes with a Balkan twist.",
             icon: "fa-brands fa-spotify",
-            link: "https://open.spotify.com/playlist/37i9dQZF1E368pMv0vH6mS",
+            link: "https://open.spotify.com/playlist/5wyLKeoY4Jf3FrGcPj9ly2",
             thumbnail: "",
             alt: "Zippy's Tech House Essentials - Spotify playlist"
         }
