@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
+
   <url>
-    <loc>https://zippydj.com/</loc>
-    <lastmod>2026-01-05</lastmod>
+    <loc>https://www.zippydj.com/</loc>
+    <lastmod>2026-01-10</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
     <video:video>
@@ -17,4 +18,12 @@
       <video:family_friendly>yes</video:family_friendly>
     </video:video>
   </url>
+
+  <url>
+    <loc>https://www.zippydj.com/links.html</loc>
+    <lastmod>2026-01-10</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
 </urlset>
