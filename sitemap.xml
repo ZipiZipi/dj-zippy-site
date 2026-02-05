@@ -3,15 +3,12 @@
         xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
 
   <url>
-    <loc>https://www.zippydj.com/</loc>
-    <lastmod>2026-01-10</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
+    <loc>https://zippydj.com/</loc>
+    <lastmod>2026-02-05T18:57:25+00:00</lastmod>
     <video:video>
       <video:thumbnail_loc>https://img.youtube.com/vi/pbT603mKdsc/maxresdefault.jpg</video:thumbnail_loc>
       <video:title>EXIT 2024 | Zippy live at AS FM Stage FULL SHOW</video:title>
       <video:description>Zippy live performance at EXIT Festival 2024, AS FM Stage.</video:description>
-      <video:content_loc>https://www.youtube.com/watch?v=pbT603mKdsc</video:content_loc>
       <video:player_loc>https://www.youtube.com/embed/pbT603mKdsc</video:player_loc>
       <video:duration>3608</video:duration>
       <video:publication_date>2024-08-09T00:00:00+00:00</video:publication_date>
@@ -20,10 +17,8 @@
   </url>
 
   <url>
-    <loc>https://www.zippydj.com/links.html</loc>
-    <lastmod>2026-01-10</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <loc>https://zippydj.com/links</loc>
+    <lastmod>2026-02-05T18:57:25+00:00</lastmod>
   </url>
 
 </urlset>
