@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# Build artifacts (optional - ukloni ako hoćeš da commitaš output.css)
+# output.css
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment files
+.env
+.env.local
+.env.*.local
