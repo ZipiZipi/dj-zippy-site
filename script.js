@@ -180,7 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="h-48 bg-gradient-to-br from-gray-800 to-black relative flex items-center justify-center overflow-hidden">
                     ${item.thumbnail ? `<img src="${item.thumbnail}" alt="${item.alt}" class="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:scale-110 transition-transform duration-700">` : ''}
                     <div class="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-colors"></div>
-                    <a href="${item.link}" target="_blank" class="w-16 h-16 rounded-full border-2 border-white/50 flex items-center justify-center z-10 group-hover:bg-brand-orange group-hover:border-brand-orange transition-all cursor-pointer">
+                    <a href="${item.link}" target="_blank" rel="noopener noreferrer" class="w-16 h-16 rounded-full border-2 border-white/50 flex items-center justify-center z-10 group-hover:bg-brand-orange group-hover:border-brand-orange transition-all cursor-pointer">
                         <i class="${item.icon} text-2xl text-white"></i>
                     </a>
                     ${featuredBadge}
@@ -189,7 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="text-xs text-brand-orange font-bold uppercase mb-2">${item.genre}</div>
                     <h3 class="text-xl font-bold text-white mb-2 leading-tight">${item.title}</h3>
                     <p class="text-gray-400 text-sm mb-4">${item.desc}</p>
-                    <a href="${item.link}" target="_blank" class="inline-block text-sm font-bold border-b border-white/20 pb-1 hover:text-brand-orange hover:border-brand-orange transition-colors">LISTEN NOW</a>
+                    <a href="${item.link}" target="_blank" rel="noopener noreferrer" class="inline-block text-sm font-bold border-b border-white/20 pb-1 hover:text-brand-orange hover:border-brand-orange transition-colors">LISTEN NOW</a>
                 </div>
             `;
             musicGrid.appendChild(card);
