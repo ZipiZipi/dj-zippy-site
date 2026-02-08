@@ -1,15 +1,8 @@
 User-agent: *
-# Block development files and folders that shouldn't be indexed
-Disallow: /node_modules/
+# Minimal robots.txt for a static site
+# Block VCS and local dependency folders
 Disallow: /.git/
-Disallow: /package.json
-Disallow: /package-lock.json
-Disallow: /README.md
-Disallow: /input.css
+Disallow: /node_modules/
 
-# Keep these if you use a CMS, otherwise they don't hurt
-Disallow: /admin/
-Disallow: /api/
-
-# Point Google to your map
+# Sitemap (served from the canonical host)
 Sitemap: https://zippydj.com/sitemap.xml
