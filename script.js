@@ -5,61 +5,61 @@ const appData = {
         {
             title: "House Music Therapy / #LetsMixIt Contest",
             genre: "House / Tech House",
-            desc: "High-energy rooftop set recorded in Novi Sad for the #LetsMixIt competition.",
+            desc: "DJ Zippy's high-energy rooftop set recorded in Novi Sad for the #LetsMixIt competition.",
             icon: "fa-solid fa-play",
             link: "https://www.youtube.com/watch?v=IzkAZcbyCSI",
             thumbnail: "https://img.youtube.com/vi/IzkAZcbyCSI/maxresdefault.jpg",
-            alt: "Zippy's Let's Mix It Submission - House and Tech House mix",
+            alt: "DJ Zippy's Let's Mix It Submission - House and Tech House mix",
             featured: true
         },
         {
             title: "House Music Therapy / Deep & Tech Grooves",
             genre: "Deep House / Tech House",
-            desc: "A curated mix blending deep basslines with rhythmic tech house elements.",
+            desc: "DJ Zippy's curated mix blending deep basslines with rhythmic tech house elements.",
             icon: "fa-solid fa-play",
             link: "https://www.youtube.com/watch?v=c1M_dMg_CcU",
             thumbnail: "https://img.youtube.com/vi/c1M_dMg_CcU/maxresdefault.jpg",
-            alt: "Zippy's House Therapy Session - Deep House mix",
+            alt: "DJ Zippy's House Therapy Session - Deep House mix",
             featured: false
         },
         {
             title: "EXIT 2024 | AS FM Stage Live",
             genre: "Tech House",
-            desc: "Full live performance recording from the AS FM stage at Exit Festival 2024.",
+            desc: "DJ Zippy's full live performance recording from the AS FM stage at Exit Festival 2024.",
             icon: "fa-solid fa-play",
             link: "https://www.youtube.com/watch?v=pbT603mKdsc",
             thumbnail: "https://img.youtube.com/vi/pbT603mKdsc/maxresdefault.jpg",
-            alt: "Zippy's Deep House Vibes - House music selection",
+            alt: "DJ Zippy's live set at EXIT 2024 AS FM Stage house music selection",
             featured: false
         },
         {
             title: "EXIT 2024 | AS FM Stage Full Show",
             genre: "Tech House",
-            desc: "The complete high-energy audio recording from the Exit Festival performance.",
+            desc: "DJ Zippy's complete high-energy audio recording from the Exit Festival performance.",
             icon: "fa-brands fa-mixcloud",
             link: "https://www.mixcloud.com/zovumezippy/exit-2024-zippy-live-at-as-fm-stage-full-show/",
             thumbnail: "",
-            alt: "Zippy's House Music Therapy Vol. 12 - MixCloud set",
+            alt: "DJ Zippy's House Music Therapy Vol. 12 - MixCloud set",
             featured: false
         },
         {
             title: "House Music Therapy / Deep & Tech Grooves",
             genre: "Deep Tech",
-            desc: "Studio mix focused on sophisticated, deeper layers of house music.",
+            desc: "DJ Zippy's mix focused on sophisticated, deeper layers of house music.",
             icon: "fa-brands fa-mixcloud",
             link: "https://www.mixcloud.com/zovumezippy/house-music-therapy-with-dj-zippy-deep-and-tech-grooves/",
             thumbnail: "",
-            alt: "Zippy's Club Kult Warmup - MixCloud set",
+            alt: "DJ Zippy's Deep & Tech Grooves - MixCloud set",
             featured: false
         },
         {
             title: "House Music Therapy / Live from Singing Forest",
             genre: "House / Organic House",
-            desc: "Live set recorded in nature, blending house rhythms with an open-air vibe.",
+            desc: "DJ Zippy's live set recorded in Singing Forest, blending house rhythms with an jazzy vibe.",
             icon: "fa-brands fa-mixcloud",
             link: "https://www.mixcloud.com/zovumezippy/house-music-therapy-with-dj-zippy-live-from-singing-forest/",
             thumbnail: "",
-            alt: "Zippy's Live from Singing Forest - MixCloud set",
+            alt: "DJ Zippy's Live from Singing Forest - MixCloud set",
             featured: false
         }
     ],
@@ -67,29 +67,29 @@ const appData = {
         {
             title: "House Music Therapy with DJ Zippy",
             genre: "Spotify Playlist",
-            desc: "Tracks that never leave my USB.",
+            desc: "DJ Zippy's selection of tracks that never leave his USB.",
             icon: "fa-brands fa-spotify",
             link: "https://open.spotify.com/playlist/1760y5mR1hdF7PdnAErYRA", // Example Spotify link
             thumbnail: "",
-            alt: "Zippy's Selector Choice House - Spotify playlist"
+            alt: "DJ Zippy's Selector Choice House - Spotify playlist"
         },
         {
             title: "Guilty Trep Pleasures with DJ Zippy",
             genre: "Spotify Playlist",
-            desc: "When the lights go down and the mood gets darker.",
+            desc: "DJ Zippy's playlist for when the lights go down and the mood gets darker.",
             icon: "fa-brands fa-spotify",
             link: "https://open.spotify.com/playlist/17bauJGzLkXVRa89n3WEF0",
             thumbnail: "",
-            alt: "Zippy's Afterhours Techno - Spotify playlist"
+            alt: "DJ Zippy's Afterhours guilty pleasure - Spotify playlist"
         },
         {
             title: "Chill Balkan RnB Vibes with DJ Zippy",
             genre: "Spotify Playlist",
-            desc: "Chill summer vibes with a Balkan twist.",
+            desc: "DJ Zippy's chill summer vibes with a Balkan twist.",
             icon: "fa-brands fa-spotify",
             link: "https://open.spotify.com/playlist/5wyLKeoY4Jf3FrGcPj9ly2",
             thumbnail: "",
-            alt: "Zippy's Tech House Essentials - Spotify playlist"
+            alt: "DJ Zippy's Chill Balkan RnB Vibe Essentials - Spotify playlist"
         }
     ]
 };

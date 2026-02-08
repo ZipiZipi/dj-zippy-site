@@ -12,4 +12,4 @@ Disallow: /admin/
 Disallow: /api/
 
 # Point Google to your map
-Sitemap: https://www.zippydj.com/sitemap.xml
+Sitemap: https://zippydj.com/sitemap.xml
