@@ -72,45 +72,73 @@
     <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "Person",
-  "@id": "https://zippydj.com/#person",
-  "name": "Zippy",
-  "givenName": "Veljko",
-  "familyName": "Nedeljkovic",
-  "alternateName": [
-    "DJ Zippy",
-    "Zippy DJ",
-    "Zovumezippy",
-    "Zipi"
-  ],
-  "url": "https://zippydj.com",
-  "image": "https://zippydj.com/images/dj-zippy-house-music-dj.webp",
-  "description": "Zippy (Veljko Nedeljkovic) is a House and Tech-House selector based in Belgrade, Serbia, known for the 'House Music Therapy' mix series and performances at major regional clubs.",
-  "jobTitle": "DJ & Producer",
-  "hasOccupation": {
-    "@type": "Occupation",
-    "name": "Disc Jockey",
-    "occupationalCategory": "27-2099.00"
-  },
-  "homeLocation": {
-    "@type": "City",
-    "name": "Belgrade"
-  },
-  "sameAs": [
-    "https://musicbrainz.org/artist/a6a53c2e-8fa0-4612-8e43-8de7af43dc2a",
-    "https://www.instagram.com/zovumezippy",
-              "https://www.wikidata.org/wiki/Q138220521",
-    "https://www.youtube.com/@zovumezippy",
-    "https://ra.co/dj/zippy-2",
-    "https://soundcloud.com/zovumezippy",
-    "https://www.mixcloud.com/zovumezippy/",
-    "https://www.facebook.com/zovumezippy",
-    "https://open.spotify.com/user/31aj2g4yokqhpoxwkpo5odxegsle"
-  ],
-  "knowsAbout": [
-    "House Music",
-    "Tech House",
-    "Techno"
+  "@graph": [
+    {
+      "@type": "ProfilePage",
+      "@id": "https://zippydj.com/#profilepage",
+      "mainEntity": { "@id": "https://zippydj.com/#person" },
+      "dateCreated": "2024-01-01",
+      "dateModified": "2025-07-13"
+    },
+    {
+      "@type": "Person",
+      "@id": "https://zippydj.com/#person",
+      "name": "Zippy",
+      "givenName": "Veljko",
+      "familyName": "Nedeljkovic",
+      "alternateName": [
+        "DJ Zippy",
+        "Zippy DJ",
+        "Zovumezippy",
+        "Zipi"
+      ],
+      "url": "https://zippydj.com",
+      "image": "https://zippydj.com/images/dj-zippy-house-music-dj.webp",
+      "description": "Zippy (Veljko Nedeljkovic) is a House and Tech-House selector based in Belgrade, Serbia, known for the 'House Music Therapy' mix series and performances at major regional clubs.",
+      "jobTitle": "DJ & Producer",
+      "hasOccupation": {
+        "@type": "Occupation",
+        "name": "Disc Jockey",
+        "occupationalCategory": "27-2099.00"
+      },
+      "homeLocation": {
+        "@type": "City",
+        "name": "Belgrade"
+      },
+      "sameAs": [
+        "https://musicbrainz.org/artist/a6a53c2e-8fa0-4612-8e43-8de7af43dc2a",
+        "https://www.instagram.com/zovumezippy",
+        "https://www.wikidata.org/wiki/Q138220521",
+        "https://www.youtube.com/@zovumezippy",
+        "https://ra.co/dj/zippy-2",
+        "https://soundcloud.com/zovumezippy",
+        "https://www.mixcloud.com/zovumezippy/",
+        "https://www.facebook.com/zovumezippy",
+        "https://open.spotify.com/user/31aj2g4yokqhpoxwkpo5odxegsle"
+      ],
+      "knowsAbout": [
+        "House Music",
+        "Tech House",
+        "Techno"
+      ]
+    },
+    {
+      "@type": "Organization",
+      "@id": "https://zippydj.com/#organization",
+      "name": "DJ Zippy",
+      "alternateName": "House Music Therapy",
+      "url": "https://zippydj.com",
+      "logo": "https://zippydj.com/images/dj-zippy-house-music-dj.webp",
+      "founder": { "@id": "https://zippydj.com/#person" },
+      "description": "House Music Therapy - DJ brand curating frequencies, grooves, and the journey through house music."
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://zippydj.com/#website",
+      "name": "DJ Zippy",
+      "url": "https://zippydj.com",
+      "publisher": { "@id": "https://zippydj.com/#organization" }
+    }
   ]
 }
 </script>
@@ -127,7 +155,8 @@
             <div class="hidden md:flex space-x-8 text-sm font-semibold tracking-wide uppercase text-gray-300">
                 <a href="#about" class="nav-link hover:text-white transition-colors">The Selector</a>
                 <a href="#music" class="nav-link hover:text-white transition-colors">Music</a>
-                <a href="#dates" class="nav-link hover:text-white transition-colors">Dates</a>
+                <a href="/events.html" class="nav-link hover:text-white transition-colors">Events</a>
+                <a href="/gallery.html" class="nav-link hover:text-white transition-colors">Gallery</a>
                 <a href="/links.html" class="nav-link hover:text-white transition-colors">Links</a>
                 <a href="#contact" class="text-brand-orange hover:text-white transition-colors">Book Now</a>
             </div>
@@ -141,7 +170,8 @@
             class="hidden md:hidden bg-brand-dark border-t border-white/10 p-4 sm:p-6 flex flex-col space-y-4">
             <a href="#about" class="text-gray-300 hover:text-brand-orange">The Selector</a>
             <a href="#music" class="text-gray-300 hover:text-brand-orange">Music</a>
-            <a href="#dates" class="text-gray-300 hover:text-brand-orange">Dates</a>
+            <a href="/events.html" class="text-gray-300 hover:text-brand-orange">Events</a>
+            <a href="/gallery.html" class="text-gray-300 hover:text-brand-orange">Gallery</a>
             <a href="/links.html" class="text-gray-300 hover:text-brand-orange">Links</a>
             <a href="#contact" class="text-brand-orange font-bold">Book Now</a>
         </div>
@@ -382,6 +412,12 @@
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <div class="mt-8 text-center">
+                <a href="/events.html" class="inline-flex items-center gap-2 text-gray-400 hover:text-brand-orange transition-colors">
+                    <i class="fa-solid fa-calendar"></i> View All Events & Past Highlights
+                </a>
             </div>
         </div>
     </section>

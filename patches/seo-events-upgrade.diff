@@ -1,0 +1,951 @@
+diff --git a/dist/events.html b/dist/events.html
+new file mode 100644
+index 0000000..c941c62
+--- /dev/null
++++ b/dist/events.html
+@@ -0,0 +1,470 @@
++<!DOCTYPE html>
++<html lang="en" class="scroll-smooth">
++
++<head>
++    <meta charset="UTF-8">
++    <meta name="viewport" content="width=device-width, initial-scale=1.0">
++    <meta name="facebook-domain-verification" content="1y96dxupl676x6rktfb8erhhpbmy9o" />
++
++    <title>DJ Zippy Events | Live Shows & Festival Performances</title>
++    <meta name="description"
++        content="Explore DJ Zippy's live performances, festival appearances, and club nights across Serbia including Exit Festival and Belgrade events.">
++
++    <link rel="canonical" href="https://zippydj.com/events.html" />
++
++    <!-- Open Graph -->
++    <meta property="og:title" content="DJ Zippy Events | Live Shows & Festival Performances">
++    <meta property="og:description"
++        content="Explore DJ Zippy's live performances, festival appearances, and club nights across Serbia including Exit Festival and Belgrade events.">
++    <meta property="og:image" content="https://zippydj.com/images/dj-zippy-house-music-dj.webp">
++    <meta property="og:url" content="https://zippydj.com/events.html">
++    <meta property="og:type" content="website">
++    <meta property="og:site_name" content="DJ Zippy">
++
++    <!-- Twitter Card -->
++    <meta name="twitter:card" content="summary_large_image">
++    <meta name="twitter:title" content="DJ Zippy Events | Live Shows & Festival Performances">
++    <meta name="twitter:description"
++        content="Explore DJ Zippy's live performances, festival appearances, and club nights across Serbia including Exit Festival and Belgrade events.">
++    <meta name="twitter:image" content="https://zippydj.com/images/dj-zippy-house-music-dj.webp">
++
++    <!-- Meta Pixel Code -->
++    <script>
++        !function (f, b, e, v, n, t, s) {
++            if (f.fbq) return; n = f.fbq = function () {
++                n.callMethod ?
++                n.callMethod.apply(n, arguments) : n.queue.push(arguments)
++            };
++            if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0';
++            n.queue = []; t = b.createElement(e); t.async = !0;
++            t.src = v; s = b.getElementsByTagName(e)[0];
++            s.parentNode.insertBefore(t, s)
++        }(window, document, 'script',
++            'https://connect.facebook.net/en_US/fbevents.js');
++        fbq('init', '1569015614157064');
++        fbq('track', 'PageView');
++    </script>
++    <noscript><img height="1" width="1" style="display:none"
++            src="https://www.facebook.com/tr?id=1569015614157064&ev=PageView&noscript=1" /></noscript>
++    <!-- End Meta Pixel Code -->
++
++    <link rel="icon" type="image/png" href="/images/favicon-96x96.png" sizes="96x96" />
++    <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
++    <link rel="shortcut icon" href="/images/favicon.ico" />
++    <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png" />
++    <meta name="apple-mobile-web-app-title" content="Zippy" />
++    <link rel="manifest" href="/images/site.webmanifest" />
++    <link rel="preconnect" href="https://fonts.googleapis.com">
++    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
++    <link rel="preload" as="style"
++        href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Inter:wght@300;400;600&display=swap">
++    <link
++        href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Inter:wght@300;400;600&display=swap"
++        rel="stylesheet">
++
++    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
++        media="print" onload="this.media='all'">
++    <noscript>
++        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
++    </noscript>
++
++    <link rel="stylesheet" href="./output.css">
++
++    <script type="application/ld+json">
++{
++  "@context": "https://schema.org",
++  "@graph": [
++    {
++      "@type": "BreadcrumbList",
++      "@id": "https://zippydj.com/events.html#breadcrumb",
++      "itemListElement": [
++        {
++          "@type": "ListItem",
++          "position": 1,
++          "name": "Home",
++          "item": "https://zippydj.com/"
++        },
++        {
++          "@type": "ListItem",
++          "position": 2,
++          "name": "Events",
++          "item": "https://zippydj.com/events.html"
++        }
++      ]
++    },
++    {
++      "@type": "MusicEvent",
++      "@id": "https://zippydj.com/events.html#event-krivi-put-2022",
++      "name": "DJ Zippy at Krivi Put",
++      "description": "First public performance. Tech House set marking the official beginning of DJ Zippy's live journey.",
++      "startDate": "2022-07-30T22:00:00+02:00",
++      "endDate": "2022-07-31T04:00:00+02:00",
++      "eventStatus": "https://schema.org/EventCompleted",
++      "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
++      "location": {
++        "@type": "Place",
++        "name": "Krivi Put",
++        "address": {
++          "@type": "PostalAddress",
++          "addressLocality": "Smederevo",
++          "addressCountry": "RS"
++        }
++      },
++      "performer": {
++        "@id": "https://zippydj.com/#person"
++      },
++      "organizer": {
++        "@id": "https://zippydj.com/#organization"
++      }
++    },
++    {
++      "@type": "MusicEvent",
++      "@id": "https://zippydj.com/events.html#event-exit-asfm-2024",
++      "name": "DJ Zippy at Exit Festival AS FM Stage",
++      "description": "First appearance at a major festival stage. House / Tech House set during Exit Festival.",
++      "startDate": "2024-07-12T23:00:00+02:00",
++      "endDate": "2024-07-13T01:00:00+02:00",
++      "eventStatus": "https://schema.org/EventCompleted",
++      "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
++      "location": {
++        "@type": "Place",
++        "name": "Exit Festival - AS FM Stage",
++        "address": {
++          "@type": "PostalAddress",
++          "addressLocality": "Novi Sad",
++          "addressCountry": "RS"
++        }
++      },
++      "performer": {
++        "@id": "https://zippydj.com/#person"
++      },
++      "organizer": {
++        "@type": "Organization",
++        "name": "Exit Festival"
++      }
++    },
++    {
++      "@type": "MusicEvent",
++      "@id": "https://zippydj.com/events.html#event-exit-students-2025",
++      "name": "DJ Zippy at Exit Festival Students Stage",
++      "description": "Late-night House / Deep / Groove set at Exit Festival Students Stage.",
++      "startDate": "2025-07-12T23:00:00+02:00",
++      "endDate": "2025-07-13T02:00:00+02:00",
++      "eventStatus": "https://schema.org/EventCompleted",
++      "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
++      "location": {
++        "@type": "Place",
++        "name": "Exit Festival - Students Stage",
++        "address": {
++          "@type": "PostalAddress",
++          "addressLocality": "Novi Sad",
++          "addressCountry": "RS"
++        }
++      },
++      "performer": {
++        "@id": "https://zippydj.com/#person"
++      },
++      "organizer": {
++        "@type": "Organization",
++        "name": "Exit Festival"
++      }
++    },
++    {
++      "@type": "MusicEvent",
++      "@id": "https://zippydj.com/events.html#event-exit-dance-arena-2025",
++      "name": "DJ Zippy at Exit Festival Dance Arena",
++      "description": "First Dance Arena performance. House / Deep / Minimal / Groove / Tech extended set.",
++      "startDate": "2025-07-13T21:00:00+02:00",
++      "endDate": "2025-07-13T23:00:00+02:00",
++      "eventStatus": "https://schema.org/EventCompleted",
++      "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
++      "location": {
++        "@type": "Place",
++        "name": "Exit Festival - Dance Arena",
++        "address": {
++          "@type": "PostalAddress",
++          "addressLocality": "Novi Sad",
++          "addressCountry": "RS"
++        }
++      },
++      "performer": {
++        "@id": "https://zippydj.com/#person"
++      },
++      "organizer": {
++        "@type": "Organization",
++        "name": "Exit Festival"
++      }
++    },
++    {
++      "@type": "MusicEvent",
++      "@id": "https://zippydj.com/events.html#event-kult-2025",
++      "name": "DJ Zippy at Club Kult",
++      "description": "House / Groove / Funk / Tech club night in Belgrade.",
++      "startDate": "2025-11-20T21:00:00+01:00",
++      "endDate": "2025-11-21T02:00:00+01:00",
++      "eventStatus": "https://schema.org/EventCompleted",
++      "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
++      "location": {
++        "@type": "Place",
++        "name": "Club Kult",
++        "address": {
++          "@type": "PostalAddress",
++          "addressLocality": "Belgrade",
++          "addressCountry": "RS"
++        }
++      },
++      "performer": {
++        "@id": "https://zippydj.com/#person"
++      },
++      "organizer": {
++        "@id": "https://zippydj.com/#organization"
++      }
++    }
++  ]
++}
++</script>
++</head>
++
++<body class="overflow-x-hidden selection:bg-brand-orange selection:text-white">
++
++    <nav class="fixed top-0 w-full z-50 bg-brand-black/90 backdrop-blur-md border-b border-white/5">
++        <div class="container mx-auto px-6 sm:px-8 lg:px-12 py-4 flex justify-between items-center">
++            <a href="https://zippydj.com" class="font-display font-bold text-2xl tracking-tighter">
++                ZIPPY<span class="text-brand-orange">.</span>
++            </a>
++
++            <div class="hidden md:flex space-x-8 text-sm font-semibold tracking-wide uppercase text-gray-300">
++                <a href="/" class="nav-link hover:text-white transition-colors">Home</a>
++                <a href="/events.html" class="nav-link text-brand-orange hover:text-white transition-colors">Events</a>
++                <a href="/#music" class="nav-link hover:text-white transition-colors">Music</a>
++                <a href="/links.html" class="nav-link hover:text-white transition-colors">Links</a>
++                <a href="/#contact" class="hover:text-white transition-colors">Book Now</a>
++            </div>
++
++            <button id="mobile-menu-btn" class="md:hidden text-white focus:outline-none">
++                <i class="fa-solid fa-bars text-xl"></i>
++            </button>
++        </div>
++
++        <div id="mobile-menu"
++            class="hidden md:hidden bg-brand-dark border-t border-white/10 p-4 sm:p-6 flex flex-col space-y-4">
++            <a href="/" class="text-gray-300 hover:text-brand-orange">Home</a>
++            <a href="/events.html" class="text-brand-orange font-bold">Events</a>
++            <a href="/#music" class="text-gray-300 hover:text-brand-orange">Music</a>
++            <a href="/links.html" class="text-gray-300 hover:text-brand-orange">Links</a>
++            <a href="/#contact" class="text-brand-orange font-bold">Book Now</a>
++        </div>
++    </nav>
++
++    <section class="isolate relative min-h-[40vh] flex flex-col items-center justify-center bg-brand-black pt-24 sm:pt-28 pb-12 overflow-hidden">
++        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] bg-brand-orange/10 blur-[120px] rounded-full pointer-events-none"></div>
++
++        <div class="container mx-auto px-6 sm:px-8 lg:px-12 text-center z-10">
++            <nav aria-label="Breadcrumb" class="mb-6">
++                <ol class="flex justify-center items-center space-x-2 text-sm text-gray-400">
++                    <li><a href="/" class="hover:text-brand-orange transition-colors">Home</a></li>
++                    <li><span class="mx-2">/</span></li>
++                    <li class="text-white">Events</li>
++                </ol>
++            </nav>
++
++            <h1 class="font-display text-4xl md:text-5xl lg:text-6xl font-black leading-tight mb-4">
++                DJ Zippy Live Events & <span class="text-brand-orange">Festival Performances</span>
++            </h1>
++
++            <p class="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto">
++                From intimate club nights to major festival stages. House Music Therapy live.
++            </p>
++        </div>
++    </section>
++
++    <section id="upcoming" class="isolate relative py-16 sm:py-20 bg-brand-dark border-t border-white/5">
++        <div class="container mx-auto px-6 sm:px-8 lg:px-12">
++            <div class="flex items-center gap-4 mb-10">
++                <div class="w-2 h-8 bg-brand-orange"></div>
++                <h2 class="font-display text-3xl md:text-4xl font-bold">Upcoming <span class="text-brand-orange">Events</span></h2>
++            </div>
++
++            <div class="text-center py-12 text-gray-400">
++                <i class="fa-solid fa-calendar-plus text-4xl mb-4 text-brand-orange/50"></i>
++                <p class="text-lg">New dates coming soon.</p>
++                <p class="text-sm mt-2">Follow on <a href="https://www.instagram.com/zovumezippy" target="_blank" rel="noopener noreferrer" class="text-brand-orange hover:underline">Instagram</a> for announcements.</p>
++            </div>
++        </div>
++    </section>
++
++    <section id="past" class="isolate relative py-16 sm:py-20 bg-brand-black border-t border-white/5">
++        <div class="container mx-auto px-6 sm:px-8 lg:px-12">
++            <div class="flex items-center gap-4 mb-10">
++                <div class="w-2 h-8 bg-white/30"></div>
++                <h2 class="font-display text-3xl md:text-4xl font-bold">Past <span class="text-gray-400">Highlights</span></h2>
++            </div>
++
++            <div class="space-y-6">
++
++                <article class="group bg-brand-gray rounded-lg p-6 border-l-4 border-brand-orange hover:bg-white/5 transition-colors">
++                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
++                        <div class="flex-1">
++                            <div class="flex items-center gap-3 mb-2">
++                                <span class="text-brand-orange font-display font-bold text-sm">20/11/2025</span>
++                                <span class="px-2 py-0.5 bg-brand-orange/20 text-brand-orange text-xs font-bold rounded">CLUB</span>
++                            </div>
++                            <h3 class="font-display text-xl md:text-2xl font-bold mb-1">Club Kult</h3>
++                            <p class="text-gray-400 text-sm mb-2"><i class="fa-solid fa-location-dot mr-2"></i>Belgrade, Serbia</p>
++                            <p class="text-gray-300">House / Groove / Funk / Tech club night in Belgrade.</p>
++                        </div>
++                        <div class="flex-shrink-0">
++                            <a href="https://ra.co/events/2307056" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-4 py-2 border border-white/20 text-sm font-bold uppercase hover:border-brand-orange hover:text-brand-orange transition-colors">
++                                <i class="fa-solid fa-arrow-up-right-from-square"></i> Details
++                            </a>
++                        </div>
++                    </div>
++                </article>
++
++                <article class="group bg-brand-gray rounded-lg p-6 border-l-4 border-brand-orange hover:bg-white/5 transition-colors">
++                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
++                        <div class="flex-1">
++                            <div class="flex items-center gap-3 mb-2">
++                                <span class="text-brand-orange font-display font-bold text-sm">13/07/2025</span>
++                                <span class="px-2 py-0.5 bg-red-500/20 text-red-400 text-xs font-bold rounded">EXIT FESTIVAL</span>
++                            </div>
++                            <h3 class="font-display text-xl md:text-2xl font-bold mb-1">Exit Festival - Dance Arena</h3>
++                            <p class="text-gray-400 text-sm mb-2"><i class="fa-solid fa-location-dot mr-2"></i>Novi Sad, Serbia</p>
++                            <p class="text-gray-300">First Dance Arena performance. House / Deep / Minimal / Groove / Tech extended set.</p>
++                        </div>
++                        <div class="flex-shrink-0">
++                            <a href="https://www.instagram.com/p/DMDrGdzoEca/?hl=en&img_index=2" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-4 py-2 border border-white/20 text-sm font-bold uppercase hover:border-brand-orange hover:text-brand-orange transition-colors">
++                                <i class="fa-solid fa-arrow-up-right-from-square"></i> Details
++                            </a>
++                        </div>
++                    </div>
++                </article>
++
++                <article class="group bg-brand-gray rounded-lg p-6 border-l-4 border-brand-orange hover:bg-white/5 transition-colors">
++                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
++                        <div class="flex-1">
++                            <div class="flex items-center gap-3 mb-2">
++                                <span class="text-brand-orange font-display font-bold text-sm">12/07/2025</span>
++                                <span class="px-2 py-0.5 bg-red-500/20 text-red-400 text-xs font-bold rounded">EXIT FESTIVAL</span>
++                            </div>
++                            <h3 class="font-display text-xl md:text-2xl font-bold mb-1">Exit Festival - Students Stage</h3>
++                            <p class="text-gray-400 text-sm mb-2"><i class="fa-solid fa-location-dot mr-2"></i>Novi Sad, Serbia</p>
++                            <p class="text-gray-300">Late-night House / Deep / Groove set at Exit Festival Students Stage.</p>
++                        </div>
++                    </div>
++                </article>
++
++                <article class="group bg-brand-gray rounded-lg p-6 border-l-4 border-brand-orange hover:bg-white/5 transition-colors">
++                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
++                        <div class="flex-1">
++                            <div class="flex items-center gap-3 mb-2">
++                                <span class="text-brand-orange font-display font-bold text-sm">12/07/2024</span>
++                                <span class="px-2 py-0.5 bg-red-500/20 text-red-400 text-xs font-bold rounded">EXIT FESTIVAL</span>
++                            </div>
++                            <h3 class="font-display text-xl md:text-2xl font-bold mb-1">Exit Festival - AS FM Stage</h3>
++                            <p class="text-gray-400 text-sm mb-2"><i class="fa-solid fa-location-dot mr-2"></i>Novi Sad, Serbia</p>
++                            <p class="text-gray-300">First appearance at a major festival stage. House / Tech House set during Exit Festival.</p>
++                        </div>
++                    </div>
++                </article>
++
++                <article class="group bg-brand-gray rounded-lg p-6 border-l-4 border-white/30 hover:bg-white/5 transition-colors">
++                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
++                        <div class="flex-1">
++                            <div class="flex items-center gap-3 mb-2">
++                                <span class="text-gray-400 font-display font-bold text-sm">30/07/2022</span>
++                                <span class="px-2 py-0.5 bg-white/10 text-gray-300 text-xs font-bold rounded">DEBUT</span>
++                            </div>
++                            <h3 class="font-display text-xl md:text-2xl font-bold mb-1">Krivi Put</h3>
++                            <p class="text-gray-400 text-sm mb-2"><i class="fa-solid fa-location-dot mr-2"></i>Smederevo, Serbia</p>
++                            <p class="text-gray-300">First public performance. Tech House set marking the official beginning of DJ Zippy's live journey.</p>
++                        </div>
++                    </div>
++                </article>
++
++            </div>
++
++            <div class="mt-12 text-center">
++                <a href="/" class="inline-flex items-center gap-2 text-gray-400 hover:text-brand-orange transition-colors">
++                    <i class="fa-solid fa-arrow-left"></i> Back to Homepage
++                </a>
++            </div>
++        </div>
++    </section>
++
++    <footer class="bg-brand-dark pt-16 sm:pt-20 pb-10 border-t border-white/10">
++        <div class="container mx-auto px-6 sm:px-8 lg:px-12">
++            <div class="grid grid-cols-1 md:grid-cols-2 gap-16">
++                <div>
++                    <h2 class="font-display text-4xl font-bold mb-6">Let's <span class="text-brand-orange">Connect</span></h2>
++                    <p class="text-gray-400 mb-8">
++                        Available for club bookings, private events, and festivals. <br>
++                        Bringing the House Music Therapy to your event.
++                    </p>
++
++                    <div class="space-y-4 mb-8">
++                        <a href="mailto:veljkoned@gmail.com"
++                            class="flex items-center gap-4 text-xl hover:text-brand-orange transition-colors">
++                            <i class="fa-regular fa-envelope text-brand-orange"></i> veljkoned@gmail.com
++                        </a>
++                        <a href="https://ra.co/dj/zippy-2" target="_blank" rel="noopener noreferrer"
++                            class="flex items-center gap-4 text-xl hover:text-brand-orange transition-colors">
++                            <i class="fa-solid fa-square-poll-vertical text-brand-orange"></i> Resident Advisor Profile
++                        </a>
++                    </div>
++
++                    <div class="flex gap-4 sm:gap-6 mt-8 flex-wrap justify-center md:justify-start">
++                        <a href="https://www.instagram.com/zovumezippy/" target="_blank" rel="me noopener noreferrer"
++                            class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/5 flex items-center justify-center hover:bg-brand-orange hover:text-white transition-all">
++                            <i class="fa-brands fa-instagram text-lg sm:text-xl"></i>
++                        </a>
++                        <a href="https://www.youtube.com/@zovumezippy/" target="_blank" rel="me noopener noreferrer"
++                            class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/5 flex items-center justify-center hover:bg-brand-orange hover:text-white transition-all">
++                            <i class="fa-brands fa-youtube text-lg sm:text-xl"></i>
++                        </a>
++                        <a href="https://open.spotify.com/user/31aj2g4yokqhpoxwkpo5odxegsle" target="_blank"
++                            rel="me noopener noreferrer"
++                            class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/5 flex items-center justify-center hover:bg-brand-orange hover:text-white transition-all">
++                            <i class="fa-brands fa-spotify text-lg sm:text-xl"></i>
++                        </a>
++                        <a href="https://www.mixcloud.com/zovumezippy/" target="_blank" rel="me noopener noreferrer"
++                            class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/5 flex items-center justify-center hover:bg-brand-orange hover:text-white transition-all">
++                            <i class="fa-brands fa-mixcloud text-lg sm:text-xl"></i>
++                        </a>
++                    </div>
++                </div>
++
++                <div class="flex flex-col justify-center items-center md:items-end">
++                    <a href="/#contact" class="px-8 py-4 bg-brand-orange text-white font-bold uppercase tracking-wider hover:bg-white hover:text-brand-black transition-all duration-300 text-center">
++                        Book DJ Zippy
++                    </a>
++                </div>
++            </div>
++
++            <div class="mt-20 pt-8 border-t border-white/5 text-center text-gray-600 text-sm">
++                &copy; 2025 DJ Zippy. All Rights Reserved. House Music Therapy.
++            </div>
++        </div>
++    </footer>
++
++    <script src="script.js" defer></script>
++
++    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-975400552"></script>
++    <script>
++        window.dataLayer = window.dataLayer || [];
++        function gtag() { dataLayer.push(arguments); }
++        gtag('js', new Date());
++
++        gtag('config', 'AW-975400552');
++    </script>
++    <script>(function (w, d, s, l, i) {
++            w[l] = w[l] || []; w[l].push({
++                'gtm.start':
++                    new Date().getTime(), event: 'gtm.js'
++            }); var f = d.getElementsByTagName(s)[0],
++                j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
++                    'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
++        })(window, document, 'script', 'dataLayer', 'GTM-KLGKHMGM');</script>
++</body>
++
++</html>
+diff --git a/dist/gallery.html b/dist/gallery.html
+new file mode 100644
+index 0000000..e6b53cc
+--- /dev/null
++++ b/dist/gallery.html
+@@ -0,0 +1,298 @@
++<!DOCTYPE html>
++<html lang="en" class="scroll-smooth">
++
++<head>
++    <meta charset="UTF-8">
++    <meta name="viewport" content="width=device-width, initial-scale=1.0">
++    <meta name="facebook-domain-verification" content="1y96dxupl676x6rktfb8erhhpbmy9o" />
++
++    <title>DJ Zippy Gallery | Live Performances & House Music Therapy Moments</title>
++    <meta name="description"
++        content="Photo gallery of DJ Zippy's live performances, festival appearances, and House Music Therapy moments across Serbia including Exit Festival and Belgrade venues.">
++
++    <link rel="canonical" href="https://zippydj.com/gallery.html" />
++
++    <!-- Open Graph -->
++    <meta property="og:title" content="DJ Zippy Gallery | Live Performances & House Music Therapy Moments">
++    <meta property="og:description"
++        content="Photo gallery of DJ Zippy's live performances, festival appearances, and House Music Therapy moments across Serbia.">
++    <meta property="og:image" content="https://zippydj.com/images/dj-zippy-house-music-dj.webp">
++    <meta property="og:url" content="https://zippydj.com/gallery.html">
++    <meta property="og:type" content="website">
++    <meta property="og:site_name" content="DJ Zippy">
++
++    <!-- Twitter Card -->
++    <meta name="twitter:card" content="summary_large_image">
++    <meta name="twitter:title" content="DJ Zippy Gallery | Live Performances & House Music Therapy Moments">
++    <meta name="twitter:description"
++        content="Photo gallery of DJ Zippy's live performances, festival appearances, and House Music Therapy moments across Serbia.">
++    <meta name="twitter:image" content="https://zippydj.com/images/dj-zippy-house-music-dj.webp">
++
++    <!-- Meta Pixel Code -->
++    <script>
++        !function (f, b, e, v, n, t, s) {
++            if (f.fbq) return; n = f.fbq = function () {
++                n.callMethod ?
++                n.callMethod.apply(n, arguments) : n.queue.push(arguments)
++            };
++            if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0';
++            n.queue = []; t = b.createElement(e); t.async = !0;
++            t.src = v; s = b.getElementsByTagName(e)[0];
++            s.parentNode.insertBefore(t, s)
++        }(window, document, 'script',
++            'https://connect.facebook.net/en_US/fbevents.js');
++        fbq('init', '1569015614157064');
++        fbq('track', 'PageView');
++    </script>
++    <noscript><img height="1" width="1" style="display:none"
++            src="https://www.facebook.com/tr?id=1569015614157064&ev=PageView&noscript=1" /></noscript>
++    <!-- End Meta Pixel Code -->
++
++    <link rel="icon" type="image/png" href="/images/favicon-96x96.png" sizes="96x96" />
++    <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
++    <link rel="shortcut icon" href="/images/favicon.ico" />
++    <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png" />
++    <meta name="apple-mobile-web-app-title" content="Zippy" />
++    <link rel="manifest" href="/images/site.webmanifest" />
++    <link rel="preconnect" href="https://fonts.googleapis.com">
++    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
++    <link rel="preload" as="style"
++        href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Inter:wght@300;400;600&display=swap">
++    <link
++        href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Inter:wght@300;400;600&display=swap"
++        rel="stylesheet">
++
++    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
++        media="print" onload="this.media='all'">
++    <noscript>
++        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
++    </noscript>
++
++    <link rel="stylesheet" href="./output.css">
++
++    <script type="application/ld+json">
++{
++  "@context": "https://schema.org",
++  "@graph": [
++    {
++      "@type": "BreadcrumbList",
++      "@id": "https://zippydj.com/gallery.html#breadcrumb",
++      "itemListElement": [
++        {
++          "@type": "ListItem",
++          "position": 1,
++          "name": "Home",
++          "item": "https://zippydj.com/"
++        },
++        {
++          "@type": "ListItem",
++          "position": 2,
++          "name": "Gallery",
++          "item": "https://zippydj.com/gallery.html"
++        }
++      ]
++    },
++    {
++      "@type": "ImageGallery",
++      "@id": "https://zippydj.com/gallery.html#gallery",
++      "name": "DJ Zippy Photo Gallery",
++      "description": "Live performance photos and House Music Therapy moments from DJ Zippy's events and festival appearances.",
++      "about": { "@id": "https://zippydj.com/#person" }
++    }
++  ]
++}
++</script>
++</head>
++
++<body class="overflow-x-hidden selection:bg-brand-orange selection:text-white">
++
++    <nav class="fixed top-0 w-full z-50 bg-brand-black/90 backdrop-blur-md border-b border-white/5">
++        <div class="container mx-auto px-6 sm:px-8 lg:px-12 py-4 flex justify-between items-center">
++            <a href="https://zippydj.com" class="font-display font-bold text-2xl tracking-tighter">
++                ZIPPY<span class="text-brand-orange">.</span>
++            </a>
++
++            <div class="hidden md:flex space-x-8 text-sm font-semibold tracking-wide uppercase text-gray-300">
++                <a href="/" class="nav-link hover:text-white transition-colors">Home</a>
++                <a href="/events.html" class="nav-link hover:text-white transition-colors">Events</a>
++                <a href="/gallery.html" class="nav-link text-brand-orange hover:text-white transition-colors">Gallery</a>
++                <a href="/links.html" class="nav-link hover:text-white transition-colors">Links</a>
++                <a href="/#contact" class="hover:text-white transition-colors">Book Now</a>
++            </div>
++
++            <button id="mobile-menu-btn" class="md:hidden text-white focus:outline-none">
++                <i class="fa-solid fa-bars text-xl"></i>
++            </button>
++        </div>
++
++        <div id="mobile-menu"
++            class="hidden md:hidden bg-brand-dark border-t border-white/10 p-4 sm:p-6 flex flex-col space-y-4">
++            <a href="/" class="text-gray-300 hover:text-brand-orange">Home</a>
++            <a href="/events.html" class="text-gray-300 hover:text-brand-orange">Events</a>
++            <a href="/gallery.html" class="text-brand-orange font-bold">Gallery</a>
++            <a href="/links.html" class="text-gray-300 hover:text-brand-orange">Links</a>
++            <a href="/#contact" class="text-brand-orange font-bold">Book Now</a>
++        </div>
++    </nav>
++
++    <section class="isolate relative min-h-[40vh] flex flex-col items-center justify-center bg-brand-black pt-24 sm:pt-28 pb-12 overflow-hidden">
++        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] bg-brand-orange/10 blur-[120px] rounded-full pointer-events-none"></div>
++
++        <div class="container mx-auto px-6 sm:px-8 lg:px-12 text-center z-10">
++            <nav aria-label="Breadcrumb" class="mb-6">
++                <ol class="flex justify-center items-center space-x-2 text-sm text-gray-400">
++                    <li><a href="/" class="hover:text-brand-orange transition-colors">Home</a></li>
++                    <li><span class="mx-2">/</span></li>
++                    <li class="text-white">Gallery</li>
++                </ol>
++            </nav>
++
++            <h1 class="font-display text-4xl md:text-5xl lg:text-6xl font-black leading-tight mb-4">
++                DJ Zippy Gallery <span class="text-brand-orange">&mdash;</span> Live Performances & House Music Therapy Moments
++            </h1>
++
++            <p class="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto">
++                Capturing the energy of the dancefloor. From club nights to festival stages.
++            </p>
++        </div>
++    </section>
++
++    <section id="gallery" class="isolate relative py-16 sm:py-20 bg-brand-dark border-t border-white/5">
++        <div class="container mx-auto px-6 sm:px-8 lg:px-12">
++            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
++
++                <div class="group relative aspect-square bg-brand-gray rounded-lg overflow-hidden">
++                    <img src="/images/dj-zippy-house-music-dj.webp"
++                         alt="DJ Zippy performing house music at Exit Festival Dance Arena, Novi Sad, 2025"
++                         class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
++                         loading="lazy">
++                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
++                        <div class="absolute bottom-4 left-4 right-4">
++                            <p class="text-white font-display font-bold">Exit Festival - Dance Arena</p>
++                            <p class="text-gray-300 text-sm">Novi Sad, 2025</p>
++                        </div>
++                    </div>
++                </div>
++
++                <div class="group relative aspect-square bg-brand-gray rounded-lg overflow-hidden flex items-center justify-center border-2 border-dashed border-white/10">
++                    <div class="text-center text-gray-500 p-6">
++                        <i class="fa-solid fa-image text-4xl mb-3"></i>
++                        <p class="text-sm">DJ Zippy performing house music at Exit Festival Students Stage, Novi Sad, 2025</p>
++                    </div>
++                </div>
++
++                <div class="group relative aspect-square bg-brand-gray rounded-lg overflow-hidden flex items-center justify-center border-2 border-dashed border-white/10">
++                    <div class="text-center text-gray-500 p-6">
++                        <i class="fa-solid fa-image text-4xl mb-3"></i>
++                        <p class="text-sm">DJ Zippy performing house music at Club Kult, Belgrade, 2025</p>
++                    </div>
++                </div>
++
++                <div class="group relative aspect-square bg-brand-gray rounded-lg overflow-hidden flex items-center justify-center border-2 border-dashed border-white/10">
++                    <div class="text-center text-gray-500 p-6">
++                        <i class="fa-solid fa-image text-4xl mb-3"></i>
++                        <p class="text-sm">DJ Zippy performing house music at Exit Festival AS FM Stage, Novi Sad, 2024</p>
++                    </div>
++                </div>
++
++                <div class="group relative aspect-square bg-brand-gray rounded-lg overflow-hidden flex items-center justify-center border-2 border-dashed border-white/10">
++                    <div class="text-center text-gray-500 p-6">
++                        <i class="fa-solid fa-image text-4xl mb-3"></i>
++                        <p class="text-sm">DJ Zippy performing house music at Krivi Put, Smederevo, 2022</p>
++                    </div>
++                </div>
++
++                <div class="group relative aspect-square bg-brand-gray rounded-lg overflow-hidden flex items-center justify-center border-2 border-dashed border-white/10">
++                    <div class="text-center text-gray-500 p-6">
++                        <i class="fa-solid fa-image text-4xl mb-3"></i>
++                        <p class="text-sm">House Music Therapy session in the studio, Belgrade, 2024</p>
++                    </div>
++                </div>
++
++            </div>
++
++            <div class="mt-12 text-center">
++                <p class="text-gray-400 mb-4">More photos coming soon.</p>
++                <a href="/" class="inline-flex items-center gap-2 text-gray-400 hover:text-brand-orange transition-colors">
++                    <i class="fa-solid fa-arrow-left"></i> Back to Homepage
++                </a>
++            </div>
++        </div>
++    </section>
++
++    <footer class="bg-brand-dark pt-16 sm:pt-20 pb-10 border-t border-white/10">
++        <div class="container mx-auto px-6 sm:px-8 lg:px-12">
++            <div class="grid grid-cols-1 md:grid-cols-2 gap-16">
++                <div>
++                    <h2 class="font-display text-4xl font-bold mb-6">Let's <span class="text-brand-orange">Connect</span></h2>
++                    <p class="text-gray-400 mb-8">
++                        Available for club bookings, private events, and festivals. <br>
++                        Bringing the House Music Therapy to your event.
++                    </p>
++
++                    <div class="space-y-4 mb-8">
++                        <a href="mailto:veljkoned@gmail.com"
++                            class="flex items-center gap-4 text-xl hover:text-brand-orange transition-colors">
++                            <i class="fa-regular fa-envelope text-brand-orange"></i> veljkoned@gmail.com
++                        </a>
++                        <a href="https://ra.co/dj/zippy-2" target="_blank" rel="noopener noreferrer"
++                            class="flex items-center gap-4 text-xl hover:text-brand-orange transition-colors">
++                            <i class="fa-solid fa-square-poll-vertical text-brand-orange"></i> Resident Advisor Profile
++                        </a>
++                    </div>
++
++                    <div class="flex gap-4 sm:gap-6 mt-8 flex-wrap justify-center md:justify-start">
++                        <a href="https://www.instagram.com/zovumezippy/" target="_blank" rel="me noopener noreferrer"
++                            class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/5 flex items-center justify-center hover:bg-brand-orange hover:text-white transition-all">
++                            <i class="fa-brands fa-instagram text-lg sm:text-xl"></i>
++                        </a>
++                        <a href="https://www.youtube.com/@zovumezippy/" target="_blank" rel="me noopener noreferrer"
++                            class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/5 flex items-center justify-center hover:bg-brand-orange hover:text-white transition-all">
++                            <i class="fa-brands fa-youtube text-lg sm:text-xl"></i>
++                        </a>
++                        <a href="https://open.spotify.com/user/31aj2g4yokqhpoxwkpo5odxegsle" target="_blank"
++                            rel="me noopener noreferrer"
++                            class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/5 flex items-center justify-center hover:bg-brand-orange hover:text-white transition-all">
++                            <i class="fa-brands fa-spotify text-lg sm:text-xl"></i>
++                        </a>
++                        <a href="https://www.mixcloud.com/zovumezippy/" target="_blank" rel="me noopener noreferrer"
++                            class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/5 flex items-center justify-center hover:bg-brand-orange hover:text-white transition-all">
++                            <i class="fa-brands fa-mixcloud text-lg sm:text-xl"></i>
++                        </a>
++                    </div>
++                </div>
++
++                <div class="flex flex-col justify-center items-center md:items-end">
++                    <a href="/#contact" class="px-8 py-4 bg-brand-orange text-white font-bold uppercase tracking-wider hover:bg-white hover:text-brand-black transition-all duration-300 text-center">
++                        Book DJ Zippy
++                    </a>
++                </div>
++            </div>
++
++            <div class="mt-20 pt-8 border-t border-white/5 text-center text-gray-600 text-sm">
++                &copy; 2025 DJ Zippy. All Rights Reserved. House Music Therapy.
++            </div>
++        </div>
++    </footer>
++
++    <script src="script.js" defer></script>
++
++    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-975400552"></script>
++    <script>
++        window.dataLayer = window.dataLayer || [];
++        function gtag() { dataLayer.push(arguments); }
++        gtag('js', new Date());
++
++        gtag('config', 'AW-975400552');
++    </script>
++    <script>(function (w, d, s, l, i) {
++            w[l] = w[l] || []; w[l].push({
++                'gtm.start':
++                    new Date().getTime(), event: 'gtm.js'
++            }); var f = d.getElementsByTagName(s)[0],
++                j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
++                    'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
++        })(window, document, 'script', 'dataLayer', 'GTM-KLGKHMGM');</script>
++</body>
++
++</html>
+diff --git a/dist/index.html b/dist/index.html
+index 13213de..998326f 100644
+--- a/dist/index.html
++++ b/dist/index.html
+@@ -72,45 +72,73 @@
+     <script type="application/ld+json">
+ {
+   "@context": "https://schema.org",
+-  "@type": "Person",
+-  "@id": "https://zippydj.com/#person",
+-  "name": "Zippy",
+-  "givenName": "Veljko",
+-  "familyName": "Nedeljkovic",
+-  "alternateName": [
+-    "DJ Zippy",
+-    "Zippy DJ",
+-    "Zovumezippy",
+-    "Zipi"
+-  ],
+-  "url": "https://zippydj.com",
+-  "image": "https://zippydj.com/images/dj-zippy-house-music-dj.webp",
+-  "description": "Zippy (Veljko Nedeljkovic) is a House and Tech-House selector based in Belgrade, Serbia, known for the 'House Music Therapy' mix series and performances at major regional clubs.",
+-  "jobTitle": "DJ & Producer",
+-  "hasOccupation": {
+-    "@type": "Occupation",
+-    "name": "Disc Jockey",
+-    "occupationalCategory": "27-2099.00"
+-  },
+-  "homeLocation": {
+-    "@type": "City",
+-    "name": "Belgrade"
+-  },
+-  "sameAs": [
+-    "https://musicbrainz.org/artist/a6a53c2e-8fa0-4612-8e43-8de7af43dc2a",
+-    "https://www.instagram.com/zovumezippy",
+-              "https://www.wikidata.org/wiki/Q138220521",
+-    "https://www.youtube.com/@zovumezippy",
+-    "https://ra.co/dj/zippy-2",
+-    "https://soundcloud.com/zovumezippy",
+-    "https://www.mixcloud.com/zovumezippy/",
+-    "https://www.facebook.com/zovumezippy",
+-    "https://open.spotify.com/user/31aj2g4yokqhpoxwkpo5odxegsle"
+-  ],
+-  "knowsAbout": [
+-    "House Music",
+-    "Tech House",
+-    "Techno"
++  "@graph": [
++    {
++      "@type": "ProfilePage",
++      "@id": "https://zippydj.com/#profilepage",
++      "mainEntity": { "@id": "https://zippydj.com/#person" },
++      "dateCreated": "2024-01-01",
++      "dateModified": "2025-07-13"
++    },
++    {
++      "@type": "Person",
++      "@id": "https://zippydj.com/#person",
++      "name": "Zippy",
++      "givenName": "Veljko",
++      "familyName": "Nedeljkovic",
++      "alternateName": [
++        "DJ Zippy",
++        "Zippy DJ",
++        "Zovumezippy",
++        "Zipi"
++      ],
++      "url": "https://zippydj.com",
++      "image": "https://zippydj.com/images/dj-zippy-house-music-dj.webp",
++      "description": "Zippy (Veljko Nedeljkovic) is a House and Tech-House selector based in Belgrade, Serbia, known for the 'House Music Therapy' mix series and performances at major regional clubs.",
++      "jobTitle": "DJ & Producer",
++      "hasOccupation": {
++        "@type": "Occupation",
++        "name": "Disc Jockey",
++        "occupationalCategory": "27-2099.00"
++      },
++      "homeLocation": {
++        "@type": "City",
++        "name": "Belgrade"
++      },
++      "sameAs": [
++        "https://musicbrainz.org/artist/a6a53c2e-8fa0-4612-8e43-8de7af43dc2a",
++        "https://www.instagram.com/zovumezippy",
++        "https://www.wikidata.org/wiki/Q138220521",
++        "https://www.youtube.com/@zovumezippy",
++        "https://ra.co/dj/zippy-2",
++        "https://soundcloud.com/zovumezippy",
++        "https://www.mixcloud.com/zovumezippy/",
++        "https://www.facebook.com/zovumezippy",
++        "https://open.spotify.com/user/31aj2g4yokqhpoxwkpo5odxegsle"
++      ],
++      "knowsAbout": [
++        "House Music",
++        "Tech House",
++        "Techno"
++      ]
++    },
++    {
++      "@type": "Organization",
++      "@id": "https://zippydj.com/#organization",
++      "name": "DJ Zippy",
++      "alternateName": "House Music Therapy",
++      "url": "https://zippydj.com",
++      "logo": "https://zippydj.com/images/dj-zippy-house-music-dj.webp",
++      "founder": { "@id": "https://zippydj.com/#person" },
++      "description": "House Music Therapy - DJ brand curating frequencies, grooves, and the journey through house music."
++    },
++    {
++      "@type": "WebSite",
++      "@id": "https://zippydj.com/#website",
++      "name": "DJ Zippy",
++      "url": "https://zippydj.com",
++      "publisher": { "@id": "https://zippydj.com/#organization" }
++    }
+   ]
+ }
+ </script>
+@@ -127,7 +155,8 @@
+             <div class="hidden md:flex space-x-8 text-sm font-semibold tracking-wide uppercase text-gray-300">
+                 <a href="#about" class="nav-link hover:text-white transition-colors">The Selector</a>
+                 <a href="#music" class="nav-link hover:text-white transition-colors">Music</a>
+-                <a href="#dates" class="nav-link hover:text-white transition-colors">Dates</a>
++                <a href="/events.html" class="nav-link hover:text-white transition-colors">Events</a>
++                <a href="/gallery.html" class="nav-link hover:text-white transition-colors">Gallery</a>
+                 <a href="/links.html" class="nav-link hover:text-white transition-colors">Links</a>
+                 <a href="#contact" class="text-brand-orange hover:text-white transition-colors">Book Now</a>
+             </div>
+@@ -141,7 +170,8 @@
+             class="hidden md:hidden bg-brand-dark border-t border-white/10 p-4 sm:p-6 flex flex-col space-y-4">
+             <a href="#about" class="text-gray-300 hover:text-brand-orange">The Selector</a>
+             <a href="#music" class="text-gray-300 hover:text-brand-orange">Music</a>
+-            <a href="#dates" class="text-gray-300 hover:text-brand-orange">Dates</a>
++            <a href="/events.html" class="text-gray-300 hover:text-brand-orange">Events</a>
++            <a href="/gallery.html" class="text-gray-300 hover:text-brand-orange">Gallery</a>
+             <a href="/links.html" class="text-gray-300 hover:text-brand-orange">Links</a>
+             <a href="#contact" class="text-brand-orange font-bold">Book Now</a>
+         </div>
+@@ -383,6 +413,12 @@
+                     </div>
+                 </div>
+             </div>
++
++            <div class="mt-8 text-center">
++                <a href="/events.html" class="inline-flex items-center gap-2 text-gray-400 hover:text-brand-orange transition-colors">
++                    <i class="fa-solid fa-calendar"></i> View All Events & Past Highlights
++                </a>
++            </div>
+         </div>
+     </section>
+ 
+diff --git a/dist/links.html b/dist/links.html
+index cfa1f2c..a00052e 100644
+--- a/dist/links.html
++++ b/dist/links.html
+@@ -102,6 +102,16 @@
+ 
+         <nav class="w-full flex flex-col space-y-4">
+ 
++            <a href="/events.html"
++                class="group block w-full bg-[#1f1f1f] border border-zinc-800 rounded-lg py-4 px-6 text-center font-medium transition-all duration-300 hover:border-brand-orange hover:text-brand-orange">
++                Events & Performances
++            </a>
++
++            <a href="/gallery.html"
++                class="group block w-full bg-[#1f1f1f] border border-zinc-800 rounded-lg py-4 px-6 text-center font-medium transition-all duration-300 hover:border-brand-orange hover:text-brand-orange">
++                Photo Gallery
++            </a>
++
+             <a href="index.html#dates"
+                 class="group block w-full bg-[#1f1f1f] border border-zinc-800 rounded-lg py-4 px-6 text-center font-medium transition-all duration-300 hover:border-brand-orange hover:text-brand-orange">
+                 Upcoming Gigs & Tickets
