@@ -1,0 +1,239 @@
+/* Application Logic */
+// Data Store
+const appData = {
+    mixes: [
+        {
+            title: "House Music Therapy / #LetsMixIt Contest",
+            genre: "House / Tech House",
+            desc: "DJ Zippy's high-energy rooftop set recorded in Novi Sad for the #LetsMixIt competition.",
+            icon: "fa-solid fa-play",
+            link: "https://www.youtube.com/watch?v=IzkAZcbyCSI",
+            thumbnail: "https://img.youtube.com/vi/IzkAZcbyCSI/maxresdefault.jpg",
+            alt: "DJ Zippy's Let's Mix It Submission - House and Tech House mix",
+            featured: true
+        },
+        {
+            title: "House Music Therapy / Deep & Tech Grooves",
+            genre: "Deep House / Tech House",
+            desc: "DJ Zippy's curated mix blending deep basslines with rhythmic tech house elements.",
+            icon: "fa-solid fa-play",
+            link: "https://www.youtube.com/watch?v=c1M_dMg_CcU",
+            thumbnail: "https://img.youtube.com/vi/c1M_dMg_CcU/maxresdefault.jpg",
+            alt: "DJ Zippy's House Therapy Session - Deep House mix",
+            featured: false
+        },
+        {
+            title: "EXIT 2024 | AS FM Stage Live",
+            genre: "Tech House",
+            desc: "DJ Zippy's full live performance recording from the AS FM stage at Exit Festival 2024.",
+            icon: "fa-solid fa-play",
+            link: "https://www.youtube.com/watch?v=pbT603mKdsc",
+            thumbnail: "https://img.youtube.com/vi/pbT603mKdsc/maxresdefault.jpg",
+            alt: "DJ Zippy's live set at EXIT 2024 AS FM Stage house music selection",
+            featured: false
+        },
+        {
+            title: "EXIT 2024 | AS FM Stage Full Show",
+            genre: "Tech House",
+            desc: "DJ Zippy's complete high-energy audio recording from the Exit Festival performance.",
+            icon: "fa-brands fa-mixcloud",
+            link: "https://www.mixcloud.com/zovumezippy/exit-2024-zippy-live-at-as-fm-stage-full-show/",
+            thumbnail: "",
+            alt: "DJ Zippy's House Music Therapy Vol. 12 - MixCloud set",
+            featured: false
+        },
+        {
+            title: "House Music Therapy / Deep & Tech Grooves",
+            genre: "Deep Tech",
+            desc: "DJ Zippy's mix focused on sophisticated, deeper layers of house music.",
+            icon: "fa-brands fa-mixcloud",
+            link: "https://www.mixcloud.com/zovumezippy/house-music-therapy-with-dj-zippy-deep-and-tech-grooves/",
+            thumbnail: "",
+            alt: "DJ Zippy's Deep & Tech Grooves - MixCloud set",
+            featured: false
+        },
+        {
+            title: "House Music Therapy / Live from Singing Forest",
+            genre: "House / Organic House",
+            desc: "DJ Zippy's live set recorded in Singing Forest, blending house rhythms with an jazzy vibe.",
+            icon: "fa-brands fa-mixcloud",
+            link: "https://www.mixcloud.com/zovumezippy/house-music-therapy-with-dj-zippy-live-from-singing-forest/",
+            thumbnail: "",
+            alt: "DJ Zippy's Live from Singing Forest - MixCloud set",
+            featured: false
+        }
+    ],
+    playlists: [
+        {
+            title: "House Music Therapy with DJ Zippy",
+            genre: "Spotify Playlist",
+            desc: "DJ Zippy's selection of tracks that never leave his USB.",
+            icon: "fa-brands fa-spotify",
+            link: "https://open.spotify.com/playlist/1760y5mR1hdF7PdnAErYRA", // Example Spotify link
+            thumbnail: "",
+            alt: "DJ Zippy's Selector Choice House - Spotify playlist"
+        },
+        {
+            title: "Guilty Trep Pleasures with DJ Zippy",
+            genre: "Spotify Playlist",
+            desc: "DJ Zippy's playlist for when the lights go down and the mood gets darker.",
+            icon: "fa-brands fa-spotify",
+            link: "https://open.spotify.com/playlist/17bauJGzLkXVRa89n3WEF0",
+            thumbnail: "",
+            alt: "DJ Zippy's Afterhours guilty pleasure - Spotify playlist"
+        },
+        {
+            title: "Chill Balkan RnB Vibes with DJ Zippy",
+            genre: "Spotify Playlist",
+            desc: "DJ Zippy's chill summer vibes with a Balkan twist.",
+            icon: "fa-brands fa-spotify",
+            link: "https://open.spotify.com/playlist/5wyLKeoY4Jf3FrGcPj9ly2",
+            thumbnail: "",
+            alt: "DJ Zippy's Chill Balkan RnB Vibe Essentials - Spotify playlist"
+        }
+    ]
+};
+
+// --- Initialization ---
+document.addEventListener('DOMContentLoaded', () => {
+    // DOM Elements
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const musicGrid = document.getElementById('music-grid');
+    const btnYoutube = document.getElementById('filter-youtube');
+    const btnMixcloud = document.getElementById('filter-mixcloud');
+    const btnSpotify = document.getElementById('filter-spotify');
+    const platformLink = document.getElementById('platform-link');
+    const contactForm = document.getElementById('contact-form');
+
+    // --- Form Submission Logic (Netlify AJAX) ---
+    if (contactForm) {
+        contactForm.addEventListener("submit", function(e) {
+            e.preventDefault();
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerText;
+            
+            submitBtn.disabled = true;
+            submitBtn.innerText = "SENDING...";
+
+            const formData = new FormData(this);
+
+            fetch("/", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: new URLSearchParams(formData).toString(),
+            })
+            .then(res => {
+                if (res.ok) {
+                    submitBtn.innerText = "REQUEST SENT!";
+                    contactForm.reset();
+                } else {
+                    submitBtn.innerText = "ERROR";
+                }
+            })
+            .catch(() => {
+                submitBtn.innerText = "ERROR";
+            })
+            .finally(() => {
+                setTimeout(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = originalText;
+                }, 3000);
+            });
+        });
+    }
+
+    // --- Navigation Logic ---
+    if (mobileMenuBtn && mobileMenu) {
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+    }
+
+    document.querySelectorAll('.nav-link, #mobile-menu a').forEach(link => {
+        link.addEventListener('click', () => {
+            if (mobileMenu) mobileMenu.classList.add('hidden');
+        });
+    });
+
+    // --- Content Rendering ---
+    function renderMusic(type) {
+        if (!musicGrid) return;
+        musicGrid.innerHTML = '';
+        let data;
+        if (type === 'youtube') {
+            data = appData.mixes.filter(item => item.icon === 'fa-solid fa-play');
+        } else if (type === 'mixcloud') {
+            data = appData.mixes.filter(item => item.icon === 'fa-brands fa-mixcloud');
+        } else if (type === 'spotify') {
+            data = appData.playlists;
+        }
+
+        data.forEach((item, index) => {
+            const card = document.createElement('div');
+            card.className = 'group bg-brand-gray border border-white/5 p-0 overflow-hidden relative rounded-xl hover:border-brand-orange/50 transition-all duration-300';
+            
+            const featuredBadge = item.featured ? 
+                `<div class="absolute top-4 right-4 bg-brand-orange text-white text-xs font-bold px-2 py-1 rounded z-20">FEATURED</div>` : '';
+
+            card.innerHTML = `
+                <div class="h-48 bg-gradient-to-br from-gray-800 to-black relative flex items-center justify-center overflow-hidden">
+                    ${item.thumbnail ? `<img src="${item.thumbnail}" alt="${item.alt}" class="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:scale-110 transition-transform duration-700">` : ''}
+                    <div class="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-colors"></div>
+                    <a href="${item.link}" target="_blank" rel="noopener noreferrer" class="w-16 h-16 rounded-full border-2 border-white/50 flex items-center justify-center z-10 group-hover:bg-brand-orange group-hover:border-brand-orange transition-all cursor-pointer">
+                        <i class="${item.icon} text-2xl text-white"></i>
+                    </a>
+                    ${featuredBadge}
+                </div>
+                <div class="p-6">
+                    <div class="text-xs text-brand-orange font-bold uppercase mb-2">${item.genre}</div>
+                    <h3 class="text-xl font-bold text-white mb-2 leading-tight">${item.title}</h3>
+                    <p class="text-gray-400 text-sm mb-4">${item.desc}</p>
+                    <a href="${item.link}" target="_blank" rel="noopener noreferrer" class="inline-block text-sm font-bold border-b border-white/20 pb-1 hover:text-brand-orange hover:border-brand-orange transition-colors">LISTEN NOW</a>
+                </div>
+            `;
+            musicGrid.appendChild(card);
+        });
+    }
+
+    // --- Platform Link Update ---
+    function updatePlatformLink(platform) {
+        if (!platformLink) return;
+        let url, icon, text;
+        if (platform === 'youtube') {
+            url = 'https://www.youtube.com/@zovumezippy/';
+            icon = 'fa-brands fa-youtube';
+            text = 'View full profile on YouTube';
+        } else if (platform === 'mixcloud') {
+            url = 'https://www.mixcloud.com/zovumezippy/';
+            icon = 'fa-brands fa-mixcloud';
+            text = 'View full profile on MixCloud';
+        } else if (platform === 'spotify') {
+            url = 'https://open.spotify.com/user/zovumezippy';
+            icon = 'fa-brands fa-spotify';
+            text = 'View full profile on Spotify';
+        }
+        platformLink.href = url;
+        platformLink.innerHTML = `<i class="${icon}"></i> ${text}`;
+    }
+
+    // --- Filter Handlers ---
+    function setFilter(platform, activeBtn, others) {
+        activeBtn.classList.add('text-white', 'border-brand-orange');
+        activeBtn.classList.remove('text-gray-500', 'border-transparent');
+        others.forEach(btn => {
+            btn.classList.remove('text-white', 'border-brand-orange');
+            btn.classList.add('text-gray-500', 'border-transparent');
+        });
+        renderMusic(platform);
+        updatePlatformLink(platform);
+    }
+
+    if (btnYoutube) btnYoutube.addEventListener('click', () => setFilter('youtube', btnYoutube, [btnMixcloud, btnSpotify]));
+    if (btnMixcloud) btnMixcloud.addEventListener('click', () => setFilter('mixcloud', btnMixcloud, [btnYoutube, btnSpotify]));
+    if (btnSpotify) btnSpotify.addEventListener('click', () => setFilter('spotify', btnSpotify, [btnYoutube, btnMixcloud]));
+
+    // Start on YouTube
+    renderMusic('youtube');
+    updatePlatformLink('youtube');
+});

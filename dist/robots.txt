@@ -1,0 +1,8 @@
+User-agent: *
+# Minimal robots.txt for a static site
+# Block VCS and local dependency folders
+Disallow: /.git/
+Disallow: /node_modules/
+
+# Sitemap (served from the canonical host)
+Sitemap: https://zippydj.com/sitemap.xml
