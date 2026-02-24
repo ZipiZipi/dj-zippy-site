@@ -177,8 +177,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 `<div class="absolute top-4 right-4 bg-brand-orange text-white text-xs font-bold px-2 py-1 rounded z-20">FEATURED</div>` : '';
 
             card.innerHTML = `
-                <div class="h-48 bg-gradient-to-br from-gray-800 to-black relative flex items-center justify-center overflow-hidden">
-                    ${item.thumbnail ? `<img src="${item.thumbnail}" alt="${item.alt}" class="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:scale-110 transition-transform duration-700">` : ''}
+                <div class="aspect-video bg-gradient-to-br from-gray-800 to-black relative flex items-center justify-center overflow-hidden">
+                    ${item.thumbnail ? `<img src="${item.thumbnail}" alt="${item.alt}" class="absolute inset-0 w-full h-full object-contain opacity-40 group-hover:scale-110 transition-transform duration-700">` : ''}
                     <div class="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-colors"></div>
                     <a href="${item.link}" target="_blank" rel="noopener noreferrer" class="w-16 h-16 rounded-full border-2 border-white/50 flex items-center justify-center z-10 group-hover:bg-brand-orange group-hover:border-brand-orange transition-all cursor-pointer">
                         <i class="${item.icon} text-2xl text-white"></i>
