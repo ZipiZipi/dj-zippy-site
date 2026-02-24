@@ -74,6 +74,99 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
     <link rel="stylesheet" href="./output.css">
 
+    <style>
+        /* Vinyl Record Styles */
+        .vinyl-disc {
+            background-color: #111;
+            border-radius: 50%;
+            position: relative;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06);
+        }
+        .vinyl-disc::before {
+            content: '';
+            position: absolute;
+            inset: 18%;
+            border-radius: 50%;
+            background: repeating-radial-gradient(circle at center, transparent, transparent 3px, rgba(255,255,255,0.03) 3px, rgba(255,255,255,0.03) 4px);
+            pointer-events: none;
+        }
+        .vinyl-disc::after {
+            content: '';
+            position: absolute;
+            inset: 2%;
+            border-radius: 50%;
+            background: linear-gradient(135deg, transparent 30%, rgba(255,255,255,0.04) 48%, transparent 60%);
+            pointer-events: none;
+        }
+        .vinyl-label {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 36%; height: 36%;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 0 2px rgba(0,0,0,0.4);
+            z-index: 1;
+        }
+        .vinyl-label-text {
+            font-size: 0.55rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: rgba(255,255,255,0.9);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+        .vinyl-hole {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 5%; height: 5%;
+            min-width: 4px; min-height: 4px;
+            background: #0a0a0a;
+            border-radius: 50%;
+            z-index: 2;
+        }
+        .vinyl-slide {
+            left: 50%;
+            translate: -50% 0;
+            rotate: 0deg;
+            transition: translate 0.6s cubic-bezier(0.23, 1, 0.32, 1),
+                        rotate 0.6s cubic-bezier(0.23, 1, 0.32, 1),
+                        box-shadow 0.6s ease;
+        }
+        .vinyl-sleeve {
+            transition: border-color 0.4s ease, box-shadow 0.4s ease;
+        }
+        .vinyl-info-reveal {
+            transition: opacity 0.4s ease 0.1s;
+        }
+        @media (hover: hover) and (pointer: fine) {
+            .vinyl-card:hover .vinyl-slide {
+                translate: -50% -2rem;
+                rotate: 25deg;
+                box-shadow: 0 8px 30px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.08);
+            }
+            .vinyl-card-sm:hover .vinyl-slide {
+                translate: -50% -1.5rem;
+                rotate: 20deg;
+            }
+            .vinyl-info-reveal {
+                opacity: 0;
+            }
+            .vinyl-card:hover .vinyl-info-reveal,
+            .vinyl-card-sm:hover .vinyl-info-reveal {
+                opacity: 1;
+            }
+            .vinyl-card:hover .vinyl-sleeve,
+            .vinyl-card-sm:hover .vinyl-sleeve {
+                border-color: rgba(255, 85, 0, 0.2);
+                box-shadow: 0 4px 20px rgba(255, 85, 0, 0.05);
+            }
+        }
+    </style>
+
     <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -263,7 +356,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </div>
     </nav>
 
-    <section class="isolate relative min-h-[40vh] flex flex-col items-center justify-center bg-brand-black pt-36 sm:pt-44 pb-12 overflow-hidden">
+    <section class="isolate relative min-h-[50vh] flex flex-col items-center justify-center bg-brand-black pt-36 sm:pt-44 pb-12 overflow-hidden">
         <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-brand-orange/10 rounded-full pointer-events-none" style="width: min(60vw, 900px); height: min(60vw, 900px); filter: blur(80px);"></div>
 
         <div class="container mx-auto px-6 sm:px-8 lg:px-12 text-center z-10">
@@ -302,178 +395,233 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
     <section id="past" class="isolate relative py-16 sm:py-20 bg-brand-black border-t border-white/5">
         <div class="container mx-auto px-6 sm:px-8 lg:px-12">
-            <div class="flex items-center gap-4 mb-10">
+            <div class="flex items-center gap-4 mb-4">
                 <div class="w-2 h-8 bg-white/30"></div>
                 <h2 class="font-display text-3xl md:text-4xl font-bold">Past <span class="text-gray-400">Highlights</span></h2>
             </div>
 
-            <div class="space-y-6">
+            <!-- Featured Performances -->
+            <div class="mb-4">
+                <h3 class="text-brand-orange font-display font-bold text-xs uppercase tracking-widest mb-8">Featured Performances</h3>
+            </div>
 
-                <article class="group bg-brand-gray rounded-lg p-6 border-l-4 border-brand-orange hover:bg-white/5 transition-colors">
-                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                        <div class="flex-1">
-                            <div class="flex items-center gap-3 mb-2">
-                                <span class="text-brand-orange font-display font-bold text-sm">24/01/2026</span>
-                                <span class="px-2 py-0.5 bg-brand-orange/20 text-brand-orange text-xs font-bold rounded">RESIDENCY</span>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10 lg:gap-x-8 mb-20">
+
+                <!-- Featured 1: Exit - Students Stage -->
+                <article class="vinyl-card group cursor-default relative pt-16 sm:pt-20">
+                    <div class="vinyl-disc vinyl-slide absolute top-0 w-32 h-32 sm:w-36 sm:h-36 z-0">
+                        <div class="vinyl-label bg-red-600">
+                            <span class="vinyl-label-text">EXIT</span>
+                        </div>
+                        <div class="vinyl-hole"></div>
+                    </div>
+                    <div class="vinyl-sleeve relative z-10 bg-gradient-to-b from-brand-gray to-black/60 rounded-xl p-4 pt-14 sm:pt-16 border border-white/5">
+                        <h3 class="font-display text-sm sm:text-base font-bold mb-2 leading-tight">Students Stage</h3>
+                        <div class="vinyl-info-reveal">
+                            <div class="flex items-center gap-2 mb-2 flex-wrap">
+                                <span class="text-brand-orange font-display font-bold text-xs">13/07/2025</span>
+                                <span class="px-1.5 py-0.5 bg-red-500/20 text-red-400 text-[10px] font-bold rounded">EXIT</span>
                             </div>
-                            <h3 class="font-display text-xl md:text-2xl font-bold mb-1">RayBar</h3>
-                            <p class="text-gray-400 text-sm mb-2"><i class="fa-solid fa-location-dot mr-2"></i>Novi Sad, Serbia</p>
-                            <p class="text-gray-300">First Residency. 21:00 - 01:00.</p>
+                            <p class="text-gray-400 text-xs mb-1"><i class="fa-solid fa-location-dot mr-1"></i>Novi Sad, Serbia</p>
+                            <p class="text-gray-500 text-xs">02:00 - 04:00</p>
                         </div>
                     </div>
                 </article>
 
-                <article class="group bg-brand-gray rounded-lg p-6 border-l-4 border-brand-orange hover:bg-white/5 transition-colors">
-                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                        <div class="flex-1">
-                            <div class="flex items-center gap-3 mb-2">
-                                <span class="text-brand-orange font-display font-bold text-sm">20/11/2025</span>
-                                <span class="px-2 py-0.5 bg-brand-orange/20 text-brand-orange text-xs font-bold rounded">CLUB</span>
-                            </div>
-                            <h3 class="font-display text-xl md:text-2xl font-bold mb-1">Club Kult</h3>
-                            <p class="text-gray-400 text-sm mb-2"><i class="fa-solid fa-location-dot mr-2"></i>Belgrade, Serbia</p>
-                            <p class="text-gray-300">House / Groove / Funk / Tech club night. 21:00 - 22:00.</p>
+                <!-- Featured 2: Exit - Dance Arena -->
+                <article class="vinyl-card group cursor-default relative pt-16 sm:pt-20">
+                    <div class="vinyl-disc vinyl-slide absolute top-0 w-32 h-32 sm:w-36 sm:h-36 z-0">
+                        <div class="vinyl-label bg-red-700">
+                            <span class="vinyl-label-text">EXIT</span>
                         </div>
-                        <div class="flex-shrink-0">
-                            <a href="https://ra.co/events/2307056" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-4 py-2 border border-white/20 text-sm font-bold uppercase hover:border-brand-orange hover:text-brand-orange transition-colors">
-                                <i class="fa-solid fa-arrow-up-right-from-square"></i> Details
-                            </a>
+                        <div class="vinyl-hole"></div>
+                    </div>
+                    <div class="vinyl-sleeve relative z-10 bg-gradient-to-b from-brand-gray to-black/60 rounded-xl p-4 pt-14 sm:pt-16 border border-white/5">
+                        <h3 class="font-display text-sm sm:text-base font-bold mb-2 leading-tight">Dance Arena</h3>
+                        <div class="vinyl-info-reveal">
+                            <div class="flex items-center gap-2 mb-2 flex-wrap">
+                                <span class="text-brand-orange font-display font-bold text-xs">13/07/2025</span>
+                                <span class="px-1.5 py-0.5 bg-red-500/20 text-red-400 text-[10px] font-bold rounded">EXIT</span>
+                            </div>
+                            <p class="text-gray-400 text-xs mb-1"><i class="fa-solid fa-location-dot mr-1"></i>Novi Sad, Serbia</p>
+                            <p class="text-gray-500 text-xs">21:00 - 23:00</p>
                         </div>
                     </div>
                 </article>
 
-                <article class="group bg-brand-gray rounded-lg p-6 border-l-4 border-brand-orange hover:bg-white/5 transition-colors">
-                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                        <div class="flex-1">
-                            <div class="flex items-center gap-3 mb-2">
-                                <span class="text-brand-orange font-display font-bold text-sm">19/08/2025</span>
-                                <span class="px-2 py-0.5 bg-brand-orange/20 text-brand-orange text-xs font-bold rounded">INTERNATIONAL</span>
+                <!-- Featured 3: Exit - AS FM Stage -->
+                <article class="vinyl-card group cursor-default relative pt-16 sm:pt-20">
+                    <div class="vinyl-disc vinyl-slide absolute top-0 w-32 h-32 sm:w-36 sm:h-36 z-0">
+                        <div class="vinyl-label bg-red-500">
+                            <span class="vinyl-label-text">EXIT</span>
+                        </div>
+                        <div class="vinyl-hole"></div>
+                    </div>
+                    <div class="vinyl-sleeve relative z-10 bg-gradient-to-b from-brand-gray to-black/60 rounded-xl p-4 pt-14 sm:pt-16 border border-white/5">
+                        <h3 class="font-display text-sm sm:text-base font-bold mb-2 leading-tight">AS FM Stage</h3>
+                        <div class="vinyl-info-reveal">
+                            <div class="flex items-center gap-2 mb-2 flex-wrap">
+                                <span class="text-brand-orange font-display font-bold text-xs">12/07/2024</span>
+                                <span class="px-1.5 py-0.5 bg-red-500/20 text-red-400 text-[10px] font-bold rounded">EXIT</span>
                             </div>
-                            <h3 class="font-display text-xl md:text-2xl font-bold mb-1">Toucan Nightclub</h3>
-                            <p class="text-gray-400 text-sm mb-2"><i class="fa-solid fa-location-dot mr-2"></i>Zakynthos, Greece</p>
-                            <p class="text-gray-300">00:00 - 04:00.</p>
+                            <p class="text-gray-400 text-xs mb-1"><i class="fa-solid fa-location-dot mr-1"></i>Novi Sad, Serbia</p>
+                            <p class="text-gray-500 text-xs">22:00 - 23:00</p>
                         </div>
                     </div>
                 </article>
 
-                <article class="group bg-brand-gray rounded-lg p-6 border-l-4 border-brand-orange hover:bg-white/5 transition-colors">
-                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                        <div class="flex-1">
-                            <div class="flex items-center gap-3 mb-2">
-                                <span class="text-brand-orange font-display font-bold text-sm">13/07/2025</span>
-                                <span class="px-2 py-0.5 bg-red-500/20 text-red-400 text-xs font-bold rounded">EXIT FESTIVAL</span>
-                            </div>
-                            <h3 class="font-display text-xl md:text-2xl font-bold mb-1">Exit Festival - Dance Arena</h3>
-                            <p class="text-gray-400 text-sm mb-2"><i class="fa-solid fa-location-dot mr-2"></i>Novi Sad, Serbia</p>
-                            <p class="text-gray-300">First Dance Arena performance. 02:00 - 04:00.</p>
+                <!-- Featured 4: Capital Night Club -->
+                <article class="vinyl-card group cursor-default relative pt-16 sm:pt-20">
+                    <div class="vinyl-disc vinyl-slide absolute top-0 w-32 h-32 sm:w-36 sm:h-36 z-0">
+                        <div class="vinyl-label bg-blue-600">
+                            <span class="vinyl-label-text">CAPITAL</span>
                         </div>
-                        <div class="flex-shrink-0">
-                            <a href="https://www.instagram.com/p/DMDrGdzoEca/?hl=en&img_index=2" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-4 py-2 border border-white/20 text-sm font-bold uppercase hover:border-brand-orange hover:text-brand-orange transition-colors">
-                                <i class="fa-solid fa-arrow-up-right-from-square"></i> Details
-                            </a>
+                        <div class="vinyl-hole"></div>
+                    </div>
+                    <div class="vinyl-sleeve relative z-10 bg-gradient-to-b from-brand-gray to-black/60 rounded-xl p-4 pt-14 sm:pt-16 border border-white/5">
+                        <h3 class="font-display text-sm sm:text-base font-bold mb-2 leading-tight">Capital Night Club</h3>
+                        <div class="vinyl-info-reveal">
+                            <div class="flex items-center gap-2 mb-2 flex-wrap">
+                                <span class="text-brand-orange font-display font-bold text-xs">23/07/2024</span>
+                                <span class="px-1.5 py-0.5 bg-blue-500/20 text-blue-400 text-[10px] font-bold rounded">INTERNATIONAL</span>
+                            </div>
+                            <p class="text-gray-400 text-xs mb-1"><i class="fa-solid fa-location-dot mr-1"></i>Lefkada, Greece</p>
+                            <p class="text-gray-500 text-xs">00:00 - 03:30</p>
                         </div>
                     </div>
                 </article>
 
-                <article class="group bg-brand-gray rounded-lg p-6 border-l-4 border-brand-orange hover:bg-white/5 transition-colors">
-                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                        <div class="flex-1">
-                            <div class="flex items-center gap-3 mb-2">
-                                <span class="text-brand-orange font-display font-bold text-sm">13/07/2025</span>
-                                <span class="px-2 py-0.5 bg-red-500/20 text-red-400 text-xs font-bold rounded">EXIT FESTIVAL</span>
-                            </div>
-                            <h3 class="font-display text-xl md:text-2xl font-bold mb-1">Exit Festival - Students Stage</h3>
-                            <p class="text-gray-400 text-sm mb-2"><i class="fa-solid fa-location-dot mr-2"></i>Novi Sad, Serbia</p>
-                            <p class="text-gray-300">21:00 - 23:00.</p>
+            </div>
+
+            <!-- More Events -->
+            <div class="mb-4">
+                <h3 class="text-gray-400 font-display font-bold text-xs uppercase tracking-widest mb-8">More Events</h3>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-5 gap-y-8 sm:gap-x-6">
+
+                <!-- RayBar -->
+                <article class="vinyl-card vinyl-card-sm group cursor-default relative pt-10 sm:pt-12">
+                    <div class="vinyl-disc vinyl-slide absolute top-0 w-20 h-20 sm:w-24 sm:h-24 z-0">
+                        <div class="vinyl-label bg-amber-600">
+                            <span class="vinyl-label-text text-[7px] sm:text-[8px]">RAY</span>
                         </div>
-                        <div class="flex-shrink-0">
-                            <a href="https://www.instagram.com/p/DMDrGdzoEca/?hl=en&img_index=2" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-4 py-2 border border-white/20 text-sm font-bold uppercase hover:border-brand-orange hover:text-brand-orange transition-colors">
-                                <i class="fa-solid fa-arrow-up-right-from-square"></i> Details
-                            </a>
+                        <div class="vinyl-hole"></div>
+                    </div>
+                    <div class="vinyl-sleeve relative z-10 bg-gradient-to-b from-brand-gray to-black/60 rounded-lg p-3 pt-10 sm:pt-12 border border-white/5">
+                        <div class="vinyl-info-reveal">
+                            <span class="text-brand-orange font-display font-bold text-[10px] sm:text-xs block mb-1">24/01/2026</span>
+                            <h3 class="font-display text-xs sm:text-sm font-bold mb-1 leading-tight">RayBar</h3>
+                            <p class="text-gray-400 text-[10px] sm:text-xs"><i class="fa-solid fa-location-dot mr-1"></i>Novi Sad</p>
+                            <p class="text-gray-500 text-[10px] sm:text-xs">First Residency</p>
                         </div>
                     </div>
                 </article>
 
-                <article class="group bg-brand-gray rounded-lg p-6 border-l-4 border-brand-orange hover:bg-white/5 transition-colors">
-                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                        <div class="flex-1">
-                            <div class="flex items-center gap-3 mb-2">
-                                <span class="text-brand-orange font-display font-bold text-sm">07/09/2024</span>
-                                <span class="px-2 py-0.5 bg-brand-orange/20 text-brand-orange text-xs font-bold rounded">CLUB</span>
-                            </div>
-                            <h3 class="font-display text-xl md:text-2xl font-bold mb-1">Borisov Atelje</h3>
-                            <p class="text-gray-400 text-sm mb-2"><i class="fa-solid fa-location-dot mr-2"></i>Petrovaradin Fortress, Serbia</p>
-                            <p class="text-gray-300">00:00 - 04:00.</p>
+                <!-- Club Kult -->
+                <article class="vinyl-card vinyl-card-sm group cursor-default relative pt-10 sm:pt-12">
+                    <div class="vinyl-disc vinyl-slide absolute top-0 w-20 h-20 sm:w-24 sm:h-24 z-0">
+                        <div class="vinyl-label bg-orange-600">
+                            <span class="vinyl-label-text text-[7px] sm:text-[8px]">KULT</span>
+                        </div>
+                        <div class="vinyl-hole"></div>
+                    </div>
+                    <div class="vinyl-sleeve relative z-10 bg-gradient-to-b from-brand-gray to-black/60 rounded-lg p-3 pt-10 sm:pt-12 border border-white/5">
+                        <div class="vinyl-info-reveal">
+                            <span class="text-brand-orange font-display font-bold text-[10px] sm:text-xs block mb-1">20/11/2025</span>
+                            <h3 class="font-display text-xs sm:text-sm font-bold mb-1 leading-tight">Club Kult</h3>
+                            <p class="text-gray-400 text-[10px] sm:text-xs"><i class="fa-solid fa-location-dot mr-1"></i>Belgrade</p>
+                            <p class="text-gray-500 text-[10px] sm:text-xs">21:00 - 22:00</p>
                         </div>
                     </div>
                 </article>
 
-                <article class="group bg-brand-gray rounded-lg p-6 border-l-4 border-brand-orange hover:bg-white/5 transition-colors">
-                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                        <div class="flex-1">
-                            <div class="flex items-center gap-3 mb-2">
-                                <span class="text-brand-orange font-display font-bold text-sm">23/07/2024</span>
-                                <span class="px-2 py-0.5 bg-brand-orange/20 text-brand-orange text-xs font-bold rounded">INTERNATIONAL</span>
-                            </div>
-                            <h3 class="font-display text-xl md:text-2xl font-bold mb-1">Capital Night Club</h3>
-                            <p class="text-gray-400 text-sm mb-2"><i class="fa-solid fa-location-dot mr-2"></i>Lefkada, Greece</p>
-                            <p class="text-gray-300">Biggest nightclub on Lefkada. 00:00 - 03:30.</p>
+                <!-- Toucan Nightclub -->
+                <article class="vinyl-card vinyl-card-sm group cursor-default relative pt-10 sm:pt-12">
+                    <div class="vinyl-disc vinyl-slide absolute top-0 w-20 h-20 sm:w-24 sm:h-24 z-0">
+                        <div class="vinyl-label bg-emerald-600">
+                            <span class="vinyl-label-text text-[7px] sm:text-[8px]">TUC</span>
+                        </div>
+                        <div class="vinyl-hole"></div>
+                    </div>
+                    <div class="vinyl-sleeve relative z-10 bg-gradient-to-b from-brand-gray to-black/60 rounded-lg p-3 pt-10 sm:pt-12 border border-white/5">
+                        <div class="vinyl-info-reveal">
+                            <span class="text-brand-orange font-display font-bold text-[10px] sm:text-xs block mb-1">19/08/2025</span>
+                            <h3 class="font-display text-xs sm:text-sm font-bold mb-1 leading-tight">Toucan Nightclub</h3>
+                            <p class="text-gray-400 text-[10px] sm:text-xs"><i class="fa-solid fa-location-dot mr-1"></i>Zakynthos</p>
+                            <p class="text-gray-500 text-[10px] sm:text-xs">00:00 - 04:00</p>
                         </div>
                     </div>
                 </article>
 
-                <article class="group bg-brand-gray rounded-lg p-6 border-l-4 border-brand-orange hover:bg-white/5 transition-colors">
-                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                        <div class="flex-1">
-                            <div class="flex items-center gap-3 mb-2">
-                                <span class="text-brand-orange font-display font-bold text-sm">12/07/2024</span>
-                                <span class="px-2 py-0.5 bg-red-500/20 text-red-400 text-xs font-bold rounded">EXIT FESTIVAL</span>
-                            </div>
-                            <h3 class="font-display text-xl md:text-2xl font-bold mb-1">Exit Festival - AS FM Stage</h3>
-                            <p class="text-gray-400 text-sm mb-2"><i class="fa-solid fa-location-dot mr-2"></i>Novi Sad, Serbia</p>
-                            <p class="text-gray-300">First appearance at a major festival stage. 22:00 - 23:00.</p>
+                <!-- Borisov Atelje -->
+                <article class="vinyl-card vinyl-card-sm group cursor-default relative pt-10 sm:pt-12">
+                    <div class="vinyl-disc vinyl-slide absolute top-0 w-20 h-20 sm:w-24 sm:h-24 z-0">
+                        <div class="vinyl-label bg-purple-600">
+                            <span class="vinyl-label-text text-[7px] sm:text-[8px]">BA</span>
+                        </div>
+                        <div class="vinyl-hole"></div>
+                    </div>
+                    <div class="vinyl-sleeve relative z-10 bg-gradient-to-b from-brand-gray to-black/60 rounded-lg p-3 pt-10 sm:pt-12 border border-white/5">
+                        <div class="vinyl-info-reveal">
+                            <span class="text-brand-orange font-display font-bold text-[10px] sm:text-xs block mb-1">07/09/2024</span>
+                            <h3 class="font-display text-xs sm:text-sm font-bold mb-1 leading-tight">Borisov Atelje</h3>
+                            <p class="text-gray-400 text-[10px] sm:text-xs"><i class="fa-solid fa-location-dot mr-1"></i>Petrovaradin</p>
+                            <p class="text-gray-500 text-[10px] sm:text-xs">00:00 - 04:00</p>
                         </div>
                     </div>
                 </article>
 
-                <article class="group bg-brand-gray rounded-lg p-6 border-l-4 border-brand-orange hover:bg-white/5 transition-colors">
-                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                        <div class="flex-1">
-                            <div class="flex items-center gap-3 mb-2">
-                                <span class="text-brand-orange font-display font-bold text-sm">09/04/2024</span>
-                                <span class="px-2 py-0.5 bg-brand-orange/20 text-brand-orange text-xs font-bold rounded">CLUB</span>
-                            </div>
-                            <h3 class="font-display text-xl md:text-2xl font-bold mb-1">Klub Studenata Tehnike</h3>
-                            <p class="text-gray-400 text-sm mb-2"><i class="fa-solid fa-location-dot mr-2"></i>Belgrade, Serbia</p>
-                            <p class="text-gray-300">21:00 - 01:00.</p>
+                <!-- Klub Studenata Tehnike -->
+                <article class="vinyl-card vinyl-card-sm group cursor-default relative pt-10 sm:pt-12">
+                    <div class="vinyl-disc vinyl-slide absolute top-0 w-20 h-20 sm:w-24 sm:h-24 z-0">
+                        <div class="vinyl-label bg-indigo-600">
+                            <span class="vinyl-label-text text-[7px] sm:text-[8px]">KST</span>
+                        </div>
+                        <div class="vinyl-hole"></div>
+                    </div>
+                    <div class="vinyl-sleeve relative z-10 bg-gradient-to-b from-brand-gray to-black/60 rounded-lg p-3 pt-10 sm:pt-12 border border-white/5">
+                        <div class="vinyl-info-reveal">
+                            <span class="text-brand-orange font-display font-bold text-[10px] sm:text-xs block mb-1">09/04/2024</span>
+                            <h3 class="font-display text-xs sm:text-sm font-bold mb-1 leading-tight">Klub Studenata Tehnike</h3>
+                            <p class="text-gray-400 text-[10px] sm:text-xs"><i class="fa-solid fa-location-dot mr-1"></i>Belgrade</p>
+                            <p class="text-gray-500 text-[10px] sm:text-xs">21:00 - 01:00</p>
                         </div>
                     </div>
                 </article>
 
-                <article class="group bg-brand-gray rounded-lg p-6 border-l-4 border-brand-orange hover:bg-white/5 transition-colors">
-                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                        <div class="flex-1">
-                            <div class="flex items-center gap-3 mb-2">
-                                <span class="text-brand-orange font-display font-bold text-sm">02/09/2023</span>
-                                <span class="px-2 py-0.5 bg-brand-orange/20 text-brand-orange text-xs font-bold rounded">CLUB</span>
-                            </div>
-                            <h3 class="font-display text-xl md:text-2xl font-bold mb-1">Kulturni Centar LAB</h3>
-                            <p class="text-gray-400 text-sm mb-2"><i class="fa-solid fa-location-dot mr-2"></i>Novi Sad, Serbia</p>
-                            <p class="text-gray-300">Silent Disco Party. 21:00 - 01:00.</p>
+                <!-- Kulturni Centar LAB -->
+                <article class="vinyl-card vinyl-card-sm group cursor-default relative pt-10 sm:pt-12">
+                    <div class="vinyl-disc vinyl-slide absolute top-0 w-20 h-20 sm:w-24 sm:h-24 z-0">
+                        <div class="vinyl-label bg-teal-600">
+                            <span class="vinyl-label-text text-[7px] sm:text-[8px]">LAB</span>
+                        </div>
+                        <div class="vinyl-hole"></div>
+                    </div>
+                    <div class="vinyl-sleeve relative z-10 bg-gradient-to-b from-brand-gray to-black/60 rounded-lg p-3 pt-10 sm:pt-12 border border-white/5">
+                        <div class="vinyl-info-reveal">
+                            <span class="text-brand-orange font-display font-bold text-[10px] sm:text-xs block mb-1">02/09/2023</span>
+                            <h3 class="font-display text-xs sm:text-sm font-bold mb-1 leading-tight">Kulturni Centar LAB</h3>
+                            <p class="text-gray-400 text-[10px] sm:text-xs"><i class="fa-solid fa-location-dot mr-1"></i>Novi Sad</p>
+                            <p class="text-gray-500 text-[10px] sm:text-xs">Silent Disco Party</p>
                         </div>
                     </div>
                 </article>
 
-                <article class="group bg-brand-gray rounded-lg p-6 border-l-4 border-white/30 hover:bg-white/5 transition-colors">
-                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                        <div class="flex-1">
-                            <div class="flex items-center gap-3 mb-2">
-                                <span class="text-gray-400 font-display font-bold text-sm">30/07/2022</span>
-                                <span class="px-2 py-0.5 bg-white/10 text-gray-300 text-xs font-bold rounded">DEBUT</span>
-                            </div>
-                            <h3 class="font-display text-xl md:text-2xl font-bold mb-1">Cafe Krivi Put</h3>
-                            <p class="text-gray-400 text-sm mb-2"><i class="fa-solid fa-location-dot mr-2"></i>Smederevo, Serbia</p>
-                            <p class="text-gray-300">First public party. 21:00 - 01:00.</p>
+                <!-- Cafe Krivi Put -->
+                <article class="vinyl-card vinyl-card-sm group cursor-default relative pt-10 sm:pt-12">
+                    <div class="vinyl-disc vinyl-slide absolute top-0 w-20 h-20 sm:w-24 sm:h-24 z-0">
+                        <div class="vinyl-label bg-gray-500">
+                            <span class="vinyl-label-text text-[7px] sm:text-[8px]">DEBUT</span>
+                        </div>
+                        <div class="vinyl-hole"></div>
+                    </div>
+                    <div class="vinyl-sleeve relative z-10 bg-gradient-to-b from-brand-gray to-black/60 rounded-lg p-3 pt-10 sm:pt-12 border border-white/5">
+                        <div class="vinyl-info-reveal">
+                            <span class="text-brand-orange font-display font-bold text-[10px] sm:text-xs block mb-1">30/07/2022</span>
+                            <h3 class="font-display text-xs sm:text-sm font-bold mb-1 leading-tight">Cafe Krivi Put</h3>
+                            <p class="text-gray-400 text-[10px] sm:text-xs"><i class="fa-solid fa-location-dot mr-1"></i>Smederevo</p>
+                            <p class="text-gray-500 text-[10px] sm:text-xs">First public party</p>
                         </div>
                     </div>
                 </article>
