@@ -75,6 +75,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <link rel="stylesheet" href="./output.css">
 
     <style>
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
         /* Vinyl Record Styles */
         .vinyl-disc {
             background-color: #111;
@@ -405,10 +406,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 <h3 class="text-brand-orange font-display font-bold text-xs uppercase tracking-widest mb-8">Featured Performances</h3>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10 lg:gap-x-8 mb-20">
+            <div class="flex gap-6 overflow-x-auto pb-4 mb-20 snap-x snap-mandatory scrollbar-hide" style="-ms-overflow-style:none;scrollbar-width:none;">
 
                 <!-- Featured 1: Exit - Students Stage -->
-                <article class="vinyl-card group cursor-default relative pt-16 sm:pt-20">
+                <article class="vinyl-card group cursor-default relative pt-16 sm:pt-20 flex-shrink-0 w-[70vw] sm:w-[45vw] lg:w-auto lg:flex-1 snap-start">
                     <div class="vinyl-disc vinyl-slide absolute top-0 w-32 h-32 sm:w-36 sm:h-36 z-0">
                         <div class="vinyl-label bg-red-600">
                             <span class="vinyl-label-text">EXIT</span>
@@ -429,7 +430,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 </article>
 
                 <!-- Featured 2: Exit - Dance Arena -->
-                <article class="vinyl-card group cursor-default relative pt-16 sm:pt-20">
+                <article class="vinyl-card group cursor-default relative pt-16 sm:pt-20 flex-shrink-0 w-[70vw] sm:w-[45vw] lg:w-auto lg:flex-1 snap-start">
                     <div class="vinyl-disc vinyl-slide absolute top-0 w-32 h-32 sm:w-36 sm:h-36 z-0">
                         <div class="vinyl-label bg-red-700">
                             <span class="vinyl-label-text">EXIT</span>
@@ -450,7 +451,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 </article>
 
                 <!-- Featured 3: Exit - AS FM Stage -->
-                <article class="vinyl-card group cursor-default relative pt-16 sm:pt-20">
+                <article class="vinyl-card group cursor-default relative pt-16 sm:pt-20 flex-shrink-0 w-[70vw] sm:w-[45vw] lg:w-auto lg:flex-1 snap-start">
                     <div class="vinyl-disc vinyl-slide absolute top-0 w-32 h-32 sm:w-36 sm:h-36 z-0">
                         <div class="vinyl-label bg-red-500">
                             <span class="vinyl-label-text">EXIT</span>
@@ -471,7 +472,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 </article>
 
                 <!-- Featured 4: Capital Night Club -->
-                <article class="vinyl-card group cursor-default relative pt-16 sm:pt-20">
+                <article class="vinyl-card group cursor-default relative pt-16 sm:pt-20 flex-shrink-0 w-[70vw] sm:w-[45vw] lg:w-auto lg:flex-1 snap-start">
                     <div class="vinyl-disc vinyl-slide absolute top-0 w-32 h-32 sm:w-36 sm:h-36 z-0">
                         <div class="vinyl-label bg-blue-600">
                             <span class="vinyl-label-text">CAPITAL</span>
@@ -498,7 +499,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 <h3 class="text-gray-400 font-display font-bold text-xs uppercase tracking-widest mb-8">More Events</h3>
             </div>
 
-            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-5 gap-y-8 sm:gap-x-6">
+            <div class="grid grid-cols-3 gap-x-5 gap-y-8 sm:gap-x-6">
 
                 <!-- RayBar -->
                 <article class="vinyl-card vinyl-card-sm group cursor-default relative pt-10 sm:pt-12">
