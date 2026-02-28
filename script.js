@@ -236,4 +236,68 @@ document.addEventListener('DOMContentLoaded', () => {
     // Start on YouTube
     renderMusic('youtube');
     updatePlatformLink('youtube');
+
+    // --- Mixes Hub Page ---
+    const mixesGrid = document.getElementById('mixes-grid');
+    const mixesSearch = document.getElementById('mixes-search');
+
+    if (mixesGrid) {
+        function renderMixesGrid(filter) {
+            mixesGrid.innerHTML = '';
+            const allItems = [...appData.mixes, ...appData.playlists];
+            const filtered = filter
+                ? allItems.filter(item =>
+                    item.title.toLowerCase().includes(filter) ||
+                    item.genre.toLowerCase().includes(filter) ||
+                    item.desc.toLowerCase().includes(filter))
+                : allItems;
+
+            if (filtered.length === 0) {
+                mixesGrid.innerHTML = '<p class="text-gray-400 text-center col-span-full py-12">No mixes found.</p>';
+                return;
+            }
+
+            filtered.forEach(function(item) {
+                var card = document.createElement('div');
+                card.className = 'group bg-brand-gray border border-white/5 p-0 overflow-hidden relative rounded-xl hover:border-brand-orange/50 transition-all duration-300';
+
+                var platformLabel = '';
+                if (item.icon === 'fa-solid fa-play') platformLabel = 'YouTube';
+                else if (item.icon === 'fa-brands fa-mixcloud') platformLabel = 'MixCloud';
+                else if (item.icon === 'fa-brands fa-spotify') platformLabel = 'Spotify';
+
+                var featuredBadge = item.featured
+                    ? '<div class="absolute top-4 right-4 bg-brand-orange text-white text-xs font-bold px-2 py-1 rounded z-20">FEATURED</div>'
+                    : '';
+
+                card.innerHTML =
+                    '<div class="aspect-video bg-gradient-to-br from-gray-800 to-black relative flex items-center justify-center overflow-hidden">' +
+                        (item.thumbnail ? '<img src="' + item.thumbnail + '" alt="' + item.alt + '" class="absolute inset-0 w-full h-full object-contain opacity-40 group-hover:scale-110 transition-transform duration-700">' : '') +
+                        '<div class="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-colors"></div>' +
+                        '<a href="' + item.link + '" target="_blank" rel="noopener noreferrer" class="w-16 h-16 rounded-full border-2 border-white/50 flex items-center justify-center z-10 group-hover:bg-brand-orange group-hover:border-brand-orange transition-all cursor-pointer">' +
+                            '<i class="' + item.icon + ' text-2xl text-white"></i>' +
+                        '</a>' +
+                        featuredBadge +
+                    '</div>' +
+                    '<div class="p-6">' +
+                        '<div class="flex items-center gap-2 mb-2">' +
+                            '<span class="text-xs text-brand-orange font-bold uppercase">' + item.genre + '</span>' +
+                            '<span class="text-xs text-gray-500">· ' + platformLabel + '</span>' +
+                        '</div>' +
+                        '<h3 class="text-xl font-bold text-white mb-2 leading-tight">' + item.title + '</h3>' +
+                        '<p class="text-gray-400 text-sm mb-4">' + item.desc + '</p>' +
+                        '<a href="' + item.link + '" target="_blank" rel="noopener noreferrer" class="inline-block text-sm font-bold border-b border-white/20 pb-1 hover:text-brand-orange hover:border-brand-orange transition-colors">LISTEN NOW</a>' +
+                    '</div>';
+                mixesGrid.appendChild(card);
+            });
+        }
+
+        renderMixesGrid('');
+
+        if (mixesSearch) {
+            mixesSearch.addEventListener('input', function() {
+                renderMixesGrid(this.value.toLowerCase().trim());
+            });
+        }
+    }
 });
