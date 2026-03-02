@@ -115,6 +115,11 @@ src="https://www.facebook.com/tr?id=3891455414321405&ev=PageView&noscript=1"
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KLGKHMGM"
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
+
+    <!-- ============================================================
+         NAVIGATION
+         Fixed top nav bar with desktop links and mobile hamburger menu.
+         ============================================================ -->
     <nav class="fixed top-0 w-full z-50 bg-brand-black/90 backdrop-blur-md border-b border-white/5">
         <div class="container mx-auto px-6 sm:px-8 lg:px-12 py-4 flex justify-between items-center">
             <a href="https://zippydj.com" class="font-display font-bold text-2xl tracking-tighter">
@@ -148,10 +153,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </div>
     </nav>
 
+    <!-- ============================================================
+         GALLERY HERO / BREADCRUMB
+         Page introduction with title and breadcrumb navigation.
+         ============================================================ -->
     <section class="isolate relative min-h-[40vh] flex flex-col items-center justify-center bg-brand-black pt-24 sm:pt-28 pb-12 overflow-hidden">
+        <!-- Decorative background glow -->
         <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] bg-brand-orange/10 blur-[120px] rounded-full pointer-events-none"></div>
 
-        <div class="container mx-auto px-6 sm:px-8 lg:px-12 text-center z-10">
+        <!-- Hero content container — z-30 to sit above section::before gradient (z-20) -->
+        <div class="container mx-auto px-6 sm:px-8 lg:px-12 text-center z-30">
+            <!-- Breadcrumb navigation for SEO and wayfinding -->
             <nav aria-label="Breadcrumb" class="mb-6">
                 <ol class="flex justify-center items-center space-x-2 text-sm text-gray-400">
                     <li><a href="/" class="hover:text-brand-orange transition-colors">Home</a></li>
@@ -160,6 +172,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 </ol>
             </nav>
 
+            <!-- Page title -->
             <h1 class="font-display text-4xl md:text-5xl lg:text-6xl font-black leading-tight mb-4">
                 DJ Zippy Gallery <span class="text-brand-orange">&mdash;</span> Live Performances & House Music Therapy Moments
             </h1>
@@ -170,6 +183,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </div>
     </section>
 
+    <!-- ============================================================
+         GALLERY GRID SECTION
+         Photo grid with 1 real image and 5 placeholder cells.
+         Uses 3-column responsive grid layout.
+         ============================================================ -->
     <section id="gallery" class="isolate relative py-16 sm:py-20 bg-brand-dark border-t border-white/5">
         <div class="container mx-auto px-6 sm:px-8 lg:px-12">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -233,6 +251,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </div>
     </section>
 
+    <!-- ============================================================
+         FOOTER
+         Contact info, social icons, and "Book DJ Zippy" CTA.
+         ============================================================ -->
     <footer class="bg-brand-dark pt-16 sm:pt-20 pb-10 border-t border-white/10">
         <div class="container mx-auto px-6 sm:px-8 lg:px-12">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-16">
@@ -288,6 +310,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </div>
     </footer>
 
+    <!-- ============================================================
+         SCRIPTS
+         Main app logic + Google Ads + GTM tracking.
+         ============================================================ -->
     <script src="script.js" defer></script>
 
     <script async src="https://www.googletagmanager.com/gtag/js?id=AW-975400552"></script>

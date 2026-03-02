@@ -1,7 +1,21 @@
-/* 1. The Tailwind Import */
+/* ================================================================
+   DJ Zippy — Tailwind CSS v4 Source
+   ================================================================
+   This is the Tailwind v4 input file. It defines the custom theme
+   (brand colors, fonts), base styles (section fade gradients), and
+   reusable component classes (glass panels, nav underlines, glitch).
+
+   Build command:  npm run build
+   Output:         output.css (committed, served directly)
+   ================================================================ */
+
+/* --- Tailwind v4 Import --- */
 @import "tailwindcss";
 
-/* 2. Your Configuration */
+/* --- Custom Theme ---
+   Extends the default Tailwind palette with brand tokens.
+   Usage: bg-brand-orange, text-brand-dark, font-display, etc.
+   -------------------------------------------------------- */
 @theme {
   --color-brand-orange: #FF5500;
   --color-brand-black: #000000;
@@ -11,32 +25,33 @@
   --font-display: "Unbounded", sans-serif;
 }
 
-
-/* 3. PASTE YOUR CUSTOM CSS HERE */
-/* Go to style.css, copy everything (glitch effects, animations, glass-panel), */
-/* and paste it right here below this line. */
-/* Custom Utilities */
+/* --- Base Layer ---
+   Global element defaults applied before component/utility classes.
+   The section::before and ::after pseudo-elements create smooth
+   15vh fade gradients at the top and bottom of every <section>.
+   They sit at z-index: 20, so section content that needs to be
+   visible must use z-30 or higher on its container div.
+   -------------------------------------------------------- */
 @layer base {
   section {
     position: relative;
-    /* Ensure the section itself doesn't hide the pseudo-elements */
-    z-index: 1; 
+    z-index: 1;
   }
 
-  /* Top Fade */
+  /* Top fade: black → transparent (15vh tall, z-20) */
   section::before {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
-    height: 15vh; /* Increased for a smoother blend */
+    height: 15vh;
     background: linear-gradient(to bottom, #000000 0%, transparent 100%);
     pointer-events: none;
     z-index: 20;
   }
 
-  /* Bottom Fade */
+  /* Bottom fade: transparent → black (15vh tall, z-20) */
   section::after {
     content: '';
     position: absolute;
@@ -50,23 +65,30 @@
   }
 }
 
-@layer components{
-body {
+/* --- Component Layer ---
+   Reusable UI classes used across multiple pages.
+   -------------------------------------------------------- */
+@layer components {
+
+  /* Global body defaults */
+  body {
     background-color: #050505;
     color: #ffffff;
-}
+  }
 
-.glass-panel {
+  /* Frosted glass card used on about page affiliation cards */
+  .glass-panel {
     background: rgba(30, 30, 30, 0.4);
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 85, 0, 0.1);
-}
+  }
 
-.nav-link {
+  /* Nav link with animated orange underline on hover */
+  .nav-link {
     position: relative;
-}
+  }
 
-.nav-link::after {
+  .nav-link::after {
     content: '';
     position: absolute;
     width: 0;
@@ -75,14 +97,14 @@ body {
     left: 0;
     background-color: #FF5500;
     transition: width 0.3s;
-}
+  }
 
-.nav-link:hover::after {
+  .nav-link:hover::after {
     width: 100%;
-}
+  }
 
-/* Glitch effect for H1 */
-.glitch-text:hover {
+  /* Glitch text-shadow effect on hero H1 hover */
+  .glitch-text:hover {
     text-shadow: 2px 0 #FF5500, -2px 0 #00E5FF;
-}
+  }
 }

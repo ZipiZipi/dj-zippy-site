@@ -9,8 +9,11 @@
     <title>DJ Zippy | Official Links & Socials</title>
     <meta name="description"
         content="Official links for Zippy (DJ Zippy). Connect with House Music Therapy, tour dates, Spotify, SoundCloud, and Resident Advisor profiles. Based in Belgrade, Serbia.">
+
+    <!-- Canonical URL for this page -->
     <link rel="canonical" href="https://zippydj.com/links.html">
 
+    <!-- Open Graph -->
     <meta property="og:title" content="DJ Zippy | Official Links & Socials">
     <meta property="og:description"
         content="Official links for DJ Zippy. Stream House Music Therapy, tour dates, Spotify, Instagram, and Resident Advisor profiles. Based in Belgrade, Serbia.">
@@ -24,6 +27,7 @@
     <meta name="twitter:image" content="https://zippydj.com/images/dj-zippy-house-music-dj.webp">
     <meta property="og:type" content="profile">
     <meta property="og:site_name" content="DJ Zippy">
+
 <!-- Meta Pixel Code -->
 <script>
 !function(f,b,e,v,n,t,s)
@@ -68,6 +72,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
     <link href="./output.css" rel="stylesheet">
 
+    <!-- Structured Data: Profile page with sameAs links for SEO -->
     <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -91,13 +96,22 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     </script>
 </head>
 
-<body class="bg-black text-white min-h-screen font-sans flex flex-col items-center justify-center py-12 px-6">
+<!-- ============================================================
+     LINKS PAGE
+     Linktree-style page with three link categories:
+     1. Main Links — high-priority external platforms (orange accented)
+     2. Secondary Links — lower-priority platforms (muted/gray)
+     3. Internal Site Links — site navigation (compact)
+     ============================================================ -->
+<body class="bg-black text-white min-h-screen font-sans flex flex-col items-center justify-start py-12 px-6">
 <!-- Google Tag Manager (noscript) -->
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KLGKHMGM"
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
+
     <main class="w-full max-w-md flex flex-col items-center space-y-8">
 
+        <!-- ===== PROFILE HEADER ===== -->
         <header class="text-center flex flex-col items-center space-y-4">
             <div class="relative">
                 <img src="images/dj-zippy-house-music-dj.webp" alt="Zippy (DJ Zippy) - House Music Therapy Profile"
@@ -110,69 +124,121 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </div>
         </header>
 
-        <nav class="w-full flex flex-col space-y-4">
+        <!-- ===== MAIN LINKS (Stream & Follow) =====
+             High-priority external platform links.
+             Orange-accented borders for visual prominence. -->
+        <section aria-label="Main Links" class="w-full flex flex-col space-y-3">
+            <p class="text-xs text-gray-500 uppercase tracking-widest font-bold mb-1">Stream & Follow</p>
+
+            <!-- Website -->
+            <a href="https://zippydj.com"
+               class="group flex items-center gap-4 w-full bg-[#1f1f1f] border border-brand-orange/40 rounded-lg py-4 px-6 font-medium transition-all duration-300 hover:border-brand-orange hover:text-brand-orange">
+                <i class="fa-solid fa-globe w-5 text-brand-orange"></i>
+                <span>Official Website</span>
+            </a>
+
+            <!-- Instagram -->
+            <a href="https://www.instagram.com/zovumezippy" target="_blank" rel="me noopener noreferrer"
+               class="group flex items-center gap-4 w-full bg-[#1f1f1f] border border-brand-orange/40 rounded-lg py-4 px-6 font-medium transition-all duration-300 hover:border-brand-orange hover:text-brand-orange">
+                <i class="fa-brands fa-instagram w-5 text-brand-orange"></i>
+                <span>Instagram</span>
+            </a>
+
+            <!-- YouTube -->
+            <a href="https://www.youtube.com/@zovumezippy" target="_blank" rel="me noopener noreferrer"
+               class="group flex items-center gap-4 w-full bg-[#1f1f1f] border border-brand-orange/40 rounded-lg py-4 px-6 font-medium transition-all duration-300 hover:border-brand-orange hover:text-brand-orange">
+                <i class="fa-brands fa-youtube w-5 text-brand-orange"></i>
+                <span>Watch on YouTube</span>
+            </a>
+
+            <!-- MixCloud -->
+            <a href="https://www.mixcloud.com/zovumezippy/" target="_blank" rel="me noopener noreferrer"
+               class="group flex items-center gap-4 w-full bg-[#1f1f1f] border border-brand-orange/40 rounded-lg py-4 px-6 font-medium transition-all duration-300 hover:border-brand-orange hover:text-brand-orange">
+                <i class="fa-brands fa-mixcloud w-5 text-brand-orange"></i>
+                <span>Latest Mixes (MixCloud)</span>
+            </a>
+
+            <!-- Spotify -->
+            <a href="https://open.spotify.com/user/31aj2g4yokqhpoxwkpo5odxegsle" target="_blank" rel="me noopener noreferrer"
+               class="group flex items-center gap-4 w-full bg-[#1f1f1f] border border-brand-orange/40 rounded-lg py-4 px-6 font-medium transition-all duration-300 hover:border-brand-orange hover:text-brand-orange">
+                <i class="fa-brands fa-spotify w-5 text-brand-orange"></i>
+                <span>Spotify</span>
+            </a>
+        </section>
+
+        <!-- Divider between main and secondary links -->
+        <hr class="border-white/10 w-full" />
+
+        <!-- ===== SECONDARY LINKS (Also on) =====
+             Lower-priority external platforms.
+             Muted gray styling for visual hierarchy. -->
+        <section aria-label="Secondary Links" class="w-full flex flex-col space-y-3">
+            <p class="text-xs text-gray-600 uppercase tracking-widest font-bold mb-1">Also on</p>
+
+            <!-- SoundCloud -->
+            <a href="https://soundcloud.com/zovumezippy" target="_blank" rel="me noopener noreferrer"
+               class="group flex items-center gap-4 w-full bg-[#161616] border border-zinc-700/50 rounded-lg py-3 px-6 text-gray-400 text-sm font-medium transition-all duration-300 hover:border-zinc-500 hover:text-white">
+                <i class="fa-brands fa-soundcloud w-5"></i>
+                <span>SoundCloud</span>
+            </a>
+
+            <!-- TikTok -->
+            <a href="https://www.tiktok.com/@zovumezippy" target="_blank" rel="me noopener noreferrer"
+               class="group flex items-center gap-4 w-full bg-[#161616] border border-zinc-700/50 rounded-lg py-3 px-6 text-gray-400 text-sm font-medium transition-all duration-300 hover:border-zinc-500 hover:text-white">
+                <i class="fa-brands fa-tiktok w-5"></i>
+                <span>TikTok</span>
+            </a>
+
+            <!-- Resident Advisor -->
+            <a href="https://ra.co/dj/zippy-2" target="_blank" rel="me noopener noreferrer"
+               class="group flex items-center gap-4 w-full bg-[#161616] border border-zinc-700/50 rounded-lg py-3 px-6 text-gray-400 text-sm font-medium transition-all duration-300 hover:border-zinc-500 hover:text-white">
+                <i class="fa-solid fa-square-poll-vertical w-5"></i>
+                <span>Resident Advisor</span>
+            </a>
+        </section>
+
+        <!-- Divider between secondary and internal links -->
+        <hr class="border-white/10 w-full" />
+
+        <!-- ===== INTERNAL SITE LINKS =====
+             Compact navigation to key pages within the site.
+             Minimal text-only styling with hover arrows. -->
+        <section aria-label="Site Navigation" class="w-full flex flex-col space-y-2">
+            <p class="text-xs text-gray-600 uppercase tracking-widest font-bold mb-1">Explore the site</p>
 
             <a href="/events.html"
-                class="group block w-full bg-[#1f1f1f] border border-zinc-800 rounded-lg py-4 px-6 text-center font-medium transition-all duration-300 hover:border-brand-orange hover:text-brand-orange">
-                Events & Performances
+               class="group flex items-center gap-3 w-full py-2 px-4 text-gray-500 text-sm font-medium transition-colors hover:text-white">
+                <i class="fa-solid fa-calendar w-4"></i>
+                <span>Events & Performances</span>
+                <i class="fa-solid fa-arrow-right ml-auto text-xs opacity-0 group-hover:opacity-100 transition-opacity"></i>
             </a>
 
             <a href="/about.html"
-                class="group block w-full bg-[#1f1f1f] border border-zinc-800 rounded-lg py-4 px-6 text-center font-medium transition-all duration-300 hover:border-brand-orange hover:text-brand-orange">
-                About DJ Zippy
-            </a>
-
-            <a href="/gallery.html"
-                class="group block w-full bg-[#1f1f1f] border border-zinc-800 rounded-lg py-4 px-6 text-center font-medium transition-all duration-300 hover:border-brand-orange hover:text-brand-orange">
-                Photo Gallery
+               class="group flex items-center gap-3 w-full py-2 px-4 text-gray-500 text-sm font-medium transition-colors hover:text-white">
+                <i class="fa-solid fa-user w-4"></i>
+                <span>About DJ Zippy</span>
+                <i class="fa-solid fa-arrow-right ml-auto text-xs opacity-0 group-hover:opacity-100 transition-opacity"></i>
             </a>
 
             <a href="/mixes.html"
-                class="group block w-full bg-[#1f1f1f] border border-zinc-800 rounded-lg py-4 px-6 text-center font-medium transition-all duration-300 hover:border-brand-orange hover:text-brand-orange">
-                Mixes & Playlists
+               class="group flex items-center gap-3 w-full py-2 px-4 text-gray-500 text-sm font-medium transition-colors hover:text-white">
+                <i class="fa-solid fa-music w-4"></i>
+                <span>Mixes & Playlists</span>
+                <i class="fa-solid fa-arrow-right ml-auto text-xs opacity-0 group-hover:opacity-100 transition-opacity"></i>
             </a>
 
-            <a href="index.html#dates"
-                class="group block w-full bg-[#1f1f1f] border border-zinc-800 rounded-lg py-4 px-6 text-center font-medium transition-all duration-300 hover:border-brand-orange hover:text-brand-orange">
-                Upcoming Gigs & Tickets
+            <a href="/#contact"
+               class="group flex items-center gap-3 w-full py-2 px-4 text-gray-500 text-sm font-medium transition-colors hover:text-white">
+                <i class="fa-solid fa-envelope w-4"></i>
+                <span>Bookings / Contact</span>
+                <i class="fa-solid fa-arrow-right ml-auto text-xs opacity-0 group-hover:opacity-100 transition-opacity"></i>
             </a>
+        </section>
 
-            <a href="https://www.mixcloud.com/zovumezippy/" target="_blank" rel="me noopener noreferrer"
-                class="group block w-full bg-[#1f1f1f] border border-zinc-800 rounded-lg py-4 px-6 text-center font-medium transition-all duration-300 hover:border-brand-orange hover:text-brand-orange">
-                Latest Mixes (MixCloud)
-            </a>
-
-            <a href="https://www.youtube.com/@zovumezippy" target="_blank" rel="me noopener noreferrer"
-                class="group block w-full bg-[#1f1f1f] border border-zinc-800 rounded-lg py-4 px-6 text-center font-medium transition-all duration-300 hover:border-brand-orange hover:text-brand-orange">
-                Watch on YouTube
-            </a>
-
-            <a href="https://open.spotify.com/user/31aj2g4yokqhpoxwkpo5odxegsle" target="_blank"
-                rel="me noopener noreferrer"
-                class="group block w-full bg-[#1f1f1f] border border-zinc-800 rounded-lg py-4 px-6 text-center font-medium transition-all duration-300 hover:border-brand-orange hover:text-brand-orange">
-                Spotify
-            </a>
-
-            <a href="https://www.instagram.com/zovumezippy" target="_blank" rel="me noopener noreferrer"
-                class="group block w-full bg-[#1f1f1f] border border-zinc-800 rounded-lg py-4 px-6 text-center font-medium transition-all duration-300 hover:border-brand-orange hover:text-brand-orange">
-                Instagram
-            </a>
-
-            <a href="https://ra.co/dj/zippy-2" target="_blank" rel="me noopener noreferrer"
-                class="group block w-full bg-[#1f1f1f] border border-zinc-800 rounded-lg py-4 px-6 text-center font-medium transition-all duration-300 hover:border-brand-orange hover:text-brand-orange">
-                Resident Advisor
-            </a>
-
-            <a href="https://zippydj.com/index.html#contact"
-                class="group block w-full bg-[#1f1f1f] border border-zinc-800 rounded-lg py-4 px-6 text-center font-medium transition-all duration-300 hover:border-brand-orange hover:text-brand-orange">
-                Bookings / Contact
-            </a>
-
-        </nav>
-
+        <!-- ===== PAGE FOOTER ===== -->
         <footer class="text-center space-y-2 pt-4">
-            <p class="text-gray-500 text-sm">© 2025 Zippy</p>
-            <a href="index.html" class="text-gray-500 text-sm hover:text-white transition-colors">
+            <p class="text-gray-500 text-sm">&copy; 2025 Zippy</p>
+            <a href="https://zippydj.com" class="text-gray-500 text-sm hover:text-white transition-colors">
                 Visit Website
             </a>
         </footer>

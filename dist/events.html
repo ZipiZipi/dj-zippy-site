@@ -10,6 +10,7 @@
     <meta name="description"
         content="Explore DJ Zippy's live performances, festival appearances, and club nights across Serbia including Exit Festival and Belgrade events.">
 
+    <!-- Canonical URL for this page -->
     <link rel="canonical" href="https://zippydj.com/events.html" />
 
     <!-- Open Graph -->
@@ -74,99 +75,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 
     <link rel="stylesheet" href="./output.css">
 
-    <style>
-        /* Vinyl Record Styles */
-        .vinyl-disc {
-            background-color: #111;
-            border-radius: 50%;
-            position: relative;
-            box-shadow: 0 2px 15px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06);
-        }
-        .vinyl-disc::before {
-            content: '';
-            position: absolute;
-            inset: 18%;
-            border-radius: 50%;
-            background: repeating-radial-gradient(circle at center, transparent, transparent 3px, rgba(255,255,255,0.03) 3px, rgba(255,255,255,0.03) 4px);
-            pointer-events: none;
-        }
-        .vinyl-disc::after {
-            content: '';
-            position: absolute;
-            inset: 2%;
-            border-radius: 50%;
-            background: linear-gradient(135deg, transparent 30%, rgba(255,255,255,0.04) 48%, transparent 60%);
-            pointer-events: none;
-        }
-        .vinyl-label {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 36%; height: 36%;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 0 0 2px rgba(0,0,0,0.4);
-            z-index: 1;
-        }
-        .vinyl-label-text {
-            font-size: 0.55rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: rgba(255,255,255,0.9);
-            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
-        }
-        .vinyl-hole {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 5%; height: 5%;
-            min-width: 4px; min-height: 4px;
-            background: #0a0a0a;
-            border-radius: 50%;
-            z-index: 2;
-        }
-        .vinyl-slide {
-            left: 50%;
-            translate: -50% 0;
-            rotate: 0deg;
-            transition: translate 0.6s cubic-bezier(0.23, 1, 0.32, 1),
-                        rotate 0.6s cubic-bezier(0.23, 1, 0.32, 1),
-                        box-shadow 0.6s ease;
-        }
-        .vinyl-sleeve {
-            transition: border-color 0.4s ease, box-shadow 0.4s ease;
-        }
-        .vinyl-info-reveal {
-            transition: opacity 0.4s ease 0.1s;
-        }
-        @media (hover: hover) and (pointer: fine) {
-            .vinyl-card:hover .vinyl-slide {
-                translate: -50% -2rem;
-                rotate: 25deg;
-                box-shadow: 0 8px 30px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.08);
-            }
-            .vinyl-card-sm:hover .vinyl-slide {
-                translate: -50% -1.5rem;
-                rotate: 20deg;
-            }
-            .vinyl-info-reveal {
-                opacity: 0;
-            }
-            .vinyl-card:hover .vinyl-info-reveal,
-            .vinyl-card-sm:hover .vinyl-info-reveal {
-                opacity: 1;
-            }
-            .vinyl-card:hover .vinyl-sleeve,
-            .vinyl-card-sm:hover .vinyl-sleeve {
-                border-color: rgba(255, 85, 0, 0.2);
-                box-shadow: 0 4px 20px rgba(255, 85, 0, 0.05);
-            }
-        }
-    </style>
-
+    <!-- Structured Data: Breadcrumb + MusicEvent entries for SEO -->
     <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -191,106 +100,45 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     },
     {
       "@type": "MusicEvent",
-      "@id": "https://zippydj.com/events.html#event-krivi-put-2022",
-      "name": "DJ Zippy at Krivi Put",
-      "description": "First public performance. Tech House set marking the official beginning of DJ Zippy's live journey.",
-      "startDate": "2022-07-30T22:00:00+02:00",
-      "endDate": "2022-07-31T04:00:00+02:00",
+      "@id": "https://zippydj.com/events.html#event-raybar-2026",
+      "name": "DJ Zippy at RayBar",
+      "description": "First residency night. House / Tech House set at RayBar, Novi Sad.",
+      "startDate": "2026-01-24T22:00:00+01:00",
+      "endDate": "2026-01-25T04:00:00+01:00",
       "eventStatus": "https://schema.org/EventCompleted",
       "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
       "location": {
         "@type": "Place",
-        "name": "Krivi Put",
+        "name": "RayBar",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Novi Sad",
+          "addressCountry": "RS"
+        }
+      },
+      "performer": { "@id": "https://zippydj.com/#person" },
+      "organizer": { "@id": "https://zippydj.com/#organization" }
+    },
+    {
+      "@type": "MusicEvent",
+      "@id": "https://zippydj.com/events.html#event-charlie-bar-2026",
+      "name": "DJ Zippy at Charlie Bar",
+      "description": "House Techno session at Charlie Bar, Smederevo.",
+      "startDate": "2026-01-10T22:00:00+01:00",
+      "endDate": "2026-01-11T04:00:00+01:00",
+      "eventStatus": "https://schema.org/EventCompleted",
+      "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+      "location": {
+        "@type": "Place",
+        "name": "Charlie Bar",
         "address": {
           "@type": "PostalAddress",
           "addressLocality": "Smederevo",
           "addressCountry": "RS"
         }
       },
-      "performer": {
-        "@id": "https://zippydj.com/#person"
-      },
-      "organizer": {
-        "@id": "https://zippydj.com/#organization"
-      }
-    },
-    {
-      "@type": "MusicEvent",
-      "@id": "https://zippydj.com/events.html#event-exit-asfm-2024",
-      "name": "DJ Zippy at Exit Festival AS FM Stage",
-      "description": "First appearance at a major festival stage. House / Tech House set during Exit Festival.",
-      "startDate": "2024-07-12T23:00:00+02:00",
-      "endDate": "2024-07-13T01:00:00+02:00",
-      "eventStatus": "https://schema.org/EventCompleted",
-      "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
-      "location": {
-        "@type": "Place",
-        "name": "Exit Festival - AS FM Stage",
-        "address": {
-          "@type": "PostalAddress",
-          "addressLocality": "Novi Sad",
-          "addressCountry": "RS"
-        }
-      },
-      "performer": {
-        "@id": "https://zippydj.com/#person"
-      },
-      "organizer": {
-        "@type": "Organization",
-        "name": "Exit Festival"
-      }
-    },
-    {
-      "@type": "MusicEvent",
-      "@id": "https://zippydj.com/events.html#event-exit-students-2025",
-      "name": "DJ Zippy at Exit Festival Students Stage",
-      "description": "Late-night House / Deep / Groove set at Exit Festival Students Stage.",
-      "startDate": "2025-07-12T23:00:00+02:00",
-      "endDate": "2025-07-13T02:00:00+02:00",
-      "eventStatus": "https://schema.org/EventCompleted",
-      "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
-      "location": {
-        "@type": "Place",
-        "name": "Exit Festival - Students Stage",
-        "address": {
-          "@type": "PostalAddress",
-          "addressLocality": "Novi Sad",
-          "addressCountry": "RS"
-        }
-      },
-      "performer": {
-        "@id": "https://zippydj.com/#person"
-      },
-      "organizer": {
-        "@type": "Organization",
-        "name": "Exit Festival"
-      }
-    },
-    {
-      "@type": "MusicEvent",
-      "@id": "https://zippydj.com/events.html#event-exit-dance-arena-2025",
-      "name": "DJ Zippy at Exit Festival Dance Arena",
-      "description": "First Dance Arena performance. House / Deep / Minimal / Groove / Tech extended set.",
-      "startDate": "2025-07-13T21:00:00+02:00",
-      "endDate": "2025-07-13T23:00:00+02:00",
-      "eventStatus": "https://schema.org/EventCompleted",
-      "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
-      "location": {
-        "@type": "Place",
-        "name": "Exit Festival - Dance Arena",
-        "address": {
-          "@type": "PostalAddress",
-          "addressLocality": "Novi Sad",
-          "addressCountry": "RS"
-        }
-      },
-      "performer": {
-        "@id": "https://zippydj.com/#person"
-      },
-      "organizer": {
-        "@type": "Organization",
-        "name": "Exit Festival"
-      }
+      "performer": { "@id": "https://zippydj.com/#person" },
+      "organizer": { "@id": "https://zippydj.com/#organization" }
     },
     {
       "@type": "MusicEvent",
@@ -310,12 +158,132 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           "addressCountry": "RS"
         }
       },
-      "performer": {
-        "@id": "https://zippydj.com/#person"
+      "performer": { "@id": "https://zippydj.com/#person" },
+      "organizer": { "@id": "https://zippydj.com/#organization" }
+    },
+    {
+      "@type": "MusicEvent",
+      "@id": "https://zippydj.com/events.html#event-toucan-2025",
+      "name": "DJ Zippy at Toucan Nightclub",
+      "description": "Summer house music session at Toucan Nightclub, Zakynthos.",
+      "startDate": "2025-08-19T00:00:00+03:00",
+      "endDate": "2025-08-19T04:00:00+03:00",
+      "eventStatus": "https://schema.org/EventCompleted",
+      "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+      "location": {
+        "@type": "Place",
+        "name": "Toucan Nightclub",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Zakynthos",
+          "addressCountry": "GR"
+        }
       },
-      "organizer": {
-        "@id": "https://zippydj.com/#organization"
-      }
+      "performer": { "@id": "https://zippydj.com/#person" }
+    },
+    {
+      "@type": "MusicEvent",
+      "@id": "https://zippydj.com/events.html#event-exit-dance-arena-2025",
+      "name": "DJ Zippy at Exit Festival Dance Arena",
+      "description": "First Dance Arena performance. House / Deep / Minimal / Groove / Tech extended set.",
+      "startDate": "2025-07-13T21:00:00+02:00",
+      "endDate": "2025-07-13T23:00:00+02:00",
+      "eventStatus": "https://schema.org/EventCompleted",
+      "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+      "location": {
+        "@type": "Place",
+        "name": "Exit Festival - Dance Arena",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Novi Sad",
+          "addressCountry": "RS"
+        }
+      },
+      "performer": { "@id": "https://zippydj.com/#person" },
+      "organizer": { "@type": "Organization", "name": "Exit Festival" }
+    },
+    {
+      "@type": "MusicEvent",
+      "@id": "https://zippydj.com/events.html#event-exit-students-2025",
+      "name": "DJ Zippy at Exit Festival Students Stage",
+      "description": "Late-night House / Deep / Groove set at Exit Festival Students Stage.",
+      "startDate": "2025-07-12T23:00:00+02:00",
+      "endDate": "2025-07-13T02:00:00+02:00",
+      "eventStatus": "https://schema.org/EventCompleted",
+      "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+      "location": {
+        "@type": "Place",
+        "name": "Exit Festival - Students Stage",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Novi Sad",
+          "addressCountry": "RS"
+        }
+      },
+      "performer": { "@id": "https://zippydj.com/#person" },
+      "organizer": { "@type": "Organization", "name": "Exit Festival" }
+    },
+    {
+      "@type": "MusicEvent",
+      "@id": "https://zippydj.com/events.html#event-capital-nightclub-2024",
+      "name": "DJ Zippy at Capital Night Club",
+      "description": "Summer house music session at Capital Night Club, Lefkada.",
+      "startDate": "2024-07-23T23:00:00+03:00",
+      "endDate": "2024-07-24T04:00:00+03:00",
+      "eventStatus": "https://schema.org/EventCompleted",
+      "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+      "location": {
+        "@type": "Place",
+        "name": "Capital Night Club",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Lefkada",
+          "addressCountry": "GR"
+        }
+      },
+      "performer": { "@id": "https://zippydj.com/#person" }
+    },
+    {
+      "@type": "MusicEvent",
+      "@id": "https://zippydj.com/events.html#event-exit-asfm-2024",
+      "name": "DJ Zippy at Exit Festival AS FM Stage",
+      "description": "First appearance at a major festival stage. House / Tech House set during Exit Festival.",
+      "startDate": "2024-07-12T23:00:00+02:00",
+      "endDate": "2024-07-13T01:00:00+02:00",
+      "eventStatus": "https://schema.org/EventCompleted",
+      "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+      "location": {
+        "@type": "Place",
+        "name": "Exit Festival - AS FM Stage",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Novi Sad",
+          "addressCountry": "RS"
+        }
+      },
+      "performer": { "@id": "https://zippydj.com/#person" },
+      "organizer": { "@type": "Organization", "name": "Exit Festival" }
+    },
+    {
+      "@type": "MusicEvent",
+      "@id": "https://zippydj.com/events.html#event-krivi-put-2022",
+      "name": "DJ Zippy at Krivi Put",
+      "description": "First public performance. Tech House set marking the official beginning of DJ Zippy's live journey.",
+      "startDate": "2022-07-30T22:00:00+02:00",
+      "endDate": "2022-07-31T04:00:00+02:00",
+      "eventStatus": "https://schema.org/EventCompleted",
+      "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+      "location": {
+        "@type": "Place",
+        "name": "Krivi Put",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Smederevo",
+          "addressCountry": "RS"
+        }
+      },
+      "performer": { "@id": "https://zippydj.com/#person" },
+      "organizer": { "@id": "https://zippydj.com/#organization" }
     }
   ]
 }
@@ -327,46 +295,57 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KLGKHMGM"
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
+
+    <!-- ============================================================
+         NAVIGATION
+         Fixed top nav bar with desktop links and mobile hamburger menu.
+         Gallery link removed per site restructure.
+         ============================================================ -->
     <nav class="fixed top-0 w-full z-50 bg-brand-black/90 backdrop-blur-md border-b border-white/5">
         <div class="container mx-auto px-6 sm:px-8 lg:px-12 py-4 flex justify-between items-center">
             <a href="https://zippydj.com" class="font-display font-bold text-2xl tracking-tighter">
                 ZIPPY<span class="text-brand-orange">.</span>
             </a>
 
+            <!-- Desktop navigation -->
             <div class="hidden md:flex space-x-8 text-sm font-semibold tracking-wide uppercase text-gray-300">
                 <a href="/" class="nav-link hover:text-white transition-colors">Home</a>
                 <a href="/about.html" class="nav-link hover:text-white transition-colors">About</a>
                 <a href="/mixes.html" class="nav-link hover:text-white transition-colors">Mixes</a>
                 <a href="/events.html" class="nav-link text-brand-orange hover:text-white transition-colors">Events</a>
-                <a href="/gallery.html" class="nav-link hover:text-white transition-colors">Gallery</a>
                 <a href="/links.html" class="nav-link hover:text-white transition-colors">Links</a>
                 <a href="/#contact" class="text-brand-orange hover:text-white transition-colors">Book Now</a>
             </div>
 
+            <!-- Mobile hamburger button -->
             <button id="mobile-menu-btn" class="md:hidden text-white focus:outline-none">
                 <i class="fa-solid fa-bars text-xl"></i>
             </button>
         </div>
 
+        <!-- Mobile menu (hidden by default, toggled via JS) -->
         <div id="mobile-menu"
             class="hidden md:hidden bg-brand-dark border-t border-white/10 p-4 sm:p-6 flex flex-col space-y-4">
             <a href="/" class="text-gray-300 hover:text-brand-orange">Home</a>
             <a href="/about.html" class="text-gray-300 hover:text-brand-orange">About</a>
             <a href="/mixes.html" class="text-gray-300 hover:text-brand-orange">Mixes</a>
             <a href="/events.html" class="text-brand-orange font-bold">Events</a>
-            <a href="/gallery.html" class="text-gray-300 hover:text-brand-orange">Gallery</a>
             <a href="/links.html" class="text-gray-300 hover:text-brand-orange">Links</a>
             <a href="/#contact" class="text-brand-orange font-bold">Book Now</a>
         </div>
     </nav>
 
-    <section         class="isolate relative min-h-screen flex flex-col items-center justify-center bg-brand-black pt-16 sm:pt-20 overflow-hidden">
+    <!-- ============================================================
+         EVENTS HERO
+         Page title with breadcrumb navigation.
+         z-30 on content to sit above the section::before gradient (z-20).
+         ============================================================ -->
+    <section class="isolate relative min-h-screen flex flex-col items-center justify-center bg-brand-black pt-16 sm:pt-20 overflow-hidden">
+        <!-- Decorative background glow -->
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] bg-brand-orange/10 blur-[120px] rounded-full pointer-events-none"></div>
 
-        <div
-            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] bg-brand-orange/10 blur-[120px] rounded-full pointer-events-none">
-        </div>
-
-        <div class="container mx-auto px-6 sm:px-8 lg:px-12 text-center z-10">
+        <div class="container mx-auto px-6 sm:px-8 lg:px-12 text-center z-30">
+            <!-- Breadcrumb navigation for SEO and wayfinding -->
             <nav aria-label="Breadcrumb" class="mb-6">
                 <ol class="flex justify-center items-center space-x-2 text-sm text-gray-400">
                     <li><a href="/" class="hover:text-brand-orange transition-colors">Home</a></li>
@@ -375,178 +354,245 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 </ol>
             </nav>
 
+            <!-- Page title -->
             <h1 class="font-display text-4xl md:text-5xl lg:text-6xl font-black leading-tight mb-4">
                 DJ Zippy
             </h1>
-            <h2 class="font-display  font-black leading-tight mb-4 text-brand-orange">Live Events & Festival Performances</h2>
+            <h2 class="font-display font-black leading-tight mb-4 text-brand-orange">Live Events & Festival Performances</h2>
             <p class="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto">
                 From intimate club nights to major festival stages. House Music Therapy live.
             </p>
         </div>
     </section>
 
+    <!-- ============================================================
+         UPCOMING EVENTS
+         Horizontal list of future events, ordered closest date first.
+         Uses orange styling (brand-orange borders, accents).
+         Currently empty — shows a "coming soon" placeholder.
+         When events are added, use the event card template below.
+         ============================================================ -->
     <section id="upcoming" class="isolate relative py-16 sm:py-20 bg-brand-dark border-t border-white/5">
         <div class="container mx-auto px-6 sm:px-8 lg:px-12">
+            <!-- Section heading with orange accent bar -->
             <div class="flex items-center gap-4 mb-10">
                 <div class="w-2 h-8 bg-brand-orange"></div>
                 <h2 class="font-display text-3xl md:text-4xl font-bold">Upcoming <span class="text-brand-orange">Events</span></h2>
             </div>
 
+            <!-- Empty state: shown when no upcoming events exist -->
             <div class="text-center py-12 text-gray-400">
                 <i class="fa-solid fa-calendar-plus text-4xl mb-4 text-brand-orange/50"></i>
                 <p class="text-lg">New dates coming soon.</p>
                 <p class="text-sm mt-2">Follow on <a href="https://www.instagram.com/zovumezippy" target="_blank" rel="noopener noreferrer" class="text-brand-orange hover:underline">Instagram</a> for announcements.</p>
             </div>
+
+            <!--
+                TEMPLATE: Upcoming event card (use when adding future events)
+                <article class="flex items-center gap-4 sm:gap-6 border-l-4 border-brand-orange bg-brand-gray rounded-r-lg p-4 hover:bg-white/5 transition-colors">
+                    <div class="flex-shrink-0 text-center min-w-[4rem]">
+                        <span class="block font-display font-bold text-brand-orange text-xl leading-none">24</span>
+                        <span class="block text-xs text-gray-400 uppercase tracking-widest">JAN</span>
+                        <span class="block text-xs text-gray-500">2027</span>
+                    </div>
+                    <div class="w-px h-10 bg-white/10 flex-shrink-0"></div>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-display font-bold text-white text-base sm:text-lg leading-tight">Venue Name</h3>
+                        <p class="text-gray-400 text-sm"><i class="fa-solid fa-location-dot mr-1 text-brand-orange"></i>City · Event Type</p>
+                    </div>
+                </article>
+            -->
         </div>
     </section>
 
+    <!-- ============================================================
+         PAST EVENTS
+         Vertical list of all past events, ordered most recent first.
+         Uses gray/muted styling (brand-gray borders, subdued text).
+         All events before today's date (2026-03-02) appear here.
+         ============================================================ -->
     <section id="past" class="isolate relative py-16 sm:py-20 bg-brand-black border-t border-white/5">
         <div class="container mx-auto px-6 sm:px-8 lg:px-12">
-            <div class="flex items-center gap-4 mb-4">
+            <!-- Section heading with muted accent bar -->
+            <div class="flex items-center gap-4 mb-10">
                 <div class="w-2 h-8 bg-white/30"></div>
                 <h2 class="font-display text-3xl md:text-4xl font-bold">Past <span class="text-gray-400">Highlights</span></h2>
             </div>
 
-            <div class="mb-10">
-                <h3 class="text-brand-orange font-display font-bold text-xs uppercase tracking-widest mb-4">Featured Performances</h3>
-                <p class="text-gray-400 text-sm">Check out the <a href="/#highlights" class="text-brand-orange hover:underline">featured performances carousel</a> on the homepage.</p>
+            <!-- Past events list — most recent first -->
+            <div class="space-y-3">
+
+                <!-- 1. RayBar — 24/01/2026 -->
+                <article class="flex items-center gap-4 sm:gap-6 border-l-2 border-brand-gray bg-brand-dark rounded-r-lg p-4 hover:border-white/30 transition-colors">
+                    <div class="flex-shrink-0 text-center min-w-[4rem]">
+                        <span class="block font-display font-bold text-gray-400 text-lg leading-none">24</span>
+                        <span class="block text-xs text-gray-500 uppercase tracking-widest">JAN</span>
+                        <span class="block text-xs text-gray-600">2026</span>
+                    </div>
+                    <div class="w-px h-8 bg-white/5 flex-shrink-0"></div>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-display font-bold text-gray-300 text-sm sm:text-base leading-tight">RayBar</h3>
+                        <p class="text-gray-500 text-xs sm:text-sm"><i class="fa-solid fa-location-dot mr-1"></i>Novi Sad · First Residency</p>
+                    </div>
+                </article>
+
+                <!-- 2. Charlie Bar — 10/01/2026 -->
+                <article class="flex items-center gap-4 sm:gap-6 border-l-2 border-brand-gray bg-brand-dark rounded-r-lg p-4 hover:border-white/30 transition-colors">
+                    <div class="flex-shrink-0 text-center min-w-[4rem]">
+                        <span class="block font-display font-bold text-gray-400 text-lg leading-none">10</span>
+                        <span class="block text-xs text-gray-500 uppercase tracking-widest">JAN</span>
+                        <span class="block text-xs text-gray-600">2026</span>
+                    </div>
+                    <div class="w-px h-8 bg-white/5 flex-shrink-0"></div>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-display font-bold text-gray-300 text-sm sm:text-base leading-tight">Charlie Bar</h3>
+                        <p class="text-gray-500 text-xs sm:text-sm"><i class="fa-solid fa-location-dot mr-1"></i>Smederevo · House Techno Session</p>
+                    </div>
+                </article>
+
+                <!-- 3. Club Kult — 20/11/2025 -->
+                <article class="flex items-center gap-4 sm:gap-6 border-l-2 border-brand-gray bg-brand-dark rounded-r-lg p-4 hover:border-white/30 transition-colors">
+                    <div class="flex-shrink-0 text-center min-w-[4rem]">
+                        <span class="block font-display font-bold text-gray-400 text-lg leading-none">20</span>
+                        <span class="block text-xs text-gray-500 uppercase tracking-widest">NOV</span>
+                        <span class="block text-xs text-gray-600">2025</span>
+                    </div>
+                    <div class="w-px h-8 bg-white/5 flex-shrink-0"></div>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-display font-bold text-gray-300 text-sm sm:text-base leading-tight">Club Kult</h3>
+                        <p class="text-gray-500 text-xs sm:text-sm"><i class="fa-solid fa-location-dot mr-1"></i>Belgrade · House Groove Tech Set</p>
+                    </div>
+                </article>
+
+                <!-- 4. Toucan Nightclub — 19/08/2025 -->
+                <article class="flex items-center gap-4 sm:gap-6 border-l-2 border-brand-gray bg-brand-dark rounded-r-lg p-4 hover:border-white/30 transition-colors">
+                    <div class="flex-shrink-0 text-center min-w-[4rem]">
+                        <span class="block font-display font-bold text-gray-400 text-lg leading-none">19</span>
+                        <span class="block text-xs text-gray-500 uppercase tracking-widest">AUG</span>
+                        <span class="block text-xs text-gray-600">2025</span>
+                    </div>
+                    <div class="w-px h-8 bg-white/5 flex-shrink-0"></div>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-display font-bold text-gray-300 text-sm sm:text-base leading-tight">Toucan Nightclub</h3>
+                        <p class="text-gray-500 text-xs sm:text-sm"><i class="fa-solid fa-location-dot mr-1"></i>Zakynthos</p>
+                    </div>
+                </article>
+
+                <!-- 5. Exit Festival — Dance Arena — 13/07/2025 -->
+                <article class="flex items-center gap-4 sm:gap-6 border-l-2 border-brand-gray bg-brand-dark rounded-r-lg p-4 hover:border-white/30 transition-colors">
+                    <div class="flex-shrink-0 text-center min-w-[4rem]">
+                        <span class="block font-display font-bold text-gray-400 text-lg leading-none">13</span>
+                        <span class="block text-xs text-gray-500 uppercase tracking-widest">JUL</span>
+                        <span class="block text-xs text-gray-600">2025</span>
+                    </div>
+                    <div class="w-px h-8 bg-white/5 flex-shrink-0"></div>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-display font-bold text-gray-300 text-sm sm:text-base leading-tight">Exit Festival — Dance Arena</h3>
+                        <p class="text-gray-500 text-xs sm:text-sm"><i class="fa-solid fa-location-dot mr-1"></i>Novi Sad · First Dance Arena Set</p>
+                    </div>
+                </article>
+
+                <!-- 6. Exit Festival — Students Stage — 12-13/07/2025 -->
+                <article class="flex items-center gap-4 sm:gap-6 border-l-2 border-brand-gray bg-brand-dark rounded-r-lg p-4 hover:border-white/30 transition-colors">
+                    <div class="flex-shrink-0 text-center min-w-[4rem]">
+                        <span class="block font-display font-bold text-gray-400 text-lg leading-none">12</span>
+                        <span class="block text-xs text-gray-500 uppercase tracking-widest">JUL</span>
+                        <span class="block text-xs text-gray-600">2025</span>
+                    </div>
+                    <div class="w-px h-8 bg-white/5 flex-shrink-0"></div>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-display font-bold text-gray-300 text-sm sm:text-base leading-tight">Exit Festival — Students Stage</h3>
+                        <p class="text-gray-500 text-xs sm:text-sm"><i class="fa-solid fa-location-dot mr-1"></i>Novi Sad · Late-Night House Set</p>
+                    </div>
+                </article>
+
+                <!-- 7. Borisov Atelje — 07/09/2024 -->
+                <article class="flex items-center gap-4 sm:gap-6 border-l-2 border-brand-gray bg-brand-dark rounded-r-lg p-4 hover:border-white/30 transition-colors">
+                    <div class="flex-shrink-0 text-center min-w-[4rem]">
+                        <span class="block font-display font-bold text-gray-400 text-lg leading-none">07</span>
+                        <span class="block text-xs text-gray-500 uppercase tracking-widest">SEP</span>
+                        <span class="block text-xs text-gray-600">2024</span>
+                    </div>
+                    <div class="w-px h-8 bg-white/5 flex-shrink-0"></div>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-display font-bold text-gray-300 text-sm sm:text-base leading-tight">Borisov Atelje</h3>
+                        <p class="text-gray-500 text-xs sm:text-sm"><i class="fa-solid fa-location-dot mr-1"></i>Petrovaradin</p>
+                    </div>
+                </article>
+
+                <!-- 8. Capital Night Club — 23/07/2024 -->
+                <article class="flex items-center gap-4 sm:gap-6 border-l-2 border-brand-gray bg-brand-dark rounded-r-lg p-4 hover:border-white/30 transition-colors">
+                    <div class="flex-shrink-0 text-center min-w-[4rem]">
+                        <span class="block font-display font-bold text-gray-400 text-lg leading-none">23</span>
+                        <span class="block text-xs text-gray-500 uppercase tracking-widest">JUL</span>
+                        <span class="block text-xs text-gray-600">2024</span>
+                    </div>
+                    <div class="w-px h-8 bg-white/5 flex-shrink-0"></div>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-display font-bold text-gray-300 text-sm sm:text-base leading-tight">Capital Night Club</h3>
+                        <p class="text-gray-500 text-xs sm:text-sm"><i class="fa-solid fa-location-dot mr-1"></i>Lefkada</p>
+                    </div>
+                </article>
+
+                <!-- 9. Exit Festival — AS FM Stage — 12/07/2024 -->
+                <article class="flex items-center gap-4 sm:gap-6 border-l-2 border-brand-gray bg-brand-dark rounded-r-lg p-4 hover:border-white/30 transition-colors">
+                    <div class="flex-shrink-0 text-center min-w-[4rem]">
+                        <span class="block font-display font-bold text-gray-400 text-lg leading-none">12</span>
+                        <span class="block text-xs text-gray-500 uppercase tracking-widest">JUL</span>
+                        <span class="block text-xs text-gray-600">2024</span>
+                    </div>
+                    <div class="w-px h-8 bg-white/5 flex-shrink-0"></div>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-display font-bold text-gray-300 text-sm sm:text-base leading-tight">Exit Festival — AS FM Stage</h3>
+                        <p class="text-gray-500 text-xs sm:text-sm"><i class="fa-solid fa-location-dot mr-1"></i>Novi Sad · First Major Festival Stage</p>
+                    </div>
+                </article>
+
+                <!-- 10. Klub Studenata Tehnike — 09/04/2024 -->
+                <article class="flex items-center gap-4 sm:gap-6 border-l-2 border-brand-gray bg-brand-dark rounded-r-lg p-4 hover:border-white/30 transition-colors">
+                    <div class="flex-shrink-0 text-center min-w-[4rem]">
+                        <span class="block font-display font-bold text-gray-400 text-lg leading-none">09</span>
+                        <span class="block text-xs text-gray-500 uppercase tracking-widest">APR</span>
+                        <span class="block text-xs text-gray-600">2024</span>
+                    </div>
+                    <div class="w-px h-8 bg-white/5 flex-shrink-0"></div>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-display font-bold text-gray-300 text-sm sm:text-base leading-tight">Klub Studenata Tehnike</h3>
+                        <p class="text-gray-500 text-xs sm:text-sm"><i class="fa-solid fa-location-dot mr-1"></i>Belgrade</p>
+                    </div>
+                </article>
+
+                <!-- 11. Kulturni Centar LAB — 02/09/2023 -->
+                <article class="flex items-center gap-4 sm:gap-6 border-l-2 border-brand-gray bg-brand-dark rounded-r-lg p-4 hover:border-white/30 transition-colors">
+                    <div class="flex-shrink-0 text-center min-w-[4rem]">
+                        <span class="block font-display font-bold text-gray-400 text-lg leading-none">02</span>
+                        <span class="block text-xs text-gray-500 uppercase tracking-widest">SEP</span>
+                        <span class="block text-xs text-gray-600">2023</span>
+                    </div>
+                    <div class="w-px h-8 bg-white/5 flex-shrink-0"></div>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-display font-bold text-gray-300 text-sm sm:text-base leading-tight">Kulturni Centar LAB</h3>
+                        <p class="text-gray-500 text-xs sm:text-sm"><i class="fa-solid fa-location-dot mr-1"></i>Novi Sad · Silent Disco Party</p>
+                    </div>
+                </article>
+
+                <!-- 12. Cafe Krivi Put — 30/07/2022 (debut) -->
+                <article class="flex items-center gap-4 sm:gap-6 border-l-2 border-brand-gray bg-brand-dark rounded-r-lg p-4 hover:border-white/30 transition-colors">
+                    <div class="flex-shrink-0 text-center min-w-[4rem]">
+                        <span class="block font-display font-bold text-gray-400 text-lg leading-none">30</span>
+                        <span class="block text-xs text-gray-500 uppercase tracking-widest">JUL</span>
+                        <span class="block text-xs text-gray-600">2022</span>
+                    </div>
+                    <div class="w-px h-8 bg-white/5 flex-shrink-0"></div>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="font-display font-bold text-gray-300 text-sm sm:text-base leading-tight">Cafe Krivi Put</h3>
+                        <p class="text-gray-500 text-xs sm:text-sm"><i class="fa-solid fa-location-dot mr-1"></i>Smederevo · First Public Party</p>
+                    </div>
+                </article>
+
             </div>
 
-            <!-- More Events -->
-            <div class="mb-4">
-                <h3 class="text-gray-400 font-display font-bold text-xs uppercase tracking-widest mb-8">More Events</h3>
-            </div>
-
-            <div class="grid grid-cols-3 gap-x-5 gap-y-8 sm:gap-x-6">
-
-                <!-- RayBar -->
-                <article class="vinyl-card vinyl-card-sm group cursor-default relative pt-10 sm:pt-12">
-                    <div class="vinyl-disc vinyl-slide absolute top-0 w-20 h-20 sm:w-24 sm:h-24 z-0">
-                        <div class="vinyl-label bg-amber-600">
-                            <span class="vinyl-label-text text-[7px] sm:text-[8px]">RAY</span>
-                        </div>
-                        <div class="vinyl-hole"></div>
-                    </div>
-                    <div class="vinyl-sleeve relative z-10 bg-gradient-to-b from-brand-gray to-black/60 rounded-lg p-3 pt-10 sm:pt-12 border border-white/5">
-                        <div class="vinyl-info-reveal">
-                            <span class="text-brand-orange font-display font-bold text-[10px] sm:text-xs block mb-1">24/01/2026</span>
-                            <h3 class="font-display text-xs sm:text-sm font-bold mb-1 leading-tight">RayBar</h3>
-                            <p class="text-gray-400 text-[10px] sm:text-xs"><i class="fa-solid fa-location-dot mr-1"></i>Novi Sad</p>
-                            <p class="text-gray-500 text-[10px] sm:text-xs">First Residency</p>
-                        </div>
-                    </div>
-                </article>
-
-                <!-- Club Kult -->
-                <article class="vinyl-card vinyl-card-sm group cursor-default relative pt-10 sm:pt-12">
-                    <div class="vinyl-disc vinyl-slide absolute top-0 w-20 h-20 sm:w-24 sm:h-24 z-0">
-                        <div class="vinyl-label bg-orange-600">
-                            <span class="vinyl-label-text text-[7px] sm:text-[8px]">KULT</span>
-                        </div>
-                        <div class="vinyl-hole"></div>
-                    </div>
-                    <div class="vinyl-sleeve relative z-10 bg-gradient-to-b from-brand-gray to-black/60 rounded-lg p-3 pt-10 sm:pt-12 border border-white/5">
-                        <div class="vinyl-info-reveal">
-                            <span class="text-brand-orange font-display font-bold text-[10px] sm:text-xs block mb-1">20/11/2025</span>
-                            <h3 class="font-display text-xs sm:text-sm font-bold mb-1 leading-tight">Club Kult</h3>
-                            <p class="text-gray-400 text-[10px] sm:text-xs"><i class="fa-solid fa-location-dot mr-1"></i>Belgrade</p>
-                            <p class="text-gray-500 text-[10px] sm:text-xs">21:00 - 22:00</p>
-                        </div>
-                    </div>
-                </article>
-
-                <!-- Toucan Nightclub -->
-                <article class="vinyl-card vinyl-card-sm group cursor-default relative pt-10 sm:pt-12">
-                    <div class="vinyl-disc vinyl-slide absolute top-0 w-20 h-20 sm:w-24 sm:h-24 z-0">
-                        <div class="vinyl-label bg-emerald-600">
-                            <span class="vinyl-label-text text-[7px] sm:text-[8px]">TUC</span>
-                        </div>
-                        <div class="vinyl-hole"></div>
-                    </div>
-                    <div class="vinyl-sleeve relative z-10 bg-gradient-to-b from-brand-gray to-black/60 rounded-lg p-3 pt-10 sm:pt-12 border border-white/5">
-                        <div class="vinyl-info-reveal">
-                            <span class="text-brand-orange font-display font-bold text-[10px] sm:text-xs block mb-1">19/08/2025</span>
-                            <h3 class="font-display text-xs sm:text-sm font-bold mb-1 leading-tight">Toucan Nightclub</h3>
-                            <p class="text-gray-400 text-[10px] sm:text-xs"><i class="fa-solid fa-location-dot mr-1"></i>Zakynthos</p>
-                            <p class="text-gray-500 text-[10px] sm:text-xs">00:00 - 04:00</p>
-                        </div>
-                    </div>
-                </article>
-
-                <!-- Borisov Atelje -->
-                <article class="vinyl-card vinyl-card-sm group cursor-default relative pt-10 sm:pt-12">
-                    <div class="vinyl-disc vinyl-slide absolute top-0 w-20 h-20 sm:w-24 sm:h-24 z-0">
-                        <div class="vinyl-label bg-purple-600">
-                            <span class="vinyl-label-text text-[7px] sm:text-[8px]">BA</span>
-                        </div>
-                        <div class="vinyl-hole"></div>
-                    </div>
-                    <div class="vinyl-sleeve relative z-10 bg-gradient-to-b from-brand-gray to-black/60 rounded-lg p-3 pt-10 sm:pt-12 border border-white/5">
-                        <div class="vinyl-info-reveal">
-                            <span class="text-brand-orange font-display font-bold text-[10px] sm:text-xs block mb-1">07/09/2024</span>
-                            <h3 class="font-display text-xs sm:text-sm font-bold mb-1 leading-tight">Borisov Atelje</h3>
-                            <p class="text-gray-400 text-[10px] sm:text-xs"><i class="fa-solid fa-location-dot mr-1"></i>Petrovaradin</p>
-                            <p class="text-gray-500 text-[10px] sm:text-xs">00:00 - 04:00</p>
-                        </div>
-                    </div>
-                </article>
-
-                <!-- Klub Studenata Tehnike -->
-                <article class="vinyl-card vinyl-card-sm group cursor-default relative pt-10 sm:pt-12">
-                    <div class="vinyl-disc vinyl-slide absolute top-0 w-20 h-20 sm:w-24 sm:h-24 z-0">
-                        <div class="vinyl-label bg-indigo-600">
-                            <span class="vinyl-label-text text-[7px] sm:text-[8px]">KST</span>
-                        </div>
-                        <div class="vinyl-hole"></div>
-                    </div>
-                    <div class="vinyl-sleeve relative z-10 bg-gradient-to-b from-brand-gray to-black/60 rounded-lg p-3 pt-10 sm:pt-12 border border-white/5">
-                        <div class="vinyl-info-reveal">
-                            <span class="text-brand-orange font-display font-bold text-[10px] sm:text-xs block mb-1">09/04/2024</span>
-                            <h3 class="font-display text-xs sm:text-sm font-bold mb-1 leading-tight">Klub Studenata Tehnike</h3>
-                            <p class="text-gray-400 text-[10px] sm:text-xs"><i class="fa-solid fa-location-dot mr-1"></i>Belgrade</p>
-                            <p class="text-gray-500 text-[10px] sm:text-xs">21:00 - 01:00</p>
-                        </div>
-                    </div>
-                </article>
-
-                <!-- Kulturni Centar LAB -->
-                <article class="vinyl-card vinyl-card-sm group cursor-default relative pt-10 sm:pt-12">
-                    <div class="vinyl-disc vinyl-slide absolute top-0 w-20 h-20 sm:w-24 sm:h-24 z-0">
-                        <div class="vinyl-label bg-teal-600">
-                            <span class="vinyl-label-text text-[7px] sm:text-[8px]">LAB</span>
-                        </div>
-                        <div class="vinyl-hole"></div>
-                    </div>
-                    <div class="vinyl-sleeve relative z-10 bg-gradient-to-b from-brand-gray to-black/60 rounded-lg p-3 pt-10 sm:pt-12 border border-white/5">
-                        <div class="vinyl-info-reveal">
-                            <span class="text-brand-orange font-display font-bold text-[10px] sm:text-xs block mb-1">02/09/2023</span>
-                            <h3 class="font-display text-xs sm:text-sm font-bold mb-1 leading-tight">Kulturni Centar LAB</h3>
-                            <p class="text-gray-400 text-[10px] sm:text-xs"><i class="fa-solid fa-location-dot mr-1"></i>Novi Sad</p>
-                            <p class="text-gray-500 text-[10px] sm:text-xs">Silent Disco Party</p>
-                        </div>
-                    </div>
-                </article>
-
-                <!-- Cafe Krivi Put -->
-                <article class="vinyl-card vinyl-card-sm group cursor-default relative pt-10 sm:pt-12">
-                    <div class="vinyl-disc vinyl-slide absolute top-0 w-20 h-20 sm:w-24 sm:h-24 z-0">
-                        <div class="vinyl-label bg-gray-500">
-                            <span class="vinyl-label-text text-[7px] sm:text-[8px]">DEBUT</span>
-                        </div>
-                        <div class="vinyl-hole"></div>
-                    </div>
-                    <div class="vinyl-sleeve relative z-10 bg-gradient-to-b from-brand-gray to-black/60 rounded-lg p-3 pt-10 sm:pt-12 border border-white/5">
-                        <div class="vinyl-info-reveal">
-                            <span class="text-brand-orange font-display font-bold text-[10px] sm:text-xs block mb-1">30/07/2022</span>
-                            <h3 class="font-display text-xs sm:text-sm font-bold mb-1 leading-tight">Cafe Krivi Put</h3>
-                            <p class="text-gray-400 text-[10px] sm:text-xs"><i class="fa-solid fa-location-dot mr-1"></i>Smederevo</p>
-                            <p class="text-gray-500 text-[10px] sm:text-xs">First public party</p>
-                        </div>
-                    </div>
-                </article>
-
-            </div>
-
+            <!-- Back to homepage link -->
             <div class="mt-12 text-center">
                 <a href="/" class="inline-flex items-center gap-2 text-gray-400 hover:text-brand-orange transition-colors">
                     <i class="fa-solid fa-arrow-left"></i> Back to Homepage
@@ -555,6 +601,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </div>
     </section>
 
+    <!-- ============================================================
+         FOOTER
+         Contact info, social icons, and "Book DJ Zippy" CTA.
+         ============================================================ -->
     <footer class="bg-brand-dark pt-16 sm:pt-20 pb-10 border-t border-white/10">
         <div class="container mx-auto px-6 sm:px-8 lg:px-12">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-16">
@@ -565,6 +615,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         Bringing the House Music Therapy to your event.
                     </p>
 
+                    <!-- Contact links -->
                     <div class="space-y-4 mb-8">
                         <a href="mailto:veljkoned@gmail.com"
                             class="flex items-center gap-4 text-xl hover:text-brand-orange transition-colors">
@@ -576,6 +627,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         </a>
                     </div>
 
+                    <!-- Social media icons -->
                     <div class="flex gap-4 sm:gap-6 mt-8 flex-wrap justify-center md:justify-start">
                         <a href="https://www.instagram.com/zovumezippy/" target="_blank" rel="me noopener noreferrer"
                             class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/5 flex items-center justify-center hover:bg-brand-orange hover:text-white transition-all">
@@ -597,6 +649,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     </div>
                 </div>
 
+                <!-- Booking CTA -->
                 <div class="flex flex-col justify-center items-center md:items-end">
                     <a href="/#contact" class="px-8 py-4 bg-brand-orange text-white font-bold uppercase tracking-wider hover:bg-white hover:text-brand-black transition-all duration-300 text-center">
                         Book DJ Zippy
@@ -604,12 +657,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 </div>
             </div>
 
+            <!-- Copyright bar -->
             <div class="mt-20 pt-8 border-t border-white/5 text-center text-gray-600 text-sm">
                 &copy; 2025 DJ Zippy. All Rights Reserved. House Music Therapy.
             </div>
         </div>
     </footer>
 
+    <!-- ============================================================
+         SCRIPTS
+         Main app logic + Google Ads + GTM tracking.
+         ============================================================ -->
     <script src="script.js" defer></script>
 
     <script async src="https://www.googletagmanager.com/gtag/js?id=AW-975400552"></script>

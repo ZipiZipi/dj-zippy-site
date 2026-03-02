@@ -281,17 +281,23 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KLGKHMGM"
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
+
+    <!-- ============================================================
+         NAVIGATION
+         Fixed top nav bar with desktop links and mobile hamburger menu.
+         Gallery link removed per site restructure.
+         ============================================================ -->
     <nav class="fixed top-0 w-full z-50 bg-brand-black/90 backdrop-blur-md border-b border-white/5">
         <div class="container mx-auto px-6 sm:px-8 lg:px-12 py-4 flex justify-between items-center">
             <a href="https://zippydj.com" class="font-display font-bold text-2xl tracking-tighter">
                 ZIPPY<span class="text-brand-orange">.</span>
             </a>
 
+            <!-- Desktop navigation — Gallery link removed per site restructure -->
             <div class="hidden md:flex space-x-8 text-sm font-semibold tracking-wide uppercase text-gray-300">
                 <a href="/about.html" class="nav-link hover:text-white transition-colors">About</a>
                 <a href="/mixes.html" class="nav-link hover:text-white transition-colors">Mixes</a>
                 <a href="/events.html" class="nav-link hover:text-white transition-colors">Events</a>
-                <a href="/gallery.html" class="nav-link hover:text-white transition-colors">Gallery</a>
                 <a href="/links.html" class="nav-link hover:text-white transition-colors">Links</a>
                 <a href="#contact" class="text-brand-orange hover:text-white transition-colors">Book Now</a>
             </div>
@@ -306,19 +312,24 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <a href="/about.html" class="text-gray-300 hover:text-brand-orange">About</a>
             <a href="/mixes.html" class="text-gray-300 hover:text-brand-orange">Mixes</a>
             <a href="/events.html" class="text-gray-300 hover:text-brand-orange">Events</a>
-            <a href="/gallery.html" class="text-gray-300 hover:text-brand-orange">Gallery</a>
             <a href="/links.html" class="text-gray-300 hover:text-brand-orange">Links</a>
             <a href="#contact" class="text-brand-orange font-bold">Book Now</a>
         </div>
     </nav>
 
+    <!-- ============================================================
+         HERO SECTION
+         Full-viewport hero with title, description, trust logos,
+         and the Featured Performances coverflow carousel (merged in).
+         z-30 on content to sit above the section::before gradient (z-20).
+         ============================================================ -->
     <section
         class="isolate relative min-h-screen flex flex-col items-center justify-center bg-brand-black pt-16 sm:pt-20 overflow-hidden">
         <div
             class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] bg-brand-orange/10 blur-[120px] rounded-full pointer-events-none">
         </div>
 
-        <div class="container mx-auto px-6 sm:px-8 lg:px-12 text-center z-10">
+        <div class="container mx-auto px-6 sm:px-8 lg:px-12 text-center z-30">
             <p
                 class="text-brand-orange font-bold tracking-[0.3em] text-sm md:text-base mb-4 uppercase animate-fade-in-up">
                 Welcome to the session
@@ -335,24 +346,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </h2>
 
             <p class="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto mb-10 font-light">
-                DJ Zippy curating frequencies, not just tracks. A selector dedicated to the groove, the vibe, and the
-                journey.
+                DJ Zippy curates frequencies from club nights to festival main stages, dedicated to the groove, the vibe, and the journey.
             </p>
 
-            <div class="flex flex-col md:flex-row justify-center gap-4">
-                <a href="#music"
-                    class="px-8 py-4 bg-white text-black font-bold uppercase tracking-wider hover:bg-brand-orange hover:text-white transition-all duration-300">
-                    Listen to Mixes
-                </a>
-                <a href="#contact"
-                    class="px-8 py-4 border border-white/20 hover:border-brand-orange hover:text-brand-orange transition-all duration-300 uppercase tracking-wider font-bold">
-                    Contact for Booking
-                </a>
-            </div>
         </div>
 
         <div
-            class="mt-12 md:mt-20 flex justify-center items-center gap-6 sm:gap-8 md:gap-16 opacity-50 grayscale hover:grayscale-0 transition-all duration-500 flex-wrap z-10 px-4">
+            class="mt-12 md:mt-20 flex justify-center items-center gap-6 sm:gap-8 md:gap-16 opacity-50 grayscale hover:grayscale-0 transition-all duration-500 flex-wrap z-30 px-4">
             <div class="flex items-center gap-2" title="Kult Talents Member">
                 <i class="fa-solid fa-star text-xl"></i>
                 <span class="font-display font-bold text-lg sm:text-xl">KULT TALENTS</span>
@@ -366,9 +366,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 <span class="font-display font-bold text-lg sm:text-xl">RESIDENT ADVISOR</span>
             </div>
         </div>
-    </section>
 
-<section id="highlights" class="isolate relative py-16 sm:py-20 bg-brand-dark border-t border-white/5">
+        <!-- Featured Performances coverflow (merged from separate highlights section) -->
+<div id="highlights" class="relative py-16 sm:py-20 bg-brand-dark border-t border-white/5 z-30">
     <div class="container mx-auto px-6 sm:px-8 lg:px-12">
         <div class="text-center mb-10">
             <h2 class="font-display text-3xl md:text-4xl font-bold mb-2">Featured <span class="text-brand-orange">Performances</span></h2>
@@ -453,46 +453,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </a>
         </div>
     </div>
-</section>
+</div>
+    </section>
 
-<section id="about" class="isolate relative py-16 sm:py-24 bg-brand-black border-t border-white/5">
-    <div class="container mx-auto px-6 sm:px-8 lg:px-12">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div class="hidden lg:flex items-center justify-center">
-                <img src="images/dj-zippy-house-music-dj.webp"
-                    alt="DJ Zippy a DJ from Serbia, creator of House Music Therapy."
-                    class="w-full max-h-md rounded-lg">
-            </div>
-            <div
-                class="relative bg-[url(‘images/dj-zippy-house-music-dj.webp’)] bg-cover bg-center lg:bg-none min-h-[300px] lg:min-h-0 flex items-center">
-                <div class="absolute inset-0 bg-black/50 lg:hidden"></div>
-                <div class="relative z-10 p-6 lg:p-0">
-                    <div
-                        class="inline-block px-3 py-1 border border-brand-orange/50 rounded-full text-brand-orange text-xs font-bold tracking-widest mb-6">
-                        THE ARTIST</div>
-                    <h2 class="font-display text-4xl md:text-5xl font-bold mb-8">Not a Producer.<br>A <span
-                            class="text-brand-orange">Selector.</span></h2>
-
-                    <div class="space-y-6 text-gray-400 font-light leading-relaxed">
-                        <p>
-                            DJ Zippy’s brand, <span class="text-white font-semibold">House Music Therapy</span>, is
-                            built on the belief that the right
-                            groove can heal. While his foundation is strictly <span
-                                class="text-white font-semibold">House</span>, Zippy adapts to the energy of the
-                            night, shifting into <span class="text-white font-semibold">Techno</span> when the
-                            atmosphere demands darker, driving rhythms.
-                        </p>
-                        <a href="/about.html"
-                            class="inline-block px-8 py-4 border border-white/20 hover:border-brand-orange hover:text-brand-orange transition-all duration-300 uppercase tracking-wider font-bold text-sm">
-                            Read Full Bio
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
+    <!-- ============================================================
+         MUSIC SECTION
+         Platform-filtered mixes and playlists grid.
+         YouTube, MixCloud, Spotify tabs + "View All Mixes" link.
+         Cards rendered dynamically by script.js.
+         ============================================================ -->
     <section id="music" class="isolate relative py-16 sm:py-24 bg-brand-dark border-t border-white/5 overflow-hidden">
         <div class="container mx-auto px-6 sm:px-8 lg:px-12 relative z-10">
             <div class="text-center md:flex md:justify-between md:items-end mb-12">
@@ -528,6 +497,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </div>
     </section>
 
+    <!-- ============================================================
+         DATES SECTION
+         Recent event listings with venue, date, and info links.
+         Full event history available on the Events page.
+         ============================================================ -->
     <section id="dates" class="isolate relative py-8 sm:py-16 bg-brand-black">
         <div class="container mx-auto px-6 sm:px-8 lg:px-12">
             <h2 class="font-display text-3xl md:text-4xl font-bold mb-8 text-center">Upcoming <span
@@ -627,6 +601,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </div>
     </section>
 
+    <!-- ============================================================
+         FOOTER / CONTACT
+         Contact info, social icons, booking form (Netlify Forms),
+         and "Book DJ Zippy" CTA.
+         ============================================================ -->
     <footer id="contact" class="bg-brand-dark pt-16 sm:pt-20 pb-10 border-t border-white/10">
         <div class="container mx-auto px-6 sm:px-8 lg:px-12">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-16">
@@ -706,11 +685,17 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </div>
 
             <div class="mt-20 pt-8 border-t border-white/5 text-center text-gray-600 text-sm">
-                © 2025 DJ Zippy. All Rights Reserved. House Music Therapy.
+                &copy; 2025 DJ Zippy. All Rights Reserved. House Music Therapy.
+                <span class="mx-2">|</span>
+                <a href="/links.html" class="hover:text-brand-orange transition-colors">All Links &rarr;</a>
             </div>
         </div>
     </footer>
-    <!-- Scripts -->
+
+    <!-- ============================================================
+         SCRIPTS
+         Main app logic + Google Ads + GTM tracking + Coverflow IIFE.
+         ============================================================ -->
     <script src="script.js" defer></script>
 
     <script async src="https://www.googletagmanager.com/gtag/js?id=AW-975400552"></script>
