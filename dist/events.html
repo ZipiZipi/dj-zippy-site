@@ -336,18 +336,19 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </nav>
 
     <!-- ============================================================
-         EVENTS HERO
-         Page title with breadcrumb navigation.
-         z-30 on content to sit above the section::before gradient (z-20).
+         EVENTS HERO + UPCOMING
+         Merged hero and upcoming events in a single section so events
+         are visible without scrolling. Breadcrumb, title, and event
+         cards all in one view.
          ============================================================ -->
-    <section class="isolate relative min-h-screen flex flex-col items-center justify-center bg-brand-black pt-16 sm:pt-20 overflow-hidden">
+    <section id="upcoming" class="isolate relative bg-brand-black pt-24 sm:pt-28 pb-16 overflow-hidden">
         <!-- Decorative background glow -->
         <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] bg-brand-orange/10 blur-[120px] rounded-full pointer-events-none"></div>
 
-        <div class="container mx-auto px-6 sm:px-8 lg:px-12 text-center z-30">
+        <div class="container mx-auto px-6 sm:px-8 lg:px-12 z-30 relative">
             <!-- Breadcrumb navigation for SEO and wayfinding -->
             <nav aria-label="Breadcrumb" class="mb-6">
-                <ol class="flex justify-center items-center space-x-2 text-sm text-gray-400">
+                <ol class="flex items-center space-x-2 text-sm text-gray-400">
                     <li><a href="/" class="hover:text-brand-orange transition-colors">Home</a></li>
                     <li><span class="mx-2">/</span></li>
                     <li class="text-white">Events</li>
@@ -355,53 +356,78 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </nav>
 
             <!-- Page title -->
-            <h1 class="font-display text-4xl md:text-5xl lg:text-6xl font-black leading-tight mb-4">
+            <h1 class="font-display text-4xl md:text-5xl lg:text-6xl font-black leading-tight mb-2">
                 DJ Zippy
             </h1>
             <h2 class="font-display font-black leading-tight mb-4 text-brand-orange">Live Events & Festival Performances</h2>
-            <p class="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto">
+            <p class="text-gray-400 text-lg md:text-xl max-w-2xl mb-10">
                 From intimate club nights to major festival stages. House Music Therapy live.
             </p>
-        </div>
-    </section>
 
-    <!-- ============================================================
-         UPCOMING EVENTS
-         Horizontal list of future events, ordered closest date first.
-         Uses orange styling (brand-orange borders, accents).
-         Currently empty — shows a "coming soon" placeholder.
-         When events are added, use the event card template below.
-         ============================================================ -->
-    <section id="upcoming" class="isolate relative py-16 sm:py-20 bg-brand-dark border-t border-white/5">
-        <div class="container mx-auto px-6 sm:px-8 lg:px-12">
-            <!-- Section heading with orange accent bar -->
-            <div class="flex items-center gap-4 mb-10">
+            <!-- Upcoming events heading -->
+            <div class="flex items-center gap-4 mb-6">
                 <div class="w-2 h-8 bg-brand-orange"></div>
-                <h2 class="font-display text-3xl md:text-4xl font-bold">Upcoming <span class="text-brand-orange">Events</span></h2>
+                <h3 class="font-display text-2xl md:text-3xl font-bold">Upcoming <span class="text-brand-orange">Events</span></h3>
             </div>
 
-            <!-- Empty state: shown when no upcoming events exist -->
-            <div class="text-center py-12 text-gray-400">
-                <i class="fa-solid fa-calendar-plus text-4xl mb-4 text-brand-orange/50"></i>
-                <p class="text-lg">New dates coming soon.</p>
-                <p class="text-sm mt-2">Follow on <a href="https://www.instagram.com/zovumezippy" target="_blank" rel="noopener noreferrer" class="text-brand-orange hover:underline">Instagram</a> for announcements.</p>
-            </div>
-
-            <!--
-                TEMPLATE: Upcoming event card (use when adding future events)
+            <!-- Upcoming events list -->
+            <div class="space-y-3">
+                <!-- 1. Lazino Tele — 27/03/2026 -->
                 <article class="flex items-center gap-4 sm:gap-6 border-l-4 border-brand-orange bg-brand-gray rounded-r-lg p-4 hover:bg-white/5 transition-colors">
                     <div class="flex-shrink-0 text-center min-w-[4rem]">
-                        <span class="block font-display font-bold text-brand-orange text-xl leading-none">24</span>
-                        <span class="block text-xs text-gray-400 uppercase tracking-widest">JAN</span>
-                        <span class="block text-xs text-gray-500">2027</span>
+                        <span class="block font-display font-bold text-brand-orange text-xl leading-none">27</span>
+                        <span class="block text-xs text-gray-400 uppercase tracking-widest">MAR</span>
+                        <span class="block text-xs text-gray-500">2026</span>
                     </div>
                     <div class="w-px h-10 bg-white/10 flex-shrink-0"></div>
                     <div class="flex-1 min-w-0">
-                        <h3 class="font-display font-bold text-white text-base sm:text-lg leading-tight">Venue Name</h3>
-                        <p class="text-gray-400 text-sm"><i class="fa-solid fa-location-dot mr-1 text-brand-orange"></i>City · Event Type</p>
+                        <h4 class="font-display font-bold text-white text-base sm:text-lg leading-tight">Lazino Tele</h4>
+                        <p class="text-gray-400 text-sm"><i class="fa-solid fa-location-dot mr-1 text-brand-orange"></i>Novi Sad · 22:00 - 03:00</p>
                     </div>
                 </article>
-            -->
+
+                <!-- 2. Krivi Put — 21/03/2026 -->
+                <article class="flex items-center gap-4 sm:gap-6 border-l-4 border-brand-orange bg-brand-gray rounded-r-lg p-4 hover:bg-white/5 transition-colors">
+                    <div class="flex-shrink-0 text-center min-w-[4rem]">
+                        <span class="block font-display font-bold text-brand-orange text-xl leading-none">21</span>
+                        <span class="block text-xs text-gray-400 uppercase tracking-widest">MAR</span>
+                        <span class="block text-xs text-gray-500">2026</span>
+                    </div>
+                    <div class="w-px h-10 bg-white/10 flex-shrink-0"></div>
+                    <div class="flex-1 min-w-0">
+                        <h4 class="font-display font-bold text-white text-base sm:text-lg leading-tight">Krivi Put</h4>
+                        <p class="text-gray-400 text-sm"><i class="fa-solid fa-location-dot mr-1 text-brand-orange"></i>Smederevo · 20:00 - 01:00</p>
+                    </div>
+                </article>
+
+                <!-- 3. Club Kult — 18/03/2026 -->
+                <article class="flex items-center gap-4 sm:gap-6 border-l-4 border-brand-orange bg-brand-gray rounded-r-lg p-4 hover:bg-white/5 transition-colors">
+                    <div class="flex-shrink-0 text-center min-w-[4rem]">
+                        <span class="block font-display font-bold text-brand-orange text-xl leading-none">18</span>
+                        <span class="block text-xs text-gray-400 uppercase tracking-widest">MAR</span>
+                        <span class="block text-xs text-gray-500">2026</span>
+                    </div>
+                    <div class="w-px h-10 bg-white/10 flex-shrink-0"></div>
+                    <div class="flex-1 min-w-0">
+                        <h4 class="font-display font-bold text-white text-base sm:text-lg leading-tight">Club Kult</h4>
+                        <p class="text-gray-400 text-sm"><i class="fa-solid fa-location-dot mr-1 text-brand-orange"></i>Beograd · 21:00 - 22:00</p>
+                    </div>
+                </article>
+
+                <!-- 4. RayBar — 07/03/2026 -->
+                <article class="flex items-center gap-4 sm:gap-6 border-l-4 border-brand-orange bg-brand-gray rounded-r-lg p-4 hover:bg-white/5 transition-colors">
+                    <div class="flex-shrink-0 text-center min-w-[4rem]">
+                        <span class="block font-display font-bold text-brand-orange text-xl leading-none">07</span>
+                        <span class="block text-xs text-gray-400 uppercase tracking-widest">MAR</span>
+                        <span class="block text-xs text-gray-500">2026</span>
+                    </div>
+                    <div class="w-px h-10 bg-white/10 flex-shrink-0"></div>
+                    <div class="flex-1 min-w-0">
+                        <h4 class="font-display font-bold text-white text-base sm:text-lg leading-tight">RayBar</h4>
+                        <p class="text-gray-400 text-sm"><i class="fa-solid fa-location-dot mr-1 text-brand-orange"></i>Novi Sad · 20:00 - 01:00</p>
+                    </div>
+                </article>
+            </div>
         </div>
     </section>
 
