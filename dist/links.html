@@ -126,8 +126,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
         <!-- ===== MAIN LINKS (Stream & Follow) =====
              High-priority external platform links.
-             Orange-accented borders for visual prominence. -->
-        <section aria-label="Main Links" class="w-full flex flex-col space-y-3 before:hidden after:hidden">
+             Orange-accented borders for visual prominence.
+             before:content-none/after:content-none removes base-layer fade gradients. -->
+        <section aria-label="Main Links" class="w-full flex flex-col space-y-3 before:hidden before:content-none after:hidden after:content-none">
             <p class="text-xs text-gray-500 uppercase tracking-widest font-bold mb-1">Stream & Follow</p>
 
             <!-- Website -->
@@ -172,7 +173,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <!-- ===== SECONDARY LINKS (Also on) =====
              Lower-priority external platforms.
              Muted gray styling for visual hierarchy. -->
-        <section aria-label="Secondary Links" class="w-full flex flex-col space-y-3 before:hidden after:hidden">
+        <!-- before:content-none/after:content-none removes base-layer fade gradients -->
+        <section aria-label="Secondary Links" class="w-full flex flex-col space-y-3 before:hidden before:content-none after:hidden after:content-none">
             <p class="text-xs text-gray-600 uppercase tracking-widest font-bold mb-1">Also on</p>
 
             <!-- SoundCloud -->
@@ -203,7 +205,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <!-- ===== INTERNAL SITE LINKS =====
              Compact navigation to key pages within the site.
              Minimal text-only styling with hover arrows. -->
-        <section aria-label="Site Navigation" class="w-full flex flex-col space-y-2 before:hidden after:hidden">
+        <!-- before:content-none/after:content-none removes base-layer fade gradients -->
+        <section aria-label="Site Navigation" class="w-full flex flex-col space-y-2 before:hidden before:content-none after:hidden after:content-none">
             <p class="text-xs text-gray-600 uppercase tracking-widest font-bold mb-1">Explore the site</p>
 
             <a href="/events.html"
