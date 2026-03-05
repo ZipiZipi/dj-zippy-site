@@ -126,14 +126,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 ZIPPY<span class="text-brand-orange">.</span>
             </a>
 
+            <!-- Desktop navigation — Gallery link removed per site restructure -->
             <div class="hidden md:flex space-x-8 text-sm font-semibold tracking-wide uppercase text-gray-300">
                 <a href="/" class="nav-link hover:text-white transition-colors">Home</a>
                 <a href="/about.html" class="nav-link hover:text-white transition-colors">About</a>
                 <a href="/mixes.html" class="nav-link hover:text-white transition-colors">Mixes</a>
                 <a href="/events.html" class="nav-link hover:text-white transition-colors">Events</a>
-                <a href="/gallery.html" class="nav-link text-brand-orange hover:text-white transition-colors">Gallery</a>
                 <a href="/links.html" class="nav-link hover:text-white transition-colors">Links</a>
-                <a href="/#contact" class="text-brand-orange hover:text-white transition-colors">Book Now</a>
+                <a href="#contact" class="text-brand-orange hover:text-white transition-colors">Book Now</a>
             </div>
 
             <button id="mobile-menu-btn" class="md:hidden text-white focus:outline-none">
@@ -147,9 +147,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <a href="/about.html" class="text-gray-300 hover:text-brand-orange">About</a>
             <a href="/mixes.html" class="text-gray-300 hover:text-brand-orange">Mixes</a>
             <a href="/events.html" class="text-gray-300 hover:text-brand-orange">Events</a>
-            <a href="/gallery.html" class="text-brand-orange font-bold">Gallery</a>
             <a href="/links.html" class="text-gray-300 hover:text-brand-orange">Links</a>
-            <a href="/#contact" class="text-brand-orange font-bold">Book Now</a>
+            <a href="#contact" class="text-brand-orange font-bold">Book Now</a>
         </div>
     </nav>
 
@@ -258,11 +257,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
          FOOTER
          Contact info, social icons, and "Book DJ Zippy" CTA.
          ============================================================ -->
-    <footer class="bg-brand-dark pt-16 sm:pt-20 pb-10 border-t border-white/10">
+    <footer id="contact" class="bg-brand-dark pt-16 sm:pt-20 pb-10 border-t border-white/10">
         <div class="container mx-auto px-6 sm:px-8 lg:px-12">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-16">
                 <div>
-                    <h2 class="font-display text-4xl font-bold mb-6">Let's <span class="text-brand-orange">Connect</span></h2>
+                    <h2 class="font-display text-4xl font-bold mb-6">Let's <span
+                            class="text-brand-orange">Connect</span></h2>
                     <p class="text-gray-400 mb-8">
                         Available for club bookings, private events, and festivals. <br>
                         Bringing the House Music Therapy to your event.
@@ -279,7 +279,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         </a>
                     </div>
 
-                    <div class="flex gap-4 sm:gap-6 mt-8 flex-wrap justify-center md:justify-start">
+                    <div class="flex gap-4 sm:gap-6 mt-8 flex-wrap justify-center">
                         <a href="https://www.instagram.com/zovumezippy/" target="_blank" rel="me noopener noreferrer"
                             class="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/5 flex items-center justify-center hover:bg-brand-orange hover:text-white transition-all">
                             <i class="fa-brands fa-instagram text-lg sm:text-xl"></i>
@@ -300,15 +300,45 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     </div>
                 </div>
 
-                <div class="flex flex-col justify-center items-center md:items-end">
-                    <a href="/#contact" class="px-8 py-4 bg-brand-orange text-white font-bold uppercase tracking-wider hover:bg-white hover:text-brand-black transition-all duration-300 text-center">
-                        Book DJ Zippy
-                    </a>
-                </div>
+                <form id="contact-form" name="contact" method="POST" data-netlify="true" class="space-y-4">
+                    <input type="hidden" name="form-name" value="contact" />
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="name" class="block text-sm font-medium text-white mb-1">Name</label>
+                            <input type="text" id="name" name="name" placeholder="Name" required
+                                class="w-full bg-brand-black border border-white/10 p-4 text-white focus:border-brand-orange focus:outline-none rounded">
+                        </div>
+                        <div>
+                            <label for="venue" class="block text-sm font-medium text-white mb-1">Venue/Event</label>
+                            <input type="text" id="venue" name="venue" placeholder="Venue/Event" required
+                                class="w-full bg-brand-black border border-white/10 p-4 text-white focus:border-brand-orange focus:outline-none rounded">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-white mb-1">Email Address</label>
+                        <input type="email" id="email" name="email" placeholder="Email Address" required
+                            class="w-full bg-brand-black border border-white/10 p-4 text-white focus:border-brand-orange focus:outline-none rounded">
+                    </div>
+
+                    <div>
+                        <label for="message" class="block text-sm font-medium text-white mb-1">Message</label>
+                        <textarea id="message" name="message" rows="4" placeholder="Tell me about the gig..." required
+                            class="w-full bg-brand-black border border-white/10 p-4 text-white focus:border-brand-orange focus:outline-none rounded"></textarea>
+                    </div>
+
+                    <button type="submit"
+                        class="w-full bg-brand-orange text-white font-bold py-4 hover:bg-white hover:text-brand-black transition-colors uppercase tracking-widest">
+                        Send Request
+                    </button>
+                </form>
             </div>
 
             <div class="mt-20 pt-8 border-t border-white/5 text-center text-gray-600 text-sm">
                 &copy; 2025 DJ Zippy. All Rights Reserved. House Music Therapy.
+                <span class="mx-2">|</span>
+                <a href="/links.html" class="hover:text-brand-orange transition-colors">All Links &rarr;</a>
             </div>
         </div>
     </footer>
