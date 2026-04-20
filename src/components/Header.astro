@@ -1,0 +1,46 @@
+---
+const { activePage = '' } = Astro.props;
+---
+
+<nav class="fixed top-0 w-full z-50 bg-brand-black/90 backdrop-blur-md border-b border-white/5">
+  <div class="container mx-auto px-6 sm:px-8 lg:px-12 py-4 flex justify-between items-center">
+    <a href="/" class="font-display font-bold text-2xl tracking-tighter">
+      ZIPPY<span class="text-brand-orange">.</span>
+    </a>
+
+    <div class="hidden md:flex space-x-8 text-sm font-semibold tracking-wide uppercase text-gray-300">
+      {activePage !== '' && <a href="/" class="nav-link hover:text-white transition-colors">Home</a>}
+      <a href="/about" class={`nav-link hover:text-white transition-colors ${activePage === 'about' ? 'text-brand-orange' : ''}`}>About</a>
+      <a href="/mixes" class={`nav-link hover:text-white transition-colors ${activePage === 'mixes' ? 'text-brand-orange' : ''}`}>Mixes</a>
+      <a href="/events" class={`nav-link hover:text-white transition-colors ${activePage === 'events' ? 'text-brand-orange' : ''}`}>Events</a>
+      <a href="/blog" class={`nav-link hover:text-white transition-colors ${activePage === 'blog' ? 'text-brand-orange' : ''}`}>Blog</a>
+      <a href="/links" class={`nav-link hover:text-white transition-colors ${activePage === 'links' ? 'text-brand-orange' : ''}`}>Links</a>
+      <a href="/#contact" class="text-brand-orange hover:text-white transition-colors">Book Now</a>
+    </div>
+
+    <button id="mobile-menu-btn" class="md:hidden text-white focus:outline-none">
+      <i class="fa-solid fa-bars text-xl"></i>
+    </button>
+  </div>
+
+  <div id="mobile-menu" class="hidden md:hidden bg-brand-dark border-t border-white/10 p-4 sm:p-6 flex flex-col space-y-4">
+    {activePage !== '' && <a href="/" class="text-gray-300 hover:text-brand-orange">Home</a>}
+    <a href="/about" class={`hover:text-brand-orange ${activePage === 'about' ? 'text-brand-orange font-bold' : 'text-gray-300'}`}>About</a>
+    <a href="/mixes" class={`hover:text-brand-orange ${activePage === 'mixes' ? 'text-brand-orange font-bold' : 'text-gray-300'}`}>Mixes</a>
+    <a href="/events" class={`hover:text-brand-orange ${activePage === 'events' ? 'text-brand-orange font-bold' : 'text-gray-300'}`}>Events</a>
+    <a href="/blog" class={`hover:text-brand-orange ${activePage === 'blog' ? 'text-brand-orange font-bold' : 'text-gray-300'}`}>Blog</a>
+    <a href="/links" class={`hover:text-brand-orange ${activePage === 'links' ? 'text-brand-orange font-bold' : 'text-gray-300'}`}>Links</a>
+    <a href="/#contact" class="text-brand-orange font-bold">Book Now</a>
+  </div>
+</nav>
+
+<script>
+  const btn = document.getElementById('mobile-menu-btn');
+  const menu = document.getElementById('mobile-menu');
+  if (btn && menu) {
+    btn.addEventListener('click', () => menu.classList.toggle('hidden'));
+    document.querySelectorAll('.nav-link, #mobile-menu a').forEach(link => {
+      link.addEventListener('click', () => menu.classList.add('hidden'));
+    });
+  }
+</script>

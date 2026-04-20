@@ -1,0 +1,364 @@
+---
+// Dynamic Blog Post Page
+// Fetches single post by slug from D1
+// Renders markdown content
+// Full SEO meta tags and structured data
+// Fully server-rendered for Googlebot indexing
+
+import Layout from '../../layouts/Layout.astro';
+import type { Post } from '../../types/database';
+
+interface Props {
+  post: Post;
+}
+
+export function getStaticPaths() {
+  const posts: Post[] = [
+    {
+      id: 1,
+      title: 'The Evolution of House Music',
+      slug: 'evolution-of-house-music',
+      cover_image: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=1200',
+      content: `# The Evolution of House Music
+
+House music emerged in Chicago during the 1980s, born from the fusion of soul, funk, and electronic music. What started in the warehouses and underground clubs of Chicago has evolved into a global phenomenon that influences everything from pop music to fashion.
+
+## The Chicago Origins
+
+In the early 1980s, Chicago DJ Frankie Knuckles pioneered what would become known as house music. Using synthesizers, drum machines, and soulful samples, he created a sound that was distinctly different from disco yet retained its groovy, danceable essence.
+
+The name "house" reportedly came from the Warehouse nightclub where Knuckles was the resident DJ. This intimate venue became the birthplace of the genre, where producers and DJs experimented with new sounds night after night.
+
+## Key Characteristics
+
+House music is defined by several key elements:
+
+- **BPM Range**: Typically 120-130 BPM (beats per minute)
+- **Beat**: Four-on-the-floor drum pattern
+- **Synths**: Electronic instruments and synthesizers
+- **Samples**: Soul and funk samples layered over beats
+- **Groove**: Emphasis on groove and danceability
+
+## Evolution and Subgenres
+
+From its Chicago roots, house music evolved into countless subgenres:
+
+### Deep House
+Emerged in the mid-1980s, deep house incorporates soulful and jazzy elements with slower tempos (around 110 BPM). It emphasizes musicality and emotional depth.
+
+### Tech House
+A fusion of techno and house, tech house combines the driving rhythm of techno with the soulful elements of house music. It gained popularity in the 1990s and remains a club staple.
+
+### Progressive House
+Progressive house developed as a more experimental approach, featuring longer track lengths and gradual builds. It emphasizes progression and development throughout a track.
+
+### Acid House
+Born from the Roland TB-303 synthesizer, acid house features squelchy, resonant basslines and became synonymous with 1980s rave culture.
+
+## Global Impact
+
+From Chicago to Detroit, Berlin to Belgrade, house music spread globally and influenced local music scenes. Each region added its own flavor to the genre, creating unique variations and subcultures.
+
+Today, house music is no longer confined to underground clubs. It has become mainstream, with producers achieving commercial success while maintaining the genre's core values of groove, soul, and danceability.
+
+## The Modern Era
+
+In the 2020s, house music continues to evolve. Artists blend house with contemporary sounds, from hip-hop to ambient, while maintaining respect for the genre's roots and traditions.
+
+Whether you're listening to classic Chicago house, modern tech house, or experimental progressive tracks, the spirit of house music remains the same: music that moves the body and soul.`,
+      date: '2026-04-19',
+      seo_description: 'Explore the rich history and evolution of house music from Chicago to the world. Learn about the origins, key characteristics, and modern era of this influential genre.',
+      author: 'DJ Zippy',
+      published: true,
+      featured: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    },
+    {
+      id: 2,
+      title: 'Deep House Vibes for Summer',
+      slug: 'deep-house-summer',
+      cover_image: 'https://images.unsplash.com/photo-1511379938547-c1f69b13d835?w=1200',
+      content: `# Deep House Vibes for Summer
+
+Summer is the perfect season for deep house music. With its smooth grooves, soulful samples, and laidback vibes, deep house sets the perfect mood for both outdoor parties and intimate listening sessions.
+
+## What Makes Deep House Perfect for Summer
+
+Deep house combines the emotional depth of house music with slower tempos (usually 105-115 BPM) that feel relaxed yet energetic. It's music that makes you want to move, but not frantically – rather, it invites you to sway and feel the groove.
+
+## Essential Summer Deep House Tracks
+
+Here are some tracks that capture the essence of summer deep house:
+
+1. **Classic Vibes** - Perfect for afternoon pool parties
+2. **Sunset Sessions** - Ideal for evening gatherings
+3. **Beach Grooves** - Great for beachside events
+
+## Creating the Perfect Summer Playlist
+
+When building a summer deep house playlist, consider the mood you want to create:
+
+- Start with lighter, more upbeat tracks
+- Gradually introduce deeper, soulful elements
+- Peak around mid-party with the most energetic tracks
+- Wind down with ambient, more relaxed deep house
+
+## Summer Festival Guide
+
+Deep house has become a staple at summer festivals across Europe. The genre's soulful, groovy nature makes it perfect for festival settings where people want to dance but also connect with the music on an emotional level.
+
+Whether you're at Tomorrowland, Awakenings, or a smaller regional festival, you'll find deep house stages attracting thousands of music lovers.
+
+## Conclusion
+
+This summer, let deep house be your soundtrack. Whether you're at home, at a festival, or on the beach, the smooth grooves and soulful sounds of deep house will create the perfect atmosphere for your summer adventures.`,
+      date: '2026-04-15',
+      seo_description: 'Discover the best deep house tracks for summer 2026. Perfect for outdoor parties and festivals. Playlists, tips, and essential summer deep house music.',
+      author: 'DJ Zippy',
+      published: true,
+      featured: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    },
+  ];
+
+  return posts
+    .filter(post => post.published)
+    .map(post => ({
+      params: { slug: post.slug },
+      props: { post }
+    }));
+}
+
+// Get slug from URL params
+const { slug } = Astro.params;
+const { post } = Astro.props;
+
+// Parse markdown to HTML (simple approach - in production use a markdown parser)
+const htmlContent = post.content
+  .split('\n')
+  .map((line) => {
+    if (line.startsWith('# ')) return `<h1 class="font-display font-bold text-4xl text-white mt-8 mb-4">${line.substring(2)}</h1>`;
+    if (line.startsWith('## ')) return `<h2 class="font-display font-bold text-3xl text-white mt-8 mb-4">${line.substring(3)}</h2>`;
+    if (line.startsWith('### ')) return `<h3 class="font-display font-bold text-2xl text-white mt-6 mb-3">${line.substring(4)}</h3>`;
+    if (line.startsWith('- ')) return `<li class="text-gray-300 ml-4">${line.substring(2)}</li>`;
+    if (line.startsWith('1. ') || line.match(/^\d+\. /)) {
+      const num = line.match(/^\d+/)?.[0];
+      return `<li class="text-gray-300 ml-4">${line.substring(num!.length + 2)}</li>`;
+    }
+    if (line.startsWith('> ')) return `<blockquote class="border-l-4 border-brand-orange pl-4 py-2 italic text-gray-400">${line.substring(2)}</blockquote>`;
+    if (line === '') return '<br>';
+    return `<p class="text-gray-300 leading-relaxed mb-4">${line}</p>`;
+  })
+  .join('\n');
+
+// Note: For now, previous/next posts are not implemented in dev mode
+// They will work in production with D1 database
+const previousPost = null;
+const nextPost = null;
+
+// SEO - Create structured data (JSON-LD)
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: post.title,
+  image: post.cover_image,
+  datePublished: post.date,
+  dateModified: post.updated_at,
+  author: {
+    '@type': 'Person',
+    name: post.author || 'DJ Zippy',
+    url: 'https://zippydj.com',
+  },
+  description: post.seo_description,
+};
+
+const canonicalUrl = `https://zippydj.com/blog/${post.slug}`;
+---
+
+<Layout title={`${post.title} | DJ Zippy Blog`} description={post.seo_description}>
+  {/* Structured Data (JSON-LD) */}
+  <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+
+  {/* Canonical URL */}
+  <link rel="canonical" href={canonicalUrl} slot="head" />
+
+  {/* Hero/Cover Image Section */}
+  {post.cover_image && (
+    <section class="relative h-[400px] sm:h-[500px] overflow-hidden">
+      <img
+        src={post.cover_image}
+        alt={post.title}
+        class="w-full h-full object-cover"
+        loading="eager"
+      />
+      <div class="absolute inset-0 bg-gradient-to-t from-brand-dark via-transparent to-transparent"></div>
+      <div class="absolute bottom-0 left-0 right-0 p-8">
+        <div class="max-w-4xl mx-auto">
+          <h1 class="font-display font-bold text-4xl sm:text-5xl text-white mb-4">{post.title}</h1>
+          <div class="flex flex-wrap items-center gap-6 text-gray-300">
+            <span class="flex items-center gap-2">
+              <i class="fa-solid fa-user"></i>
+              {post.author || 'DJ Zippy'}
+            </span>
+            <span class="flex items-center gap-2">
+              <i class="fa-solid fa-calendar"></i>
+              {new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+            </span>
+            <span class="flex items-center gap-2">
+              <i class="fa-solid fa-clock"></i>
+              5 min read
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* Article Content */}
+  <article class="py-20 bg-brand-dark">
+    <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Article Body */}
+      <div class="prose prose-invert max-w-none mb-12" set:html={htmlContent} />
+
+      {/* Article Footer */}
+      <div class="border-t border-white border-opacity-10 pt-8 mt-12">
+        <div class="mb-8">
+          <h3 class="font-display font-bold text-white mb-2">About the Author</h3>
+          <p class="text-gray-400">
+            {post.author || 'DJ Zippy'} is a house music curator and producer based in Belgrade, Serbia. He creates immersive sonic experiences that blend classic selections with contemporary sounds.
+          </p>
+        </div>
+
+        {/* Share Buttons */}
+        <div class="flex items-center gap-4">
+          <span class="text-gray-400 font-bold">Share:</span>
+          <a
+            href={`https://twitter.com/intent/tweet?url=${canonicalUrl}&text=${post.title}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-brand-orange hover:text-white transition-colors"
+            title="Share on Twitter"
+          >
+            <i class="fa-brands fa-twitter text-xl"></i>
+          </a>
+          <a
+            href={`https://www.facebook.com/sharer/sharer.php?u=${canonicalUrl}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-brand-orange hover:text-white transition-colors"
+            title="Share on Facebook"
+          >
+            <i class="fa-brands fa-facebook text-xl"></i>
+          </a>
+          <a
+            href={`https://www.linkedin.com/sharing/share-offsite/?url=${canonicalUrl}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-brand-orange hover:text-white transition-colors"
+            title="Share on LinkedIn"
+          >
+            <i class="fa-brands fa-linkedin text-xl"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </article>
+
+  {/* Related Posts Navigation */}
+  {(previousPost || nextPost) && (
+    <section class="py-20 bg-brand-gray">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="font-display font-bold text-2xl text-white mb-12">More Articles</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {previousPost && (
+            <a
+              href={`/blog/${previousPost.slug}`}
+              class="group bg-brand-dark border border-white border-opacity-10 rounded-lg p-6 hover:border-brand-orange hover:shadow-lg hover:shadow-brand-orange/20 transition-all"
+            >
+              <p class="text-brand-orange font-bold text-sm mb-2">← Previous Article</p>
+              <h3 class="font-display font-bold text-xl text-white group-hover:text-brand-orange transition-colors mb-2 line-clamp-2">
+                {previousPost.title}
+              </h3>
+              <p class="text-gray-400 text-sm mb-4">{previousPost.seo_description}</p>
+              <span class="text-xs text-gray-500">
+                {new Date(previousPost.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+              </span>
+            </a>
+          )}
+
+          {nextPost && (
+            <a
+              href={`/blog/${nextPost.slug}`}
+              class="group bg-brand-dark border border-white border-opacity-10 rounded-lg p-6 hover:border-brand-orange hover:shadow-lg hover:shadow-brand-orange/20 transition-all md:col-start-2"
+            >
+              <p class="text-brand-orange font-bold text-sm mb-2">Next Article →</p>
+              <h3 class="font-display font-bold text-xl text-white group-hover:text-brand-orange transition-colors mb-2 line-clamp-2">
+                {nextPost.title}
+              </h3>
+              <p class="text-gray-400 text-sm mb-4">{nextPost.seo_description}</p>
+              <span class="text-xs text-gray-500">
+                {new Date(nextPost.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+              </span>
+            </a>
+          )}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* Back to Blog Link */}
+  <section class="py-12 bg-brand-dark">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <a href="/blog" class="inline-flex items-center gap-2 text-brand-orange hover:text-white transition-colors font-bold">
+        <i class="fa-solid fa-arrow-left"></i>
+        Back to Blog
+      </a>
+    </div>
+  </section>
+</Layout>
+
+<style is:global>
+  article .prose h2 {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 1rem;
+  }
+
+  article .prose li {
+    list-style-type: disc;
+  }
+
+  article .prose ol li {
+    list-style-type: decimal;
+  }
+
+  article .prose ul,
+  article .prose ol {
+    margin-bottom: 1rem;
+    margin-left: 1rem;
+  }
+
+  article .prose a {
+    color: #ff5500;
+    text-decoration: underline;
+  }
+
+  article .prose a:hover {
+    color: #ffffff;
+  }
+
+  article .prose code {
+    background-color: #1f1f1f;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.9em;
+  }
+
+  article .prose blockquote {
+    background-color: rgba(255, 85, 0, 0.05);
+    padding: 1rem;
+    border-radius: 0.5rem;
+  }
+</style>

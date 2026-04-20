@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* === Base Layer === */
+@layer base {
+  body {
+    background-color: #050505;
+    color: #ffffff;
+  }
+
+}
+
+/* === Component Layer === */
+@layer components {
+  /* Frosted glass card */
+  .glass-panel {
+    @apply bg-opacity-40 backdrop-blur-lg border border-brand-orange border-opacity-10;
+    background: rgba(30, 30, 30, 0.4);
+  }
+
+  /* Nav link with animated orange underline */
+  .nav-link {
+    @apply relative;
+    position: relative;
+  }
+
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: -4px;
+    left: 0;
+    background-color: #FF5500;
+    transition: width 0.3s;
+  }
+
+  .nav-link:hover::after {
+    width: 100%;
+  }
+
+  /* Glitch text effect */
+  .glitch-text:hover {
+    text-shadow: 2px 0 #FF5500, -2px 0 #00E5FF;
+  }
+}

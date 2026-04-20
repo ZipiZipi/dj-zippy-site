@@ -1,0 +1,93 @@
+---
+export const prerender = false;
+import AdminLayout from '../../layouts/AdminLayout.astro';
+
+const db = (Astro.locals as any).runtime?.env?.DB;
+
+let totalEvents = 0, upcomingEvents = 0, publishedPosts = 0, draftPosts = 0, totalMixes = 0;
+
+if (db) {
+  try {
+    const [evTotal, evUp, pPub, pDraft, mTotal] = await Promise.all([
+      db.prepare('SELECT COUNT(*) as c FROM events').first<{c:number}>(),
+      db.prepare("SELECT COUNT(*) as c FROM events WHERE status='upcoming'").first<{c:number}>(),
+      db.prepare('SELECT COUNT(*) as c FROM posts WHERE published=1').first<{c:number}>(),
+      db.prepare('SELECT COUNT(*) as c FROM posts WHERE published=0').first<{c:number}>(),
+      db.prepare('SELECT COUNT(*) as c FROM mixes').first<{c:number}>(),
+    ]);
+    totalEvents    = evTotal?.c  ?? 0;
+    upcomingEvents = evUp?.c     ?? 0;
+    publishedPosts = pPub?.c     ?? 0;
+    draftPosts     = pDraft?.c   ?? 0;
+    totalMixes     = mTotal?.c   ?? 0;
+  } catch(e) { /* DB not available in dev */ }
+}
+
+const stats = [
+  { label: 'Total Events',    value: totalEvents,    icon: 'fa-calendar',      href: '/admin/events' },
+  { label: 'Upcoming Events', value: upcomingEvents, icon: 'fa-clock',         href: '/admin/events' },
+  { label: 'Published Posts', value: publishedPosts, icon: 'fa-pen-fancy',     href: '/admin/posts' },
+  { label: 'Draft Posts',     value: draftPosts,     icon: 'fa-file-pen',      href: '/admin/posts' },
+  { label: 'Total Mixes',     value: totalMixes,     icon: 'fa-compact-disc',  href: '/admin/mixes' },
+];
+---
+
+<AdminLayout title="Dashboard" section="dashboard">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-12">
+    {stats.map((stat) => (
+      <a href={stat.href}
+        class="block bg-brand-gray border border-white border-opacity-10 rounded-lg p-6 hover:border-brand-orange hover:shadow-lg hover:shadow-brand-orange/20 transition-all group">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider">{stat.label}</h3>
+          <i class={`fa-solid ${stat.icon} text-2xl text-brand-orange opacity-60 group-hover:opacity-100 transition-opacity`}></i>
+        </div>
+        <p class="text-4xl font-bold text-white">{stat.value}</p>
+      </a>
+    ))}
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <div class="bg-brand-gray border border-white border-opacity-10 rounded-lg p-6">
+      <h2 class="font-display font-bold text-xl text-white mb-6">Quick Actions</h2>
+      <div class="space-y-3">
+        {[
+          { href: '/admin/events', icon: 'fa-calendar', title: 'Manage Events', sub: 'Add, edit or delete events' },
+          { href: '/admin/posts',  icon: 'fa-pen-fancy', title: 'Manage Posts',  sub: 'Write and publish blog posts' },
+          { href: '/admin/mixes',  icon: 'fa-compact-disc', title: 'Manage Mixes', sub: 'Upload and manage DJ mixes' },
+        ].map(a => (
+          <a href={a.href}
+            class="flex items-center gap-4 p-4 bg-brand-dark rounded-lg border border-white border-opacity-5 hover:border-brand-orange hover:bg-white/5 transition-all group">
+            <div class="w-10 h-10 bg-brand-orange rounded-lg flex items-center justify-center text-white">
+              <i class={`fa-solid ${a.icon}`}></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-white">{a.title}</h3>
+              <p class="text-xs text-gray-500">{a.sub}</p>
+            </div>
+            <i class="fa-solid fa-arrow-right text-brand-orange ml-auto opacity-0 group-hover:opacity-100"></i>
+          </a>
+        ))}
+      </div>
+    </div>
+
+    <div class="bg-brand-gray border border-white border-opacity-10 rounded-lg p-6">
+      <h2 class="font-display font-bold text-xl text-white mb-6">System</h2>
+      <div class="space-y-4 text-sm">
+        {[
+          { label: 'Status',      value: 'Online',     color: 'text-green-400' },
+          { label: 'Database',    value: db ? 'Connected' : 'Not available (dev)', color: db ? 'text-green-400' : 'text-yellow-400' },
+          { label: 'Auth',        value: 'Session active', color: 'text-green-400' },
+          { label: 'Environment', value: 'Cloudflare Workers', color: 'text-blue-400' },
+        ].map(row => (
+          <div class="flex justify-between items-center py-3 border-b border-white border-opacity-5 last:border-0">
+            <span class="text-gray-400">{row.label}</span>
+            <span class={`${row.color} flex items-center gap-2`}>
+              <i class="fa-solid fa-circle text-xs"></i>
+              {row.value}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</AdminLayout>

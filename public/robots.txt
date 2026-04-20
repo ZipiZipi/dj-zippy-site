@@ -1,0 +1,21 @@
+# Robots.txt for DJ Zippy
+# Tells search engines which pages to crawl and index
+
+User-agent: *
+Allow: /
+
+# Allow specific crawlers
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+# Disallow admin and API pages
+Disallow: /admin
+Disallow: /api
+
+# Sitemap location
+Sitemap: https://zippydj.com/sitemap.xml

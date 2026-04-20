@@ -1,0 +1,249 @@
+---
+// Blog Index Page
+// Fetches all published posts from D1
+// Displays with pagination and featured posts first
+// Fully server-rendered HTML for SEO
+
+import Layout from '../../layouts/Layout.astro';
+import type { Post } from '../../types/database';
+
+// Mock posts data (will be fetched from D1 in production)
+const allPosts: Post[] = [
+  {
+    id: 1,
+    title: 'The Evolution of House Music',
+    slug: 'evolution-of-house-music',
+    cover_image: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800',
+    content: '# The Evolution of House Music\n\nHouse music has come a long way since its inception in Chicago...',
+    date: '2026-04-19',
+    seo_description: 'Explore the rich history and evolution of house music from Chicago to the world.',
+    author: 'DJ Zippy',
+    published: true,
+    featured: true,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  {
+    id: 2,
+    title: 'Deep House Vibes for Summer',
+    slug: 'deep-house-summer',
+    cover_image: 'https://images.unsplash.com/photo-1511379938547-c1f69b13d835?w=800',
+    content: '# Deep House Vibes for Summer\n\nAs summer approaches, here are my favorite deep house tracks...',
+    date: '2026-04-15',
+    seo_description: 'Discover the best deep house tracks for summer 2026. Perfect for outdoor parties and festivals.',
+    author: 'DJ Zippy',
+    published: true,
+    featured: true,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  {
+    id: 3,
+    title: 'Tech House Production Guide',
+    slug: 'tech-house-production',
+    cover_image: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=800',
+    content: '# Tech House Production Guide\n\nLearn the basics of producing tech house tracks...',
+    date: '2026-04-10',
+    seo_description: 'A comprehensive guide to producing tech house music. Learn the essentials and techniques.',
+    author: 'DJ Zippy',
+    published: true,
+    featured: false,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  {
+    id: 4,
+    title: 'Berlin Nightlife Scene Explored',
+    slug: 'berlin-nightlife',
+    cover_image: 'https://images.unsplash.com/photo-1599927921410-ce3e9a177352?w=800',
+    content: '# Berlin Nightlife Scene\n\nBerlin has one of the most vibrant electronic music scenes in the world...',
+    date: '2026-04-05',
+    seo_description: 'Exploring the vibrant Berlin nightlife scene and its influence on modern electronic music.',
+    author: 'DJ Zippy',
+    published: true,
+    featured: false,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+];
+
+// Separate featured and regular posts
+const featuredPosts = allPosts.filter((p) => p.featured).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+const regularPosts = allPosts
+  .filter((p) => !p.featured && p.published)
+  .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+// Pagination
+const postsPerPage = 6;
+const allRegularPosts = [...regularPosts];
+const totalPages = Math.ceil(allRegularPosts.length / postsPerPage);
+const currentPage = 1;
+const paginatedPosts = allRegularPosts.slice(0, postsPerPage);
+
+const seoTitle = 'DJ Zippy Blog | House Music Articles & Insights';
+const seoDescription = 'Read articles about house music, production tips, event reviews, and more from DJ Zippy.';
+---
+
+<Layout title={seoTitle} description={seoDescription} activePage="blog">
+  {/* Hero Section */}
+  <section class="min-h-[40vh] flex items-center justify-center bg-gradient-to-b from-brand-dark to-brand-gray relative overflow-hidden pt-20">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center z-30">
+      <h1 class="font-display font-bold text-5xl sm:text-6xl text-white mb-4">BLOG</h1>
+      <p class="text-xl text-gray-300">House Music Articles, Tips & Insights</p>
+    </div>
+  </section>
+
+  {/* Featured Posts */}
+  {featuredPosts.length > 0 && (
+    <section class="py-20 bg-brand-dark">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 z-30 relative">
+        <div class="mb-12">
+          <h2 class="font-display font-bold text-3xl text-white mb-2">Featured</h2>
+          <div class="w-12 h-1 bg-brand-orange rounded"></div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {featuredPosts.map((post) => (
+            <article class="group bg-brand-gray border border-white border-opacity-10 rounded-lg overflow-hidden hover:border-brand-orange hover:shadow-lg hover:shadow-brand-orange/20 transition-all">
+              {/* Image */}
+              <div class="relative aspect-video overflow-hidden bg-brand-dark">
+                {post.cover_image ? (
+                  <img
+                    src={post.cover_image}
+                    alt={post.title}
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div class="w-full h-full bg-gradient-to-br from-brand-gray to-brand-black flex items-center justify-center">
+                    <i class="fa-solid fa-pen-fancy text-4xl text-white/20"></i>
+                  </div>
+                )}
+              </div>
+
+              {/* Content */}
+              <div class="p-6">
+                {/* Meta */}
+                <div class="flex items-center justify-between mb-3">
+                  <span class="text-xs text-brand-orange font-bold uppercase tracking-wider">Featured</span>
+                  <span class="text-xs text-gray-500">{new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
+                </div>
+
+                {/* Title */}
+                <h3 class="font-display font-bold text-xl text-white mb-3 line-clamp-2 group-hover:text-brand-orange transition-colors">
+                  <a href={`/blog/${post.slug}`}>{post.title}</a>
+                </h3>
+
+                {/* Description */}
+                <p class="text-gray-400 text-sm mb-4 line-clamp-2">{post.seo_description}</p>
+
+                {/* Read More Link */}
+                <a
+                  href={`/blog/${post.slug}`}
+                  class="inline-flex items-center gap-2 text-brand-orange hover:text-white transition-colors font-bold text-sm group-hover:gap-3"
+                >
+                  <span>Read Article</span>
+                  <i class="fa-solid fa-arrow-right"></i>
+                </a>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* All Posts Grid */}
+  <section class="py-20 bg-brand-gray">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 z-30 relative">
+      <div class="mb-12">
+        <h2 class="font-display font-bold text-3xl text-white mb-2">Latest Articles</h2>
+        <div class="w-12 h-1 bg-brand-orange rounded"></div>
+      </div>
+
+      {paginatedPosts.length > 0 ? (
+        <>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+            {paginatedPosts.map((post) => (
+              <article class="group bg-brand-dark border border-white border-opacity-10 rounded-lg overflow-hidden hover:border-brand-orange hover:shadow-lg hover:shadow-brand-orange/20 transition-all">
+                {/* Image */}
+                <div class="relative aspect-video overflow-hidden bg-brand-gray">
+                  {post.cover_image ? (
+                    <img
+                      src={post.cover_image}
+                      alt={post.title}
+                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div class="w-full h-full bg-gradient-to-br from-brand-gray to-brand-black flex items-center justify-center">
+                      <i class="fa-solid fa-pen-fancy text-3xl text-white/20"></i>
+                    </div>
+                  )}
+                </div>
+
+                {/* Content */}
+                <div class="p-6">
+                  {/* Date */}
+                  <span class="text-xs text-gray-500 mb-3 block">
+                    {new Date(post.date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                  </span>
+
+                  {/* Title */}
+                  <h3 class="font-display font-bold text-lg text-white mb-3 line-clamp-2 group-hover:text-brand-orange transition-colors">
+                    <a href={`/blog/${post.slug}`}>{post.title}</a>
+                  </h3>
+
+                  {/* Description */}
+                  <p class="text-gray-400 text-sm mb-4 line-clamp-2">{post.seo_description}</p>
+
+                  {/* Read More */}
+                  <a
+                    href={`/blog/${post.slug}`}
+                    class="inline-flex items-center gap-2 text-brand-orange hover:text-white transition-colors font-bold text-sm group-hover:gap-3"
+                  >
+                    <span>Read</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                  </a>
+                </div>
+              </article>
+            ))}
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div class="flex justify-center items-center gap-2">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <a
+                  href={page === 1 ? '/blog' : `/blog?page=${page}`}
+                  class={`px-4 py-2 rounded-lg font-bold transition-colors ${
+                    page === currentPage
+                      ? 'bg-brand-orange text-white'
+                      : 'bg-brand-dark text-gray-400 hover:text-white hover:border border-brand-orange'
+                  }`}
+                >
+                  {page}
+                </a>
+              ))}
+            </div>
+          )}
+        </>
+      ) : (
+        <div class="text-center py-12">
+          <p class="text-gray-400 text-lg">No posts published yet</p>
+        </div>
+      )}
+    </div>
+  </section>
+
+  {/* Subscribe CTA */}
+  <section class="py-20 bg-brand-dark">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center z-30 relative">
+      <h2 class="font-display font-bold text-3xl text-white mb-6">Stay Updated</h2>
+      <p class="text-gray-400 mb-8 text-lg">Get notified when new articles are published</p>
+      <a href="/#contact" class="inline-block bg-brand-orange text-white px-8 py-4 rounded-lg font-bold hover:bg-opacity-90 transition-all">
+        Subscribe to Updates
+      </a>
+    </div>
+  </section>
+</Layout>

@@ -1,0 +1,125 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  section?: 'dashboard' | 'events' | 'posts' | 'mixes';
+}
+
+const { title, section } = Astro.props;
+
+const navigation = [
+  { label: 'Dashboard', href: '/admin', icon: 'fa-chart-line' },
+  { label: 'Events', href: '/admin/events', icon: 'fa-calendar' },
+  { label: 'Posts', href: '/admin/posts', icon: 'fa-pen-fancy' },
+  { label: 'Mixes', href: '/admin/mixes', icon: 'fa-compact-disc' },
+];
+---
+
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title} | DJ Zippy Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Inter:wght@300;400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body class="bg-base text-white">
+    <div class="flex h-screen">
+      {/* Sidebar */}
+      <aside class="w-64 bg-brand-dark border-r border-white border-opacity-10 flex flex-col">
+        {/* Logo */}
+        <div class="p-6 border-b border-white border-opacity-10">
+          <h1 class="font-display font-bold text-2xl text-brand-orange">ZIPPY</h1>
+          <p class="text-xs text-gray-500 mt-1">Admin Panel</p>
+        </div>
+
+        {/* Navigation */}
+        <nav class="flex-1 p-4">
+          <div class="space-y-2">
+            {navigation.map((item) => (
+              <a
+                href={item.href}
+                class={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                  section === item.href.split('/')[2]
+                    ? 'bg-brand-orange text-white'
+                    : 'text-gray-400 hover:text-white hover:bg-brand-gray'
+                }`}
+              >
+                <i class={`fa-solid ${item.icon} w-5`}></i>
+                <span class="text-sm font-bold">{item.label}</span>
+              </a>
+            ))}
+          </div>
+        </nav>
+
+        {/* Logout + View Site */}
+        <div class="p-4 border-t border-white border-opacity-10 space-y-2">
+          <a
+            href="/"
+            class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-brand-gray transition-colors text-sm font-bold"
+          >
+            <i class="fa-solid fa-arrow-up-right-from-square w-5"></i>
+            <span>View Site</span>
+          </a>
+          <form action="/api/admin/logout" method="POST">
+            <button
+              type="submit"
+              class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-400 hover:text-red-400 hover:bg-brand-gray transition-colors text-sm font-bold"
+            >
+              <i class="fa-solid fa-sign-out-alt w-5"></i>
+              <span>Logout</span>
+            </button>
+          </form>
+        </div>
+      </aside>
+
+      {/* Main Content */}
+      <main class="flex-1 overflow-auto">
+        {/* Top Bar */}
+        <div class="bg-brand-dark border-b border-white border-opacity-10 px-8 py-4">
+          <h2 class="font-display font-bold text-2xl text-white">{title}</h2>
+        </div>
+
+        {/* Content */}
+        <div class="p-8">
+          <slot />
+        </div>
+      </main>
+    </div>
+  </body>
+</html>
+
+<style is:global>
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #ff5500 #1f1f1f;
+  }
+
+  *::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: #1f1f1f;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background: #ff5500;
+    border-radius: 4px;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background: #e54400;
+  }
+</style>

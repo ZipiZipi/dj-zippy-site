@@ -1,0 +1,24 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="404 - Page Not Found | DJ Zippy" description="The page you're looking for doesn't exist. Return to DJ Zippy's official website.">
+  <section class="min-h-screen flex flex-col items-center justify-center px-6 bg-brand-black text-white">
+    <main class="text-center max-w-lg">
+      <p class="text-brand-orange font-bold tracking-[0.3em] text-sm mb-4 uppercase font-display">
+        Track Not Found
+      </p>
+      <h1 class="font-display font-black text-[8rem] leading-none text-white mb-0">404</h1>
+      <p class="text-gray-400 text-lg mt-4 mb-10">
+        This page dropped off the playlist. Head back and keep the vibe going.
+      </p>
+      <a
+        href="/"
+        class="inline-flex items-center gap-3 bg-brand-orange text-white font-bold px-8 py-4 rounded-lg hover:bg-opacity-90 transition-all"
+      >
+        <i class="fa-solid fa-house"></i>
+        Back to Home
+      </a>
+    </main>
+  </section>
+</Layout>

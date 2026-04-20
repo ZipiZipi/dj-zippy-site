@@ -1,0 +1,73 @@
+// Wrangler Configuration for DJ Zippy
+// Includes Cloudflare D1 (Database) and R2 (Object Storage) bindings
+{
+	"name": "dj-zippy-v2",
+	"type": "site",
+	"account_id": "eedc0d9da19baacaf26bce914a1ff74a",
+	"workers_dev": true,
+	
+	"routes": [
+		{
+			"pattern": "api/*",
+			"zone_name": "zippydj.com"
+		}
+	],
+	"env": {
+		"production": {
+			"vars": {
+				"ENVIRONMENT": "production",
+				"API_BASE_URL": "https://api.zippydj.com"
+			},
+			"d1_databases": [
+				{
+					"binding": "DB",
+					"database_name": "dj-zippy-db",
+					"database_id": "f290ec1f-605b-4643-9c56-9b57002efd8d"
+				}
+			],
+			"r2_buckets": [
+				{
+					"binding": "R2",
+					"bucket_name": "dj-zippy-media",
+					"account_id": "eedc0d9da19baacaf26bce914a1ff74a"
+				}
+			]
+		},
+		"development": {
+			"vars": {
+				"ENVIRONMENT": "development",
+				"API_BASE_URL": "http://localhost:8787"
+			},
+			"d1_databases": [
+				{
+					"binding": "DB",
+					"database_name": "dj-zippy-db-dev",
+					"database_id": "29a30901-290e-46c1-853d-7571a59286b4"
+				}
+			],
+			"r2_buckets": [
+				{
+					"binding": "R2",
+					"bucket_name": "dj-zippy-media-dev",
+					"account_id": "eedc0d9da19baacaf26bce914a1ff74a"
+				}
+			]
+		}
+	},
+	"build": {
+		"command": "npm run build",
+		"cwd": "./",
+		"watch_paths": [
+			"src/**/*.{ts,tsx,astro}"
+		]
+	},
+	"compatibility_date": "2024-12-16",
+	"d1_databases": [
+		{
+			"binding": "dj_zippy_db",
+			"database_name": "dj-zippy-db",
+			"database_id": "f290ec1f-605b-4643-9c56-9b57002efd8d",
+			"remote": true
+		}
+	]
+}

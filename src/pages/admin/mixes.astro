@@ -1,0 +1,306 @@
+---
+export const prerender = false;
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import type { Mix } from '../../types/database';
+
+const db = (Astro.locals as any).runtime?.env?.DB;
+let mixes: Mix[] = [];
+
+if (db) {
+  try {
+    const result = await db.prepare('SELECT * FROM mixes ORDER BY date DESC').all<Mix>();
+    mixes = result.results ?? [];
+  } catch(e) {}
+}
+
+const genreColors: Record<string, string> = {
+  'deep-house':        'bg-blue-500/20 text-blue-400',
+  'tech-house':        'bg-purple-500/20 text-purple-400',
+  'house':             'bg-pink-500/20 text-pink-400',
+  'progressive-house': 'bg-indigo-500/20 text-indigo-400',
+  'acid-house':        'bg-green-500/20 text-green-400',
+};
+---
+
+<AdminLayout title="Mixes Management" section="mixes">
+  <div class="mb-8 flex items-center justify-between">
+    <p class="text-gray-400 text-sm">{mixes.length} mix{mixes.length !== 1 ? 'es' : ''} total</p>
+    <button
+      onclick="openModal()"
+      class="inline-flex items-center gap-2 bg-brand-orange text-white px-6 py-3 rounded-lg font-bold hover:bg-opacity-90 transition-all"
+    >
+      <i class="fa-solid fa-plus"></i>
+      Add Mix
+    </button>
+  </div>
+
+  {mixes.length === 0 ? (
+    <div class="bg-brand-gray border border-white border-opacity-10 rounded-lg p-12 text-center">
+      <i class="fa-solid fa-compact-disc text-6xl text-gray-600 mb-4"></i>
+      <p class="text-gray-400 mb-6">No mixes yet. Add your first mix!</p>
+      <button onclick="openModal()" class="inline-flex items-center gap-2 bg-brand-orange text-white px-6 py-3 rounded-lg font-bold hover:bg-opacity-90 transition-all">
+        <i class="fa-solid fa-plus"></i> Add Mix
+      </button>
+    </div>
+  ) : (
+    <div class="bg-brand-gray border border-white border-opacity-10 rounded-lg overflow-hidden">
+      <table class="w-full">
+        <thead class="bg-brand-dark border-b border-white border-opacity-10">
+          <tr>
+            <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Title</th>
+            <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Genre</th>
+            <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Duration</th>
+            <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">BPM</th>
+            <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Status</th>
+            <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-white divide-opacity-5">
+          {mixes.map((mix) => (
+            <tr class="hover:bg-brand-dark transition-colors" id={`row-${mix.id}`}>
+              <td class="px-6 py-4">
+                <p class="font-bold text-white">{mix.title}</p>
+                {mix.featured ? (
+                  <p class="text-xs text-brand-orange flex items-center gap-1">
+                    <i class="fa-solid fa-star"></i> Featured
+                  </p>
+                ) : null}
+              </td>
+              <td class="px-6 py-4">
+                <span class={`inline-block px-3 py-1 rounded-full text-xs font-bold ${genreColors[mix.genre] ?? 'bg-gray-500/20 text-gray-400'}`}>
+                  {mix.genre.replace(/-/g,' ')}
+                </span>
+              </td>
+              <td class="px-6 py-4 text-gray-300">
+                <div class="flex items-center gap-2">
+                  <i class="fa-solid fa-hourglass-end text-brand-orange text-xs"></i>
+                  {mix.duration} min
+                </div>
+              </td>
+              <td class="px-6 py-4 text-gray-300">
+                {mix.bpm ? (
+                  <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-music text-brand-orange text-xs"></i>
+                    {mix.bpm} BPM
+                  </div>
+                ) : <span class="text-gray-600">—</span>}
+              </td>
+              <td class="px-6 py-4">
+                <span class={`inline-block px-3 py-1 rounded-full text-xs font-bold ${mix.published ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'}`}>
+                  {mix.published ? 'Published' : 'Draft'}
+                </span>
+              </td>
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-3">
+                  <button
+                    onclick={`editMix(${JSON.stringify(JSON.stringify(mix))})`}
+                    class="text-blue-400 hover:text-blue-300 transition-colors text-sm font-bold"
+                  >
+                    <i class="fa-solid fa-pen-to-square"></i> Edit
+                  </button>
+                  <button
+                    onclick={`deleteMix(${mix.id})`}
+                    class="text-red-400 hover:text-red-300 transition-colors text-sm font-bold"
+                  >
+                    <i class="fa-solid fa-trash"></i> Delete
+                  </button>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )}
+
+  {/* Modal */}
+  <div id="modal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onclick="handleBackdrop(event)">
+    <div class="bg-brand-dark border border-white border-opacity-10 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div class="sticky top-0 bg-brand-dark border-b border-white border-opacity-10 px-8 py-4 flex items-center justify-between">
+        <h2 id="modal-title" class="font-display font-bold text-2xl text-white">Add Mix</h2>
+        <button onclick="closeModal()" class="text-gray-400 hover:text-white text-3xl leading-none">&times;</button>
+      </div>
+      <form id="mix-form" class="p-8 space-y-5">
+        <input type="hidden" id="mix-id" value="" />
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div class="md:col-span-2">
+            <label class="block text-sm font-bold text-white mb-2">Title <span class="text-brand-orange">*</span></label>
+            <input type="text" id="f-title" required oninput="autoSlug()" class="w-full bg-brand-gray border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand-orange" placeholder="Mix title" />
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-white mb-2">Slug <span class="text-brand-orange">*</span></label>
+            <input type="text" id="f-slug" required class="w-full bg-brand-gray border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand-orange font-mono text-sm" placeholder="mix-slug" />
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-white mb-2">Genre <span class="text-brand-orange">*</span></label>
+            <select id="f-genre" class="w-full bg-brand-gray border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand-orange">
+              <option value="house">House</option>
+              <option value="deep-house">Deep House</option>
+              <option value="tech-house">Tech House</option>
+              <option value="progressive-house">Progressive House</option>
+              <option value="acid-house">Acid House</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-white mb-2">Duration (min) <span class="text-brand-orange">*</span></label>
+            <input type="number" id="f-duration" required min="1" max="600" class="w-full bg-brand-gray border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand-orange" placeholder="60" />
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-white mb-2">BPM</label>
+            <input type="number" id="f-bpm" min="60" max="200" class="w-full bg-brand-gray border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand-orange" placeholder="128" />
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-sm font-bold text-white mb-2">Audio URL</label>
+            <input type="text" id="f-audio" class="w-full bg-brand-gray border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand-orange" placeholder="https://soundcloud.com/... or /audio/..." />
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-sm font-bold text-white mb-2">Cover Image URL</label>
+            <input type="text" id="f-cover" class="w-full bg-brand-gray border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand-orange" placeholder="https://... or /images/..." />
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-bold text-white mb-2">Description</label>
+          <textarea id="f-description" rows="3" class="w-full bg-brand-gray border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand-orange resize-none" placeholder="Optional description..."></textarea>
+        </div>
+        <div class="bg-brand-gray border border-white/10 rounded-lg p-4 flex items-center gap-6">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="f-published" class="w-4 h-4 rounded accent-brand-orange" />
+            <span class="text-white font-bold">Published</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="f-featured" class="w-4 h-4 rounded accent-brand-orange" />
+            <span class="text-white font-bold">Featured</span>
+          </label>
+        </div>
+        <div id="form-error" class="hidden text-red-400 text-sm py-2"></div>
+        <div class="flex gap-3 pt-4 border-t border-white/10">
+          <button type="submit" id="submit-btn" class="flex-1 bg-brand-orange text-white px-6 py-3 rounded-lg font-bold hover:bg-opacity-90 transition-all">
+            Save Mix
+          </button>
+          <button type="button" onclick="closeModal()" class="flex-1 bg-brand-gray text-white px-6 py-3 rounded-lg font-bold hover:bg-white/10 transition-all">
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    let editingId: number | null = null;
+    let slugTouched = false;
+
+    function autoSlug() {
+      if (slugTouched && editingId) return;
+      const title = (document.getElementById('f-title') as HTMLInputElement).value;
+      const slug = title.toLowerCase().trim().replace(/[^\w\s-]/g,'').replace(/\s+/g,'-').replace(/-+/g,'-');
+      (document.getElementById('f-slug') as HTMLInputElement).value = slug;
+    }
+
+    function openModal(data?: any) {
+      editingId = data?.id ?? null;
+      slugTouched = !!editingId;
+
+      document.getElementById('modal-title')!.textContent = editingId ? 'Edit Mix' : 'Add Mix';
+      document.getElementById('submit-btn')!.textContent = editingId ? 'Update Mix' : 'Save Mix';
+
+      (document.getElementById('mix-id') as HTMLInputElement).value = editingId ? String(editingId) : '';
+      (document.getElementById('f-title') as HTMLInputElement).value = data?.title ?? '';
+      (document.getElementById('f-slug') as HTMLInputElement).value = data?.slug ?? '';
+      (document.getElementById('f-genre') as HTMLSelectElement).value = data?.genre ?? 'house';
+      (document.getElementById('f-duration') as HTMLInputElement).value = data?.duration ?? '';
+      (document.getElementById('f-bpm') as HTMLInputElement).value = data?.bpm ?? '';
+      (document.getElementById('f-audio') as HTMLInputElement).value = data?.audio_url ?? '';
+      (document.getElementById('f-cover') as HTMLInputElement).value = data?.cover_image ?? '';
+      (document.getElementById('f-description') as HTMLTextAreaElement).value = data?.description ?? '';
+      (document.getElementById('f-published') as HTMLInputElement).checked = data ? !!data.published : true;
+      (document.getElementById('f-featured') as HTMLInputElement).checked = !!data?.featured;
+
+      hideError();
+      document.getElementById('modal')!.classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('modal')!.classList.add('hidden');
+      editingId = null;
+      slugTouched = false;
+    }
+
+    function handleBackdrop(e: MouseEvent) {
+      if (e.target === document.getElementById('modal')) closeModal();
+    }
+
+    function editMix(jsonStr: string) {
+      openModal(JSON.parse(jsonStr));
+    }
+
+    async function deleteMix(id: number) {
+      if (!confirm('Delete this mix? This cannot be undone.')) return;
+      try {
+        const res = await fetch('/api/admin/mixes?id=' + id, { method: 'DELETE' });
+        const data = await res.json() as { success: boolean; error?: string };
+        if (data.success) {
+          document.getElementById('row-' + id)?.remove();
+        } else {
+          alert('Error: ' + (data.error ?? 'Failed to delete'));
+        }
+      } catch(e) {
+        alert('Network error');
+      }
+    }
+
+    function showError(msg: string) {
+      const el = document.getElementById('form-error')!;
+      el.textContent = msg;
+      el.classList.remove('hidden');
+    }
+    function hideError() {
+      document.getElementById('form-error')!.classList.add('hidden');
+    }
+
+    document.getElementById('f-slug')?.addEventListener('input', () => { slugTouched = true; });
+
+    document.getElementById('mix-form')!.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideError();
+
+      const btn = document.getElementById('submit-btn') as HTMLButtonElement;
+      btn.disabled = true;
+      btn.textContent = 'Saving...';
+
+      const body = {
+        title:       (document.getElementById('f-title') as HTMLInputElement).value.trim(),
+        slug:        (document.getElementById('f-slug') as HTMLInputElement).value.trim(),
+        genre:       (document.getElementById('f-genre') as HTMLSelectElement).value,
+        duration:    parseInt((document.getElementById('f-duration') as HTMLInputElement).value) || 0,
+        bpm:         parseInt((document.getElementById('f-bpm') as HTMLInputElement).value) || null,
+        audio_url:   (document.getElementById('f-audio') as HTMLInputElement).value.trim() || null,
+        cover_image: (document.getElementById('f-cover') as HTMLInputElement).value.trim() || null,
+        description: (document.getElementById('f-description') as HTMLTextAreaElement).value.trim() || null,
+        published:   (document.getElementById('f-published') as HTMLInputElement).checked,
+        featured:    (document.getElementById('f-featured') as HTMLInputElement).checked,
+      };
+
+      try {
+        const url = editingId ? '/api/admin/mixes?id=' + editingId : '/api/admin/mixes';
+        const method = editingId ? 'PUT' : 'POST';
+        const res = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        const data = await res.json() as { success: boolean; error?: string };
+        if (data.success) {
+          closeModal();
+          window.location.reload();
+        } else {
+          showError(data.error ?? 'Failed to save');
+        }
+      } catch(e) {
+        showError('Network error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = editingId ? 'Update Mix' : 'Save Mix';
+      }
+    });
+  </script>
+</AdminLayout>

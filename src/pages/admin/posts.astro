@@ -1,0 +1,275 @@
+---
+export const prerender = false;
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import type { Post } from '../../types/database';
+
+const db = (Astro.locals as any).runtime?.env?.DB;
+let posts: Post[] = [];
+
+if (db) {
+  try {
+    const result = await db.prepare('SELECT * FROM posts ORDER BY date DESC').all<Post>();
+    posts = result.results ?? [];
+  } catch(e) {}
+}
+---
+
+<AdminLayout title="Posts Management" section="posts">
+  <div class="mb-8 flex items-center justify-between">
+    <p class="text-gray-400 text-sm">{posts.length} post{posts.length !== 1 ? 's' : ''} total</p>
+    <button
+      onclick="openModal()"
+      class="inline-flex items-center gap-2 bg-brand-orange text-white px-6 py-3 rounded-lg font-bold hover:bg-opacity-90 transition-all"
+    >
+      <i class="fa-solid fa-plus"></i>
+      New Post
+    </button>
+  </div>
+
+  {posts.length === 0 ? (
+    <div class="bg-brand-gray border border-white border-opacity-10 rounded-lg p-12 text-center">
+      <i class="fa-solid fa-pen-fancy text-6xl text-gray-600 mb-4"></i>
+      <p class="text-gray-400 mb-6">No posts yet. Write your first post!</p>
+      <button onclick="openModal()" class="inline-flex items-center gap-2 bg-brand-orange text-white px-6 py-3 rounded-lg font-bold hover:bg-opacity-90 transition-all">
+        <i class="fa-solid fa-plus"></i> New Post
+      </button>
+    </div>
+  ) : (
+    <div class="bg-brand-gray border border-white border-opacity-10 rounded-lg overflow-hidden">
+      <table class="w-full">
+        <thead class="bg-brand-dark border-b border-white border-opacity-10">
+          <tr>
+            <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Title</th>
+            <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Slug</th>
+            <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Date</th>
+            <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Status</th>
+            <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-white divide-opacity-5">
+          {posts.map((post) => (
+            <tr class="hover:bg-brand-dark transition-colors" id={`row-${post.id}`}>
+              <td class="px-6 py-4">
+                <p class="font-bold text-white">{post.title}</p>
+                {post.featured ? (
+                  <p class="text-xs text-brand-orange flex items-center gap-1">
+                    <i class="fa-solid fa-star"></i> Featured
+                  </p>
+                ) : null}
+              </td>
+              <td class="px-6 py-4 text-gray-300 font-mono text-sm">{post.slug}</td>
+              <td class="px-6 py-4 text-gray-300">{post.date}</td>
+              <td class="px-6 py-4">
+                <span class={`inline-block px-3 py-1 rounded-full text-xs font-bold ${post.published ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'}`}>
+                  {post.published ? 'Published' : 'Draft'}
+                </span>
+              </td>
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-3">
+                  <button
+                    onclick={`editPost(${JSON.stringify(JSON.stringify(post))})`}
+                    class="text-blue-400 hover:text-blue-300 transition-colors text-sm font-bold"
+                  >
+                    <i class="fa-solid fa-pen-to-square"></i> Edit
+                  </button>
+                  <button
+                    onclick={`deletePost(${post.id})`}
+                    class="text-red-400 hover:text-red-300 transition-colors text-sm font-bold"
+                  >
+                    <i class="fa-solid fa-trash"></i> Delete
+                  </button>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )}
+
+  {/* Modal */}
+  <div id="modal" class="hidden fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" onclick="handleBackdrop(event)">
+    <div class="bg-brand-dark border border-white border-opacity-10 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+      <div class="sticky top-0 bg-brand-dark border-b border-white border-opacity-10 px-8 py-4 flex items-center justify-between">
+        <h2 id="modal-title" class="font-display font-bold text-2xl text-white">New Post</h2>
+        <button onclick="closeModal()" class="text-gray-400 hover:text-white text-3xl leading-none">&times;</button>
+      </div>
+      <form id="post-form" class="p-8 space-y-5">
+        <input type="hidden" id="post-id" value="" />
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div class="md:col-span-2">
+            <label class="block text-sm font-bold text-white mb-2">Title <span class="text-brand-orange">*</span></label>
+            <input type="text" id="f-title" required oninput="autoSlug()" class="w-full bg-brand-gray border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand-orange" placeholder="Post title" />
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-white mb-2">Slug <span class="text-brand-orange">*</span></label>
+            <input type="text" id="f-slug" required class="w-full bg-brand-gray border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand-orange font-mono text-sm" placeholder="post-slug" />
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-white mb-2">Date <span class="text-brand-orange">*</span></label>
+            <input type="date" id="f-date" required class="w-full bg-brand-gray border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand-orange" />
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-sm font-bold text-white mb-2">Author</label>
+            <input type="text" id="f-author" class="w-full bg-brand-gray border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand-orange" placeholder="DJ Zippy" />
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-sm font-bold text-white mb-2">Cover Image URL</label>
+            <input type="text" id="f-cover" class="w-full bg-brand-gray border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand-orange" placeholder="https://... or /images/..." />
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-bold text-white mb-2">Content (Markdown) <span class="text-brand-orange">*</span></label>
+          <textarea id="f-content" required rows="10" class="w-full bg-brand-gray border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand-orange font-mono text-sm resize-y" placeholder="Write your post in Markdown..."></textarea>
+        </div>
+        <div>
+          <label class="block text-sm font-bold text-white mb-2">SEO Description <span class="text-brand-orange">*</span></label>
+          <textarea id="f-seo" required rows="2" maxlength="160" oninput="updateSeoCount()" class="w-full bg-brand-gray border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand-orange resize-none" placeholder="Under 160 characters..."></textarea>
+          <p class="text-xs text-gray-500 mt-1"><span id="seo-count">0</span>/160 characters</p>
+        </div>
+        <div class="bg-brand-gray border border-white/10 rounded-lg p-4 flex items-center gap-6">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="f-published" class="w-4 h-4 rounded accent-brand-orange" />
+            <span class="text-white font-bold">Published</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="f-featured" class="w-4 h-4 rounded accent-brand-orange" />
+            <span class="text-white font-bold">Featured</span>
+          </label>
+        </div>
+        <div id="form-error" class="hidden text-red-400 text-sm py-2"></div>
+        <div class="flex gap-3 pt-4 border-t border-white/10">
+          <button type="submit" id="submit-btn" class="flex-1 bg-brand-orange text-white px-6 py-3 rounded-lg font-bold hover:bg-opacity-90 transition-all">
+            Save Post
+          </button>
+          <button type="button" onclick="closeModal()" class="flex-1 bg-brand-gray text-white px-6 py-3 rounded-lg font-bold hover:bg-white/10 transition-all">
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    let editingId: number | null = null;
+    let slugTouched = false;
+
+    function autoSlug() {
+      if (slugTouched && editingId) return;
+      const title = (document.getElementById('f-title') as HTMLInputElement).value;
+      const slug = title.toLowerCase().trim().replace(/[^\w\s-]/g,'').replace(/\s+/g,'-').replace(/-+/g,'-');
+      (document.getElementById('f-slug') as HTMLInputElement).value = slug;
+    }
+
+    function updateSeoCount() {
+      const len = (document.getElementById('f-seo') as HTMLTextAreaElement).value.length;
+      document.getElementById('seo-count')!.textContent = String(len);
+    }
+
+    function openModal(data?: any) {
+      editingId = data?.id ?? null;
+      slugTouched = !!editingId;
+
+      document.getElementById('modal-title')!.textContent = editingId ? 'Edit Post' : 'New Post';
+      document.getElementById('submit-btn')!.textContent = editingId ? 'Update Post' : 'Save Post';
+
+      (document.getElementById('post-id') as HTMLInputElement).value = editingId ? String(editingId) : '';
+      (document.getElementById('f-title') as HTMLInputElement).value = data?.title ?? '';
+      (document.getElementById('f-slug') as HTMLInputElement).value = data?.slug ?? '';
+      (document.getElementById('f-date') as HTMLInputElement).value = data?.date ?? new Date().toISOString().split('T')[0];
+      (document.getElementById('f-author') as HTMLInputElement).value = data?.author ?? 'DJ Zippy';
+      (document.getElementById('f-cover') as HTMLInputElement).value = data?.cover_image ?? '';
+      (document.getElementById('f-content') as HTMLTextAreaElement).value = data?.content ?? '';
+      (document.getElementById('f-seo') as HTMLTextAreaElement).value = data?.seo_description ?? '';
+      (document.getElementById('f-published') as HTMLInputElement).checked = data ? !!data.published : true;
+      (document.getElementById('f-featured') as HTMLInputElement).checked = !!data?.featured;
+
+      updateSeoCount();
+      hideError();
+      document.getElementById('modal')!.classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('modal')!.classList.add('hidden');
+      editingId = null;
+      slugTouched = false;
+    }
+
+    function handleBackdrop(e: MouseEvent) {
+      if (e.target === document.getElementById('modal')) closeModal();
+    }
+
+    function editPost(jsonStr: string) {
+      openModal(JSON.parse(jsonStr));
+    }
+
+    async function deletePost(id: number) {
+      if (!confirm('Delete this post? This cannot be undone.')) return;
+      try {
+        const res = await fetch('/api/admin/posts?id=' + id, { method: 'DELETE' });
+        const data = await res.json() as { success: boolean; error?: string };
+        if (data.success) {
+          document.getElementById('row-' + id)?.remove();
+        } else {
+          alert('Error: ' + (data.error ?? 'Failed to delete'));
+        }
+      } catch(e) {
+        alert('Network error');
+      }
+    }
+
+    function showError(msg: string) {
+      const el = document.getElementById('form-error')!;
+      el.textContent = msg;
+      el.classList.remove('hidden');
+    }
+    function hideError() {
+      document.getElementById('form-error')!.classList.add('hidden');
+    }
+
+    document.getElementById('f-slug')?.addEventListener('input', () => { slugTouched = true; });
+
+    document.getElementById('post-form')!.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideError();
+
+      const btn = document.getElementById('submit-btn') as HTMLButtonElement;
+      btn.disabled = true;
+      btn.textContent = 'Saving...';
+
+      const body = {
+        title:           (document.getElementById('f-title') as HTMLInputElement).value.trim(),
+        slug:            (document.getElementById('f-slug') as HTMLInputElement).value.trim(),
+        date:            (document.getElementById('f-date') as HTMLInputElement).value,
+        author:          (document.getElementById('f-author') as HTMLInputElement).value.trim() || 'DJ Zippy',
+        cover_image:     (document.getElementById('f-cover') as HTMLInputElement).value.trim() || null,
+        content:         (document.getElementById('f-content') as HTMLTextAreaElement).value.trim(),
+        seo_description: (document.getElementById('f-seo') as HTMLTextAreaElement).value.trim(),
+        published:       (document.getElementById('f-published') as HTMLInputElement).checked,
+        featured:        (document.getElementById('f-featured') as HTMLInputElement).checked,
+      };
+
+      try {
+        const url = editingId ? '/api/admin/posts?id=' + editingId : '/api/admin/posts';
+        const method = editingId ? 'PUT' : 'POST';
+        const res = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        const data = await res.json() as { success: boolean; error?: string };
+        if (data.success) {
+          closeModal();
+          window.location.reload();
+        } else {
+          showError(data.error ?? 'Failed to save');
+        }
+      } catch(e) {
+        showError('Network error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = editingId ? 'Update Post' : 'Save Post';
+      }
+    });
+  </script>
+</AdminLayout>

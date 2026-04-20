@@ -1,0 +1,426 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout
+  title="Zippy | House Music Therapy | DJ from Serbia"
+  description="Official website of Zippy (DJ Zippy). House Music Therapy creator from Belgrade, Serbia. Curator, selector, and vibe architect. Book now."
+>
+  <script slot="head" type="application/ld+json" is:inline>
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "ProfilePage",
+        "@id": "https://zippydj.com/#profilepage",
+        "mainEntity": { "@id": "https://zippydj.com/#person" },
+        "dateCreated": "2024-01-01T00:00:00-05:00",
+        "dateModified": "2025-07-13T00:00:00-05:00"
+      },
+      {
+        "@type": "Person",
+        "@id": "https://zippydj.com/#person",
+        "name": "Zippy",
+        "givenName": "Veljko",
+        "familyName": "Nedeljkovic",
+        "alternateName": ["DJ Zippy","Zippy DJ","Zovumezippy","Zipi"],
+        "url": "https://zippydj.com",
+        "image": "https://zippydj.com/images/dj-zippy-house-music-dj.webp",
+        "description": "Zippy (Veljko Nedeljkovic) is a House and Tech-House selector based in Belgrade, Serbia, known for the 'House Music Therapy' mix series and performances at major regional clubs.",
+        "jobTitle": "DJ & Producer",
+        "hasOccupation": { "@type": "Occupation", "name": "Disc Jockey", "occupationalCategory": "27-2099.00" },
+        "homeLocation": { "@type": "City", "name": "Belgrade" },
+        "sameAs": [
+          "https://musicbrainz.org/artist/a6a53c2e-8fa0-4612-8e43-8de7af43dc2a",
+          "https://www.instagram.com/zovumezippy",
+          "https://www.wikidata.org/wiki/Q138220521",
+          "https://www.youtube.com/@zovumezippy",
+          "https://ra.co/dj/zippy-2",
+          "https://soundcloud.com/zovumezippy",
+          "https://www.mixcloud.com/zovumezippy/",
+          "https://www.facebook.com/zovumezippy",
+          "https://open.spotify.com/user/31aj2g4yokqhpoxwkpo5odxegsle"
+        ],
+        "knowsAbout": ["House Music","Tech House","Techno"]
+      },
+      {
+        "@type": "Organization",
+        "@id": "https://zippydj.com/#organization",
+        "name": "DJ Zippy",
+        "alternateName": "House Music Therapy",
+        "url": "https://zippydj.com",
+        "logo": "https://zippydj.com/images/dj-zippy-house-music-dj.webp",
+        "founder": { "@id": "https://zippydj.com/#person" },
+        "description": "House Music Therapy - DJ brand curating frequencies, grooves, and the journey through house music."
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://zippydj.com/#website",
+        "name": "DJ Zippy",
+        "url": "https://zippydj.com",
+        "publisher": { "@id": "https://zippydj.com/#organization" }
+      }
+    ]
+  }
+  </script>
+
+  <style is:global>
+    .coverflow {
+      perspective: 600px;
+      perspective-origin: 50% 50%;
+      position: relative;
+      height: 340px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .coverflow-item {
+      position: absolute;
+      top: 50%;
+      width: clamp(200px, 24vw, 280px);
+      transition: transform 0.7s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.5s ease;
+      transform-style: preserve-3d;
+      cursor: pointer;
+      user-select: none;
+    }
+    .coverflow-item.active { cursor: default; }
+    .cf-disc {
+      width: clamp(160px, 20vw, 230px);
+      height: clamp(160px, 20vw, 230px);
+      background:
+        radial-gradient(circle at center, transparent 18%, #0d0d0d 19%),
+        repeating-radial-gradient(circle at center, rgba(30,30,30,1) 0px, rgba(20,20,20,1) 1px, rgba(15,15,15,1) 2px, rgba(25,25,25,1) 3px),
+        linear-gradient(135deg, #111 0%, #0a0a0a 50%, #111 100%);
+      border-radius: 50%;
+      position: relative;
+      margin: 0 auto;
+      box-shadow: 0 4px 30px rgba(0,0,0,0.7), 0 0 0 2px rgba(255,255,255,0.08), 0 0 0 4px rgba(0,0,0,0.5), inset 0 0 60px rgba(0,0,0,0.8);
+    }
+    .cf-disc::before {
+      content: '';
+      position: absolute;
+      inset: 2%;
+      border-radius: 50%;
+      background:
+        repeating-radial-gradient(circle at center, transparent, transparent 1.5px, rgba(255,255,255,0.03) 2px, transparent 2.5px),
+        repeating-radial-gradient(circle at center, transparent, transparent 5px, rgba(255,255,255,0.015) 5.5px, transparent 6px),
+        linear-gradient(135deg, transparent 20%, rgba(255,255,255,0.07) 45%, transparent 55%, rgba(255,255,255,0.04) 80%, transparent 100%);
+      pointer-events: none;
+    }
+    .cf-disc::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.08);
+      box-shadow: inset 0 0 8px rgba(255,255,255,0.03);
+      pointer-events: none;
+    }
+    .cf-label {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 38%; height: 38%;
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      box-shadow: 0 0 0 3px rgba(0,0,0,0.5), 0 0 15px rgba(0,0,0,0.3);
+      z-index: 1;
+      background-size: cover;
+      background-position: center;
+      overflow: hidden;
+    }
+    .cf-label::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: -1;
+    }
+    .cf-play-overlay {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 3rem;
+      color: rgba(255,255,255,0.9);
+      text-shadow: 0 4px 15px rgba(0,0,0,0.8);
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+      z-index: 10;
+    }
+    .coverflow-item.active:hover .cf-play-overlay { opacity: 1; }
+    .cf-label-title {
+      font-size: clamp(0.5rem, 1vw, 0.7rem);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.95);
+      text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+      line-height: 1;
+      margin-bottom: 10px;
+    }
+    .cf-label-sub {
+      font-size: clamp(0.4rem, 0.8vw, 0.55rem);
+      font-weight: 600;
+      color: rgba(255,255,255,0.7);
+      text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+      line-height: 1;
+      margin-top: 10px;
+    }
+    .cf-spindle {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 8%; height: 8%;
+      min-width: 8px; min-height: 8px;
+      background: radial-gradient(circle, #1a1a1a 40%, #0a0a0a 100%);
+      border-radius: 50%;
+      box-shadow: inset 0 0 4px rgba(255,255,255,0.2), 0 0 2px rgba(0,0,0,0.8);
+      z-index: 2;
+    }
+    .coverflow-item.active .cf-disc {
+      box-shadow: 0 8px 40px rgba(0,0,0,0.8), 0 0 0 3px rgba(255,255,255,0.06), inset 0 0 60px rgba(0,0,0,0.8), 0 0 60px rgba(255,85,0,0.08);
+    }
+    .coverflow-nav {
+      position: absolute;
+      top: 40%;
+      transform: translateY(-50%);
+      z-index: 20;
+      width: 44px; height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255,255,255,0.3);
+      transition: color 0.3s;
+      cursor: pointer;
+      background: none;
+      border: none;
+    }
+    .coverflow-nav:hover { color: #FF5500; }
+    .coverflow-nav.prev { left: 0; }
+    .coverflow-nav.next { right: 0; }
+    .coverflow-fade-wrap {
+      position: relative;
+      padding-top: 30px;
+      padding-bottom: 30px;
+      -webkit-mask-image: linear-gradient(to right, transparent 0%, black 14%, black 86%, transparent 100%);
+      mask-image: linear-gradient(to right, transparent 0%, black 14%, black 86%, transparent 100%);
+    }
+  </style>
+
+  <section class="isolate relative flex flex-col items-center justify-center bg-brand-black pt-28 sm:pt-32">
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] bg-brand-orange/10 blur-[120px] rounded-full"></div>
+    </div>
+    <div class="container mx-auto px-6 sm:px-8 lg:px-12 text-center z-30">
+      <h1 class="font-display text-5xl md:text-7xl lg:text-9xl font-black leading-none glitch-text cursor-default mb-0">ZIPPY</h1>
+      <h2 class="font-display text-2xl md:text-4xl lg:text-6xl font-black mb-0 text-transparent bg-clip-text bg-gradient-to-r from-brand-orange to-white tracking-tight">HOUSE MUSIC THERAPY</h2>
+
+      <div id="highlights" class="relative pt-6 sm:pt-10 pb-10 sm:pb-14 z-30">
+        <div class="container mx-auto px-6 sm:px-8 lg:px-12">
+          <div class="text-center mb-12 sm:mb-16">
+            <h2 class="font-display text-2xl md:text-3xl font-bold mb-1">Featured <span class="text-brand-orange">Mixes</span></h2>
+            <p class="text-gray-400 text-sm">Listen to DJ Zippy's latest sets and mixes.</p>
+          </div>
+          <div class="relative px-10 sm:px-14">
+            <button class="coverflow-nav prev" aria-label="Previous"><i class="fa-solid fa-chevron-left text-xl"></i></button>
+            <div class="coverflow-fade-wrap">
+              <div class="coverflow" id="coverflow-container"></div>
+            </div>
+            <button class="coverflow-nav next" aria-label="Next"><i class="fa-solid fa-chevron-right text-xl"></i></button>
+          </div>
+          <div class="mt-16 sm:mt-20 text-center">
+            <a href="/mixes" class="inline-flex items-center gap-2 text-gray-400 hover:text-brand-orange transition-colors">
+              <i class="fa-solid fa-headphones"></i> Listen Now
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="dates" class="isolate relative py-8 sm:py-16 bg-brand-black">
+    <div class="container mx-auto px-6 sm:px-8 lg:px-12">
+      <h2 class="font-display text-3xl md:text-4xl font-bold mb-8 text-center">Upcoming <span class="text-brand-orange">Therapy</span></h2>
+      <div id="upcoming-events-container" class="space-y-1 flex flex-col items-center max-w-3xl mx-auto"></div>
+      <div class="mt-8 text-center">
+        <a href="/events" class="inline-flex items-center gap-2 text-gray-400 hover:text-brand-orange transition-colors">
+          <i class="fa-solid fa-calendar"></i> View All Events & Past Highlights
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <script is:inline>
+  window.appData = {
+    mixes: [
+      { title: "House Music Therapy / #LetsMixIt Contest", genre: "House / Tech House", desc: "DJ Zippy's high-energy rooftop set recorded in Novi Sad for the #LetsMixIt competition.", icon: "fa-solid fa-play", platform: "youtube", link: "https://www.youtube.com/watch?v=IzkAZcbyCSI", thumbnail: "https://img.youtube.com/vi/IzkAZcbyCSI/maxresdefault.jpg", alt: "DJ Zippy's Let's Mix It Submission - House and Tech House mix", featured: true },
+      { title: "House Music Therapy / Deep & Tech Grooves", genre: "Deep House / Tech House", desc: "DJ Zippy's curated mix blending deep basslines with rhythmic tech house elements.", icon: "fa-solid fa-play", platform: "youtube", link: "https://www.youtube.com/watch?v=c1M_dMg_CcU", thumbnail: "https://img.youtube.com/vi/c1M_dMg_CcU/maxresdefault.jpg", alt: "DJ Zippy's House Therapy Session - Deep House mix", featured: true },
+      { title: "EXIT 2024 | AS FM Stage Live", genre: "Tech House", desc: "DJ Zippy's full live performance recording from the AS FM stage at Exit Festival 2024.", icon: "fa-solid fa-play", platform: "youtube", link: "https://www.youtube.com/watch?v=pbT603mKdsc", thumbnail: "https://img.youtube.com/vi/pbT603mKdsc/maxresdefault.jpg", alt: "DJ Zippy's live set at EXIT 2024 AS FM Stage house music selection", featured: true },
+      { title: "EXIT 2024 | AS FM Stage Full Show", genre: "Tech House", desc: "DJ Zippy's complete high-energy audio recording from the Exit Festival performance.", icon: "fa-brands fa-mixcloud", platform: "mixcloud", link: "https://www.mixcloud.com/zovumezippy/exit-2024-zippy-live-at-as-fm-stage-full-show/", thumbnail: "", alt: "DJ Zippy's House Music Therapy Vol. 12 - MixCloud set", featured: true },
+      { title: "House Music Therapy / Deep & Tech Grooves", genre: "Deep Tech", desc: "DJ Zippy's mix focused on sophisticated, deeper layers of house music.", icon: "fa-brands fa-mixcloud", platform: "mixcloud", link: "https://www.mixcloud.com/zovumezippy/house-music-therapy-with-dj-zippy-deep-and-tech-grooves/", thumbnail: "", alt: "DJ Zippy's Deep & Tech Grooves - MixCloud set", featured: true },
+      { title: "House Music Therapy / Live from Singing Forest", genre: "House / Organic House", desc: "DJ Zippy's live set recorded in Singing Forest, blending house rhythms with an jazzy vibe.", icon: "fa-brands fa-mixcloud", platform: "mixcloud", link: "https://www.mixcloud.com/zovumezippy/house-music-therapy-with-dj-zippy-live-from-singing-forest/", thumbnail: "", alt: "DJ Zippy's Live from Singing Forest - MixCloud set", featured: false },
+      { title: "Zippy — #LetsMixIt DJ Takmičenje", genre: "House / Tech House", desc: "DJ Zippy's competition entry for the LetsMixIt DJ contest — full set on SoundCloud.", icon: "fa-brands fa-soundcloud", platform: "soundcloud", link: "https://soundcloud.com/zovumezippy/zippy-letsmixit-dj-takmicenje", thumbnail: "", alt: "Zippy LetsMixIt DJ Takmicenje - SoundCloud", featured: false },
+      { title: "House Music Therapy #3 / Live from Singing Forest", genre: "House / Organic House", desc: "Full House Therapy session #3 recorded live in Singing Forest — available on SoundCloud.", icon: "fa-brands fa-soundcloud", platform: "soundcloud", link: "https://soundcloud.com/zovumezippy/dj-zippy-house-therapy-3-live-from-singing-forest", thumbnail: "", alt: "DJ Zippy House Therapy 3 Live from Singing Forest - SoundCloud", featured: false }
+    ],
+    playlists: [
+      { title: "House Music Therapy with DJ Zippy", genre: "Spotify Playlist", desc: "DJ Zippy's selection of tracks that never leave his USB.", icon: "fa-brands fa-spotify", platform: "spotify", link: "https://open.spotify.com/playlist/1760y5mR1hdF7PdnAErYRA", thumbnail: "", alt: "DJ Zippy's Selector Choice House - Spotify playlist" },
+      { title: "Guilty Trep Pleasures with DJ Zippy", genre: "Spotify Playlist", desc: "DJ Zippy's playlist for when the lights go down and the mood gets darker.", icon: "fa-brands fa-spotify", platform: "spotify", link: "https://open.spotify.com/playlist/17bauJGzLkXVRa89n3WEF0", thumbnail: "", alt: "DJ Zippy's Afterhours guilty pleasure - Spotify playlist" },
+      { title: "Chill Balkan RnB Vibes with DJ Zippy", genre: "Spotify Playlist", desc: "DJ Zippy's chill summer vibes with a Balkan twist.", icon: "fa-brands fa-spotify", platform: "spotify", link: "https://open.spotify.com/playlist/5wyLKeoY4Jf3FrGcPj9ly2", thumbnail: "", alt: "DJ Zippy's Chill Balkan RnB Vibe Essentials - Spotify playlist" }
+    ]
+  };
+  window.zippyEvents = [
+    { id: "event-raybar-2026-05-23", date: "2026-05-23", time: "20:00 - 01:00", title: "RayBar", subtitle: "House Music Therapy", location: "Novi Sad", status: "upcoming", featured: false },
+    { id: "event-kc-lab-2026-05-09", date: "2026-05-09", time: "20:00 - 01:00", title: "KC Lab", subtitle: "House Music Therapy", location: "Novi Sad", status: "upcoming", featured: false },
+    { id: "event-lazino-tele-2026-05-02", date: "2026-05-02", time: "22:00 - 03:00", title: "Lazino Tele", subtitle: "Millenial Shuffle", location: "Novi Sad", status: "upcoming", featured: false },
+    { id: "event-raybar-2026-04-25", date: "2026-04-25", time: "20:00 - 01:00", title: "RayBar", subtitle: "House Music Therapy", location: "Novi Sad", status: "upcoming", featured: false },
+    { id: "event-lazino-tele-2026", date: "2026-03-27", time: "22:00 - 03:00", title: "Lazino Tele", subtitle: "Millenial Shuffle", location: "Novi Sad", status: "past", featured: false },
+    { id: "event-krivi-put-2026", date: "2026-03-21", time: "20:00 - 01:00", title: "Krivi Put", subtitle: "House Music Therapy", location: "Smederevo", status: "past", featured: false },
+    { id: "event-club-kult-2026", date: "2026-03-18", time: "21:00 - 22:00", title: "Club Kult", subtitle: "House Music Therapy", location: "Beograd", status: "past", featured: true },
+    { id: "event-raybar-2026-mar", date: "2026-03-07", time: "20:00 - 01:00", title: "RayBar", subtitle: "House Music Therapy", location: "Novi Sad", status: "past", featured: false },
+    { id: "event-raybar-2026", date: "2026-01-24", time: "", title: "RayBar", subtitle: "First Residency", location: "Novi Sad", status: "past", featured: false },
+    { id: "event-charlie-bar-2026", date: "2026-01-10", time: "", title: "Charlie Bar", subtitle: "House Techno Session", location: "Smederevo", status: "past", featured: false },
+    { id: "event-kult-2025", date: "2025-11-20", time: "", title: "Club Kult", subtitle: "House Groove Tech Set", location: "Belgrade", status: "past", featured: false },
+    { id: "event-toucan-2025", date: "2025-08-19", time: "", title: "Toucan Nightclub", subtitle: "", location: "Zakynthos", status: "past", featured: false },
+    { id: "event-exit-dance-arena-2025", date: "2025-07-12", time: "", title: "Exit Festival \u2014 Dance Arena", subtitle: "First Dance Arena Set", location: "Novi Sad", status: "past", featured: true },
+    { id: "event-exit-students-2025", date: "2025-07-12", time: "", title: "Exit Festival \u2014 Students Stage", subtitle: "Late-Night House Set", location: "Novi Sad", status: "past", featured: true },
+    { id: "event-borisov-atelje-2024", date: "2024-09-07", time: "", title: "Borisov Atelje", subtitle: "", location: "Petrovaradin", status: "past", featured: false },
+    { id: "event-capital-nightclub-2024", date: "2024-07-23", time: "", title: "Capital Night Club", subtitle: "", location: "Lefkada", status: "past", featured: true },
+    { id: "event-exit-asfm-2024", date: "2024-07-12", time: "", title: "Exit Festival \u2014 AS FM Stage", subtitle: "First Major Festival Stage", location: "Novi Sad", status: "past", featured: true },
+    { id: "event-kst-2024", date: "2024-04-09", time: "", title: "Klub Studenata Tehnike", subtitle: "", location: "Belgrade", status: "past", featured: false },
+    { id: "event-kc-lab-2023", date: "2023-09-02", time: "", title: "Kulturni Centar LAB", subtitle: "Silent Disco Party", location: "Novi Sad", status: "past", featured: false },
+    { id: "event-krivi-put-2022", date: "2022-07-30", time: "", title: "Cafe Krivi Put", subtitle: "First Public Party", location: "Smederevo", status: "past", featured: false }
+  ];
+  </script>
+
+  <script is:inline>
+  document.addEventListener('DOMContentLoaded', function() {
+    // === COVERFLOW ===
+    var coverflowContainer = document.getElementById('coverflow-container');
+    if (coverflowContainer && window.appData && window.appData.mixes) {
+      var featuredMixes = window.appData.mixes.filter(function(m) { return m.featured; });
+      if (featuredMixes.length === 0) featuredMixes = window.appData.mixes.slice(0, 5);
+      var cfHtml = '';
+      featuredMixes.forEach(function(m) {
+        var labelBg = m.thumbnail ? 'style="background-image: url(\'' + m.thumbnail + '\');"' : '';
+        var labelClass = m.thumbnail ? 'cf-label' : 'cf-label bg-brand-orange';
+        var labelContent = m.thumbnail ? '' : '<span class="cf-label-title">ZIPPY</span><span class="cf-label-sub">' + m.platform.toUpperCase() + '</span>';
+        cfHtml += '<article class="coverflow-item text-center" data-link="' + m.link + '">' +
+          '<div class="cf-disc">' +
+          '<div class="' + labelClass + '" ' + labelBg + '>' + labelContent + '</div>' +
+          '<div class="cf-spindle"></div>' +
+          '<i class="fa-solid fa-play cf-play-overlay"></i>' +
+          '</div>' +
+          '<div class="mt-3 text-xs text-gray-400 space-y-0.5">' +
+          '<span class="block font-semibold text-white/80">' + m.title + '</span>' +
+          '<span class="block text-gray-500">' + m.platform.charAt(0).toUpperCase() + m.platform.slice(1) + '</span>' +
+          '</div></article>';
+      });
+      coverflowContainer.innerHTML = cfHtml;
+
+      var items = document.querySelectorAll('.coverflow-item');
+      if (items.length) {
+        var active = 0;
+        function getGap() {
+          var vw = window.innerWidth;
+          if (vw < 640) return vw * 0.28;
+          if (vw < 1024) return vw * 0.2;
+          return Math.min(vw * 0.16, 220);
+        }
+        function update() {
+          var gap = getGap();
+          var half = Math.floor(items.length / 2);
+          items.forEach(function(el, i) {
+            var off = i - active;
+            if (off > half) off -= items.length;
+            if (off < -half) off += items.length;
+            var abs = Math.abs(off);
+            var tx = off * gap;
+            var tz = abs === 0 ? 80 : -(abs * 140);
+            var ry = off < 0 ? 55 : off > 0 ? -55 : 0;
+            var sc = abs === 0 ? 1.1 : Math.max(0.65, 0.85 - (abs - 1) * 0.15);
+            var op = abs > 2 ? 0.15 : abs === 0 ? 1 : 0.5 - (abs - 1) * 0.15;
+            var prevOff = parseInt(el.getAttribute('data-off') || String(i), 10);
+            var delta = Math.abs(off - prevOff);
+            var wrapping = delta > half;
+            el.setAttribute('data-off', String(off));
+            if (wrapping) {
+              // Teleport instantly with no transition and invisible
+              el.style.transition = 'none';
+              el.style.opacity = '0';
+              el.style.transform = 'translateY(-50%) translateX(' + tx + 'px) translateZ(' + tz + 'px) rotateY(' + ry + 'deg) scale(' + sc + ')';
+              el.style.zIndex = String(10 - abs);
+              // Re-enable transition after paint so it fades in at new position
+              requestAnimationFrame(function() {
+                requestAnimationFrame(function() {
+                  el.style.transition = '';
+                  el.style.opacity = String(op);
+                });
+              });
+            } else {
+              el.style.transition = '';
+              el.style.transform = 'translateY(-50%) translateX(' + tx + 'px) translateZ(' + tz + 'px) rotateY(' + ry + 'deg) scale(' + sc + ')';
+              el.style.zIndex = String(10 - abs);
+              el.style.opacity = String(op);
+            }
+            if (off === 0) el.classList.add('active');
+            else el.classList.remove('active');
+          });
+        }
+        items.forEach(function(el, i) {
+          el.addEventListener('click', function() {
+            if (active === i) {
+              var link = el.getAttribute('data-link');
+              if (link) window.open(link, '_blank', 'noopener,noreferrer');
+            } else { active = i; update(); }
+          });
+        });
+        function wrap(i) { return ((i % items.length) + items.length) % items.length; }
+        var prevBtn = document.querySelector('.coverflow-nav.prev');
+        var nextBtn = document.querySelector('.coverflow-nav.next');
+        if (prevBtn) prevBtn.addEventListener('click', function() { active = wrap(active - 1); update(); });
+        if (nextBtn) nextBtn.addEventListener('click', function() { active = wrap(active + 1); update(); });
+        var startX = 0;
+        var cfEl = document.querySelector('.coverflow');
+        if (cfEl) {
+          cfEl.addEventListener('touchstart', function(e) { startX = e.touches[0].clientX; }, { passive: true });
+          cfEl.addEventListener('touchend', function(e) {
+            var diff = startX - e.changedTouches[0].clientX;
+            if (Math.abs(diff) > 50) { active = wrap(diff > 0 ? active + 1 : active - 1); update(); }
+          }, { passive: true });
+        }
+        window.addEventListener('resize', update);
+        update();
+      }
+    }
+
+    // === UPCOMING EVENTS ===
+    if (window.zippyEvents) {
+      var datesContainer = document.getElementById('upcoming-events-container');
+      if (datesContainer) {
+        var upcoming = window.zippyEvents.filter(function(e) { return e.status === 'upcoming'; });
+        upcoming.sort(function(a, b) { return new Date(a.date) - new Date(b.date); });
+        var evHtml = '';
+        upcoming.slice(0, 4).forEach(function(e) {
+          var displayDate = e.date.split('-').reverse().join('/') + (e.time ? ' | ' + e.time : '');
+          evHtml += '<div class="w-full">' +
+            '<div class="flex flex-col md:flex-row items-center bg-brand-gray p-2 rounded-lg border-l-4 border-brand-orange hover:bg-white/5 transition-colors">' +
+            '<div class="md:w-2/5 text-center md:text-left mb-1 md:mb-0 flex-shrink-0">' +
+            '<span class="block text-sm sm:text-base md:text-lg lg:text-xl font-display font-bold">' + e.title.toUpperCase() + '</span>' +
+            '<span class="text-xs md:text-sm text-gray-500 uppercase tracking-widest">' + e.location + '</span>' +
+            '</div>' +
+            '<div class="md:w-3/5 text-center md:text-left mb-1 md:mb-0 px-2 flex-shrink-0">' +
+            '<span class="block text-sm md:text-base lg:text-lg font-bold text-white">' + (e.subtitle || e.title) + '</span>' +
+            '<span class="text-gray-400 text-xs md:text-sm">' + displayDate + '</span>' +
+            '</div></div></div>';
+        });
+        datesContainer.innerHTML = evHtml || '<p class="text-gray-400 text-center">No upcoming events scheduled.</p>';
+      }
+    }
+  });
+  </script>
+</Layout>
