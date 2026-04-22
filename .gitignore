@@ -29,3 +29,9 @@ Thumbs.db
 
 # Build
 .cache/
+
+# Wrangler local state
+.wrangler/
+
+# Claude
+.claude/
