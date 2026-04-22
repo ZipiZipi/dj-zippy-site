@@ -18,30 +18,46 @@ import Layout from '../layouts/Layout.astro';
         "dateModified": "2025-07-13T00:00:00-05:00"
       },
       {
-        "@type": "Person",
+        "@type": ["Person","MusicGroup"],
         "@id": "https://zippydj.com/#person",
-        "name": "Zippy",
+        "name": "DJ Zippy",
         "givenName": "Veljko",
         "familyName": "Nedeljkovic",
-        "alternateName": ["DJ Zippy","Zippy DJ","Zovumezippy","Zipi"],
+        "alternateName": ["Zippy","Zippy DJ","Zovumezippy","Zipi","Veljko Nedeljković"],
         "url": "https://zippydj.com",
-        "image": "https://zippydj.com/images/dj-zippy-house-music-dj.webp",
-        "description": "Zippy (Veljko Nedeljkovic) is a House and Tech-House selector based in Belgrade, Serbia, known for the 'House Music Therapy' mix series and performances at major regional clubs.",
-        "jobTitle": "DJ & Producer",
+        "image": {
+          "@type": "ImageObject",
+          "url": "https://zippydj.com/images/dj-zippy-house-music-dj.webp",
+          "width": 1200,
+          "height": 1200,
+          "caption": "DJ Zippy — House Music Therapy"
+        },
+        "description": "DJ Zippy (Veljko Nedeljković) is a House and Tech-House DJ and selector based in Belgrade, Serbia, known for the 'House Music Therapy' mix series and performances at Exit Festival and major regional clubs.",
+        "jobTitle": "DJ & Selector",
         "hasOccupation": { "@type": "Occupation", "name": "Disc Jockey", "occupationalCategory": "27-2099.00" },
+        "nationality": { "@type": "Country", "name": "Serbia" },
+        "birthPlace": { "@type": "City", "name": "Belgrade" },
         "homeLocation": { "@type": "City", "name": "Belgrade" },
+        "address": { "@type": "PostalAddress", "addressLocality": "Belgrade", "addressCountry": "RS" },
+        "genre": ["House","Tech House","Deep House","Techno","Organic House"],
+        "knowsLanguage": ["sr","en"],
+        "memberOf": [
+          { "@type": "Organization", "name": "Kult Talents" },
+          { "@type": "Organization", "name": "Izuvanje" }
+        ],
         "sameAs": [
           "https://musicbrainz.org/artist/a6a53c2e-8fa0-4612-8e43-8de7af43dc2a",
-          "https://www.instagram.com/zovumezippy",
           "https://www.wikidata.org/wiki/Q138220521",
+          "https://www.instagram.com/zovumezippy",
           "https://www.youtube.com/@zovumezippy",
           "https://ra.co/dj/zippy-2",
           "https://soundcloud.com/zovumezippy",
           "https://www.mixcloud.com/zovumezippy/",
+          "https://www.tiktok.com/@zovumezippy",
           "https://www.facebook.com/zovumezippy",
           "https://open.spotify.com/user/31aj2g4yokqhpoxwkpo5odxegsle"
         ],
-        "knowsAbout": ["House Music","Tech House","Techno"]
+        "knowsAbout": ["House Music","Tech House","Deep House","Techno","DJing","Music Selection"]
       },
       {
         "@type": "Organization",
@@ -49,9 +65,28 @@ import Layout from '../layouts/Layout.astro';
         "name": "DJ Zippy",
         "alternateName": "House Music Therapy",
         "url": "https://zippydj.com",
-        "logo": "https://zippydj.com/images/dj-zippy-house-music-dj.webp",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://zippydj.com/images/dj-zippy-house-music-dj.webp",
+          "width": 1200,
+          "height": 1200
+        },
+        "image": "https://zippydj.com/images/dj-zippy-house-music-dj.webp",
         "founder": { "@id": "https://zippydj.com/#person" },
-        "description": "House Music Therapy - DJ brand curating frequencies, grooves, and the journey through house music."
+        "description": "House Music Therapy - DJ brand curating frequencies, grooves, and the journey through house music.",
+        "address": { "@type": "PostalAddress", "addressLocality": "Belgrade", "addressCountry": "RS" },
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "email": "veljkoned@gmail.com",
+          "contactType": "booking",
+          "areaServed": ["RS","EU"],
+          "availableLanguage": ["en","sr"]
+        },
+        "sameAs": [
+          "https://www.instagram.com/zovumezippy",
+          "https://www.youtube.com/@zovumezippy",
+          "https://ra.co/dj/zippy-2"
+        ]
       },
       {
         "@type": "WebSite",

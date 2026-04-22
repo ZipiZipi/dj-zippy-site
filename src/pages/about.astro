@@ -29,17 +29,25 @@ import Layout from '../layouts/Layout.astro';
         "isPartOf": { "@id": "https://zippydj.com/#website" }
       },
       {
-        "@type": "Person",
+        "@type": ["Person","MusicGroup"],
         "@id": "https://zippydj.com/#person",
-        "name": "Zippy",
+        "name": "DJ Zippy",
         "givenName": "Veljko",
         "familyName": "Nedeljkovic",
-        "alternateName": ["DJ Zippy", "Zippy DJ", "Zovumezippy", "Zipi"],
+        "alternateName": ["Zippy","Zippy DJ","Zovumezippy","Zipi","Veljko Nedeljković"],
         "url": "https://zippydj.com",
         "image": "https://zippydj.com/images/dj-zippy-house-music-dj.webp",
-        "description": "Zippy (Veljko Nedeljkovic) is a House and Tech-House selector based in Belgrade, Serbia, known for the 'House Music Therapy' mix series.",
-        "jobTitle": "DJ & Producer",
+        "description": "DJ Zippy (Veljko Nedeljković) is a House and Tech-House DJ and selector based in Belgrade, Serbia, creator of the 'House Music Therapy' mix series.",
+        "jobTitle": "DJ & Selector",
+        "nationality": { "@type": "Country", "name": "Serbia" },
+        "birthPlace": { "@type": "City", "name": "Belgrade" },
         "homeLocation": { "@type": "City", "name": "Belgrade" },
+        "genre": ["House","Tech House","Deep House","Techno","Organic House"],
+        "knowsLanguage": ["sr","en"],
+        "memberOf": [
+          { "@type": "Organization", "name": "Kult Talents" },
+          { "@type": "Organization", "name": "Izuvanje" }
+        ],
         "sameAs": [
           "https://musicbrainz.org/artist/a6a53c2e-8fa0-4612-8e43-8de7af43dc2a",
           "https://www.wikidata.org/wiki/Q138220521",
@@ -48,8 +56,63 @@ import Layout from '../layouts/Layout.astro';
           "https://ra.co/dj/zippy-2",
           "https://soundcloud.com/zovumezippy",
           "https://www.mixcloud.com/zovumezippy/",
+          "https://www.tiktok.com/@zovumezippy",
           "https://www.facebook.com/zovumezippy",
           "https://open.spotify.com/user/31aj2g4yokqhpoxwkpo5odxegsle"
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://zippydj.com/about#faq",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Who is DJ Zippy?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "DJ Zippy (Veljko Nedeljković) is a House and Tech-House DJ and selector from Belgrade, Serbia. He is the creator of the 'House Music Therapy' mix series and has performed at Exit Festival and leading regional clubs."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What music genres does DJ Zippy play?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "DJ Zippy specializes in House, Tech House, Deep House and Organic House, and shifts into Techno when the night calls for darker, driving rhythms."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Where is DJ Zippy based?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "DJ Zippy is based in Belgrade, Serbia, and performs regularly across Serbia and the wider region, including Novi Sad, Smederevo and Greece."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How can I book DJ Zippy for an event?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Bookings for clubs, private events and festivals go through veljkoned@gmail.com or the contact form at https://zippydj.com/#contact."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What is House Music Therapy?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "House Music Therapy is DJ Zippy's brand and ongoing mix series, built on the belief that the right groove can heal. It focuses on house music as a journey through frequencies and moods."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Has DJ Zippy performed at Exit Festival?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. DJ Zippy performed at the AS FM Stage at Exit Festival 2024 and at the Dance Arena and Students Stage at Exit Festival 2025."
+            }
+          }
         ]
       }
     ]
@@ -152,6 +215,41 @@ import Layout from '../layouts/Layout.astro';
         <div class="flex items-center gap-2" title="Resident Advisor">
           <span class="font-display font-bold text-lg sm:text-xl bg-white text-black px-1">RA</span>
           <span class="font-display font-bold text-lg sm:text-xl">RESIDENT ADVISOR</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* FAQ Section — mirrored in FAQPage JSON-LD for rich results & AI Overviews */}
+  <section id="faq" class="isolate relative py-16 sm:py-20 bg-brand-black border-t border-white/5">
+    <div class="container mx-auto px-6 sm:px-8 lg:px-12 max-w-3xl">
+      <h2 class="font-display text-3xl md:text-4xl font-bold mb-10 text-center">
+        Frequently Asked <span class="text-brand-orange">Questions</span>
+      </h2>
+      <div class="space-y-8 text-gray-300">
+        <div>
+          <h3 class="font-display text-xl text-white mb-2">Who is DJ Zippy?</h3>
+          <p>DJ Zippy (Veljko Nedeljković) is a House and Tech-House DJ and selector from Belgrade, Serbia. He is the creator of the <strong>House Music Therapy</strong> mix series and has performed at Exit Festival and leading regional clubs.</p>
+        </div>
+        <div>
+          <h3 class="font-display text-xl text-white mb-2">What music genres does DJ Zippy play?</h3>
+          <p>DJ Zippy specializes in House, Tech House, Deep House and Organic House, and shifts into Techno when the night calls for darker, driving rhythms.</p>
+        </div>
+        <div>
+          <h3 class="font-display text-xl text-white mb-2">Where is DJ Zippy based?</h3>
+          <p>DJ Zippy is based in Belgrade, Serbia, and performs regularly across Serbia and the wider region, including Novi Sad, Smederevo and Greece.</p>
+        </div>
+        <div>
+          <h3 class="font-display text-xl text-white mb-2">How can I book DJ Zippy for an event?</h3>
+          <p>Bookings for clubs, private events and festivals go through <a href="mailto:veljkoned@gmail.com" class="text-brand-orange hover:text-white">veljkoned@gmail.com</a> or the <a href="/#contact" class="text-brand-orange hover:text-white">contact form</a>.</p>
+        </div>
+        <div>
+          <h3 class="font-display text-xl text-white mb-2">What is House Music Therapy?</h3>
+          <p>House Music Therapy is DJ Zippy's brand and ongoing mix series, built on the belief that the right groove can heal. It focuses on house music as a journey through frequencies and moods.</p>
+        </div>
+        <div>
+          <h3 class="font-display text-xl text-white mb-2">Has DJ Zippy performed at Exit Festival?</h3>
+          <p>Yes. DJ Zippy performed at the AS FM Stage at Exit Festival 2024 and at the Dance Arena and Students Stage at Exit Festival 2025.</p>
         </div>
       </div>
     </div>

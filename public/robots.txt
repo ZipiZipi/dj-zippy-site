@@ -1,10 +1,12 @@
 # Robots.txt for DJ Zippy
-# Tells search engines which pages to crawl and index
+# Tells search engines and AI crawlers which pages to index
 
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /api
+Disallow: /404
 
-# Allow specific crawlers
 User-agent: Googlebot
 Allow: /
 Crawl-delay: 0
@@ -13,9 +15,45 @@ User-agent: Bingbot
 Allow: /
 Crawl-delay: 1
 
-# Disallow admin and API pages
+# AI crawlers — allow DJ Zippy to be cited in
+# ChatGPT, Perplexity, Google AI Overviews, Claude, Apple Intelligence
+User-agent: GPTBot
+Allow: /
 Disallow: /admin
 Disallow: /api
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
 
 # Sitemap location
 Sitemap: https://zippydj.com/sitemap.xml

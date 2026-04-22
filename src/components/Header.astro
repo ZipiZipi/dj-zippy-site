@@ -13,7 +13,6 @@ const { activePage = '' } = Astro.props;
       <a href="/about" class={`nav-link hover:text-white transition-colors ${activePage === 'about' ? 'text-brand-orange' : ''}`}>About</a>
       <a href="/mixes" class={`nav-link hover:text-white transition-colors ${activePage === 'mixes' ? 'text-brand-orange' : ''}`}>Mixes</a>
       <a href="/events" class={`nav-link hover:text-white transition-colors ${activePage === 'events' ? 'text-brand-orange' : ''}`}>Events</a>
-      <a href="/blog" class={`nav-link hover:text-white transition-colors ${activePage === 'blog' ? 'text-brand-orange' : ''}`}>Blog</a>
       <a href="/links" class={`nav-link hover:text-white transition-colors ${activePage === 'links' ? 'text-brand-orange' : ''}`}>Links</a>
       <a href="/#contact" class="text-brand-orange hover:text-white transition-colors">Book Now</a>
     </div>
@@ -28,7 +27,6 @@ const { activePage = '' } = Astro.props;
     <a href="/about" class={`hover:text-brand-orange ${activePage === 'about' ? 'text-brand-orange font-bold' : 'text-gray-300'}`}>About</a>
     <a href="/mixes" class={`hover:text-brand-orange ${activePage === 'mixes' ? 'text-brand-orange font-bold' : 'text-gray-300'}`}>Mixes</a>
     <a href="/events" class={`hover:text-brand-orange ${activePage === 'events' ? 'text-brand-orange font-bold' : 'text-gray-300'}`}>Events</a>
-    <a href="/blog" class={`hover:text-brand-orange ${activePage === 'blog' ? 'text-brand-orange font-bold' : 'text-gray-300'}`}>Blog</a>
     <a href="/links" class={`hover:text-brand-orange ${activePage === 'links' ? 'text-brand-orange font-bold' : 'text-gray-300'}`}>Links</a>
     <a href="/#contact" class="text-brand-orange font-bold">Book Now</a>
   </div>
