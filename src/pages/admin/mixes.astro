@@ -8,17 +8,17 @@ let mixes: Mix[] = [];
 
 if (db) {
   try {
-    const result = await db.prepare('SELECT * FROM mixes ORDER BY date DESC').all<Mix>();
+    const result = await db.prepare('SELECT * FROM mixes ORDER BY created_at DESC').all<Mix>();
     mixes = result.results ?? [];
   } catch(e) {}
 }
 
-const genreColors: Record<string, string> = {
-  'deep-house':        'bg-blue-500/20 text-blue-400',
-  'tech-house':        'bg-purple-500/20 text-purple-400',
-  'house':             'bg-pink-500/20 text-pink-400',
-  'progressive-house': 'bg-indigo-500/20 text-indigo-400',
-  'acid-house':        'bg-green-500/20 text-green-400',
+const platformColors: Record<string, string> = {
+  youtube:    'bg-red-500/20 text-red-400',
+  mixcloud:   'bg-blue-500/20 text-blue-400',
+  spotify:    'bg-green-500/20 text-green-400',
+  soundcloud: 'bg-orange-500/20 text-orange-400',
+  deezer:     'bg-purple-500/20 text-purple-400',
 };
 ---
 
@@ -48,9 +48,8 @@ const genreColors: Record<string, string> = {
         <thead class="bg-brand-dark border-b border-white border-opacity-10">
           <tr>
             <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Title</th>
+            <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Platform</th>
             <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Genre</th>
-            <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Duration</th>
-            <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">BPM</th>
             <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Status</th>
             <th class="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Actions</th>
           </tr>
@@ -67,24 +66,11 @@ const genreColors: Record<string, string> = {
                 ) : null}
               </td>
               <td class="px-6 py-4">
-                <span class={`inline-block px-3 py-1 rounded-full text-xs font-bold ${genreColors[mix.genre] ?? 'bg-gray-500/20 text-gray-400'}`}>
-                  {mix.genre.replace(/-/g,' ')}
+                <span class={`inline-block px-3 py-1 rounded-full text-xs font-bold capitalize ${platformColors[mix.platform ?? ''] ?? 'bg-gray-500/20 text-gray-400'}`}>
+                  {mix.platform ?? '—'}
                 </span>
               </td>
-              <td class="px-6 py-4 text-gray-300">
-                <div class="flex items-center gap-2">
-                  <i class="fa-solid fa-hourglass-end text-brand-orange text-xs"></i>
-                  {mix.duration} min
-                </div>
-              </td>
-              <td class="px-6 py-4 text-gray-300">
-                {mix.bpm ? (
-                  <div class="flex items-center gap-2">
-                    <i class="fa-solid fa-music text-brand-orange text-xs"></i>
-                    {mix.bpm} BPM
-                  </div>
-                ) : <span class="text-gray-600">—</span>}
-              </td>
+              <td class="px-6 py-4 text-gray-300 text-sm">{mix.genre}</td>
               <td class="px-6 py-4">
                 <span class={`inline-block px-3 py-1 rounded-full text-xs font-bold ${mix.published ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'}`}>
                   {mix.published ? 'Published' : 'Draft'}
@@ -125,37 +111,33 @@ const genreColors: Record<string, string> = {
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div class="md:col-span-2">
             <label class="block text-sm font-bold text-white mb-2">Title <span class="text-brand-orange">*</span></label>
-            <input type="text" id="f-title" required oninput="autoSlug()" class="w-full bg-brand-gray border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand-orange" placeholder="Mix title" />
+            <input type="text" id="f-title" required oninput="autoSlug()" class="w-full bg-brand-gray border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand-orange" placeholder="Mix or playlist title" />
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-white mb-2">Platform <span class="text-brand-orange">*</span></label>
+            <select id="f-platform" class="w-full bg-brand-gray border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand-orange">
+              <option value="youtube">YouTube</option>
+              <option value="mixcloud">MixCloud</option>
+              <option value="spotify">Spotify</option>
+              <option value="soundcloud">SoundCloud</option>
+              <option value="deezer">Deezer</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-white mb-2">Genre / Label <span class="text-brand-orange">*</span></label>
+            <input type="text" id="f-genre" required class="w-full bg-brand-gray border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand-orange" placeholder="e.g. House / Tech House" />
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-sm font-bold text-white mb-2">Link <span class="text-brand-orange">*</span></label>
+            <input type="url" id="f-link" required class="w-full bg-brand-gray border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand-orange" placeholder="https://www.youtube.com/watch?v=... or playlist URL" />
+          </div>
+          <div class="md:col-span-2">
+            <label class="block text-sm font-bold text-white mb-2">Thumbnail URL</label>
+            <input type="text" id="f-cover" class="w-full bg-brand-gray border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand-orange" placeholder="https://... (leave blank to use the platform icon)" />
           </div>
           <div>
             <label class="block text-sm font-bold text-white mb-2">Slug <span class="text-brand-orange">*</span></label>
             <input type="text" id="f-slug" required class="w-full bg-brand-gray border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand-orange font-mono text-sm" placeholder="mix-slug" />
-          </div>
-          <div>
-            <label class="block text-sm font-bold text-white mb-2">Genre <span class="text-brand-orange">*</span></label>
-            <select id="f-genre" class="w-full bg-brand-gray border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand-orange">
-              <option value="house">House</option>
-              <option value="deep-house">Deep House</option>
-              <option value="tech-house">Tech House</option>
-              <option value="progressive-house">Progressive House</option>
-              <option value="acid-house">Acid House</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-sm font-bold text-white mb-2">Duration (min) <span class="text-brand-orange">*</span></label>
-            <input type="number" id="f-duration" required min="1" max="600" class="w-full bg-brand-gray border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand-orange" placeholder="60" />
-          </div>
-          <div>
-            <label class="block text-sm font-bold text-white mb-2">BPM</label>
-            <input type="number" id="f-bpm" min="60" max="200" class="w-full bg-brand-gray border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand-orange" placeholder="128" />
-          </div>
-          <div class="md:col-span-2">
-            <label class="block text-sm font-bold text-white mb-2">Audio URL</label>
-            <input type="text" id="f-audio" class="w-full bg-brand-gray border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand-orange" placeholder="https://soundcloud.com/... or /audio/..." />
-          </div>
-          <div class="md:col-span-2">
-            <label class="block text-sm font-bold text-white mb-2">Cover Image URL</label>
-            <input type="text" id="f-cover" class="w-full bg-brand-gray border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand-orange" placeholder="https://... or /images/..." />
           </div>
         </div>
         <div>
@@ -169,7 +151,8 @@ const genreColors: Record<string, string> = {
           </label>
           <label class="flex items-center gap-2 cursor-pointer">
             <input type="checkbox" id="f-featured" class="w-4 h-4 rounded accent-brand-orange" />
-            <span class="text-white font-bold">Featured</span>
+            <span class="text-white font-bold"><i class="fa-solid fa-star text-brand-orange mr-1"></i> Featured</span>
+            <span class="text-xs text-gray-500 ml-1">Show in the home Featured Mixes coverflow</span>
           </label>
         </div>
         <div id="form-error" class="hidden text-red-400 text-sm py-2"></div>
@@ -206,10 +189,9 @@ const genreColors: Record<string, string> = {
       (document.getElementById('mix-id') as HTMLInputElement).value = editingId ? String(editingId) : '';
       (document.getElementById('f-title') as HTMLInputElement).value = data?.title ?? '';
       (document.getElementById('f-slug') as HTMLInputElement).value = data?.slug ?? '';
-      (document.getElementById('f-genre') as HTMLSelectElement).value = data?.genre ?? 'house';
-      (document.getElementById('f-duration') as HTMLInputElement).value = data?.duration ?? '';
-      (document.getElementById('f-bpm') as HTMLInputElement).value = data?.bpm ?? '';
-      (document.getElementById('f-audio') as HTMLInputElement).value = data?.audio_url ?? '';
+      (document.getElementById('f-platform') as HTMLSelectElement).value = data?.platform ?? 'youtube';
+      (document.getElementById('f-genre') as HTMLInputElement).value = data?.genre ?? '';
+      (document.getElementById('f-link') as HTMLInputElement).value = data?.link ?? '';
       (document.getElementById('f-cover') as HTMLInputElement).value = data?.cover_image ?? '';
       (document.getElementById('f-description') as HTMLTextAreaElement).value = data?.description ?? '';
       (document.getElementById('f-published') as HTMLInputElement).checked = data ? !!data.published : true;
@@ -270,10 +252,9 @@ const genreColors: Record<string, string> = {
       const body = {
         title:       (document.getElementById('f-title') as HTMLInputElement).value.trim(),
         slug:        (document.getElementById('f-slug') as HTMLInputElement).value.trim(),
-        genre:       (document.getElementById('f-genre') as HTMLSelectElement).value,
-        duration:    parseInt((document.getElementById('f-duration') as HTMLInputElement).value) || 0,
-        bpm:         parseInt((document.getElementById('f-bpm') as HTMLInputElement).value) || null,
-        audio_url:   (document.getElementById('f-audio') as HTMLInputElement).value.trim() || null,
+        platform:    (document.getElementById('f-platform') as HTMLSelectElement).value,
+        genre:       (document.getElementById('f-genre') as HTMLInputElement).value.trim(),
+        link:        (document.getElementById('f-link') as HTMLInputElement).value.trim(),
         cover_image: (document.getElementById('f-cover') as HTMLInputElement).value.trim() || null,
         description: (document.getElementById('f-description') as HTMLTextAreaElement).value.trim() || null,
         published:   (document.getElementById('f-published') as HTMLInputElement).checked,

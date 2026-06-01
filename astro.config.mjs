@@ -7,7 +7,8 @@ export default defineConfig({
   integrations: [tailwind()],
   output: 'hybrid', // Enable hybrid rendering (static + dynamic pages)
   adapter: cloudflare({
-    mode: 'directory'
+    mode: 'directory',
+    platformProxy: { enabled: true, configPath: 'wrangler.jsonc', experimentalJsonConfig: true }
   }),
   vite: {
     ssr: {

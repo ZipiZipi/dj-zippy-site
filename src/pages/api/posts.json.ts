@@ -4,6 +4,8 @@
 import type { APIRoute } from 'astro';
 import type { Post, PaginatedResponse } from '../../types/database';
 
+export const prerender = false;
+
 export const GET: APIRoute = async ({ url, locals }) => {
   try {
     const db = locals.runtime.env.DB;

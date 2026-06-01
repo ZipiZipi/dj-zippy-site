@@ -1,30 +1,10 @@
 ---
+export const prerender = false;
 import Layout from '../layouts/Layout.astro';
+import { getEvents, dateParts } from '../lib/content';
 
-const events = [
-  { id: "event-raybar-2026-05-23", date: "2026-05-23", time: "20:00 - 01:00", title: "RayBar", subtitle: "House Music Therapy", location: "Novi Sad", country: "RS", status: "upcoming" },
-  { id: "event-kc-lab-2026-05-09", date: "2026-05-09", time: "20:00 - 01:00", title: "KC Lab", subtitle: "House Music Therapy", location: "Novi Sad", country: "RS", status: "upcoming" },
-  { id: "event-lazino-tele-2026-05-02", date: "2026-05-02", time: "22:00 - 03:00", title: "Lazino Tele", subtitle: "Millenial Shuffle", location: "Novi Sad", country: "RS", status: "upcoming" },
-  { id: "event-raybar-2026-04-25", date: "2026-04-25", time: "20:00 - 01:00", title: "RayBar", subtitle: "House Music Therapy", location: "Novi Sad", country: "RS", status: "upcoming" },
-  { id: "event-lazino-tele-2026", date: "2026-03-27", time: "22:00 - 03:00", title: "Lazino Tele", subtitle: "Millenial Shuffle", location: "Novi Sad", country: "RS", status: "past" },
-  { id: "event-krivi-put-2026", date: "2026-03-21", time: "20:00 - 01:00", title: "Krivi Put", subtitle: "House Music Therapy", location: "Smederevo", country: "RS", status: "past" },
-  { id: "event-club-kult-2026", date: "2026-03-18", time: "21:00 - 22:00", title: "Club Kult", subtitle: "House Music Therapy", location: "Beograd", country: "RS", status: "past" },
-  { id: "event-raybar-2026-mar", date: "2026-03-07", time: "20:00 - 01:00", title: "RayBar", subtitle: "House Music Therapy", location: "Novi Sad", country: "RS", status: "past" },
-  { id: "event-raybar-2026", date: "2026-01-24", time: "", title: "RayBar", subtitle: "First Residency", location: "Novi Sad", country: "RS", status: "past" },
-  { id: "event-charlie-bar-2026", date: "2026-01-10", time: "", title: "Charlie Bar", subtitle: "House Techno Session", location: "Smederevo", country: "RS", status: "past" },
-  { id: "event-kult-2025", date: "2025-11-20", time: "", title: "Club Kult", subtitle: "House Groove Tech Set", location: "Belgrade", country: "RS", status: "past" },
-  { id: "event-toucan-2025", date: "2025-08-19", time: "", title: "Toucan Nightclub", subtitle: "", location: "Zakynthos", country: "GR", status: "past" },
-  { id: "event-exit-dance-arena-2025", date: "2025-07-12", time: "", title: "Exit Festival — Dance Arena", subtitle: "First Dance Arena Set", location: "Novi Sad", country: "RS", status: "past" },
-  { id: "event-exit-students-2025", date: "2025-07-12", time: "", title: "Exit Festival — Students Stage", subtitle: "Late-Night House Set", location: "Novi Sad", country: "RS", status: "past" },
-  { id: "event-borisov-atelje-2024", date: "2024-09-07", time: "", title: "Borisov Atelje", subtitle: "", location: "Petrovaradin", country: "RS", status: "past" },
-  { id: "event-capital-nightclub-2024", date: "2024-07-23", time: "", title: "Capital Night Club", subtitle: "", location: "Lefkada", country: "GR", status: "past" },
-  { id: "event-exit-asfm-2024", date: "2024-07-12", time: "", title: "Exit Festival — AS FM Stage", subtitle: "First Major Festival Stage", location: "Novi Sad", country: "RS", status: "past" },
-  { id: "event-kst-2024", date: "2024-04-09", time: "", title: "Klub Studenata Tehnike", subtitle: "", location: "Belgrade", country: "RS", status: "past" },
-  { id: "event-kc-lab-2023", date: "2023-09-02", time: "", title: "Kulturni Centar LAB", subtitle: "Silent Disco Party", location: "Novi Sad", country: "RS", status: "past" },
-  { id: "event-krivi-put-2022", date: "2022-07-30", time: "", title: "Cafe Krivi Put", subtitle: "First Public Party", location: "Smederevo", country: "RS", status: "past" },
-];
-
-const upcomingEvents = events.filter(e => e.status === 'upcoming');
+const db = (Astro.locals as any).runtime?.env?.DB;
+const { upcoming, past } = await getEvents(db);
 
 const musicEventSchema = {
   "@context": "https://schema.org",
@@ -37,9 +17,9 @@ const musicEventSchema = {
         { "@type": "ListItem", "position": 2, "name": "Events", "item": "https://zippydj.com/events" }
       ]
     },
-    ...upcomingEvents.map(e => ({
+    ...upcoming.map(e => ({
       "@type": "MusicEvent",
-      "@id": `https://zippydj.com/events#${e.id}`,
+      "@id": `https://zippydj.com/events#${e.slug}`,
       "name": `${e.title} — ${e.subtitle || 'House Music Therapy'}`,
       "startDate": e.time ? `${e.date}T${e.time.split(' - ')[0]}:00` : e.date,
       "endDate": e.time && e.time.includes(' - ') ? `${e.date}T${e.time.split(' - ')[1]}:00` : undefined,
@@ -97,7 +77,26 @@ const musicEventSchema = {
         <div class="w-2 h-8 bg-brand-orange"></div>
         <h3 class="font-display text-2xl md:text-3xl font-bold">Upcoming <span class="text-brand-orange">Events</span></h3>
       </div>
-      <div id="upcoming-events-container" class="space-y-3"></div>
+      <div class="space-y-3" data-reveal>
+        {upcoming.length === 0 && <p class="text-gray-400">No upcoming events scheduled.</p>}
+        {upcoming.map(e => {
+          const { day, month, year } = dateParts(e.date);
+          return (
+            <article class="flex items-center gap-4 sm:gap-6 border-l-4 border-brand-orange bg-brand-gray rounded-r-lg p-4 hover:bg-white/5 transition-colors">
+              <div class="flex-shrink-0 text-center min-w-[4rem]">
+                <span class="block font-display font-bold text-brand-orange text-xl leading-none">{day}</span>
+                <span class="block text-xs text-gray-400 uppercase tracking-widest">{month}</span>
+                <span class="block text-xs text-gray-500">{year}</span>
+              </div>
+              <div class="w-px h-10 bg-white/10 flex-shrink-0"></div>
+              <div class="flex-1 min-w-0">
+                <h4 class="font-display font-bold text-white text-base sm:text-lg leading-tight">{e.title}</h4>
+                <p class="text-gray-400 text-sm"><i class="fa-solid fa-location-dot mr-1 text-brand-orange"></i>{e.location}{e.time ? ` · ${e.time}` : ''}</p>
+              </div>
+            </article>
+          );
+        })}
+      </div>
     </div>
   </section>
 
@@ -107,7 +106,44 @@ const musicEventSchema = {
         <div class="w-2 h-8 bg-white/30"></div>
         <h2 class="font-display text-3xl md:text-4xl font-bold">Past <span class="text-gray-400">Highlights</span></h2>
       </div>
-      <div id="past-events-container" class="space-y-3"></div>
+      <div class="space-y-3" data-reveal>
+        {past.map(e => {
+          const { day, month, year } = dateParts(e.date);
+          if (e.featured) {
+            return (
+              <article class="relative flex items-center gap-4 sm:gap-6 border-l-4 border-brand-orange bg-brand-gray rounded-r-lg p-4 sm:p-5 hover:bg-white/5 transition-colors">
+                <span class="absolute top-2 right-3 inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-brand-orange">
+                  <i class="fa-solid fa-star"></i> Highlight
+                </span>
+                <div class="flex-shrink-0 text-center min-w-[4rem]">
+                  <span class="block font-display font-bold text-brand-orange text-xl leading-none">{day}</span>
+                  <span class="block text-xs text-gray-400 uppercase tracking-widest">{month}</span>
+                  <span class="block text-xs text-gray-500">{year}</span>
+                </div>
+                <div class="w-px h-10 bg-white/10 flex-shrink-0"></div>
+                <div class="flex-1 min-w-0">
+                  <h3 class="font-display font-bold text-white text-base sm:text-lg leading-tight">{e.title}</h3>
+                  <p class="text-gray-400 text-sm"><i class="fa-solid fa-location-dot mr-1 text-brand-orange"></i>{e.location}{e.subtitle ? ` · ${e.subtitle}` : ''}</p>
+                </div>
+              </article>
+            );
+          }
+          return (
+            <article class="flex items-center gap-4 sm:gap-6 border-l-2 border-brand-gray bg-brand-dark rounded-r-lg p-4 hover:border-white/30 transition-colors">
+              <div class="flex-shrink-0 text-center min-w-[4rem]">
+                <span class="block font-display font-bold text-gray-400 text-lg leading-none">{day}</span>
+                <span class="block text-xs text-gray-500 uppercase tracking-widest">{month}</span>
+                <span class="block text-xs text-gray-600">{year}</span>
+              </div>
+              <div class="w-px h-8 bg-white/5 flex-shrink-0"></div>
+              <div class="flex-1 min-w-0">
+                <h3 class="font-display font-bold text-gray-300 text-sm sm:text-base leading-tight">{e.title}</h3>
+                <p class="text-gray-500 text-xs sm:text-sm"><i class="fa-solid fa-location-dot mr-1"></i>{e.location}{e.subtitle ? ` · ${e.subtitle}` : ''}</p>
+              </div>
+            </article>
+          );
+        })}
+      </div>
       <div class="mt-12 text-center">
         <a href="/" class="inline-flex items-center gap-2 text-gray-400 hover:text-brand-orange transition-colors">
           <i class="fa-solid fa-arrow-left"></i> Back to Homepage
@@ -115,64 +151,4 @@ const musicEventSchema = {
       </div>
     </div>
   </section>
-
-  <script is:inline set:html={`window.zippyEvents = ${JSON.stringify(events)};`} />
-
-  <script is:inline>
-  document.addEventListener('DOMContentLoaded', function() {
-    if (!window.zippyEvents) return;
-
-    var upcomingContainer = document.getElementById('upcoming-events-container');
-    if (upcomingContainer) {
-      var upcoming = window.zippyEvents.filter(function(e) { return e.status === 'upcoming'; });
-      upcoming.sort(function(a, b) { return new Date(a.date) - new Date(b.date); });
-      var upHtml = '';
-      upcoming.forEach(function(e) {
-        var d = new Date(e.date);
-        var day = String(d.getDate()).padStart(2, '0');
-        var month = d.toLocaleString('en-US', { month: 'short' }).toUpperCase();
-        var year = d.getFullYear();
-        var timeStr = e.time ? ' \u00b7 ' + e.time : '';
-        upHtml += '<article class="flex items-center gap-4 sm:gap-6 border-l-4 border-brand-orange bg-brand-gray rounded-r-lg p-4 hover:bg-white/5 transition-colors">' +
-          '<div class="flex-shrink-0 text-center min-w-[4rem]">' +
-          '<span class="block font-display font-bold text-brand-orange text-xl leading-none">' + day + '</span>' +
-          '<span class="block text-xs text-gray-400 uppercase tracking-widest">' + month + '</span>' +
-          '<span class="block text-xs text-gray-500">' + year + '</span>' +
-          '</div>' +
-          '<div class="w-px h-10 bg-white/10 flex-shrink-0"></div>' +
-          '<div class="flex-1 min-w-0">' +
-          '<h4 class="font-display font-bold text-white text-base sm:text-lg leading-tight">' + e.title + '</h4>' +
-          '<p class="text-gray-400 text-sm"><i class="fa-solid fa-location-dot mr-1 text-brand-orange"></i>' + e.location + timeStr + '</p>' +
-          '</div></article>';
-      });
-      upcomingContainer.innerHTML = upHtml || '<p class="text-gray-400">No upcoming events scheduled.</p>';
-    }
-
-    var pastContainer = document.getElementById('past-events-container');
-    if (pastContainer) {
-      var past = window.zippyEvents.filter(function(e) { return e.status === 'past'; });
-      past.sort(function(a, b) { return new Date(b.date) - new Date(a.date); });
-      var pastHtml = '';
-      past.forEach(function(e) {
-        var d = new Date(e.date);
-        var day = String(d.getDate()).padStart(2, '0');
-        var month = d.toLocaleString('en-US', { month: 'short' }).toUpperCase();
-        var year = d.getFullYear();
-        var subtitleStr = e.subtitle ? ' \u00b7 ' + e.subtitle : '';
-        pastHtml += '<article class="flex items-center gap-4 sm:gap-6 border-l-2 border-brand-gray bg-brand-dark rounded-r-lg p-4 hover:border-white/30 transition-colors">' +
-          '<div class="flex-shrink-0 text-center min-w-[4rem]">' +
-          '<span class="block font-display font-bold text-gray-400 text-lg leading-none">' + day + '</span>' +
-          '<span class="block text-xs text-gray-500 uppercase tracking-widest">' + month + '</span>' +
-          '<span class="block text-xs text-gray-600">' + year + '</span>' +
-          '</div>' +
-          '<div class="w-px h-8 bg-white/5 flex-shrink-0"></div>' +
-          '<div class="flex-1 min-w-0">' +
-          '<h3 class="font-display font-bold text-gray-300 text-sm sm:text-base leading-tight">' + e.title + '</h3>' +
-          '<p class="text-gray-500 text-xs sm:text-sm"><i class="fa-solid fa-location-dot mr-1"></i>' + e.location + subtitleStr + '</p>' +
-          '</div></article>';
-      });
-      pastContainer.innerHTML = pastHtml;
-    }
-  });
-  </script>
 </Layout>

@@ -34,7 +34,7 @@ export const GET: APIRoute = async ({ locals, url }) => {
       params.push(genre);
     }
 
-    query += ' ORDER BY date DESC LIMIT ? OFFSET ?';
+    query += ' ORDER BY created_at DESC LIMIT ? OFFSET ?';
     params.push(limit, offset);
 
     const result = await db.prepare(query).bind(...params).all<Mix>();
@@ -65,24 +65,24 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const db = locals.runtime.env.DB;
     const body = await request.json();
 
-    const { title, slug, genre, duration, bpm, description, audio_url, cover_image, published, featured } = body;
+    const { title, slug, genre, platform, link, description, cover_image, published, featured } = body;
 
-    if (!title || !slug || !genre || !duration) {
+    if (!title || !slug || !platform || !link || !genre) {
       return new Response(
-        JSON.stringify({ success: false, error: 'Missing required fields' }),
+        JSON.stringify({ success: false, error: 'Missing required fields (title, platform, link, genre)' }),
         { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
     }
 
     const now = new Date().toISOString();
     const query = `
-      INSERT INTO mixes (title, slug, genre, duration, bpm, description, audio_url, cover_image, published, featured, created_at, updated_at)
+      INSERT INTO mixes (title, slug, genre, platform, link, duration, description, cover_image, published, featured, created_at, updated_at)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     await db
       .prepare(query)
-      .bind(title, slug, genre, duration, bpm || null, description || null, audio_url || null, cover_image || null, published || false, featured || false, now, now)
+      .bind(title, slug, genre, platform, link, 0, description || null, cover_image || null, published ? 1 : 0, featured ? 1 : 0, now, now)
       .run();
 
     return new Response(
@@ -108,16 +108,16 @@ export const PUT: APIRoute = async ({ request, locals, url }) => {
     const id = url.searchParams.get('id');
     if (!id) return new Response(JSON.stringify({ success: false, error: 'Missing id' }), { status: 400 });
 
-    const body = await request.json() as Partial<Mix>;
-    const { title, slug, genre, duration, bpm, description, audio_url, cover_image, published, featured } = body;
+    const body = await request.json() as Partial<Mix> & { platform?: string; link?: string };
+    const { title, slug, genre, platform, link, description, cover_image, published, featured } = body;
 
-    if (!title || !slug || !genre || !duration) {
-      return new Response(JSON.stringify({ success: false, error: 'Missing required fields' }), { status: 400 });
+    if (!title || !slug || !platform || !link || !genre) {
+      return new Response(JSON.stringify({ success: false, error: 'Missing required fields (title, platform, link, genre)' }), { status: 400 });
     }
 
     await locals.runtime.env.DB.prepare(
-      `UPDATE mixes SET title=?, slug=?, genre=?, duration=?, bpm=?, description=?, audio_url=?, cover_image=?, published=?, featured=?, updated_at=CURRENT_TIMESTAMP WHERE id=?`
-    ).bind(title, slug, genre, duration, bpm||null, description||null, audio_url||null, cover_image||null, published?1:0, featured?1:0, id).run();
+      `UPDATE mixes SET title=?, slug=?, genre=?, platform=?, link=?, description=?, cover_image=?, published=?, featured=?, updated_at=CURRENT_TIMESTAMP WHERE id=?`
+    ).bind(title, slug, genre, platform, link, description||null, cover_image||null, published?1:0, featured?1:0, id).run();
 
     return new Response(JSON.stringify({ success: true, message: 'Mix updated' }), { status: 200, headers: { 'Content-Type': 'application/json' } });
   } catch (error) {

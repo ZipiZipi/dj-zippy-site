@@ -1,93 +1,66 @@
 ---
+export const prerender = false;
 import Layout from '../layouts/Layout.astro';
+import { getMixes, MIX_PLATFORMS, mixIcon, mixFallbackIcon } from '../lib/content';
+
+const db = (Astro.locals as any).runtime?.env?.DB;
+const { all: mixes } = await getMixes(db);
+
+const initialPlatform = 'youtube';
+
+function ytId(link: string): string | null {
+  const m = link.match(/(?:v=|youtu\.be\/|embed\/)([\w-]{11})/);
+  return m ? m[1] : null;
+}
+
+// Build JSON-LD from the live data so it stays in sync with admin edits.
+const mixSchema = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://zippydj.com/mixes#breadcrumb",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://zippydj.com/" },
+        { "@type": "ListItem", "position": 2, "name": "Mixes", "item": "https://zippydj.com/mixes" }
+      ]
+    },
+    {
+      "@type": "CollectionPage",
+      "@id": "https://zippydj.com/mixes#collection",
+      "name": "DJ Zippy Mixes & Playlists",
+      "description": "Complete collection of DJ Zippy's mixes and playlists across YouTube, MixCloud, Spotify, SoundCloud, and Deezer.",
+      "about": { "@id": "https://zippydj.com/#person" }
+    },
+    ...mixes.filter(m => m.platform === 'youtube' && ytId(m.link)).map(m => ({
+      "@type": "VideoObject",
+      "@id": `https://zippydj.com/mixes#${m.slug}`,
+      "name": `${m.title} — DJ Zippy`,
+      "description": m.description,
+      "thumbnailUrl": m.thumbnail || `https://img.youtube.com/vi/${ytId(m.link)}/maxresdefault.jpg`,
+      "uploadDate": "2024-01-01T00:00:00+00:00",
+      "embedUrl": `https://www.youtube.com/embed/${ytId(m.link)}`,
+      "url": m.link,
+      "publisher": { "@id": "https://zippydj.com/#organization" }
+    })),
+    ...mixes.filter(m => m.platform === 'spotify' || m.platform === 'deezer').map(m => ({
+      "@type": "MusicPlaylist",
+      "@id": `https://zippydj.com/mixes#${m.slug}`,
+      "name": m.title,
+      "description": m.description,
+      "url": m.link,
+      "creator": { "@id": "https://zippydj.com/#person" }
+    }))
+  ]
+};
 ---
 
 <Layout
   title="DJ Zippy Mixes | House Music Therapy Sessions & Playlists"
-  description="Stream all DJ Zippy mixes and playlists. House Music Therapy sessions on YouTube, MixCloud, and Spotify. Deep house, tech house, and grooves from Belgrade."
+  description="Stream all DJ Zippy mixes and playlists. House Music Therapy sessions on YouTube, MixCloud, Spotify, SoundCloud, and Deezer. Deep house, tech house, and grooves from Belgrade."
   activePage="mixes"
 >
-  <script slot="head" type="application/ld+json" is:inline>
-  {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "BreadcrumbList",
-        "@id": "https://zippydj.com/mixes#breadcrumb",
-        "itemListElement": [
-          { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://zippydj.com/" },
-          { "@type": "ListItem", "position": 2, "name": "Mixes", "item": "https://zippydj.com/mixes" }
-        ]
-      },
-      {
-        "@type": "CollectionPage",
-        "@id": "https://zippydj.com/mixes#collection",
-        "name": "DJ Zippy Mixes & Playlists",
-        "description": "Complete collection of DJ Zippy's mixes and playlists across YouTube, MixCloud, and Spotify.",
-        "about": { "@id": "https://zippydj.com/#person" }
-      },
-      {
-        "@type": "VideoObject",
-        "@id": "https://zippydj.com/mixes#video-letsmix",
-        "name": "House Music Therapy / #LetsMixIt Contest — DJ Zippy",
-        "description": "DJ Zippy's high-energy rooftop set recorded in Novi Sad for the #LetsMixIt competition.",
-        "thumbnailUrl": "https://img.youtube.com/vi/IzkAZcbyCSI/maxresdefault.jpg",
-        "uploadDate": "2024-01-01T00:00:00+00:00",
-        "embedUrl": "https://www.youtube.com/embed/IzkAZcbyCSI",
-        "url": "https://www.youtube.com/watch?v=IzkAZcbyCSI",
-        "publisher": { "@id": "https://zippydj.com/#organization" }
-      },
-      {
-        "@type": "VideoObject",
-        "@id": "https://zippydj.com/mixes#video-deeptech",
-        "name": "House Music Therapy / Deep & Tech Grooves — DJ Zippy",
-        "description": "DJ Zippy's curated mix blending deep basslines with rhythmic tech house elements.",
-        "thumbnailUrl": "https://img.youtube.com/vi/c1M_dMg_CcU/maxresdefault.jpg",
-        "uploadDate": "2024-01-01T00:00:00+00:00",
-        "embedUrl": "https://www.youtube.com/embed/c1M_dMg_CcU",
-        "url": "https://www.youtube.com/watch?v=c1M_dMg_CcU",
-        "publisher": { "@id": "https://zippydj.com/#organization" }
-      },
-      {
-        "@type": "VideoObject",
-        "@id": "https://zippydj.com/mixes#video-exit2024",
-        "name": "EXIT 2024 | AS FM Stage Live — DJ Zippy",
-        "description": "DJ Zippy's full live performance recording from the AS FM stage at Exit Festival 2024.",
-        "thumbnailUrl": "https://img.youtube.com/vi/pbT603mKdsc/maxresdefault.jpg",
-        "uploadDate": "2024-08-09T00:00:00+00:00",
-        "duration": "PT1H0M8S",
-        "embedUrl": "https://www.youtube.com/embed/pbT603mKdsc",
-        "url": "https://www.youtube.com/watch?v=pbT603mKdsc",
-        "publisher": { "@id": "https://zippydj.com/#organization" }
-      },
-      {
-        "@type": "MusicPlaylist",
-        "@id": "https://zippydj.com/mixes#playlist-hmt",
-        "name": "House Music Therapy with DJ Zippy",
-        "description": "DJ Zippy's selection of tracks that never leave his USB.",
-        "url": "https://open.spotify.com/playlist/1760y5mR1hdF7PdnAErYRA",
-        "creator": { "@id": "https://zippydj.com/#person" },
-        "genre": ["House","Tech House"]
-      },
-      {
-        "@type": "MusicPlaylist",
-        "@id": "https://zippydj.com/mixes#playlist-guilty",
-        "name": "Guilty Trep Pleasures with DJ Zippy",
-        "description": "DJ Zippy's playlist for when the lights go down and the mood gets darker.",
-        "url": "https://open.spotify.com/playlist/17bauJGzLkXVRa89n3WEF0",
-        "creator": { "@id": "https://zippydj.com/#person" }
-      },
-      {
-        "@type": "MusicPlaylist",
-        "@id": "https://zippydj.com/mixes#playlist-balkan",
-        "name": "Chill Balkan RnB Vibes with DJ Zippy",
-        "description": "DJ Zippy's chill summer vibes with a Balkan twist.",
-        "url": "https://open.spotify.com/playlist/5wyLKeoY4Jf3FrGcPj9ly2",
-        "creator": { "@id": "https://zippydj.com/#person" }
-      }
-    ]
-  }
-  </script>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(mixSchema)} />
 
   <section class="isolate relative min-h-[40vh] flex flex-col items-center justify-center bg-brand-black pt-24 sm:pt-28 pb-12 overflow-hidden">
     <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] bg-brand-orange/10 blur-[120px] rounded-full pointer-events-none"></div>
@@ -101,130 +74,87 @@ import Layout from '../layouts/Layout.astro';
       </nav>
       <h1 class="font-display text-4xl md:text-5xl lg:text-6xl font-black leading-tight mb-4">Stream DJ Zippy</h1>
       <h2 class="font-display text-xl md:text-2xl lg:text-3xl font-bold text-brand-orange mb-4">All <span class="text-brand-orange">Mixes</span> & Playlists</h2>
-      <p class="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto mb-8">Every House Music Therapy session. YouTube, MixCloud, Spotify, and SoundCloud.</p>
+      <p class="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto mb-8">Every House Music Therapy session. YouTube, MixCloud, Spotify, SoundCloud, and Deezer.</p>
     </div>
   </section>
 
   <section id="all-mixes" class="isolate relative py-16 sm:py-20 bg-brand-dark border-t border-white/5">
     <div class="container mx-auto px-6 sm:px-8 lg:px-12">
       <div class="flex flex-wrap gap-2 sm:gap-4 mb-10" id="mixes-tabs" role="tablist" aria-label="Filter mixes by platform">
-        <button id="mixes-tab-youtube" role="tab" aria-selected="true"
-          class="flex items-center gap-2 px-5 py-2.5 text-sm font-bold uppercase border-b-2 border-brand-orange text-white transition-colors">
-          <i class="fa-brands fa-youtube"></i> YouTube
-        </button>
-        <button id="mixes-tab-mixcloud" role="tab" aria-selected="false"
-          class="flex items-center gap-2 px-5 py-2.5 text-sm font-bold uppercase border-b-2 border-transparent text-gray-500 hover:text-white transition-colors">
-          <i class="fa-brands fa-mixcloud"></i> MixCloud
-        </button>
-        <button id="mixes-tab-spotify" role="tab" aria-selected="false"
-          class="flex items-center gap-2 px-5 py-2.5 text-sm font-bold uppercase border-b-2 border-transparent text-gray-500 hover:text-white transition-colors">
-          <i class="fa-brands fa-spotify"></i> Spotify
-        </button>
-        <button id="mixes-tab-soundcloud" role="tab" aria-selected="false"
-          class="flex items-center gap-2 px-5 py-2.5 text-sm font-bold uppercase border-b-2 border-transparent text-gray-500 hover:text-white transition-colors">
-          <i class="fa-brands fa-soundcloud"></i> SoundCloud
-        </button>
+        {MIX_PLATFORMS.map(p => {
+          const active = p.id === initialPlatform;
+          return (
+            <button id={`mixes-tab-${p.id}`} role="tab" aria-selected={active ? 'true' : 'false'} data-platform={p.id}
+              class={`flex items-center gap-2 px-5 py-2.5 text-sm font-bold uppercase border-b-2 transition-colors ${active ? 'border-brand-orange text-white' : 'border-transparent text-gray-500 hover:text-white'}`}>
+              <i class={p.icon}></i> {p.label}
+            </button>
+          );
+        })}
       </div>
-      <div id="mixes-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+      <div id="mixes-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {mixes.map(m => (
+          <div
+            class={`mix-card group relative overflow-hidden rounded-xl border border-white/5 hover:border-brand-orange/50 transition-all duration-300 aspect-video cursor-pointer ${m.platform === initialPlatform ? '' : 'hidden'}`}
+            data-platform={m.platform}
+            data-link={m.link}
+          >
+            {m.thumbnail
+              ? <img src={m.thumbnail} alt={m.alt} loading="lazy" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+              : <div class="absolute inset-0 bg-gradient-to-br from-brand-gray to-brand-black flex items-center justify-center"><i class={`${mixFallbackIcon(m.platform)} text-6xl text-white/10`}></i></div>
+            }
+            {m.featured && <div class="absolute top-3 right-3 bg-brand-orange text-white text-xs font-bold px-2 py-1 rounded z-20">FEATURED</div>}
+            <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
+            <div class="absolute bottom-0 left-0 right-0 p-5 z-10">
+              <div class="text-xs text-brand-orange font-bold uppercase mb-1">{m.genre}</div>
+              <h3 class="font-display text-base font-bold text-white leading-tight mb-3">{m.title}</h3>
+              <a href={m.link} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 text-sm font-bold text-white hover:text-brand-orange transition-colors">
+                <i class={mixIcon(m.platform)}></i> Listen Now
+              </a>
+            </div>
+          </div>
+        ))}
+      </div>
+      <p id="mixes-empty" class="hidden text-gray-400 text-center py-12">No mixes found.</p>
     </div>
   </section>
 
   <script is:inline>
-  window.appData = {
-    mixes: [
-      { title: "House Music Therapy / #LetsMixIt Contest", genre: "House / Tech House", desc: "DJ Zippy's high-energy rooftop set recorded in Novi Sad for the #LetsMixIt competition.", icon: "fa-solid fa-play", platform: "youtube", link: "https://www.youtube.com/watch?v=IzkAZcbyCSI", thumbnail: "https://img.youtube.com/vi/IzkAZcbyCSI/maxresdefault.jpg", alt: "DJ Zippy's Let's Mix It Submission - House and Tech House mix", featured: true },
-      { title: "House Music Therapy / Deep & Tech Grooves", genre: "Deep House / Tech House", desc: "DJ Zippy's curated mix blending deep basslines with rhythmic tech house elements.", icon: "fa-solid fa-play", platform: "youtube", link: "https://www.youtube.com/watch?v=c1M_dMg_CcU", thumbnail: "https://img.youtube.com/vi/c1M_dMg_CcU/maxresdefault.jpg", alt: "DJ Zippy's House Therapy Session - Deep House mix", featured: true },
-      { title: "EXIT 2024 | AS FM Stage Live", genre: "Tech House", desc: "DJ Zippy's full live performance recording from the AS FM stage at Exit Festival 2024.", icon: "fa-solid fa-play", platform: "youtube", link: "https://www.youtube.com/watch?v=pbT603mKdsc", thumbnail: "https://img.youtube.com/vi/pbT603mKdsc/maxresdefault.jpg", alt: "DJ Zippy's live set at EXIT 2024 AS FM Stage house music selection", featured: true },
-      { title: "EXIT 2024 | AS FM Stage Full Show", genre: "Tech House", desc: "DJ Zippy's complete high-energy audio recording from the Exit Festival performance.", icon: "fa-brands fa-mixcloud", platform: "mixcloud", link: "https://www.mixcloud.com/zovumezippy/exit-2024-zippy-live-at-as-fm-stage-full-show/", thumbnail: "", alt: "DJ Zippy's House Music Therapy Vol. 12 - MixCloud set", featured: true },
-      { title: "House Music Therapy / Deep & Tech Grooves", genre: "Deep Tech", desc: "DJ Zippy's mix focused on sophisticated, deeper layers of house music.", icon: "fa-brands fa-mixcloud", platform: "mixcloud", link: "https://www.mixcloud.com/zovumezippy/house-music-therapy-with-dj-zippy-deep-and-tech-grooves/", thumbnail: "", alt: "DJ Zippy's Deep & Tech Grooves - MixCloud set", featured: true },
-      { title: "House Music Therapy / Live from Singing Forest", genre: "House / Organic House", desc: "DJ Zippy's live set recorded in Singing Forest, blending house rhythms with an jazzy vibe.", icon: "fa-brands fa-mixcloud", platform: "mixcloud", link: "https://www.mixcloud.com/zovumezippy/house-music-therapy-with-dj-zippy-live-from-singing-forest/", thumbnail: "", alt: "DJ Zippy's Live from Singing Forest - MixCloud set", featured: false },
-      { title: "Zippy — #LetsMixIt DJ Takmičenje", genre: "House / Tech House", desc: "DJ Zippy's competition entry for the LetsMixIt DJ contest — full set on SoundCloud.", icon: "fa-brands fa-soundcloud", platform: "soundcloud", link: "https://soundcloud.com/zovumezippy/zippy-letsmixit-dj-takmicenje", thumbnail: "", alt: "Zippy LetsMixIt DJ Takmicenje - SoundCloud", featured: false },
-      { title: "House Music Therapy #3 / Live from Singing Forest", genre: "House / Organic House", desc: "Full House Therapy session #3 recorded live in Singing Forest — available on SoundCloud.", icon: "fa-brands fa-soundcloud", platform: "soundcloud", link: "https://soundcloud.com/zovumezippy/dj-zippy-house-therapy-3-live-from-singing-forest", thumbnail: "", alt: "DJ Zippy House Therapy 3 Live from Singing Forest - SoundCloud", featured: false }
-    ],
-    playlists: [
-      { title: "House Music Therapy with DJ Zippy", genre: "Spotify Playlist", desc: "DJ Zippy's selection of tracks that never leave his USB.", icon: "fa-brands fa-spotify", platform: "spotify", link: "https://open.spotify.com/playlist/1760y5mR1hdF7PdnAErYRA", thumbnail: "", alt: "DJ Zippy's Selector Choice House - Spotify playlist" },
-      { title: "Guilty Trep Pleasures with DJ Zippy", genre: "Spotify Playlist", desc: "DJ Zippy's playlist for when the lights go down and the mood gets darker.", icon: "fa-brands fa-spotify", platform: "spotify", link: "https://open.spotify.com/playlist/17bauJGzLkXVRa89n3WEF0", thumbnail: "", alt: "DJ Zippy's Afterhours guilty pleasure - Spotify playlist" },
-      { title: "Chill Balkan RnB Vibes with DJ Zippy", genre: "Spotify Playlist", desc: "DJ Zippy's chill summer vibes with a Balkan twist.", icon: "fa-brands fa-spotify", platform: "spotify", link: "https://open.spotify.com/playlist/5wyLKeoY4Jf3FrGcPj9ly2", thumbnail: "", alt: "DJ Zippy's Chill Balkan RnB Vibe Essentials - Spotify playlist" }
-    ]
-  };
-  </script>
-
-  <script is:inline>
   document.addEventListener('DOMContentLoaded', function() {
-    var mixesGrid = document.getElementById('mixes-grid');
-    if (!mixesGrid) return;
+    var cards = Array.prototype.slice.call(document.querySelectorAll('.mix-card'));
+    var tabs = Array.prototype.slice.call(document.querySelectorAll('#mixes-tabs button'));
+    var emptyMsg = document.getElementById('mixes-empty');
+    if (!cards.length && !tabs.length) return;
 
-    var activeMixesPlatform = 'youtube';
-    var platformMeta = {
-      youtube:    { fallbackIcon: 'fa-brands fa-youtube' },
-      mixcloud:   { fallbackIcon: 'fa-brands fa-mixcloud' },
-      spotify:    { fallbackIcon: 'fa-brands fa-spotify' },
-      soundcloud: { fallbackIcon: 'fa-brands fa-soundcloud' }
-    };
-
-    function renderMixesGrid(platform, searchText) {
-      mixesGrid.innerHTML = '';
-      var allItems = window.appData.mixes.concat(window.appData.playlists);
-      var filtered = allItems.filter(function(item) { return item.platform === platform; });
-      if (searchText) {
-        filtered = filtered.filter(function(item) {
-          return item.title.toLowerCase().includes(searchText) ||
-            item.genre.toLowerCase().includes(searchText) ||
-            item.desc.toLowerCase().includes(searchText);
-        });
-      }
-      if (filtered.length === 0) {
-        mixesGrid.innerHTML = '<p class="text-gray-400 text-center col-span-full py-12">No mixes found.</p>';
-        return;
-      }
-      filtered.forEach(function(item) {
-        var card = document.createElement('div');
-        card.className = 'group relative overflow-hidden rounded-xl border border-white/5 hover:border-brand-orange/50 transition-all duration-300 aspect-video cursor-pointer';
-        var featuredBadge = item.featured
-          ? '<div class="absolute top-3 right-3 bg-brand-orange text-white text-xs font-bold px-2 py-1 rounded z-20">FEATURED</div>'
-          : '';
-        var meta = platformMeta[item.platform] || platformMeta.youtube;
-        var backgroundHTML = item.thumbnail
-          ? '<img src="' + item.thumbnail + '" alt="' + item.alt + '" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">'
-          : '<div class="absolute inset-0 bg-gradient-to-br from-brand-gray to-brand-black flex items-center justify-center"><i class="' + meta.fallbackIcon + ' text-6xl text-white/10"></i></div>';
-        card.innerHTML = backgroundHTML + featuredBadge +
-          '<div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>' +
-          '<div class="absolute bottom-0 left-0 right-0 p-5 z-10">' +
-          '<div class="text-xs text-brand-orange font-bold uppercase mb-1">' + item.genre + '</div>' +
-          '<h3 class="font-display text-base font-bold text-white leading-tight mb-3">' + item.title + '</h3>' +
-          '<a href="' + item.link + '" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 text-sm font-bold text-white hover:text-brand-orange transition-colors">' +
-          '<i class="' + item.icon + '"></i> Listen Now</a></div>';
-        card.addEventListener('click', function(e) {
-          if (e.target.closest('a')) return;
-          window.open(item.link, '_blank', 'noopener,noreferrer');
-        });
-        mixesGrid.appendChild(card);
+    // Card click opens the link (ignore clicks on the inner anchor).
+    cards.forEach(function(card) {
+      card.addEventListener('click', function(e) {
+        if (e.target.closest('a')) return;
+        var link = card.getAttribute('data-link');
+        if (link) window.open(link, '_blank', 'noopener,noreferrer');
       });
-    }
-
-    function setMixesFilter(platform) {
-      activeMixesPlatform = platform;
-      document.querySelectorAll('#mixes-tabs button').forEach(function(tab) {
-        var tabPlatform = tab.id.replace('mixes-tab-', '');
-        if (tabPlatform === platform) {
-          tab.classList.add('border-brand-orange', 'text-white');
-          tab.classList.remove('border-transparent', 'text-gray-500');
-          tab.setAttribute('aria-selected', 'true');
-        } else {
-          tab.classList.remove('border-brand-orange', 'text-white');
-          tab.classList.add('border-transparent', 'text-gray-500');
-          tab.setAttribute('aria-selected', 'false');
-        }
-      });
-      renderMixesGrid(platform, '');
-    }
-
-    ['youtube', 'mixcloud', 'spotify', 'soundcloud'].forEach(function(platform) {
-      var tab = document.getElementById('mixes-tab-' + platform);
-      if (tab) tab.addEventListener('click', function() { setMixesFilter(platform); });
     });
 
-    renderMixesGrid('youtube', '');
+    function setFilter(platform) {
+      var shown = 0;
+      cards.forEach(function(card) {
+        var match = card.getAttribute('data-platform') === platform;
+        card.classList.toggle('hidden', !match);
+        if (match) shown++;
+      });
+      if (emptyMsg) emptyMsg.classList.toggle('hidden', shown !== 0);
+      tabs.forEach(function(tab) {
+        var match = tab.getAttribute('data-platform') === platform;
+        tab.classList.toggle('border-brand-orange', match);
+        tab.classList.toggle('text-white', match);
+        tab.classList.toggle('border-transparent', !match);
+        tab.classList.toggle('text-gray-500', !match);
+        tab.setAttribute('aria-selected', match ? 'true' : 'false');
+      });
+    }
+
+    tabs.forEach(function(tab) {
+      tab.addEventListener('click', function() { setFilter(tab.getAttribute('data-platform')); });
+    });
   });
   </script>
 </Layout>

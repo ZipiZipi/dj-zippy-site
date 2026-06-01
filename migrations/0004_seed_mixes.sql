@@ -1,0 +1,17 @@
+-- Phase 2 seed: load the original hardcoded mixes + playlists into D1 as
+-- link-model rows. Idempotent: INSERT OR IGNORE keyed on the unique slug.
+-- duration is set to 0 (unused). published=1. featured marks home-coverflow picks.
+
+INSERT OR IGNORE INTO mixes (slug, title, genre, platform, link, cover_image, description, duration, published, featured) VALUES
+('letsmixit-contest','House Music Therapy / #LetsMixIt Contest','House / Tech House','youtube','https://www.youtube.com/watch?v=IzkAZcbyCSI','https://img.youtube.com/vi/IzkAZcbyCSI/maxresdefault.jpg','DJ Zippy''s high-energy rooftop set recorded in Novi Sad for the #LetsMixIt competition.',0,1,1),
+('deep-tech-grooves-yt','House Music Therapy / Deep & Tech Grooves','Deep House / Tech House','youtube','https://www.youtube.com/watch?v=c1M_dMg_CcU','https://img.youtube.com/vi/c1M_dMg_CcU/maxresdefault.jpg','DJ Zippy''s curated mix blending deep basslines with rhythmic tech house elements.',0,1,1),
+('exit-2024-asfm-live','EXIT 2024 | AS FM Stage Live','Tech House','youtube','https://www.youtube.com/watch?v=pbT603mKdsc','https://img.youtube.com/vi/pbT603mKdsc/maxresdefault.jpg','DJ Zippy''s full live performance recording from the AS FM stage at Exit Festival 2024.',0,1,1),
+('exit-2024-asfm-full','EXIT 2024 | AS FM Stage Full Show','Tech House','mixcloud','https://www.mixcloud.com/zovumezippy/exit-2024-zippy-live-at-as-fm-stage-full-show/','','DJ Zippy''s complete high-energy audio recording from the Exit Festival performance.',0,1,1),
+('deep-tech-grooves-mc','House Music Therapy / Deep & Tech Grooves (MixCloud)','Deep Tech','mixcloud','https://www.mixcloud.com/zovumezippy/house-music-therapy-with-dj-zippy-deep-and-tech-grooves/','','DJ Zippy''s mix focused on sophisticated, deeper layers of house music.',0,1,1),
+('singing-forest-mc','House Music Therapy / Live from Singing Forest','House / Organic House','mixcloud','https://www.mixcloud.com/zovumezippy/house-music-therapy-with-dj-zippy-live-from-singing-forest/','','DJ Zippy''s live set recorded in Singing Forest, blending house rhythms with a jazzy vibe.',0,1,0),
+('letsmixit-soundcloud','Zippy — #LetsMixIt DJ Takmičenje','House / Tech House','soundcloud','https://soundcloud.com/zovumezippy/zippy-letsmixit-dj-takmicenje','','DJ Zippy''s competition entry for the LetsMixIt DJ contest — full set on SoundCloud.',0,1,0),
+('house-therapy-3-sc','House Music Therapy #3 / Live from Singing Forest','House / Organic House','soundcloud','https://soundcloud.com/zovumezippy/dj-zippy-house-therapy-3-live-from-singing-forest','','Full House Therapy session #3 recorded live in Singing Forest — available on SoundCloud.',0,1,0),
+('playlist-hmt-spotify','House Music Therapy with DJ Zippy','Spotify Playlist','spotify','https://open.spotify.com/playlist/1760y5mR1hdF7PdnAErYRA','','DJ Zippy''s selection of tracks that never leave his USB.',0,1,0),
+('playlist-guilty-spotify','Guilty Trep Pleasures with DJ Zippy','Spotify Playlist','spotify','https://open.spotify.com/playlist/17bauJGzLkXVRa89n3WEF0','','DJ Zippy''s playlist for when the lights go down and the mood gets darker.',0,1,0),
+('playlist-balkan-spotify','Chill Balkan RnB Vibes with DJ Zippy','Spotify Playlist','spotify','https://open.spotify.com/playlist/5wyLKeoY4Jf3FrGcPj9ly2','','DJ Zippy''s chill summer vibes with a Balkan twist.',0,1,0),
+('playlist-hmt-deezer','House Music Therapy with DJ Zippy','Deezer Playlist','deezer','https://www.deezer.com/en/playlist/15339042363','','DJ Zippy''s House Music Therapy selection on Deezer.',0,1,0);
