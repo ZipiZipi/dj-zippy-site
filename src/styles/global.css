@@ -45,3 +45,86 @@
     text-shadow: 2px 0 #FF5500, -2px 0 #00E5FF;
   }
 }
+
+/* === Animations === */
+
+/* Scroll-reveal. Hiding only applies once JS marks the document ready (so the
+   site degrades gracefully when JS is off/fails) and only while the element has
+   not yet been revealed — using :not(.in-view) avoids any competing opacity
+   rules, so a revealed element simply returns to its default visible state. */
+[data-reveal] {
+  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+html.anim-ready [data-reveal]:not(.in-view) {
+  opacity: 0;
+  transform: translateY(26px);
+}
+
+/* Marquee ticker */
+.marquee {
+  overflow: hidden;
+  white-space: nowrap;
+  -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+  mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+}
+.marquee__track {
+  display: inline-flex;
+  gap: 2.5rem;
+  padding-right: 2.5rem;
+  animation: marquee 32s linear infinite;
+  will-change: transform;
+}
+.marquee:hover .marquee__track { animation-play-state: paused; }
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* Aurora — slow "breathing" glow behind the hero */
+.aurora {
+  background:
+    radial-gradient(40% 50% at 30% 35%, rgba(255,85,0,0.22), transparent 70%),
+    radial-gradient(45% 55% at 72% 60%, rgba(255,120,40,0.14), transparent 70%),
+    radial-gradient(35% 45% at 50% 80%, rgba(0,229,255,0.06), transparent 70%);
+  filter: blur(60px);
+  animation: aurora-drift 16s ease-in-out infinite alternate;
+  will-change: transform, opacity;
+}
+@keyframes aurora-drift {
+  0%   { transform: translate3d(-4%, -2%, 0) scale(1);    opacity: 0.85; }
+  50%  { transform: translate3d(3%, 3%, 0)  scale(1.12);  opacity: 1; }
+  100% { transform: translate3d(5%, -3%, 0) scale(1.05);  opacity: 0.9; }
+}
+
+/* Cursor spotlight on the hero (position driven by JS via --mx/--my) */
+.spotlight {
+  background: radial-gradient(220px circle at var(--mx, 50%) var(--my, 50%),
+              rgba(255,85,0,0.16), transparent 60%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.spotlight.is-active { opacity: 1; }
+
+/* Vinyl spin — only the active disc spins; pauses on hover so the play icon reads */
+.coverflow-item.active .cf-disc {
+  animation: vinyl-spin 9s linear infinite;
+}
+.coverflow-item.active:hover .cf-disc { animation-play-state: paused; }
+@keyframes vinyl-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* Magnetic button springs back smoothly when not actively tracked */
+[data-magnetic] { transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1); }
+
+/* Respect reduced-motion: show everything, no looping motion */
+@media (prefers-reduced-motion: reduce) {
+  html.anim-ready [data-reveal]:not(.in-view) { opacity: 1; transform: none; }
+  [data-reveal] { transition: none; }
+  .marquee__track { animation: none; }
+  .aurora { animation: none; }
+  .coverflow-item.active .cf-disc { animation: none; }
+  [data-magnetic] { transition: none; }
+}

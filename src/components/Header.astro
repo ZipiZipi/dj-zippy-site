@@ -14,7 +14,7 @@ const { activePage = '' } = Astro.props;
       <a href="/mixes" class={`nav-link hover:text-white transition-colors ${activePage === 'mixes' ? 'text-brand-orange' : ''}`}>Mixes</a>
       <a href="/events" class={`nav-link hover:text-white transition-colors ${activePage === 'events' ? 'text-brand-orange' : ''}`}>Events</a>
       <a href="/links" class={`nav-link hover:text-white transition-colors ${activePage === 'links' ? 'text-brand-orange' : ''}`}>Links</a>
-      <a href="/#contact" class="text-brand-orange hover:text-white transition-colors">Book Now</a>
+      <a href="/#contact" data-magnetic class="inline-block text-brand-orange hover:text-white transition-colors">Book Now</a>
     </div>
 
     <button id="mobile-menu-btn" class="md:hidden text-white focus:outline-none">
@@ -33,12 +33,16 @@ const { activePage = '' } = Astro.props;
 </nav>
 
 <script>
-  const btn = document.getElementById('mobile-menu-btn');
-  const menu = document.getElementById('mobile-menu');
-  if (btn && menu) {
-    btn.addEventListener('click', () => menu.classList.toggle('hidden'));
-    document.querySelectorAll('.nav-link, #mobile-menu a').forEach(link => {
-      link.addEventListener('click', () => menu.classList.add('hidden'));
-    });
+  function initHeaderMenu() {
+    const btn = document.getElementById('mobile-menu-btn');
+    const menu = document.getElementById('mobile-menu');
+    if (btn && menu && !btn.dataset.bound) {
+      btn.dataset.bound = '1';
+      btn.addEventListener('click', () => menu.classList.toggle('hidden'));
+      document.querySelectorAll('.nav-link, #mobile-menu a').forEach(link => {
+        link.addEventListener('click', () => menu.classList.add('hidden'));
+      });
+    }
   }
+  document.addEventListener('astro:page-load', initHeaderMenu);
 </script>

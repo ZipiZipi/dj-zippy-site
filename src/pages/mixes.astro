@@ -63,7 +63,7 @@ const mixSchema = {
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(mixSchema)} />
 
   <section class="isolate relative min-h-[40vh] flex flex-col items-center justify-center bg-brand-black pt-24 sm:pt-28 pb-12 overflow-hidden">
-    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] bg-brand-orange/10 blur-[120px] rounded-full pointer-events-none"></div>
+    <div class="aurora absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] rounded-full pointer-events-none"></div>
     <div class="container mx-auto px-6 sm:px-8 lg:px-12 text-center z-30">
       <nav aria-label="Breadcrumb" class="mb-6">
         <ol class="flex justify-center items-center space-x-2 text-sm text-gray-400">
@@ -91,7 +91,7 @@ const mixSchema = {
           );
         })}
       </div>
-      <div id="mixes-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div id="mixes-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" data-reveal>
         {mixes.map(m => (
           <div
             class={`mix-card group relative overflow-hidden rounded-xl border border-white/5 hover:border-brand-orange/50 transition-all duration-300 aspect-video cursor-pointer ${m.platform === initialPlatform ? '' : 'hidden'}`}
@@ -119,7 +119,10 @@ const mixSchema = {
   </section>
 
   <script is:inline>
-  document.addEventListener('DOMContentLoaded', function() {
+  function initMixesTabs() {
+    var grid = document.getElementById('mixes-grid');
+    if (!grid || grid.dataset.mixReady) return;
+    grid.dataset.mixReady = '1';
     var cards = Array.prototype.slice.call(document.querySelectorAll('.mix-card'));
     var tabs = Array.prototype.slice.call(document.querySelectorAll('#mixes-tabs button'));
     var emptyMsg = document.getElementById('mixes-empty');
@@ -155,6 +158,7 @@ const mixSchema = {
     tabs.forEach(function(tab) {
       tab.addEventListener('click', function() { setFilter(tab.getAttribute('data-platform')); });
     });
-  });
+  }
+  document.addEventListener('astro:page-load', initMixesTabs);
   </script>
 </Layout>

@@ -7,6 +7,8 @@ const db = (Astro.locals as any).runtime?.env?.DB;
 const { upcoming } = await getEvents(db);
 const homeUpcoming = upcoming.slice(0, 4);
 const { featured: featuredMixes } = await getMixes(db);
+
+const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House', 'Tech House', 'Novi Sad', 'Selector', 'Grooves'];
 ---
 
 <Layout
@@ -257,8 +259,9 @@ const { featured: featuredMixes } = await getMixes(db);
 
   <section class="isolate relative flex flex-col items-center justify-center bg-brand-black pt-28 sm:pt-32">
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
-      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] bg-brand-orange/10 blur-[120px] rounded-full"></div>
+      <div class="aurora absolute inset-0"></div>
     </div>
+    <div data-spotlight class="spotlight absolute inset-0 pointer-events-none z-10"></div>
     <div class="container mx-auto px-6 sm:px-8 lg:px-12 text-center z-30">
       <h1 class="font-display text-5xl md:text-7xl lg:text-9xl font-black leading-none glitch-text cursor-default mb-0">ZIPPY</h1>
       <h2 class="font-display text-2xl md:text-4xl lg:text-6xl font-black mb-0 text-transparent bg-clip-text bg-gradient-to-r from-brand-orange to-white tracking-tight">HOUSE MUSIC THERAPY</h2>
@@ -303,6 +306,17 @@ const { featured: featuredMixes } = await getMixes(db);
     </div>
   </section>
 
+  <div class="marquee bg-brand-black border-y border-white/5 py-4 sm:py-5" aria-hidden="true">
+    <div class="marquee__track">
+      {[0, 1].map(() => ticker.map((w) => (
+        <span class="inline-flex items-center gap-10">
+          <span class="font-display text-lg sm:text-2xl font-black uppercase tracking-widest text-white/15">{w}</span>
+          <span class="text-brand-orange text-base">&#9679;</span>
+        </span>
+      )))}
+    </div>
+  </div>
+
   <section id="dates" class="isolate relative py-8 sm:py-16 bg-brand-black">
     <div class="container mx-auto px-6 sm:px-8 lg:px-12">
       <h2 class="font-display text-3xl md:text-4xl font-bold mb-8 text-center">Upcoming <span class="text-brand-orange">Therapy</span></h2>
@@ -335,10 +349,11 @@ const { featured: featuredMixes } = await getMixes(db);
   </section>
 
   <script is:inline>
-  document.addEventListener('DOMContentLoaded', function() {
+  function initCoverflow() {
     // === COVERFLOW === (items are server-rendered from the DB)
     var coverflowContainer = document.getElementById('coverflow-container');
-    if (coverflowContainer) {
+    if (coverflowContainer && !coverflowContainer.dataset.cfReady) {
+      coverflowContainer.dataset.cfReady = '1';
       var items = document.querySelectorAll('.coverflow-item');
       if (items.length) {
         var active = 0;
@@ -414,6 +429,7 @@ const { featured: featuredMixes } = await getMixes(db);
         update();
       }
     }
-  });
+  }
+  document.addEventListener('astro:page-load', initCoverflow);
   </script>
 </Layout>

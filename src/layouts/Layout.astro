@@ -1,6 +1,7 @@
 ---
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import { ViewTransitions } from 'astro:transitions';
 import '../styles/global.css';
 
 interface Props {
@@ -93,6 +94,9 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" /></noscript>
 
     <slot name="head" />
+
+    <ViewTransitions />
+    <script is:inline>document.documentElement.classList.add('anim-ready');</script>
   </head>
   <body class="overflow-x-hidden selection:bg-brand-orange selection:text-white">
     <!-- GTM noscript -->
@@ -101,6 +105,57 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <Header activePage={activePage} />
     <slot />
     <Footer />
+
+    <!-- Site animations: scroll-reveal, hero spotlight, magnetic buttons -->
+    <script>
+      function setupAnimations() {
+        const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        // Scroll-reveal
+        const revealEls = document.querySelectorAll('[data-reveal]');
+        if (reduce || !('IntersectionObserver' in window)) {
+          revealEls.forEach((el) => el.classList.add('in-view'));
+        } else {
+          const io = new IntersectionObserver((entries, obs) => {
+            entries.forEach((e) => {
+              if (e.isIntersecting) { e.target.classList.add('in-view'); obs.unobserve(e.target); }
+            });
+          }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+          revealEls.forEach((el) => { if (!el.classList.contains('in-view')) io.observe(el); });
+          // Safety net: never leave content hidden if something misfires
+          setTimeout(() => revealEls.forEach((el) => el.classList.add('in-view')), 3000);
+        }
+
+        if (reduce) return;
+        const fine = window.matchMedia('(pointer: fine)').matches;
+        if (!fine) return;
+
+        // Hero cursor spotlight
+        const spot = document.querySelector('[data-spotlight]');
+        const host = spot && spot.parentElement;
+        if (spot && host) {
+          host.addEventListener('pointermove', (ev) => {
+            const r = host.getBoundingClientRect();
+            spot.style.setProperty('--mx', ((ev.clientX - r.left) / r.width * 100) + '%');
+            spot.style.setProperty('--my', ((ev.clientY - r.top) / r.height * 100) + '%');
+            spot.classList.add('is-active');
+          });
+          host.addEventListener('pointerleave', () => spot.classList.remove('is-active'));
+        }
+
+        // Magnetic buttons
+        document.querySelectorAll('[data-magnetic]').forEach((el) => {
+          if (el.dataset.magBound) return;
+          el.dataset.magBound = '1';
+          el.addEventListener('pointermove', (ev) => {
+            const r = el.getBoundingClientRect();
+            el.style.transform = 'translate(' + (ev.clientX - r.left - r.width / 2) * 0.4 + 'px,' + (ev.clientY - r.top - r.height / 2) * 0.4 + 'px)';
+          });
+          el.addEventListener('pointerleave', () => { el.style.transform = ''; });
+        });
+      }
+      document.addEventListener('astro:page-load', setupAnimations);
+    </script>
 
     <!-- Google Ads -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=AW-975400552"></script>

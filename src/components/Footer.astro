@@ -87,8 +87,10 @@
 </footer>
 
 <script>
+  function initContactForm() {
   const form = document.getElementById('contact-form') as HTMLFormElement | null;
-  if (form) {
+  if (form && !form.dataset.bound) {
+    form.dataset.bound = '1';
     form.addEventListener('submit', function(e) {
       e.preventDefault();
       const btn = this.querySelector('button[type="submit"]') as HTMLButtonElement;
@@ -110,4 +112,6 @@
       });
     });
   }
+  }
+  document.addEventListener('astro:page-load', initContactForm);
 </script>
