@@ -1,46 +1,30 @@
-// Astro middleware — runs on every request
-// Protects /admin/* and /api/admin/* routes
+// Astro middleware — runs on every request.
+// Admin auth is handled by Cloudflare Access (Zero Trust) at the edge: it
+// protects /admin* and /api/admin* and injects a signed `Cf-Access-Jwt-Assertion`
+// header on authenticated requests (Cloudflare strips any client-supplied value).
+// We fail closed: any admin request that arrives WITHOUT that header (i.e. a path
+// not covered by the Access application, or a bypass attempt) is rejected.
+//
+// Local dev (`astro dev`) has no Access in front, so the check is skipped there.
 
 import { defineMiddleware } from 'astro:middleware';
-import { validateSessionToken } from './auth';
-
-// Routes that don't require authentication
-const PUBLIC_ROUTES = [
-  '/admin/login',
-  '/api/admin/login',
-  '/api/admin/logout',
-];
 
 export const onRequest = defineMiddleware(async (context, next) => {
-  const { url, cookies, redirect } = context;
-  const pathname = url.pathname;
+  const pathname = context.url.pathname;
 
-  // Only intercept admin routes
-  const isAdminPage = pathname.startsWith('/admin');
-  const isAdminApi  = pathname.startsWith('/api/admin');
+  const isAdmin = pathname.startsWith('/admin') || pathname.startsWith('/api/admin');
+  if (!isAdmin) return next();
 
-  if (!isAdminPage && !isAdminApi) {
-    return next();
-  }
+  // No Cloudflare Access in local development.
+  if (import.meta.env.DEV) return next();
 
-  // Always allow public routes through
-  if (PUBLIC_ROUTES.includes(pathname)) {
-    return next();
-  }
-
-  // Check session cookie
-  const token = cookies.get('admin_session')?.value;
-  const authenticated = token ? validateSessionToken(token) : false;
-
-  if (!authenticated) {
-    // API routes return 401 JSON, page routes redirect to login
-    if (isAdminApi) {
-      return new Response(
-        JSON.stringify({ success: false, error: 'Unauthorized' }),
-        { status: 401, headers: { 'Content-Type': 'application/json' } },
-      );
-    }
-    return redirect('/admin/login');
+  const accessJwt = context.request.headers.get('Cf-Access-Jwt-Assertion');
+  if (!accessJwt) {
+    return new Response(
+      'Forbidden — this area is protected by Cloudflare Access. ' +
+      'Ensure the Access application covers both /admin and /api/admin.',
+      { status: 403, headers: { 'Content-Type': 'text/plain' } },
+    );
   }
 
   return next();
