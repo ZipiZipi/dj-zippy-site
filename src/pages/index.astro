@@ -122,7 +122,7 @@ const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House'
     .coverflow-item {
       position: absolute;
       top: 50%;
-      width: clamp(200px, 24vw, 280px);
+      width: clamp(150px, 22vw, 280px);
       transition: transform 0.7s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.5s ease;
       transform-style: preserve-3d;
       cursor: pointer;
@@ -130,8 +130,8 @@ const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House'
     }
     .coverflow-item.active { cursor: default; }
     .cf-disc {
-      width: clamp(160px, 20vw, 230px);
-      height: clamp(160px, 20vw, 230px);
+      width: clamp(125px, 18vw, 230px);
+      height: clamp(125px, 18vw, 230px);
       background:
         radial-gradient(circle at center, transparent 18%, #0d0d0d 19%),
         repeating-radial-gradient(circle at center, rgba(30,30,30,1) 0px, rgba(20,20,20,1) 1px, rgba(15,15,15,1) 2px, rgba(25,25,25,1) 3px),
@@ -228,7 +228,7 @@ const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House'
       z-index: 2;
     }
     .coverflow-item.active .cf-disc {
-      box-shadow: 0 8px 40px rgba(0,0,0,0.8), 0 0 0 3px rgba(255,255,255,0.06), inset 0 0 60px rgba(0,0,0,0.8), 0 0 60px rgba(255,85,0,0.08);
+      box-shadow: 0 8px 40px rgba(0,0,0,0.8), 0 0 0 3px rgba(255,255,255,0.06), inset 0 0 60px rgba(0,0,0,0.8), 0 0 46px rgba(255,85,0,0.12);
     }
     .coverflow-nav {
       position: absolute;
@@ -250,29 +250,64 @@ const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House'
     .coverflow-nav.next { right: 0; }
     .coverflow-fade-wrap {
       position: relative;
-      padding-top: 30px;
-      padding-bottom: 30px;
-      -webkit-mask-image: linear-gradient(to right, transparent 0%, black 14%, black 86%, transparent 100%);
-      mask-image: linear-gradient(to right, transparent 0%, black 14%, black 86%, transparent 100%);
+      /* extra vertical room so the active disc's glow/shadow isn't clipped by the
+         horizontal fade mask (a mask clips to its own box on all sides) */
+      padding-top: 44px;
+      padding-bottom: 44px;
+      -webkit-mask-image: linear-gradient(to right, transparent 0%, black 7%, black 93%, transparent 100%);
+      mask-image: linear-gradient(to right, transparent 0%, black 7%, black 93%, transparent 100%);
+    }
+    /* On narrow screens only 1–2 discs show — drop the side fade so the active
+       disc is never clipped, and keep the coverflow compact. */
+    @media (max-width: 640px) {
+      .coverflow { height: clamp(260px, 64vw, 300px); }
+      .coverflow-fade-wrap { -webkit-mask-image: none; mask-image: none; padding-top: 16px; padding-bottom: 16px; }
+    }
+
+    /* Hero animated gradient — brand colours (black / orange / white) that
+       shift vertically as the page scrolls (driven by --hero-shift). */
+    .hero-gradient {
+      --hero-shift: 26%;
+      background-image: linear-gradient(168deg,
+        #050505 0%,
+        #120700 12%,
+        #3a1400 24%,
+        #99360a 36%,
+        #ff5500 48%,
+        #ff9a5e 55%,
+        #ffe6d8 61%,
+        #ff6a1f 69%,
+        #5e2106 80%,
+        #0a0604 92%,
+        #050505 100%);
+      background-size: 100% 235%;
+      background-position: 50% var(--hero-shift);
+      background-repeat: no-repeat;
+      will-change: background-position;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .hero-gradient { --hero-shift: 30%; }
     }
   </style>
 
   <section class="isolate relative flex flex-col items-center justify-center bg-brand-black pt-28 sm:pt-32">
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
-      <div class="aurora absolute inset-0"></div>
+      <div class="hero-gradient absolute inset-0"></div>
+      <!-- legibility scrim: darker at the top (behind the title), clears lower so the gradient + vinyls show -->
+      <div class="absolute inset-0" style="background:linear-gradient(to bottom, rgba(5,5,7,0.5) 0%, rgba(5,5,7,0.12) 26%, rgba(5,5,7,0) 46%, rgba(5,5,7,0) 100%);"></div>
     </div>
     <div data-spotlight class="spotlight absolute inset-0 pointer-events-none z-10"></div>
     <div class="container mx-auto px-6 sm:px-8 lg:px-12 text-center z-30">
-      <h1 class="font-display text-5xl md:text-7xl lg:text-9xl font-black leading-none glitch-text cursor-default mb-0">ZIPPY</h1>
-      <h2 class="font-display text-2xl md:text-4xl lg:text-6xl font-black mb-0 text-transparent bg-clip-text bg-gradient-to-r from-brand-orange to-white tracking-tight">HOUSE MUSIC THERAPY</h2>
+      <h1 class="font-display text-5xl md:text-7xl lg:text-9xl font-black leading-none glitch-text cursor-default mb-0" style="text-shadow:0 2px 34px rgba(0,0,0,0.55), 0 1px 2px rgba(0,0,0,0.6);">ZIPPY<span class="text-brand-orange">.</span></h1>
+      <h2 class="font-display text-2xl md:text-4xl lg:text-6xl font-black mb-0 text-transparent bg-clip-text bg-gradient-to-r from-brand-orange to-white tracking-tight" style="filter:drop-shadow(0 2px 16px rgba(0,0,0,0.5));">HOUSE MUSIC THERAPY</h2>
 
-      <div id="highlights" class="relative pt-6 sm:pt-10 pb-10 sm:pb-14 z-30">
+      <div id="highlights" class="relative pt-2 sm:pt-3 pb-10 sm:pb-14 z-30">
         <div class="container mx-auto px-6 sm:px-8 lg:px-12">
-          <div class="text-center mb-12 sm:mb-16">
-            <h2 class="font-display text-2xl md:text-3xl font-bold mb-1">Featured <span class="text-brand-orange">Mixes</span></h2>
-            <p class="text-gray-400 text-sm">Listen to DJ Zippy's latest sets and mixes.</p>
+          <div class="text-center mb-6 sm:mb-8">
+            <h2 class="font-display text-2xl md:text-3xl font-bold mb-1" style="text-shadow:0 1px 12px rgba(0,0,0,0.5);">Featured <span class="text-brand-orange">Mixes</span></h2>
+            <p class="text-gray-300 text-sm" style="text-shadow:0 1px 8px rgba(0,0,0,0.6);">Listen to DJ Zippy's latest sets and mixes.</p>
           </div>
-          <div class="relative px-10 sm:px-14">
+          <div class="relative px-6 sm:px-14">
             <button class="coverflow-nav prev" aria-label="Previous"><i class="fa-solid fa-chevron-left text-xl"></i></button>
             <div class="coverflow-fade-wrap">
               <div class="coverflow" id="coverflow-container">
@@ -431,5 +466,27 @@ const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House'
     }
   }
   document.addEventListener('astro:page-load', initCoverflow);
+
+  // Hero gradient shifts its brand colours vertically as the page scrolls down.
+  function initHeroScroll() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (window.__heroScrollBound) { if (window.__heroApply) window.__heroApply(); return; }
+    window.__heroScrollBound = true;
+    var ticking = false;
+    function apply() {
+      ticking = false;
+      var hero = document.querySelector('.hero-gradient');
+      if (!hero) return;
+      var y = window.scrollY || window.pageYOffset || 0;
+      var p = Math.max(0, Math.min(1, y / (window.innerHeight * 1.4)));
+      hero.style.setProperty('--hero-shift', (26 + p * 54) + '%');
+    }
+    window.__heroApply = apply;
+    window.addEventListener('scroll', function() {
+      if (!ticking) { ticking = true; requestAnimationFrame(apply); }
+    }, { passive: true });
+    apply();
+  }
+  document.addEventListener('astro:page-load', initHeroScroll);
   </script>
 </Layout>

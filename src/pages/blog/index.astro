@@ -37,34 +37,6 @@ const allPosts: Post[] = [
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   },
-  {
-    id: 3,
-    title: 'Tech House Production Guide',
-    slug: 'tech-house-production',
-    cover_image: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=800',
-    content: '# Tech House Production Guide\n\nLearn the basics of producing tech house tracks...',
-    date: '2026-04-10',
-    seo_description: 'A comprehensive guide to producing tech house music. Learn the essentials and techniques.',
-    author: 'DJ Zippy',
-    published: true,
-    featured: false,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
-  {
-    id: 4,
-    title: 'Berlin Nightlife Scene Explored',
-    slug: 'berlin-nightlife',
-    cover_image: 'https://images.unsplash.com/photo-1599927921410-ce3e9a177352?w=800',
-    content: '# Berlin Nightlife Scene\n\nBerlin has one of the most vibrant electronic music scenes in the world...',
-    date: '2026-04-05',
-    seo_description: 'Exploring the vibrant Berlin nightlife scene and its influence on modern electronic music.',
-    author: 'DJ Zippy',
-    published: true,
-    featured: false,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-  },
 ];
 
 // Separate featured and regular posts
@@ -84,7 +56,7 @@ const seoTitle = 'DJ Zippy Blog | House Music Articles & Insights';
 const seoDescription = 'Read articles about house music, production tips, event reviews, and more from DJ Zippy.';
 ---
 
-<Layout title={seoTitle} description={seoDescription} activePage="blog">
+<Layout title={seoTitle} description={seoDescription} activePage="blog" noindex={true}>
   {/* Hero Section */}
   <section class="min-h-[40vh] flex items-center justify-center bg-gradient-to-b from-brand-dark to-brand-gray relative overflow-hidden pt-20">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center z-30">

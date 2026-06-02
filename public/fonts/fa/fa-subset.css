@@ -1,0 +1,45 @@
+/* Font Awesome 6.4.0 - self-hosted subset (37 icons) */
+@font-face{font-family:'FA Solid';font-style:normal;font-weight:900;font-display:block;src:url(/fonts/fa/fa-solid-900.subset.woff2) format('woff2')}
+@font-face{font-family:'FA Brands';font-style:normal;font-weight:400;font-display:block;src:url(/fonts/fa/fa-brands-400.subset.woff2) format('woff2')}
+@font-face{font-family:'FA Regular';font-style:normal;font-weight:400;font-display:block;src:url(/fonts/fa/fa-regular-400.subset.woff2) format('woff2')}
+.fa-solid,.fas,.fa-brands,.fab,.fa-regular,.far{-moz-osx-font-smoothing:grayscale;-webkit-font-smoothing:antialiased;display:var(--fa-display,inline-block);font-style:normal;font-variant:normal;line-height:1;text-rendering:auto}
+.fa-solid,.fas{font-family:'FA Solid';font-weight:900}
+.fa-regular,.far{font-family:'FA Regular';font-weight:400}
+.fa-brands,.fab{font-family:'FA Brands';font-weight:400}
+.fa-deezer::before{content:"\e077"}
+.fa-facebook::before{content:"\f09a"}
+.fa-instagram::before{content:"\f16d"}
+.fa-linkedin::before{content:"\f08c"}
+.fa-mixcloud::before{content:"\f289"}
+.fa-soundcloud::before{content:"\f1be"}
+.fa-spotify::before{content:"\f1bc"}
+.fa-tiktok::before{content:"\e07b"}
+.fa-twitter::before{content:"\f099"}
+.fa-youtube::before{content:"\f167"}
+.fa-envelope::before{content:"\f0e0"}
+.fa-arrow-left::before{content:"\f060"}
+.fa-arrow-right::before{content:"\f061"}
+.fa-arrow-up-right-from-square::before{content:"\f08e"}
+.fa-bars::before{content:"\f0c9"}
+.fa-calendar::before{content:"\f133"}
+.fa-chevron-left::before{content:"\f053"}
+.fa-chevron-right::before{content:"\f054"}
+.fa-circle::before{content:"\f111"}
+.fa-clock::before{content:"\f017"}
+.fa-compact-disc::before{content:"\f51f"}
+.fa-globe::before{content:"\f0ac"}
+.fa-headphones::before{content:"\f025"}
+.fa-house::before{content:"\f015"}
+.fa-image::before{content:"\f03e"}
+.fa-location-dot::before{content:"\f3c5"}
+.fa-music::before{content:"\f001"}
+.fa-pen-fancy::before{content:"\f5ac"}
+.fa-pen-to-square::before{content:"\f044"}
+.fa-plane::before{content:"\f072"}
+.fa-play::before{content:"\f04b"}
+.fa-plus::before{content:"\2b"}
+.fa-sign-out-alt::before{content:"\f2f5"}
+.fa-square-poll-vertical::before{content:"\f681"}
+.fa-star::before{content:"\f005"}
+.fa-trash::before{content:"\f1f8"}
+.fa-user::before{content:"\f007"}

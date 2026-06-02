@@ -10,7 +10,6 @@ const staticPages = [
   { url: '/mixes', priority: '0.9', changefreq: 'weekly' },
   { url: '/events', priority: '0.9', changefreq: 'weekly' },
   { url: '/about', priority: '0.8', changefreq: 'monthly' },
-  { url: '/gallery', priority: '0.7', changefreq: 'monthly' },
   { url: '/links', priority: '0.6', changefreq: 'monthly' },
 ];
 
@@ -29,7 +28,7 @@ export const GET: APIRoute = async ({ site }) => {
         xmlns:video="http://www.google.com/schemas/sitemap-video/1.1"
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
-    <loc>${site}/</loc>
+    <loc>${site}</loc>
     <lastmod>${now}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>

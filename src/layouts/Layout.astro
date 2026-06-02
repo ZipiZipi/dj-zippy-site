@@ -9,6 +9,7 @@ interface Props {
   description?: string;
   activePage?: string;
   ogImage?: string;
+  noindex?: boolean;
 }
 
 const {
@@ -16,6 +17,7 @@ const {
   description = 'Official website of Zippy (DJ Zippy). House Music Therapy creator from Belgrade, Serbia. Curator, selector, and vibe architect. Book now.',
   activePage = '',
   ogImage = 'https://zippydj.com/images/dj-zippy-house-music-dj.webp',
+  noindex = false,
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
@@ -27,7 +29,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="facebook-domain-verification" content="1y96dxupl676x6rktfb8erhhpbmy9o" />
-    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="robots" content={noindex ? 'noindex, follow' : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1'} />
     <meta name="theme-color" content="#ff5500" />
 
     <title>{title}</title>
@@ -89,9 +91,8 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Inter:wght@300;400;600&display=swap" />
     <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet" />
 
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'" />
-    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" /></noscript>
+    <!-- Font Awesome (self-hosted subset — only the icons this site uses) -->
+    <link rel="stylesheet" href="/fonts/fa/fa-subset.css" />
 
     <slot name="head" />
 
@@ -164,11 +165,8 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
       function gtag(...args: any[]) { (window as any).dataLayer.push(args); }
       gtag('js', new Date());
       gtag('config', 'AW-975400552');
-      gtag('event', 'conversion', {
-        'send_to': 'AW-975400552/SSyaCLDFqqMbEOjcjdED',
-        'value': 1.0,
-        'currency': 'EUR'
-      });
+      // NOTE: the Google Ads conversion event must fire on a real action
+      // (e.g. booking form submit) — NOT on every page load. Removed from here.
     </script>
   </body>
 </html>

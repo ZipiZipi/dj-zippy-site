@@ -177,7 +177,7 @@ const structuredData = {
 const canonicalUrl = `https://zippydj.com/blog/${post.slug}`;
 ---
 
-<Layout title={`${post.title} | DJ Zippy Blog`} description={post.seo_description}>
+<Layout title={`${post.title} | DJ Zippy Blog`} description={post.seo_description} noindex={true}>
   {/* Structured Data (JSON-LD) */}
   <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
 

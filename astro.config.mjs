@@ -4,6 +4,7 @@ import cloudflare from '@astrojs/cloudflare';
 
 export default defineConfig({
   site: 'https://zippydj.com',
+  trailingSlash: 'never', // canonical URLs without trailing slash (matches SSR pages + sitemap)
   integrations: [tailwind()],
   output: 'hybrid', // Enable hybrid rendering (static + dynamic pages)
   adapter: cloudflare({
