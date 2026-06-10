@@ -1,0 +1,85 @@
+---
+// FOMO strip: live countdown to the single next upcoming event.
+// Renders nothing when there is no upcoming event. Research note: Tier 1 DJ
+// sites never show per-event timers — one strip for the next gig only.
+import type { UIEvent } from '../lib/content';
+
+interface Props {
+  event?: UIEvent | null;
+}
+
+const { event } = Astro.props;
+// First listed time ("20:00 - 01:00") is the start; default to 20:00.
+const startIso = event ? `${event.date}T${(event.time || '').split(' - ')[0] || '20:00'}:00` : '';
+---
+
+{event && (
+  <div
+    data-countdown
+    data-start={startIso}
+    class="hidden countdown-strip relative z-30 mx-auto max-w-3xl px-4"
+  >
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-3 bg-brand-orange/10 border border-brand-orange/40 rounded-xl px-5 py-3 backdrop-blur-sm">
+      <div class="text-center sm:text-left min-w-0">
+        <span class="block text-[10px] font-bold uppercase tracking-[0.2em] text-brand-orange">Next Therapy Session</span>
+        <span class="block font-display font-bold text-white text-sm sm:text-base truncate">
+          {event.title} — {event.location}
+        </span>
+      </div>
+      <div class="flex items-center gap-4">
+        <div class="flex items-baseline gap-2 font-display font-black text-white tabular-nums" aria-live="off">
+          <span><span data-cd="d">--</span><span class="text-xs text-gray-400 font-bold ml-0.5">D</span></span>
+          <span><span data-cd="h">--</span><span class="text-xs text-gray-400 font-bold ml-0.5">H</span></span>
+          <span><span data-cd="m">--</span><span class="text-xs text-gray-400 font-bold ml-0.5">M</span></span>
+          <span><span data-cd="s">--</span><span class="text-xs text-gray-400 font-bold ml-0.5">S</span></span>
+        </div>
+        {event.link
+          ? <a href={event.link} target="_blank" rel="noopener noreferrer" data-track="tickets"
+              class="flex-shrink-0 bg-brand-orange hover:bg-white hover:text-brand-black text-white text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full transition-colors">
+              Get Tickets
+            </a>
+          : <a href="/#contact" data-track="booking"
+              class="flex-shrink-0 border border-brand-orange text-brand-orange hover:bg-brand-orange hover:text-white text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full transition-colors">
+              Book a Date
+            </a>}
+      </div>
+    </div>
+  </div>
+)}
+
+<script is:inline>
+function initCountdown() {
+  document.querySelectorAll('[data-countdown]').forEach(function (strip) {
+    if (strip.dataset.cdBound) return;
+    strip.dataset.cdBound = '1';
+    var start = new Date(strip.getAttribute('data-start')).getTime();
+    if (isNaN(start)) return;
+    var cells = {};
+    strip.querySelectorAll('[data-cd]').forEach(function (c) { cells[c.getAttribute('data-cd')] = c; });
+    function pad(n) { return n < 10 ? '0' + n : String(n); }
+    function tick() {
+      var diff = start - Date.now();
+      if (diff <= 0) {
+        // Show the strip as "on air" for 6h after start, then drop it.
+        if (diff > -6 * 3600 * 1000) {
+          strip.classList.remove('hidden');
+          cells.d.textContent = '00'; cells.h.textContent = '00';
+          cells.m.textContent = '00'; cells.s.textContent = '00';
+        } else {
+          strip.classList.add('hidden');
+        }
+        clearInterval(timer);
+        return;
+      }
+      strip.classList.remove('hidden');
+      cells.d.textContent = pad(Math.floor(diff / 86400000));
+      cells.h.textContent = pad(Math.floor(diff / 3600000) % 24);
+      cells.m.textContent = pad(Math.floor(diff / 60000) % 60);
+      cells.s.textContent = pad(Math.floor(diff / 1000) % 60);
+    }
+    var timer = setInterval(tick, 1000);
+    tick();
+  });
+}
+document.addEventListener('astro:page-load', initCountdown);
+</script>

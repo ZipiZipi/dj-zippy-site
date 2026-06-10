@@ -1,6 +1,7 @@
 ---
 export const prerender = false;
 import Layout from '../layouts/Layout.astro';
+import LeadMagnet from '../components/LeadMagnet.astro';
 import { getMixes, MIX_PLATFORMS, mixIcon, mixFallbackIcon, ytThumb } from '../lib/content';
 
 const db = (Astro.locals as any).runtime?.env?.DB;
@@ -118,6 +119,8 @@ const mixSchema = {
       <p id="mixes-empty" class="hidden text-gray-400 text-center py-12">No mixes found.</p>
     </div>
   </section>
+
+  <LeadMagnet variant="inline" />
 
   <script is:inline>
   function initMixesTabs() {

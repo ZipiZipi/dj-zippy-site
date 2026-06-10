@@ -15,6 +15,7 @@ export interface UIEvent {
   country?: string;    // ISO-2, used for schema
   status: 'upcoming' | 'past';
   featured: boolean;   // pin to top of Past Highlights
+  link?: string;       // ticket / RSVP URL
 }
 
 // --- Seed / fallback events (mirror of the original hardcoded lists) ---
@@ -62,6 +63,7 @@ function mapRow(row: any): UIEvent {
     country: row.country ?? 'RS',
     status: row.status,
     featured: !!row.featured,
+    link: row.link ?? '',
   };
 }
 

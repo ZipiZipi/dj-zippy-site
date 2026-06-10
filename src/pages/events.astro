@@ -1,6 +1,7 @@
 ---
 export const prerender = false;
 import Layout from '../layouts/Layout.astro';
+import Countdown from '../components/Countdown.astro';
 import { getEvents, dateParts } from '../lib/content';
 
 const db = (Astro.locals as any).runtime?.env?.DB;
@@ -85,6 +86,9 @@ const musicEventSchema = {
       <h1 class="font-display text-4xl md:text-5xl lg:text-6xl font-black leading-tight mb-2">DJ Zippy</h1>
       <h2 class="font-display font-black leading-tight mb-4 text-brand-orange">Live Events & Festival Performances</h2>
       <p class="text-gray-400 text-lg md:text-xl max-w-2xl mb-10">From intimate club nights to major festival stages. House Music Therapy live.</p>
+      <div class="mb-10">
+        <Countdown event={upcoming[0] ?? null} />
+      </div>
       <div class="flex items-center gap-4 mb-6">
         <div class="w-2 h-8 bg-brand-orange"></div>
         <h3 class="font-display text-2xl md:text-3xl font-bold">Upcoming <span class="text-brand-orange">Events</span></h3>
@@ -105,6 +109,15 @@ const musicEventSchema = {
                 <h4 class="font-display font-bold text-white text-base sm:text-lg leading-tight">{e.title}</h4>
                 <p class="text-gray-400 text-sm"><i class="fa-solid fa-location-dot mr-1 text-brand-orange"></i>{e.location}{e.time ? ` · ${e.time}` : ''}</p>
               </div>
+              {e.link
+                ? <a href={e.link} target="_blank" rel="noopener noreferrer" data-track="tickets"
+                    class="flex-shrink-0 bg-brand-orange hover:bg-white hover:text-brand-black text-white text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full transition-colors">
+                    Get Tickets
+                  </a>
+                : <a href="/#contact" data-track="booking"
+                    class="flex-shrink-0 border border-white/20 text-gray-300 hover:border-brand-orange hover:text-brand-orange text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full transition-colors">
+                    Book a Date
+                  </a>}
             </article>
           );
         })}

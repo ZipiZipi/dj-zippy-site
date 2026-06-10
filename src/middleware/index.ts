@@ -12,8 +12,13 @@ import { defineMiddleware } from 'astro:middleware';
 export const onRequest = defineMiddleware(async (context, next) => {
   const pathname = context.url.pathname;
 
-  const isAdmin = pathname.startsWith('/admin') || pathname.startsWith('/api/admin');
-  if (!isAdmin) return next();
+  // /epk (press kit for agents) gets the same fail-closed Access treatment as
+  // the admin area — it needs its own Access application in the CF dashboard.
+  const isProtected =
+    pathname.startsWith('/admin') ||
+    pathname.startsWith('/api/admin') ||
+    pathname === '/epk';
+  if (!isProtected) return next();
 
   // No Cloudflare Access in local development.
   if (import.meta.env.DEV) return next();
@@ -22,7 +27,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   if (!accessJwt) {
     return new Response(
       'Forbidden — this area is protected by Cloudflare Access. ' +
-      'Ensure the Access application covers both /admin and /api/admin.',
+      'Ensure an Access application covers this path (/admin, /api/admin, /epk).',
       { status: 403, headers: { 'Content-Type': 'text/plain' } },
     );
   }

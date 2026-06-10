@@ -1,0 +1,155 @@
+---
+// Lead magnet: "Unlock unreleased mixes" newsletter capture.
+// variant="inline"  → benefit-first section (Tier 1 pattern: Brejcha/Lens style)
+// variant="popup"   → polite dialog: fires once at 60% scroll or exit intent,
+//                     then stays silent for 14 days (localStorage cap).
+interface Props {
+  variant?: 'inline' | 'popup';
+}
+const { variant = 'inline' } = Astro.props;
+---
+
+{variant === 'inline' ? (
+  <section class="isolate relative py-12 sm:py-16 bg-brand-dark border-t border-white/5">
+    <div class="container mx-auto px-6 sm:px-8 lg:px-12">
+      <div class="max-w-2xl mx-auto text-center">
+        <span class="inline-block px-3 py-1 border border-brand-orange/50 rounded-full text-brand-orange text-xs font-bold tracking-widest mb-4">
+          THERAPY LIST
+        </span>
+        <h2 class="font-display text-2xl md:text-3xl font-bold mb-2">
+          Unlock <span class="text-brand-orange">Unreleased Mixes</span>
+        </h2>
+        <p class="text-gray-400 text-sm md:text-base mb-6">
+          Unreleased sets + first access to gig announcements. No spam — only therapy.
+        </p>
+        <form data-lead-form data-source="inline" class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+          <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" class="hidden" />
+          <input type="email" name="email" required placeholder="your@email.com" autocomplete="email"
+            class="flex-1 bg-transparent border border-white/15 rounded-full px-5 py-3 text-sm text-white placeholder-gray-500 focus:border-brand-orange focus:outline-none" />
+          <button type="submit"
+            class="bg-brand-orange hover:bg-white hover:text-brand-black text-white text-sm font-bold uppercase tracking-widest px-6 py-3 rounded-full transition-colors">
+            Unlock
+          </button>
+        </form>
+        <p data-lead-msg class="hidden text-sm mt-3"></p>
+      </div>
+    </div>
+  </section>
+) : (
+  <dialog id="lead-popup" class="bg-transparent p-0 backdrop:bg-black/70 backdrop:backdrop-blur-sm m-auto max-w-md w-[calc(100%-2rem)]">
+    <div class="bg-brand-dark border border-brand-orange/30 rounded-2xl p-8 text-center relative">
+      <button data-lead-close aria-label="Close" class="absolute top-3 right-4 text-gray-500 hover:text-white text-xl">&times;</button>
+      <span class="inline-block px-3 py-1 border border-brand-orange/50 rounded-full text-brand-orange text-xs font-bold tracking-widest mb-4">
+        BEFORE YOU GO
+      </span>
+      <h2 class="font-display text-2xl font-bold text-white mb-2">
+        Unlock <span class="text-brand-orange">Unreleased Mixes</span>
+      </h2>
+      <p class="text-gray-400 text-sm mb-6">
+        Unreleased sets + first access to gig announcements. No spam — only therapy.
+      </p>
+      <form data-lead-form data-source="popup" class="flex flex-col gap-3">
+        <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" class="hidden" />
+        <input type="email" name="email" required placeholder="your@email.com" autocomplete="email"
+          class="bg-transparent border border-white/15 rounded-full px-5 py-3 text-sm text-white placeholder-gray-500 focus:border-brand-orange focus:outline-none" />
+        <button type="submit"
+          class="bg-brand-orange hover:bg-white hover:text-brand-black text-white text-sm font-bold uppercase tracking-widest px-6 py-3 rounded-full transition-colors">
+          Unlock
+        </button>
+      </form>
+      <p data-lead-msg class="hidden text-sm mt-3"></p>
+    </div>
+  </dialog>
+)}
+
+<script is:inline>
+(function () {
+  if (window.__zippyLeadInit) return;
+  window.__zippyLeadInit = true;
+
+  var CAP_KEY = 'zippy-lead-popup-at';
+  var DONE_KEY = 'zippy-lead-done';
+  var CAP_MS = 14 * 24 * 3600 * 1000;
+
+  function bindForms() {
+    document.querySelectorAll('[data-lead-form]').forEach(function (form) {
+      if (form.dataset.bound) return;
+      form.dataset.bound = '1';
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var btn = form.querySelector('button[type="submit"]');
+        var msg = form.parentElement.querySelector('[data-lead-msg]');
+        var email = form.querySelector('input[name="email"]').value;
+        var honeypot = form.querySelector('input[name="website"]').value;
+        btn.disabled = true;
+        fetch('/api/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: email, source: form.dataset.source, website: honeypot }),
+        })
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            if (msg) {
+              msg.classList.remove('hidden');
+              msg.className = msg.className.replace(/text-(red|green)-400/g, '');
+              msg.classList.add(data.success ? 'text-green-400' : 'text-red-400');
+              msg.textContent = data.success
+                ? "You're in. Unreleased therapy incoming."
+                : (data.error || 'Something went wrong — try again.');
+            }
+            if (data.success) {
+              form.reset();
+              try { localStorage.setItem(DONE_KEY, '1'); } catch (_) {}
+              try {
+                if (window.fbq) fbq('track', 'Lead');
+                if (window.gtag) gtag('event', 'generate_lead', { source: form.dataset.source });
+              } catch (_) {}
+              var dlg = form.closest('dialog');
+              if (dlg) setTimeout(function () { dlg.close(); }, 1600);
+            }
+          })
+          .catch(function () {
+            if (msg) {
+              msg.classList.remove('hidden');
+              msg.classList.add('text-red-400');
+              msg.textContent = 'Something went wrong — try again.';
+            }
+          })
+          .finally(function () { btn.disabled = false; });
+      });
+    });
+  }
+
+  function maybeShowPopup() {
+    var dlg = document.getElementById('lead-popup');
+    if (!dlg || dlg.dataset.armed) return;
+    try {
+      if (localStorage.getItem(DONE_KEY)) return;
+      var last = parseInt(localStorage.getItem(CAP_KEY) || '0', 10);
+      if (Date.now() - last < CAP_MS) return;
+    } catch (_) { return; }
+    dlg.dataset.armed = '1';
+
+    var shown = false;
+    function show() {
+      if (shown || !document.getElementById('lead-popup')) return;
+      shown = true;
+      try { localStorage.setItem(CAP_KEY, String(Date.now())); } catch (_) {}
+      dlg.showModal();
+    }
+    addEventListener('scroll', function onScroll() {
+      var p = (scrollY + innerHeight) / document.documentElement.scrollHeight;
+      if (p > 0.6) { removeEventListener('scroll', onScroll); show(); }
+    }, { passive: true });
+    document.documentElement.addEventListener('mouseleave', function (e) {
+      if (e.clientY <= 0) show();
+    });
+    dlg.querySelector('[data-lead-close]').addEventListener('click', function () { dlg.close(); });
+  }
+
+  document.addEventListener('astro:page-load', function () {
+    bindForms();
+    maybeShowPopup();
+  });
+})();
+</script>
