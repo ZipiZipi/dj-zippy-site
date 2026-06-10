@@ -6,6 +6,7 @@ export default defineConfig({
   site: 'https://zippydj.com',
   trailingSlash: 'never', // canonical URLs without trailing slash (matches SSR pages + sitemap)
   integrations: [tailwind()],
+  prefetch: { prefetchAll: true, defaultStrategy: 'viewport' }, // instant nav with ViewTransitions
   output: 'hybrid', // Enable hybrid rendering (static + dynamic pages)
   adapter: cloudflare({
     mode: 'directory',

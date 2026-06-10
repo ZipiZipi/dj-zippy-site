@@ -1,7 +1,7 @@
 ---
 export const prerender = false;
 import Layout from '../layouts/Layout.astro';
-import { getMixes, MIX_PLATFORMS, mixIcon, mixFallbackIcon } from '../lib/content';
+import { getMixes, MIX_PLATFORMS, mixIcon, mixFallbackIcon, ytThumb } from '../lib/content';
 
 const db = (Astro.locals as any).runtime?.env?.DB;
 const { all: mixes } = await getMixes(db);
@@ -99,7 +99,7 @@ const mixSchema = {
             data-link={m.link}
           >
             {m.thumbnail
-              ? <img src={m.thumbnail} alt={m.alt} loading="lazy" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+              ? <img src={ytThumb(m.thumbnail)} alt={m.alt} loading="lazy" decoding="async" width="480" height="360" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
               : <div class="absolute inset-0 bg-gradient-to-br from-brand-gray to-brand-black flex items-center justify-center"><i class={`${mixFallbackIcon(m.platform)} text-6xl text-white/10`}></i></div>
             }
             {m.featured && <div class="absolute top-3 right-3 bg-brand-orange text-white text-xs font-bold px-2 py-1 rounded z-20">FEATURED</div>}

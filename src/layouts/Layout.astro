@@ -55,27 +55,51 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
 
-    <!-- Preload hero image for LCP -->
-    <link rel="preload" as="image" href="/images/dj-zippy-house-music-dj.webp" />
-
-    <!-- Meta Pixel -->
-    <script>
-      !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    <!-- Analytics (Meta Pixel + GTM + Google Ads) — stubs queue events immediately,
+         the heavy third-party scripts load on first interaction (or a 3.5s fallback)
+         so they never compete with LCP. -->
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      window.gtag = gtag;
+      gtag('js', new Date());
+      gtag('config', 'AW-975400552');
+      !function(f,b,e,v,n){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
       n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
-      n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
-      t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}
-      (window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
-      (window as any).fbq('init','3891455414321405');
-      (window as any).fbq('track','PageView');
+      n.push=n;n.loaded=!0;n.version='2.0';n.queue=[]}(window,document,'script',
+      'https://connect.facebook.net/en_US/fbevents.js');
+      fbq('init','3891455414321405');
+      fbq('track','PageView');
+      (function(){
+        var done = false;
+        function loadThirdParty(){
+          if (done) return; done = true;
+          var head = document.head;
+          var fb = document.createElement('script');
+          fb.async = true; fb.src = 'https://connect.facebook.net/en_US/fbevents.js';
+          head.appendChild(fb);
+          window.dataLayer.push({'gtm.start': new Date().getTime(), event: 'gtm.js'});
+          var gtm = document.createElement('script');
+          gtm.async = true; gtm.src = 'https://www.googletagmanager.com/gtm.js?id=GTM-KLGKHMGM';
+          head.appendChild(gtm);
+          var ads = document.createElement('script');
+          ads.async = true; ads.src = 'https://www.googletagmanager.com/gtag/js?id=AW-975400552';
+          head.appendChild(ads);
+        }
+        ['pointerdown','keydown','touchstart','scroll'].forEach(function(ev){
+          addEventListener(ev, loadThirdParty, { once: true, passive: true });
+        });
+        setTimeout(loadThirdParty, 3500);
+        // ViewTransitions = SPA navigation: report virtual pageviews after the first load.
+        var first = true;
+        document.addEventListener('astro:page-load', function(){
+          if (first) { first = false; return; }
+          if (window.fbq) fbq('track','PageView');
+          window.dataLayer.push({ event: 'virtual_pageview', page_path: location.pathname });
+        });
+      })();
     </script>
     <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=3891455414321405&ev=PageView&noscript=1" /></noscript>
-
-    <!-- Google Tag Manager -->
-    <script>(function(w,d,s,l,i){(w as any)[l]=(w as any)[l]||[];(w as any)[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s) as HTMLScriptElement,dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode!.insertBefore(j,f);
-    })(window,document,'script','dataLayer','GTM-KLGKHMGM');</script>
 
     <!-- Favicons -->
     <link rel="icon" type="image/png" href="/images/favicon-96x96.png" sizes="96x96" />
@@ -89,7 +113,8 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Inter:wght@300;400;600&display=swap" />
-    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet" /></noscript>
 
     <!-- Font Awesome (self-hosted subset — only the icons this site uses) -->
     <link rel="stylesheet" href="/fonts/fa/fa-subset.css" />
@@ -158,15 +183,25 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
       document.addEventListener('astro:page-load', setupAnimations);
     </script>
 
-    <!-- Google Ads -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-975400552"></script>
-    <script>
-      (window as any).dataLayer = (window as any).dataLayer || [];
-      function gtag(...args: any[]) { (window as any).dataLayer.push(args); }
-      gtag('js', new Date());
-      gtag('config', 'AW-975400552');
-      // NOTE: the Google Ads conversion event must fire on a real action
-      // (e.g. booking form submit) — NOT on every page load. Removed from here.
+    <!-- Conversion tracking: any element with data-track fires the matching
+         pixel/ads event on click. Values: tickets | lead | anything (custom). -->
+    <script is:inline>
+      if (!window.__zippyTrackBound) {
+        window.__zippyTrackBound = true;
+        document.addEventListener('click', function (e) {
+          var el = e.target && e.target.closest ? e.target.closest('[data-track]') : null;
+          if (!el) return;
+          var name = el.getAttribute('data-track') || 'cta';
+          try {
+            if (window.fbq) {
+              if (name === 'tickets') fbq('track', 'InitiateCheckout');
+              else if (name === 'lead' || name === 'booking') fbq('track', 'Lead');
+              else fbq('trackCustom', name);
+            }
+            if (window.gtag) gtag('event', 'cta_click', { cta: name, page_path: location.pathname });
+          } catch (_) { /* analytics must never break the UI */ }
+        });
+      }
     </script>
   </body>
 </html>

@@ -138,6 +138,16 @@ export function mixFallbackIcon(platform: string): string {
   return MIX_PLATFORMS.find(p => p.id === platform)?.icon ?? 'fa-brands fa-youtube';
 }
 
+/**
+ * Downscale a YouTube thumbnail URL for small renditions (cards/discs).
+ * maxresdefault is ~150KB+; hqdefault (480x360) and mqdefault (320x180) are
+ * a fraction of that. Non-YouTube URLs pass through unchanged.
+ */
+export function ytThumb(url: string, quality: 'hqdefault' | 'mqdefault' = 'hqdefault'): string {
+  if (!url || !url.includes('img.youtube.com')) return url;
+  return url.replace(/\/(maxresdefault|sddefault|hqdefault|mqdefault)\.jpg/, `/${quality}.jpg`);
+}
+
 export const MIXES_FALLBACK: UIMix[] = [
   { slug: 'letsmixit-contest', title: 'House Music Therapy / #LetsMixIt Contest', genre: 'House / Tech House', description: "DJ Zippy's high-energy rooftop set recorded in Novi Sad for the #LetsMixIt competition.", platform: 'youtube', link: 'https://www.youtube.com/watch?v=IzkAZcbyCSI', thumbnail: 'https://img.youtube.com/vi/IzkAZcbyCSI/maxresdefault.jpg', featured: true, alt: "DJ Zippy's Let's Mix It Submission - House and Tech House mix" },
   { slug: 'deep-tech-grooves-yt', title: 'House Music Therapy / Deep & Tech Grooves', genre: 'Deep House / Tech House', description: "DJ Zippy's curated mix blending deep basslines with rhythmic tech house elements.", platform: 'youtube', link: 'https://www.youtube.com/watch?v=c1M_dMg_CcU', thumbnail: 'https://img.youtube.com/vi/c1M_dMg_CcU/maxresdefault.jpg', featured: true, alt: "DJ Zippy's House Therapy Session - Deep House mix" },

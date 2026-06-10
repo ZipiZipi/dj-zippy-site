@@ -1,7 +1,7 @@
 ---
 export const prerender = false;
 import Layout from '../layouts/Layout.astro';
-import { getEvents, getMixes, dateParts } from '../lib/content';
+import { getEvents, getMixes, dateParts, ytThumb } from '../lib/content';
 
 const db = (Astro.locals as any).runtime?.env?.DB;
 const { upcoming } = await getEvents(db);
@@ -314,7 +314,7 @@ const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House'
                 {featuredMixes.map(m => (
                   <article class="coverflow-item text-center" data-link={m.link}>
                     <div class="cf-disc">
-                      <div class={m.thumbnail ? 'cf-label' : 'cf-label bg-brand-orange'} style={m.thumbnail ? `background-image: url('${m.thumbnail}');` : undefined}>
+                      <div class={m.thumbnail ? 'cf-label' : 'cf-label bg-brand-orange'} style={m.thumbnail ? `background-image: url('${ytThumb(m.thumbnail, 'mqdefault')}');` : undefined}>
                         {!m.thumbnail && <span class="cf-label-title">ZIPPY</span>}
                         {!m.thumbnail && <span class="cf-label-sub">{m.platform.toUpperCase()}</span>}
                       </div>

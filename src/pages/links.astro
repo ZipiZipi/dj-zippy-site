@@ -24,28 +24,49 @@
     <meta name="twitter:image" content="https://zippydj.com/images/dj-zippy-house-music-dj.webp" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Inter:wght@300;400;600&display=swap" />
     <link
       href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Inter:wght@300;400;600&display=swap"
       rel="stylesheet"
+      media="print"
+      onload="this.media='all'"
     />
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet" /></noscript>
     <!-- Favicons -->
     <link rel="icon" type="image/png" href="/images/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
     <link rel="shortcut icon" href="/images/favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png" />
     <meta name="apple-mobile-web-app-title" content="Zippy" />
-    <!-- Meta Pixel -->
-    <script>
-      !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    <!-- Analytics (Meta Pixel + GTM) — stubs queue events now, third-party scripts
+         load on first interaction (or a 3.5s fallback) so they never block paint. -->
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      !function(f,b,e,v,n){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
       n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
-      n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
-      t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}
-      (window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
-      fbq('init','3891455414321405');fbq('track','PageView');
+      n.push=n;n.loaded=!0;n.version='2.0';n.queue=[]}(window,document,'script',
+      'https://connect.facebook.net/en_US/fbevents.js');
+      fbq('init','3891455414321405');
+      fbq('track','PageView');
+      (function(){
+        var done = false;
+        function loadThirdParty(){
+          if (done) return; done = true;
+          var fb = document.createElement('script');
+          fb.async = true; fb.src = 'https://connect.facebook.net/en_US/fbevents.js';
+          document.head.appendChild(fb);
+          window.dataLayer.push({'gtm.start': new Date().getTime(), event: 'gtm.js'});
+          var gtm = document.createElement('script');
+          gtm.async = true; gtm.src = 'https://www.googletagmanager.com/gtm.js?id=GTM-KLGKHMGM';
+          document.head.appendChild(gtm);
+        }
+        ['pointerdown','keydown','touchstart','scroll'].forEach(function(ev){
+          addEventListener(ev, loadThirdParty, { once: true, passive: true });
+        });
+        setTimeout(loadThirdParty, 3500);
+      })();
     </script>
     <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=3891455414321405&ev=PageView&noscript=1" /></noscript>
-    <!-- Google Tag Manager -->
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-KLGKHMGM');</script>
     <link rel="stylesheet" href="/fonts/fa/fa-subset.css" />
     <style>
       *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
