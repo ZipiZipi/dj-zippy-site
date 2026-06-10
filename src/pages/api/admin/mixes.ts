@@ -7,6 +7,8 @@
 import type { APIRoute } from 'astro';
 import type { Mix } from '../../../types/database';
 
+export const prerender = false;
+
 export const GET: APIRoute = async ({ locals, url }) => {
   try {
     const db = locals.runtime.env.DB;

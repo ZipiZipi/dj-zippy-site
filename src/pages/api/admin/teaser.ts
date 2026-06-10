@@ -14,6 +14,8 @@
 import type { APIRoute } from 'astro';
 import { uploadVideoFromURL } from '../../../lib/r2';
 
+export const prerender = false;
+
 const json = (body: object, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
 
