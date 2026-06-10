@@ -97,6 +97,7 @@ const mixSchema = {
             class={`mix-card group relative overflow-hidden rounded-xl border border-white/5 hover:border-brand-orange/50 transition-all duration-300 aspect-video cursor-pointer ${m.platform === initialPlatform ? '' : 'hidden'}`}
             data-platform={m.platform}
             data-link={m.link}
+            data-title={m.title}
           >
             {m.thumbnail
               ? <img src={ytThumb(m.thumbnail)} alt={m.alt} loading="lazy" decoding="async" width="480" height="360" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
@@ -128,12 +129,19 @@ const mixSchema = {
     var emptyMsg = document.getElementById('mixes-empty');
     if (!cards.length && !tabs.length) return;
 
-    // Card click opens the link (ignore clicks on the inner anchor).
+    // Card click plays in the persistent dock when the platform is embeddable;
+    // otherwise opens the link. Clicks on the inner anchor keep default behavior.
     cards.forEach(function(card) {
       card.addEventListener('click', function(e) {
         if (e.target.closest('a')) return;
         var link = card.getAttribute('data-link');
-        if (link) window.open(link, '_blank', 'noopener,noreferrer');
+        if (!link) return;
+        var played = window.ZippyDock && window.ZippyDock.play({
+          platform: card.getAttribute('data-platform'),
+          link: link,
+          title: card.getAttribute('data-title'),
+        });
+        if (!played) window.open(link, '_blank', 'noopener,noreferrer');
       });
     });
 

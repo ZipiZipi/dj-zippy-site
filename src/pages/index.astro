@@ -312,7 +312,7 @@ const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House'
             <div class="coverflow-fade-wrap">
               <div class="coverflow" id="coverflow-container">
                 {featuredMixes.map(m => (
-                  <article class="coverflow-item text-center" data-link={m.link}>
+                  <article class="coverflow-item text-center" data-link={m.link} data-platform={m.platform} data-title={m.title}>
                     <div class="cf-disc">
                       <div class={m.thumbnail ? 'cf-label' : 'cf-label bg-brand-orange'} style={m.thumbnail ? `background-image: url('${ytThumb(m.thumbnail, 'mqdefault')}');` : undefined}>
                         {!m.thumbnail && <span class="cf-label-title">ZIPPY</span>}
@@ -442,7 +442,13 @@ const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House'
           el.addEventListener('click', function() {
             if (active === i) {
               var link = el.getAttribute('data-link');
-              if (link) window.open(link, '_blank', 'noopener,noreferrer');
+              if (!link) return;
+              var played = window.ZippyDock && window.ZippyDock.play({
+                platform: el.getAttribute('data-platform'),
+                link: link,
+                title: el.getAttribute('data-title'),
+              });
+              if (!played) window.open(link, '_blank', 'noopener,noreferrer');
             } else { active = i; update(); }
           });
         });

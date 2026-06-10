@@ -1,0 +1,105 @@
+---
+// Persistent mini-player dock. The root element carries transition:persist, so
+// Astro's ViewTransitions keep this exact DOM node (and the playing iframe in
+// it) alive across page navigations — the music never stops while visitors
+// browse the site. Embeddable platforms: YouTube, Mixcloud, SoundCloud.
+// Spotify/Deezer have no full-track autoplay embeds and stay external links.
+---
+
+<div
+  id="zippy-dock"
+  transition:persist="dock-player"
+  class="fixed z-[60] inset-x-0 bottom-0 sm:inset-x-auto sm:right-4 sm:bottom-4 sm:w-[380px] hidden"
+>
+  <div class="bg-brand-dark/95 backdrop-blur-md border border-white/10 sm:rounded-xl shadow-2xl shadow-black/60 overflow-hidden">
+    <div class="flex items-center gap-3 px-4 py-2.5 border-b border-white/5">
+      <i id="zippy-dock-icon" class="fa-solid fa-play text-brand-orange text-sm w-4 text-center"></i>
+      <span id="zippy-dock-title" class="flex-1 min-w-0 truncate text-xs font-bold text-white/90 uppercase tracking-wide"></span>
+      <a id="zippy-dock-external" href="#" target="_blank" rel="noopener noreferrer" aria-label="Open on platform"
+        class="text-gray-500 hover:text-brand-orange transition-colors text-sm">
+        <i class="fa-solid fa-arrow-up-right-from-square"></i>
+      </a>
+      <button id="zippy-dock-close" aria-label="Close player" class="text-gray-500 hover:text-white transition-colors text-sm">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+    <div id="zippy-dock-frame" class="w-full bg-black"></div>
+  </div>
+</div>
+
+<script is:inline>
+(function () {
+  if (window.ZippyDock) return; // survives ViewTransitions — define once
+
+  var EMBED_HEIGHTS = { youtube: 215, mixcloud: 64, soundcloud: 166 };
+  var PLATFORM_ICONS = {
+    youtube: 'fa-brands fa-youtube',
+    mixcloud: 'fa-brands fa-mixcloud',
+    soundcloud: 'fa-brands fa-soundcloud',
+  };
+
+  function embedUrl(platform, link) {
+    if (platform === 'youtube') {
+      var m = link.match(/(?:v=|youtu\.be\/|embed\/)([\w-]{11})/);
+      return m ? 'https://www.youtube-nocookie.com/embed/' + m[1] + '?autoplay=1&rel=0' : null;
+    }
+    if (platform === 'mixcloud') {
+      try {
+        var path = new URL(link).pathname;
+        return 'https://player-widget.mixcloud.com/widget/iframe/?hide_cover=1&autoplay=1&feed=' + encodeURIComponent(path);
+      } catch (_) { return null; }
+    }
+    if (platform === 'soundcloud') {
+      return 'https://w.soundcloud.com/player/?url=' + encodeURIComponent(link) + '&auto_play=true&show_comments=false&visual=false';
+    }
+    return null;
+  }
+
+  function el(id) { return document.getElementById(id); }
+
+  window.ZippyDock = {
+    /** Returns true when the mix is playable in the dock; false = open externally. */
+    play: function (opts) {
+      var src = embedUrl(opts.platform, opts.link);
+      if (!src) return false;
+      var dock = el('zippy-dock');
+      if (!dock) return false;
+
+      var frame = el('zippy-dock-frame');
+      var iframe = frame.querySelector('iframe');
+      if (!iframe) {
+        iframe = document.createElement('iframe');
+        iframe.setAttribute('allow', 'autoplay; encrypted-media; picture-in-picture');
+        iframe.setAttribute('frameborder', '0');
+        iframe.style.width = '100%';
+        iframe.style.display = 'block';
+        frame.appendChild(iframe);
+      }
+      iframe.style.height = (EMBED_HEIGHTS[opts.platform] || 166) + 'px';
+      iframe.src = src;
+
+      el('zippy-dock-title').textContent = opts.title || 'Now Playing';
+      el('zippy-dock-external').href = opts.link;
+      el('zippy-dock-icon').className = (PLATFORM_ICONS[opts.platform] || 'fa-solid fa-play') + ' text-brand-orange text-sm w-4 text-center';
+      dock.classList.remove('hidden');
+
+      try {
+        if (window.fbq) fbq('trackCustom', 'PlayMix', { title: opts.title, platform: opts.platform });
+        if (window.gtag) gtag('event', 'play_mix', { title: opts.title, platform: opts.platform });
+      } catch (_) {}
+      return true;
+    },
+    close: function () {
+      var dock = el('zippy-dock');
+      if (!dock) return;
+      var iframe = dock.querySelector('iframe');
+      if (iframe) iframe.remove(); // stops playback
+      dock.classList.add('hidden');
+    },
+  };
+
+  document.addEventListener('click', function (e) {
+    if (e.target && e.target.closest && e.target.closest('#zippy-dock-close')) window.ZippyDock.close();
+  });
+})();
+</script>
