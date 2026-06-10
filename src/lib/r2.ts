@@ -136,6 +136,38 @@ export async function uploadImage(
 }
 
 /**
+ * Upload a video from a URL (e.g. a Higgsfield generation result) under a
+ * stable key, so re-ingesting the same event overwrites instead of piling up.
+ */
+export async function uploadVideoFromURL(
+  r2: R2Bucket,
+  videoUrl: string,
+  key: string,
+): Promise<ImageUploadResult> {
+  try {
+    const response = await fetch(videoUrl);
+    if (!response.ok) {
+      return { success: false, error: `Video fetch failed: HTTP ${response.status}` };
+    }
+    const buffer = await response.arrayBuffer();
+    const contentType = response.headers.get('content-type') || 'video/mp4';
+
+    return uploadToR2(r2, key, buffer, {
+      contentType,
+      customMetadata: {
+        sourceUrl: videoUrl,
+        uploadedAt: new Date().toISOString(),
+      },
+    });
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Video download/upload failed',
+    };
+  }
+}
+
+/**
  * Upload image from URL
  */
 export async function uploadImageFromURL(

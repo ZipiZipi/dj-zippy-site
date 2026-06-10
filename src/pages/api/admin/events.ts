@@ -56,12 +56,16 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
     const db = locals.runtime.env.DB;
 
+    // New upcoming events are queued for a Higgsfield promo teaser
+    // (picked up via GET /api/admin/teaser — see docs/teaser-pipeline.md).
+    const teaserStatus = status === 'upcoming' ? 'pending' : 'none';
+
     const result = await db
       .prepare(
-        `INSERT INTO events (title, location, date, status, time, subtitle, description, link, featured)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO events (title, location, date, status, time, subtitle, description, link, featured, teaser_status)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       )
-      .bind(title, location, date, status, time || null, subtitle || null, description || null, link || null, featured ? 1 : 0)
+      .bind(title, location, date, status, time || null, subtitle || null, description || null, link || null, featured ? 1 : 0, teaserStatus)
       .run();
 
     return new Response(
@@ -94,9 +98,18 @@ export const PUT: APIRoute = async ({ request, locals, url }) => {
     }
 
     const db = locals.runtime.env.DB;
+
+    // Re-queue the promo teaser when the facts it was generated from change.
+    const prev = await db.prepare('SELECT title, location, date FROM events WHERE id=?').bind(id).first();
+    const factsChanged = prev && (prev.title !== title || prev.location !== location || prev.date !== date);
+
     await db.prepare(
       `UPDATE events SET title=?, location=?, date=?, status=?, time=?, subtitle=?, description=?, link=?, featured=?, updated_at=CURRENT_TIMESTAMP WHERE id=?`
     ).bind(title, location, date, status, time||null, subtitle||null, description||null, link||null, featured ? 1 : 0, id).run();
+
+    if (factsChanged && status === 'upcoming') {
+      await db.prepare(`UPDATE events SET teaser_status='pending' WHERE id=?`).bind(id).run();
+    }
 
     return new Response(JSON.stringify({ success: true, message: 'Event updated' }), { status: 200, headers: { 'Content-Type': 'application/json' } });
   } catch (error) {
