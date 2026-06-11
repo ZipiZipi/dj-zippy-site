@@ -134,6 +134,36 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <Footer />
     <DockPlayer />
 
+    <!-- Analog film grain — the warmth of vinyl over the whole site -->
+    <div class="grain" aria-hidden="true"></div>
+
+    <!-- Custom cursor: an orange "frequency point" + ring (fine pointers only) -->
+    <script is:inline>
+    (function () {
+      if (window.__zippyCursor) return;
+      if (!matchMedia('(pointer: fine)').matches) return;
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      window.__zippyCursor = true;
+      var dot = document.createElement('div'); dot.className = 'cursor-dot';
+      var ring = document.createElement('div'); ring.className = 'cursor-ring';
+      document.body.appendChild(dot); document.body.appendChild(ring);
+      document.documentElement.classList.add('has-cursor-fx');
+      var x = innerWidth / 2, y = innerHeight / 2, rx = x, ry = y, seen = false;
+      addEventListener('pointermove', function (e) {
+        x = e.clientX; y = e.clientY; seen = true;
+        dot.style.transform = 'translate(' + x + 'px,' + y + 'px)';
+        var t = e.target;
+        ring.classList.toggle('is-link', !!(t && t.closest && t.closest('a, button, [data-magnetic], .mix-card, .coverflow-item')));
+      }, { passive: true });
+      (function loop() {
+        rx += (x - rx) * 0.16; ry += (y - ry) * 0.16;
+        ring.style.transform = 'translate(' + rx + 'px,' + ry + 'px)';
+        ring.style.opacity = dot.style.opacity = seen ? '1' : '0';
+        requestAnimationFrame(loop);
+      })();
+    })();
+    </script>
+
     <!-- Site animations: scroll-reveal, hero spotlight, magnetic buttons -->
     <script>
       function setupAnimations() {

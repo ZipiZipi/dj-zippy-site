@@ -305,6 +305,8 @@ const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House'
   <section class="isolate relative flex flex-col items-center justify-center bg-brand-black pt-28 sm:pt-32">
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
       <div class="hero-gradient absolute inset-0"></div>
+      <!-- Higgsfield psy art: healing-frequency waves drifting behind the vinyls -->
+      <div class="psy-layer absolute inset-0" aria-hidden="true"></div>
       <!-- Promo teaser layer: loads after LCP (idle callback), fades in over the
            gradient. preload="none" + deferred src keep it off the critical path. -->
       {heroVideo && (
@@ -318,8 +320,11 @@ const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House'
     </div>
     <div data-spotlight class="spotlight absolute inset-0 pointer-events-none z-10"></div>
     <div class="container mx-auto px-6 sm:px-8 lg:px-12 text-center z-30">
-      <h1 class="font-display text-5xl md:text-7xl lg:text-9xl font-black leading-none glitch-text cursor-default mb-0" style="text-shadow:0 2px 34px rgba(0,0,0,0.55), 0 1px 2px rgba(0,0,0,0.6);">ZIPPY<span class="text-brand-orange">.</span></h1>
+      <h1 class="font-display text-5xl md:text-7xl lg:text-9xl font-black leading-none glitch-text glitch-auto cursor-default mb-0" style="text-shadow:0 2px 34px rgba(0,0,0,0.55), 0 1px 2px rgba(0,0,0,0.6);">ZIPPY<span class="text-brand-orange">.</span></h1>
       <h2 class="font-display text-2xl md:text-4xl lg:text-6xl font-black mb-0 text-transparent bg-clip-text bg-gradient-to-r from-brand-orange to-white tracking-tight" style="filter:drop-shadow(0 2px 16px rgba(0,0,0,0.5));">HOUSE MUSIC THERAPY</h2>
+      <div class="eq-bars mt-3" aria-hidden="true">
+        {Array.from({ length: 24 }).map(() => <span></span>)}
+      </div>
 
       <div id="highlights" class="relative pt-2 sm:pt-3 pb-10 sm:pb-14 z-30">
         <div class="container mx-auto px-6 sm:px-8 lg:px-12">
@@ -334,7 +339,7 @@ const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House'
                 {featuredMixes.map(m => (
                   <article class="coverflow-item text-center" data-link={m.link} data-platform={m.platform} data-title={m.title}>
                     <div class="cf-disc">
-                      <div class={m.thumbnail ? 'cf-label' : 'cf-label bg-brand-orange'} style={m.thumbnail ? `background-image: url('${ytThumb(m.thumbnail, 'mqdefault')}');` : undefined}>
+                      <div class={m.thumbnail ? 'cf-label' : 'cf-label cf-label-art'} style={m.thumbnail ? `background-image: url('${ytThumb(m.thumbnail, 'mqdefault')}');` : undefined}>
                         {!m.thumbnail && <span class="cf-label-title">ZIPPY</span>}
                         {!m.thumbnail && <span class="cf-label-sub">{m.platform.toUpperCase()}</span>}
                       </div>

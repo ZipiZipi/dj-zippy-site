@@ -119,6 +119,89 @@ html.anim-ready [data-reveal]:not(.in-view) {
 /* Magnetic button springs back smoothly when not actively tracked */
 [data-magnetic] { transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1); }
 
+/* === Creative pass: glitch / EQ / glow / cursor / grain / psy art === */
+
+/* Occasional soft "needle skip" on the hero title — brief, warm (brand orange
+   with a whisper of the aurora cyan), like a record jumping a groove. */
+@keyframes glitch-jolt {
+  0%, 94%, 100% { transform: none; }
+  95%   { text-shadow: 2px 0 #FF5500, -2px 0 rgba(0,229,255,0.6); transform: translateX(-2px) skewX(-1.5deg); }
+  96.5% { text-shadow: -2px 0 #FF5500, 2px 0 rgba(255,255,255,0.5); transform: translateX(2px); }
+  98%   { transform: none; }
+}
+.glitch-auto { animation: glitch-jolt 8s infinite; }
+
+/* Equalizer bars — pure CSS audio-visualizer vibe */
+.eq-bars { display: flex; gap: 4px; align-items: flex-end; justify-content: center; height: 30px; }
+.eq-bars span {
+  width: 3px; border-radius: 2px;
+  background: linear-gradient(to top, #FF5500, #ffb380);
+  animation: eq-bounce 0.9s ease-in-out infinite alternate;
+  box-shadow: 0 0 6px rgba(255,85,0,0.45);
+}
+.eq-bars span:nth-child(3n)  { animation-duration: 0.62s; }
+.eq-bars span:nth-child(4n)  { animation-duration: 1.15s; animation-delay: 0.2s; }
+.eq-bars span:nth-child(5n)  { animation-duration: 0.78s; animation-delay: 0.1s; }
+.eq-bars span:nth-child(7n)  { animation-duration: 1.3s;  animation-delay: 0.35s; }
+@keyframes eq-bounce { from { height: 18%; } to { height: 100%; } }
+
+/* Active vinyl: spin + breathing orange glow */
+.coverflow-item.active .cf-disc {
+  animation: vinyl-spin 9s linear infinite, disc-glow 2.4s ease-in-out infinite alternate;
+}
+@keyframes disc-glow {
+  from { filter: drop-shadow(0 0 10px rgba(255,85,0,0.2)); }
+  to   { filter: drop-shadow(0 0 34px rgba(255,85,0,0.55)); }
+}
+
+/* Higgsfield psychedelic art: hero layer behind the vinyls + label fallback */
+.psy-layer {
+  background-image: url('/images/art/psy-bg.webp');
+  background-size: cover;
+  background-position: 50% 40%;
+  mix-blend-mode: screen;
+  opacity: 0.32;
+  animation: psy-drift 26s ease-in-out infinite alternate;
+  will-change: transform;
+}
+@keyframes psy-drift {
+  from { transform: scale(1.02); }
+  to   { transform: scale(1.14) translateX(-2%); }
+}
+.cf-label-art { background-image: url('/images/art/vinyl-label.webp'); background-size: cover; background-position: center; }
+
+/* Custom cursor (fine pointers only — JS adds the elements) */
+@media (pointer: fine) {
+  html.has-cursor-fx body { cursor: none; }
+  html.has-cursor-fx a, html.has-cursor-fx button { cursor: none; }
+}
+.cursor-dot, .cursor-ring {
+  position: fixed; top: 0; left: 0; pointer-events: none; z-index: 100;
+  border-radius: 50%; will-change: transform;
+}
+.cursor-dot { width: 6px; height: 6px; background: #FF5500; box-shadow: 0 0 10px rgba(255,85,0,0.9); margin: -3px 0 0 -3px; }
+.cursor-ring {
+  width: 34px; height: 34px; margin: -17px 0 0 -17px;
+  border: 1.5px solid rgba(255,85,0,0.5);
+  transition: width 0.25s, height 0.25s, margin 0.25s, border-color 0.25s, opacity 0.25s;
+}
+.cursor-ring.is-link { width: 56px; height: 56px; margin: -28px 0 0 -28px; border-color: rgba(255,255,255,0.85); }
+
+/* Analog film grain over everything (very low opacity) */
+.grain {
+  position: fixed; inset: -50%; width: 200%; height: 200%;
+  pointer-events: none; z-index: 90; opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E");
+  animation: grain-shift 0.9s steps(4) infinite;
+}
+@keyframes grain-shift {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(-1.5%, 1%); }
+  50% { transform: translate(1%, -1.5%); }
+  75% { transform: translate(-1%, 1.5%); }
+  100% { transform: translate(0, 0); }
+}
+
 /* Respect reduced-motion: show everything, no looping motion */
 @media (prefers-reduced-motion: reduce) {
   html.anim-ready [data-reveal]:not(.in-view) { opacity: 1; transform: none; }
@@ -127,4 +210,8 @@ html.anim-ready [data-reveal]:not(.in-view) {
   .aurora { animation: none; }
   .coverflow-item.active .cf-disc { animation: none; }
   [data-magnetic] { transition: none; }
+  .glitch-auto { animation: none; }
+  .eq-bars span { animation: none; height: 40%; }
+  .psy-layer { animation: none; }
+  .grain { animation: none; }
 }
