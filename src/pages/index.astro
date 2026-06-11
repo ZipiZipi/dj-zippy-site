@@ -1,6 +1,7 @@
 ---
 export const prerender = false;
 import Layout from '../layouts/Layout.astro';
+import Journey from '../components/Journey.astro';
 import Countdown from '../components/Countdown.astro';
 import LeadMagnet from '../components/LeadMagnet.astro';
 import { getEvents, getMixes, dateParts, ytThumb } from '../lib/content';
@@ -300,14 +301,8 @@ const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House'
     html.reduce-motion .hero-gradient { --hero-shift: 30%; }
   </style>
 
-  <!-- Act 0 — Silence: every night starts with a single pulse in the dark -->
-  <section id="act-silence" class="isolate relative bg-brand-black min-h-[92vh] flex items-center justify-center overflow-hidden">
-    <div class="text-center px-6" data-act0>
-      <div class="pulse-line mx-auto mb-10"></div>
-      <p class="font-display text-2xl md:text-4xl lg:text-5xl font-black text-white/95">Every night starts in <span class="text-brand-orange">silence</span>.</p>
-      <p class="text-gray-500 mt-6 text-xs md:text-sm uppercase tracking-[0.35em]">Scroll to start the therapy</p>
-    </div>
-  </section>
+  <!-- "One Record, Every Horizon" — code-drawn scroll journey through the venues -->
+  <Journey />
 
   <section class="isolate relative flex flex-col items-center justify-center bg-brand-black pt-28 sm:pt-32">
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
@@ -389,26 +384,6 @@ const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House'
       )))}
     </div>
   </div>
-
-  <!-- Act 2 — Needle Drop: the moment selection becomes therapy -->
-  <section id="act-needle" class="isolate relative bg-brand-black overflow-hidden">
-    <div class="relative min-h-[95vh] flex items-center justify-center">
-      <div class="groove-bg absolute inset-0" aria-hidden="true"></div>
-      <svg class="stylus absolute top-[6%] right-[6%] w-40 md:w-64 z-10" viewBox="0 0 200 200" aria-hidden="true">
-        <circle cx="170" cy="30" r="13" fill="#161616" stroke="#2e2e2e" stroke-width="3"/>
-        <line x1="170" y1="30" x2="74" y2="138" stroke="#1c1c1c" stroke-width="7" stroke-linecap="round"/>
-        <rect x="56" y="132" width="30" height="16" rx="4" fill="#262626" transform="rotate(-42 70 142)"/>
-        <line x1="62" y1="152" x2="58" y2="163" stroke="#FF5500" stroke-width="3" stroke-linecap="round"/>
-      </svg>
-      <div class="relative z-10 text-center px-6 max-w-2xl">
-        <h2 class="split-reveal font-display text-3xl md:text-5xl font-black mb-4">The needle <span class="text-brand-orange">drops</span></h2>
-        <p class="text-gray-400 md:text-lg">Selection is the real therapy — reading the room, groove by groove, until the floor breathes as one.</p>
-      </div>
-      <svg class="therapy-wave absolute bottom-10 left-0 w-full h-16 z-10" viewBox="0 0 1200 80" fill="none" preserveAspectRatio="none" aria-hidden="true">
-        <path d="M0 40 Q 30 40 50 38 T 100 42 T 150 30 T 200 52 T 250 24 T 300 58 T 350 18 T 400 62 T 450 28 T 500 50 T 550 36 T 600 44 T 650 22 T 700 60 T 750 30 T 800 52 T 850 38 T 900 42 T 950 26 T 1000 56 T 1050 34 T 1100 46 T 1150 40 T 1200 40" stroke-width="2.5"/>
-      </svg>
-    </div>
-  </section>
 
   <section id="dates" class="isolate relative py-8 sm:py-16 bg-brand-black overflow-hidden">
     <div class="floor-layer" aria-hidden="true"></div>
@@ -644,9 +619,9 @@ const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House'
     import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
     function initStory() {
-      const act0 = document.getElementById('act-silence');
-      if (!act0 || act0.dataset.storyBound) return;
-      act0.dataset.storyBound = '1';
+      const guard = document.getElementById('act-afterglow');
+      if (!guard || guard.dataset.storyBound) return;
+      guard.dataset.storyBound = '1';
       if ((window as any).__motionOff()) return;
 
       gsap.registerPlugin(ScrollTrigger);
@@ -656,13 +631,7 @@ const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House'
         lenis.on('scroll', ScrollTrigger.update);
       }
 
-      // Act 0 — the silence dissolves as you scroll into the night
-      gsap.to('[data-act0]', {
-        opacity: 0, scale: 0.92, filter: 'blur(6px)', ease: 'none',
-        scrollTrigger: { trigger: '#act-silence', start: 'top top', end: 'bottom 35%', scrub: true },
-      });
-
-      // Act 1 — crate digging: pin the coverflow, scroll flips through the records
+      // Crate digging: pin the coverflow, scroll flips through the records
       gsap.matchMedia().add('(min-width: 768px)', () => {
         const n = (window as any).__cfCount || 0;
         if (!n) return;
@@ -679,21 +648,7 @@ const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House'
         });
       });
 
-      // Act 2 — needle drop: groove zooms in, tonearm lowers, the waveform draws
-      const wavePath = document.querySelector('.therapy-wave path') as SVGPathElement | null;
-      if (wavePath) {
-        const len = wavePath.getTotalLength();
-        wavePath.style.strokeDasharray = String(len);
-        wavePath.style.strokeDashoffset = String(len);
-        gsap.timeline({
-          scrollTrigger: { trigger: '#act-needle', start: 'top 70%', end: 'bottom 25%', scrub: 0.6 },
-        })
-          .to('.groove-bg', { scale: 1, opacity: 0.85, ease: 'none' }, 0)
-          .fromTo('.stylus', { rotation: -16, y: -30 }, { rotation: 0, y: 0, ease: 'none' }, 0)
-          .to(wavePath, { strokeDashoffset: 0, ease: 'none' }, 0.25);
-      }
-
-      // Act 3 — the floor: event rows land like beats
+      // The floor: event rows land like beats
       if (document.querySelector('#dates [data-reveal] > div')) {
         gsap.from('#dates [data-reveal] > div', {
           y: 36, opacity: 0, stagger: 0.12, duration: 0.7, ease: 'power3.out',

@@ -1,0 +1,392 @@
+---
+// "One Record, Every Horizon" — code-drawn scroll journey (no Higgsfield).
+// One vinyl record travels as a celestial body through five stylized
+// landscapes; each landscape is the vibe of a venue type Zippy plays
+// (festival / club / bar / afterhours), ending on a summit turntable at dawn.
+// Backdrops are layered SVG silhouettes + gradients + particles, scrubbed by
+// GSAP ScrollTrigger. When a Higgsfield plan lands, scenes swap to video
+// (docs/one-record-every-horizon.md) — the mechanics stay identical.
+---
+
+<section id="journey" class="journey isolate relative bg-brand-black" aria-label="One record, every horizon — a scroll journey through the venues Zippy plays">
+  <div class="j-stage">
+
+    <!-- The traveling record -->
+    <div class="j-disc" aria-hidden="true">
+      <div class="j-disc-glow"></div>
+      <div class="j-disc-core">
+        <div class="j-disc-label"></div>
+        <div class="j-disc-hole"></div>
+      </div>
+    </div>
+
+    <!-- Scene 1: eclipse / silence (base layer, always behind) -->
+    <div class="j-scene j-ecl" data-s="ecl"></div>
+
+    <!-- Scene 2: canyon = festival -->
+    <div class="j-scene j-can" data-s="can">
+      <div class="j-can-sky"></div>
+      <div class="j-ray j-ray-a"></div>
+      <div class="j-ray j-ray-b"></div>
+      <svg class="j-layer" data-depth="1" viewBox="0 0 100 100" preserveAspectRatio="none"><path fill="#1c0d05" d="M0 72 L7 55 L15 66 L24 46 L33 62 L44 40 L54 60 L66 48 L76 64 L87 52 L100 68 V100 H0 Z"/></svg>
+      <svg class="j-layer" data-depth="2" viewBox="0 0 100 100" preserveAspectRatio="none"><path fill="#120804" d="M0 84 L10 64 L19 76 L30 56 L42 74 L53 52 L63 72 L74 58 L86 76 L100 62 V100 H0 Z"/></svg>
+      <svg class="j-layer" data-depth="3" viewBox="0 0 100 100" preserveAspectRatio="none"><path fill="#070302" d="M0 100 L0 88 L14 72 L26 86 L40 68 L56 88 L70 74 L84 90 L100 78 V100 Z"/></svg>
+      <div class="j-parts j-dustp">{Array.from({ length: 6 }).map(() => <span></span>)}</div>
+    </div>
+
+    <!-- Scene 3: night forest = club -->
+    <div class="j-scene j-for" data-s="for">
+      <div class="j-for-sky"></div>
+      <svg class="j-layer" data-depth="1" viewBox="0 0 100 100" preserveAspectRatio="none">
+        <g fill="#0c0703">
+          <rect x="6" y="0" width="2.4" height="100"/><rect x="17" y="0" width="1.6" height="100"/>
+          <rect x="29" y="0" width="3" height="100"/><rect x="43" y="0" width="1.8" height="100"/>
+          <rect x="58" y="0" width="2.6" height="100"/><rect x="71" y="0" width="1.5" height="100"/>
+          <rect x="83" y="0" width="2.8" height="100"/><rect x="94" y="0" width="1.7" height="100"/>
+        </g>
+      </svg>
+      <svg class="j-layer" data-depth="2.6" viewBox="0 0 100 100" preserveAspectRatio="none">
+        <g fill="#050201">
+          <rect x="1" y="0" width="5" height="100" transform="skewX(-1.5)"/><rect x="21" y="0" width="6.5" height="100" transform="skewX(1)"/>
+          <rect x="49" y="0" width="5.5" height="100"/><rect x="68" y="0" width="7" height="100" transform="skewX(-1)"/>
+          <rect x="90" y="0" width="6" height="100" transform="skewX(1.5)"/>
+        </g>
+      </svg>
+      <div class="j-fog"></div>
+      <div class="j-parts j-flies">{Array.from({ length: 8 }).map(() => <span></span>)}</div>
+    </div>
+
+    <!-- Scene 4: open sea at dusk = bar / sunset set -->
+    <div class="j-scene j-sea" data-s="sea">
+      <div class="j-sea-sky"></div>
+      <div class="j-sea-water" data-depth="0.6"></div>
+      <div class="j-sea-reflect"></div>
+      <svg class="j-wavehz" viewBox="0 0 1200 24" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M0 12 Q 50 8 100 12 T 200 12 T 300 10 T 400 14 T 500 11 T 600 13 T 700 10 T 800 14 T 900 11 T 1000 13 T 1100 11 T 1200 12" fill="none" stroke="rgba(255,110,40,0.55)" stroke-width="2"/>
+      </svg>
+    </div>
+
+    <!-- Scene 5: underwater cave = afterhours -->
+    <div class="j-scene j-und" data-s="und">
+      <div class="j-und-deep"></div>
+      <div class="j-shaft j-shaft-a" data-depth="0.8"></div>
+      <div class="j-shaft j-shaft-b" data-depth="1.4"></div>
+      <div class="j-parts j-bubs">{Array.from({ length: 9 }).map(() => <span></span>)}</div>
+    </div>
+
+    <!-- Scene 6: summit above the clouds = dawn -->
+    <div class="j-scene j-sum" data-s="sum">
+      <div class="j-sum-sky"></div>
+      <div class="j-cloud j-cloud-a" data-depth="0.7"></div>
+      <div class="j-cloud j-cloud-b" data-depth="1.2"></div>
+      <div class="j-cloud j-cloud-c" data-depth="2"></div>
+      <svg class="j-layer" data-depth="0.4" viewBox="0 0 100 100" preserveAspectRatio="none">
+        <path fill="#060303" d="M14 100 L50 26 L62 44 L72 34 L92 100 Z"/>
+        <!-- turntable waiting on the summit -->
+        <g class="j-deck">
+          <rect x="45" y="23.4" width="10" height="2.6" rx="0.6" fill="#100a07"/>
+          <circle cx="49.4" cy="23" r="1.9" fill="#170e08" stroke="#33180a" stroke-width="0.35"/>
+          <line x1="53.2" y1="21.4" x2="51" y2="23" stroke="#3a1d0c" stroke-width="0.45" stroke-linecap="round"/>
+        </g>
+      </svg>
+      <div class="j-sun-overlay"></div>
+    </div>
+
+    <!-- Captions -->
+    <div class="j-cap" data-cap="ecl">
+      <p class="j-cap-sub">Every night, somewhere, a floor needs <span class="text-brand-orange">therapy</span>.</p>
+    </div>
+    <div class="j-cap" data-cap="can">
+      <h3 class="j-cap-t">FESTIVAL</h3>
+      <p class="j-cap-sub">Open sky. One groove, fifty thousand hearts.</p>
+    </div>
+    <div class="j-cap" data-cap="for">
+      <h3 class="j-cap-t">CLUB</h3>
+      <p class="j-cap-sub">Four walls of trees. Hypnosis at 124 BPM.</p>
+    </div>
+    <div class="j-cap" data-cap="sea">
+      <h3 class="j-cap-t">GOLDEN HOUR</h3>
+      <p class="j-cap-sub">Salt air, slow grooves.</p>
+    </div>
+    <div class="j-cap" data-cap="und">
+      <h3 class="j-cap-t">AFTERHOURS</h3>
+      <p class="j-cap-sub">Weightless. The deep end of therapy.</p>
+    </div>
+    <div class="j-cap" data-cap="sum">
+      <h3 class="j-cap-t">SUNRISE</h3>
+      <p class="j-cap-sub">Wherever your floor is — bring the therapy.</p>
+      <a href="#contact" data-track="booking" class="j-cap-cta">Book DJ Zippy</a>
+    </div>
+
+    <div class="j-hint" aria-hidden="true">SCROLL</div>
+  </div>
+</section>
+
+<style is:global>
+  .journey { overflow: hidden; }
+  .j-stage { position: relative; height: 100vh; height: 100svh; }
+
+  .j-scene { position: absolute; inset: 0; opacity: 0; visibility: hidden; }
+  .j-scene.j-ecl { opacity: 1; visibility: visible; background: #030303; }
+  .j-layer { position: absolute; inset: -8% 0; width: 100%; height: 116%; }
+
+  /* Traveling record */
+  .j-disc {
+    position: absolute; left: 50%; top: 120%;
+    width: clamp(120px, 17vw, 220px); height: clamp(120px, 17vw, 220px);
+    margin-left: calc(clamp(120px, 17vw, 220px) / -2);
+    z-index: 20; pointer-events: none;
+  }
+  .j-disc-core {
+    position: absolute; inset: 0; border-radius: 50%;
+    background:
+      radial-gradient(circle at center, transparent 17%, #0c0c0c 18%),
+      repeating-radial-gradient(circle at center, rgba(32,32,32,1) 0px, rgba(18,18,18,1) 1.5px, rgba(26,26,26,1) 3px),
+      linear-gradient(135deg, #121212 0%, #090909 55%, #121212 100%);
+    box-shadow: 0 0 0 2px rgba(255, 120, 50, 0.55), 0 0 28px rgba(255, 85, 0, 0.45), inset 0 0 50px rgba(0,0,0,0.85);
+    animation: vinyl-spin 14s linear infinite;
+  }
+  .j-disc-label {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 34%; height: 34%; border-radius: 50%;
+    background-image: url('/images/art/vinyl-label.webp');
+    background-size: cover; background-position: center;
+    box-shadow: 0 0 0 2px rgba(0,0,0,0.6);
+  }
+  .j-disc-hole {
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    width: 6%; height: 6%; border-radius: 50%; background: #000;
+    box-shadow: inset 0 0 3px rgba(255,255,255,0.25);
+  }
+  .j-disc-glow {
+    position: absolute; inset: -42%;
+    background: radial-gradient(circle, rgba(255, 110, 30, 0.5), rgba(255, 85, 0, 0.16) 42%, transparent 70%);
+    opacity: 0.45;
+  }
+
+  /* Canyon */
+  .j-can-sky { position: absolute; inset: 0; background: linear-gradient(180deg, #0a0503 0%, #2b1106 38%, #93360b 72%, #d8631c 100%); }
+  .j-ray {
+    position: absolute; top: -22%; left: 30%; width: 26vw; height: 95%;
+    background: linear-gradient(180deg, rgba(255, 150, 70, 0.16), transparent 75%);
+    transform-origin: 50% 0; filter: blur(8px);
+  }
+  .j-ray-a { transform: rotate(14deg); animation: j-sway 11s ease-in-out infinite alternate; }
+  .j-ray-b { left: 56%; width: 18vw; transform: rotate(-12deg); animation: j-sway 14s ease-in-out infinite alternate-reverse; }
+  @keyframes j-sway { from { rotate: -4deg; opacity: 0.7; } to { rotate: 5deg; opacity: 1; } }
+
+  /* Forest */
+  .j-for-sky { position: absolute; inset: 0; background: radial-gradient(110% 80% at 50% 8%, #1d0d04 0%, #0a0503 45%, #040202 100%); }
+  .j-fog {
+    position: absolute; left: -10%; right: -10%; bottom: 0; height: 36%;
+    background: linear-gradient(180deg, transparent, rgba(255, 130, 60, 0.10) 45%, rgba(20, 10, 5, 0.85));
+    filter: blur(10px);
+    animation: j-fogdrift 16s ease-in-out infinite alternate;
+  }
+  @keyframes j-fogdrift { from { transform: translateX(-2.5%); } to { transform: translateX(2.5%); } }
+  .j-flies span {
+    position: absolute; width: 5px; height: 5px; border-radius: 50%;
+    background: radial-gradient(circle, #ffc89a, rgba(255, 110, 30, 0) 70%);
+    animation: j-firefly 1.935s ease-in-out infinite; /* ~124 BPM pulse, 4 beats */
+  }
+  .j-flies span:nth-child(1) { left: 14%; top: 38%; }
+  .j-flies span:nth-child(2) { left: 26%; top: 62%; animation-delay: 0.48s; }
+  .j-flies span:nth-child(3) { left: 38%; top: 30%; animation-delay: 0.97s; }
+  .j-flies span:nth-child(4) { left: 52%; top: 70%; animation-delay: 1.45s; }
+  .j-flies span:nth-child(5) { left: 63%; top: 44%; }
+  .j-flies span:nth-child(6) { left: 74%; top: 58%; animation-delay: 0.97s; }
+  .j-flies span:nth-child(7) { left: 86%; top: 34%; animation-delay: 0.48s; }
+  .j-flies span:nth-child(8) { left: 45%; top: 52%; animation-delay: 1.45s; }
+  @keyframes j-firefly { 0%, 100% { opacity: 0.12; transform: scale(0.8); } 12% { opacity: 1; transform: scale(1.35); } 30% { opacity: 0.25; transform: scale(0.9); } }
+
+  /* Sea */
+  .j-sea-sky { position: absolute; inset: 0 0 42% 0; background: linear-gradient(180deg, #070304 0%, #2a0f06 55%, #7c2e0a 88%, #b85515 100%); }
+  .j-sea-water {
+    position: absolute; inset: 58% -5% 0 -5%;
+    background:
+      repeating-linear-gradient(178deg, rgba(255, 130, 50, 0.07) 0 2px, transparent 2px 9px),
+      linear-gradient(180deg, #200d05 0%, #0a0403 60%, #030202 100%);
+    animation: j-swell 7s ease-in-out infinite alternate;
+  }
+  @keyframes j-swell { from { transform: translateY(0); } to { transform: translateY(-1.6%); } }
+  .j-sea-reflect {
+    position: absolute; left: 50%; top: 58%; bottom: 6%; width: clamp(60px, 8vw, 110px);
+    transform: translateX(-50%);
+    background: linear-gradient(180deg, rgba(255, 130, 50, 0.5), rgba(255, 90, 20, 0.08) 70%, transparent);
+    filter: blur(7px);
+    -webkit-mask-image: repeating-linear-gradient(180deg, black 0 5px, transparent 5px 9px);
+    mask-image: repeating-linear-gradient(180deg, black 0 5px, transparent 5px 9px);
+  }
+  .j-wavehz { position: absolute; left: 0; right: 0; top: 57.2%; height: 14px; width: 100%; }
+
+  /* Underwater */
+  .j-und-deep { position: absolute; inset: 0; background: radial-gradient(120% 95% at 50% 110%, #2a1206 0%, #120804 40%, #040203 80%); }
+  .j-shaft {
+    position: absolute; top: -12%; width: 16vw; height: 80%;
+    background: linear-gradient(180deg, rgba(255, 150, 80, 0.13), transparent 80%);
+    filter: blur(9px); transform: skewX(-14deg);
+  }
+  .j-shaft-a { left: 24%; }
+  .j-shaft-b { left: 58%; width: 11vw; transform: skewX(11deg); }
+  .j-bubs span {
+    position: absolute; bottom: -5%; width: 7px; height: 7px; border-radius: 50%;
+    border: 1px solid rgba(255, 170, 110, 0.5);
+    background: radial-gradient(circle at 35% 30%, rgba(255, 200, 150, 0.5), rgba(255, 130, 60, 0.05) 70%);
+    animation: j-bubble 8s linear infinite;
+  }
+  .j-bubs span:nth-child(1) { left: 12%; animation-duration: 9s; }
+  .j-bubs span:nth-child(2) { left: 22%; animation-delay: 2s; width: 5px; height: 5px; }
+  .j-bubs span:nth-child(3) { left: 34%; animation-delay: 4.5s; animation-duration: 11s; }
+  .j-bubs span:nth-child(4) { left: 47%; animation-delay: 1s; width: 9px; height: 9px; }
+  .j-bubs span:nth-child(5) { left: 56%; animation-delay: 5.5s; width: 5px; height: 5px; }
+  .j-bubs span:nth-child(6) { left: 66%; animation-delay: 3s; animation-duration: 10s; }
+  .j-bubs span:nth-child(7) { left: 76%; animation-delay: 6.5s; }
+  .j-bubs span:nth-child(8) { left: 86%; animation-delay: 0.5s; width: 5px; height: 5px; }
+  .j-bubs span:nth-child(9) { left: 93%; animation-delay: 4s; animation-duration: 12s; }
+  @keyframes j-bubble {
+    0% { transform: translate(0, 0); opacity: 0; }
+    10% { opacity: 0.8; }
+    50% { transform: translate(8px, -46vh); }
+    95% { opacity: 0.25; }
+    100% { transform: translate(-6px, -92vh); opacity: 0; }
+  }
+
+  /* Summit */
+  .j-sum-sky { position: absolute; inset: 0; background: linear-gradient(180deg, #08040a 0%, #1c0a08 45%, #4a1a08 78%, #8a3a10 100%); }
+  .j-cloud {
+    position: absolute; left: -12%; right: -12%; height: 22%;
+    background: radial-gradient(45% 95% at 30% 50%, rgba(255, 150, 90, 0.13), transparent 70%),
+                radial-gradient(38% 90% at 68% 45%, rgba(255, 120, 60, 0.10), transparent 70%);
+    filter: blur(14px);
+  }
+  .j-cloud-a { top: 52%; animation: j-fogdrift 18s ease-in-out infinite alternate; }
+  .j-cloud-b { top: 64%; animation: j-fogdrift 14s ease-in-out infinite alternate-reverse; }
+  .j-cloud-c { top: 76%; height: 30%; filter: blur(18px); }
+  .j-sun-overlay {
+    --jsun: 0%;
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 0%, rgba(255, 110, 30, 0.0) 30%, rgba(255, 120, 40, 0.35) 70%, rgba(255, 170, 90, 0.55) 100%);
+    background-size: 100% 300%;
+    background-position: 50% var(--jsun);
+    mix-blend-mode: screen; pointer-events: none;
+  }
+
+  /* Captions */
+  .j-cap {
+    position: absolute; left: 50%; bottom: 14%;
+    transform: translateX(-50%);
+    width: min(92vw, 640px); text-align: center;
+    opacity: 0; visibility: hidden; z-index: 30;
+  }
+  .j-cap-t {
+    font-family: 'Unbounded', sans-serif; font-weight: 900;
+    font-size: clamp(1.6rem, 4.5vw, 3rem); letter-spacing: 0.14em;
+    color: #fff; text-shadow: 0 2px 24px rgba(0,0,0,0.7);
+    margin-bottom: 0.4rem;
+  }
+  .j-cap-t::after { content: ''; display: block; width: 56px; height: 2px; margin: 0.6rem auto 0; background: #FF5500; box-shadow: 0 0 10px rgba(255,85,0,0.8); }
+  .j-cap-sub { color: rgba(235, 225, 218, 0.85); font-size: clamp(0.95rem, 2vw, 1.15rem); text-shadow: 0 1px 12px rgba(0,0,0,0.8); }
+  .j-cap-cta {
+    display: inline-block; margin-top: 1.1rem;
+    background: #FF5500; color: #fff;
+    font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2em;
+    padding: 0.85rem 2rem; border-radius: 9999px;
+    transition: background 0.3s, color 0.3s;
+  }
+  .j-cap-cta:hover { background: #fff; color: #050505; }
+
+  .j-hint {
+    position: absolute; left: 50%; bottom: 4%; transform: translateX(-50%);
+    color: rgba(255,255,255,0.4); font-size: 0.65rem; letter-spacing: 0.5em; font-weight: 700;
+    animation: j-hintpulse 2.2s ease-in-out infinite; z-index: 30;
+  }
+  @keyframes j-hintpulse { 0%, 100% { opacity: 0.35; transform: translate(-50%, 0); } 50% { opacity: 1; transform: translate(-50%, -6px); } }
+
+  /* Reduced motion: the journey steps aside, the classic site below tells the story */
+  html.reduce-motion .journey { display: none; }
+</style>
+
+<script>
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  function initJourney() {
+    const stage = document.querySelector('.j-stage') as HTMLElement | null;
+    if (!stage || stage.dataset.bound) return;
+    stage.dataset.bound = '1';
+    if ((window as any).__motionOff()) return;
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    // Scene windows on the master timeline (duration 1 = full pinned scroll)
+    const SCENES: Array<[string, number, number]> = [
+      ['ecl', 0.0, 0.10],
+      ['can', 0.10, 0.30],
+      ['for', 0.30, 0.50],
+      ['sea', 0.50, 0.65],
+      ['und', 0.65, 0.80],
+      ['sum', 0.80, 1.0],
+    ];
+    const FADE = 0.045;
+
+    const tl = gsap.timeline({
+      defaults: { ease: 'none' },
+      scrollTrigger: {
+        trigger: '#journey',
+        start: 'top top',
+        end: '+=520%',
+        scrub: 0.6,
+        pin: true,
+        anticipatePin: 1,
+      },
+    });
+
+    // Scene crossfades + per-scene layer parallax
+    SCENES.forEach(([key, start, end], i) => {
+      const scene = document.querySelector(`.j-scene[data-s="${key}"]`);
+      if (!scene) return;
+      if (i > 0) tl.to(scene, { autoAlpha: 1, duration: FADE }, start - FADE / 2);
+      if (i > 0 && i < SCENES.length - 1) tl.to(scene, { autoAlpha: 0, duration: FADE }, end);
+      scene.querySelectorAll('[data-depth]').forEach((layer) => {
+        const d = parseFloat((layer as HTMLElement).dataset.depth || '1');
+        tl.fromTo(layer, { yPercent: 4.5 * d }, { yPercent: -4.5 * d, duration: end - start }, start);
+      });
+    });
+
+    // The record's voyage: eclipse → sun → moon → horizon → portal → turntable
+    tl.fromTo('.j-disc', { top: '118%', scale: 0.95 }, { top: '46%', scale: 0.95, duration: 0.09, ease: 'power1.out' }, 0)
+      .to('.j-disc', { top: '24%', scale: 1.12, duration: 0.14, ease: 'power1.inOut' }, 0.11)   // canyon sun
+      .to('.j-disc-glow', { opacity: 1, duration: 0.1 }, 0.12)
+      .to('.j-disc', { top: '15%', x: '13vw', scale: 0.52, duration: 0.13, ease: 'power1.inOut' }, 0.31) // forest moon
+      .to('.j-disc-glow', { opacity: 0.5, duration: 0.1 }, 0.32)
+      .to('.j-disc', { top: '36%', x: '0vw', scale: 0.68, duration: 0.1, ease: 'power1.inOut' }, 0.51)   // over the sea
+      .to('.j-disc', { top: '60%', scale: 0.5, duration: 0.1, ease: 'power1.inOut' }, 0.66)              // deep portal
+      .to('.j-disc-glow', { opacity: 1, duration: 0.08 }, 0.67)
+      .to('.j-disc', { top: '14.5%', x: '-0.6vw', scale: 0.2, duration: 0.12, ease: 'power1.inOut' }, 0.82) // lands on the deck
+      .to('.j-disc-glow', { opacity: 0.35, duration: 0.08 }, 0.84);
+
+    // Sunrise floods the summit once the needle is home
+    tl.to('.j-sun-overlay', { '--jsun': '88%', duration: 0.13 }, 0.86);
+
+    // Captions: in/out per scene window (the last one stays for the CTA)
+    const CAPS: Array<[string, number, number | null]> = [
+      ['ecl', 0.015, 0.082],
+      ['can', 0.125, 0.275],
+      ['for', 0.325, 0.475],
+      ['sea', 0.52, 0.625],
+      ['und', 0.675, 0.775],
+      ['sum', 0.86, null],
+    ];
+    CAPS.forEach(([key, inAt, outAt]) => {
+      const cap = document.querySelector(`.j-cap[data-cap="${key}"]`);
+      if (!cap) return;
+      tl.fromTo(cap, { autoAlpha: 0, y: 34 }, { autoAlpha: 1, y: 0, duration: 0.035, ease: 'power2.out' }, inAt);
+      if (outAt !== null) tl.to(cap, { autoAlpha: 0, y: -26, duration: 0.035, ease: 'power2.in' }, outAt);
+    });
+
+    // Scroll hint disappears as soon as the journey starts
+    tl.to('.j-hint', { autoAlpha: 0, duration: 0.03 }, 0.02);
+  }
+
+  document.addEventListener('astro:page-load', initJourney);
+</script>
