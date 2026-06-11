@@ -3,7 +3,7 @@ import '../styles/global.css';
 
 interface Props {
   title: string;
-  section?: 'dashboard' | 'events' | 'posts' | 'mixes';
+  section?: 'dashboard' | 'events' | 'posts' | 'mixes' | 'subscribers';
 }
 
 const { title, section } = Astro.props;
@@ -13,6 +13,7 @@ const navigation = [
   { label: 'Events', href: '/admin/events', icon: 'fa-calendar' },
   { label: 'Posts', href: '/admin/posts', icon: 'fa-pen-fancy' },
   { label: 'Mixes', href: '/admin/mixes', icon: 'fa-compact-disc' },
+  { label: 'Subscribers', href: '/admin/subscribers', icon: 'fa-user' },
 ];
 ---
 

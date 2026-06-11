@@ -1,0 +1,57 @@
+---
+// Admin: lead-magnet subscribers list + CSV export.
+export const prerender = false;
+import AdminLayout from '../../layouts/AdminLayout.astro';
+---
+
+<AdminLayout title="Subscribers" section="subscribers">
+  <div class="flex items-center justify-between mb-6">
+    <p class="text-gray-400 text-sm" id="sub-count">Loading…</p>
+    <a href="/api/admin/subscribers?format=csv"
+      class="bg-brand-orange hover:bg-white hover:text-brand-black text-white text-sm font-bold uppercase tracking-widest px-5 py-2.5 rounded-lg transition-colors">
+      Download CSV
+    </a>
+  </div>
+
+  <div class="bg-brand-dark border border-white/10 rounded-xl overflow-hidden">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="border-b border-white/10 text-left text-gray-500 uppercase text-xs tracking-widest">
+          <th class="px-5 py-3">Email</th>
+          <th class="px-5 py-3">Source</th>
+          <th class="px-5 py-3">Subscribed</th>
+        </tr>
+      </thead>
+      <tbody id="sub-rows">
+        <tr><td colspan="3" class="px-5 py-6 text-gray-500">Loading…</td></tr>
+      </tbody>
+    </table>
+  </div>
+</AdminLayout>
+
+<script is:inline>
+(async function () {
+  var rows = document.getElementById('sub-rows');
+  var count = document.getElementById('sub-count');
+  try {
+    var res = await fetch('/api/admin/subscribers');
+    var json = await res.json();
+    if (!json.success) throw new Error(json.error || 'Failed');
+    count.textContent = json.count + ' subscriber' + (json.count === 1 ? '' : 's');
+    if (!json.data.length) {
+      rows.innerHTML = '<tr><td colspan="3" class="px-5 py-6 text-gray-500">No subscribers yet.</td></tr>';
+      return;
+    }
+    rows.innerHTML = json.data.map(function (s) {
+      return '<tr class="border-b border-white/5 hover:bg-white/5">' +
+        '<td class="px-5 py-3 text-white">' + s.email.replace(/</g, '&lt;') + '</td>' +
+        '<td class="px-5 py-3 text-gray-400">' + (s.source || '').replace(/</g, '&lt;') + '</td>' +
+        '<td class="px-5 py-3 text-gray-500">' + s.created_at + '</td>' +
+        '</tr>';
+    }).join('');
+  } catch (e) {
+    count.textContent = '';
+    rows.innerHTML = '<tr><td colspan="3" class="px-5 py-6 text-red-400">Failed to load subscribers.</td></tr>';
+  }
+})();
+</script>

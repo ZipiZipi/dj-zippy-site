@@ -92,8 +92,12 @@ export async function getEvents(db: any): Promise<{ upcoming: UIEvent[]; past: U
   }
   if (!all) all = EVENTS_FALLBACK.slice();
 
-  const upcoming = all.filter(e => e.status === 'upcoming').sort(sortUpcoming);
-  const past = all.filter(e => e.status === 'past').sort(sortPast);
+  // Date-aware split: an event still marked 'upcoming' whose date has passed is
+  // shown under past highlights instead of advertising a stale gig. (UTC date —
+  // an event stays "upcoming" through its whole day.)
+  const today = new Date().toISOString().slice(0, 10);
+  const upcoming = all.filter(e => e.status === 'upcoming' && e.date >= today).sort(sortUpcoming);
+  const past = all.filter(e => e.status === 'past' || (e.status === 'upcoming' && e.date < today)).sort(sortPast);
   return { upcoming, past };
 }
 
