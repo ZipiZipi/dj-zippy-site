@@ -224,6 +224,18 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     })();
     </script>
 
+    <!-- Lenis smooth scroll — the "expensive site" inertia feel (skipped for
+         reduced-motion users; survives ViewTransitions since the module runs once) -->
+    <script>
+      import Lenis from 'lenis';
+      if (!(window as any).__lenis && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        const lenis = new Lenis({ duration: 1.1, smoothWheel: true });
+        (window as any).__lenis = lenis;
+        const raf = (t: number) => { lenis.raf(t); requestAnimationFrame(raf); };
+        requestAnimationFrame(raf);
+      }
+    </script>
+
     <!-- Site animations: scroll-reveal, hero spotlight, magnetic buttons -->
     <script>
       function setupAnimations() {

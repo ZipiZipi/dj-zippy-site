@@ -366,6 +366,63 @@ html.anim-ready [data-reveal]:not(.in-view) {
   pointer-events: none;
 }
 
+/* === "One Night of Therapy" — scrollytelling acts === */
+
+/* Act 0 — Silence: a single pulse line beating in the dark */
+.pulse-line {
+  width: 140px; height: 2px;
+  background: linear-gradient(90deg, transparent, #FF5500, transparent);
+  box-shadow: 0 0 14px rgba(255, 85, 0, 0.6);
+  animation: pulse-beat 1.6s ease-in-out infinite;
+}
+@keyframes pulse-beat {
+  0%, 100% { transform: scaleX(0.22); opacity: 0.45; }
+  50%      { transform: scaleX(1); opacity: 1; }
+}
+
+/* Act 2 — Needle Drop: macro groove backdrop + tonearm + waveform */
+.groove-bg {
+  background-image: url('/images/art/groove-macro.webp');
+  background-size: cover;
+  background-position: center;
+  opacity: 0.6;
+  transform: scale(1.25);
+  -webkit-mask-image: radial-gradient(95% 90% at 50% 50%, black 40%, transparent 85%);
+  mask-image: radial-gradient(95% 90% at 50% 50%, black 40%, transparent 85%);
+}
+.stylus { filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.8)); transform-origin: 170px 30px; }
+.therapy-wave path {
+  stroke: #FF5500;
+  filter: drop-shadow(0 0 6px rgba(255, 85, 0, 0.7));
+}
+
+/* Act 3 — The Floor: dancefloor backdrop behind the dates */
+.floor-layer {
+  position: absolute; inset: 0;
+  background-image: url('/images/art/dancefloor.webp');
+  background-size: cover;
+  background-position: 50% 30%;
+  opacity: 0.32;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, black 22%, black 78%, transparent 100%);
+  mask-image: linear-gradient(180deg, transparent 0%, black 22%, black 78%, transparent 100%);
+  animation: store-breathe 7s ease-in-out infinite;
+}
+
+/* Act 4 — Afterglow: sunrise wash that warms up as you scroll into it */
+.sunrise {
+  background: linear-gradient(180deg,
+    #050505 0%,
+    #1a0d05 30%,
+    #5e2106 55%,
+    #c4490f 78%,
+    #ff8a3d 92%,
+    #ffc59e 100%);
+  background-size: 100% 320%;
+  background-position: 50% var(--sunrise-y, 0%);
+  opacity: 0.9;
+}
+
 /* Analog film grain over everything (very low opacity) */
 .grain {
   position: fixed; inset: -50%; width: 200%; height: 200%;
