@@ -329,7 +329,7 @@ const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House'
       <div id="highlights" class="relative pt-2 sm:pt-3 pb-10 sm:pb-14 z-30">
         <div class="container mx-auto px-6 sm:px-8 lg:px-12">
           <div class="text-center mb-6 sm:mb-8">
-            <h2 class="font-display text-2xl md:text-3xl font-bold mb-1" style="text-shadow:0 1px 12px rgba(0,0,0,0.5);">Featured <span class="text-brand-orange">Mixes</span></h2>
+            <h2 class="split-reveal font-display text-2xl md:text-3xl font-bold mb-1" style="text-shadow:0 1px 12px rgba(0,0,0,0.5);">Featured <span class="text-brand-orange">Mixes</span></h2>
             <p class="text-gray-300 text-sm" style="text-shadow:0 1px 8px rgba(0,0,0,0.6);">Listen to DJ Zippy's latest sets and mixes.</p>
           </div>
           <div class="relative px-6 sm:px-14">
@@ -379,7 +379,7 @@ const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House'
 
   <section id="dates" class="isolate relative py-8 sm:py-16 bg-brand-black">
     <div class="container mx-auto px-6 sm:px-8 lg:px-12">
-      <h2 class="font-display text-3xl md:text-4xl font-bold mb-8 text-center">Upcoming <span class="text-brand-orange">Therapy</span></h2>
+      <h2 class="split-reveal font-display text-3xl md:text-4xl font-bold mb-8 text-center">Upcoming <span class="text-brand-orange">Therapy</span></h2>
       <div class="mb-8">
         <Countdown event={upcoming[0] ?? null} />
         {heroVideo && (
@@ -486,6 +486,19 @@ const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House'
             else el.classList.remove('active');
           });
         }
+        // Record-change FX: shockwave ring from the spindle, ambient hue shift
+        // of the psy layer, and a pop on the newly active disc.
+        function fireChangeFx() {
+          var cf = document.querySelector('.coverflow');
+          if (!cf || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+          var w = document.createElement('div');
+          w.className = 'cf-shockwave';
+          cf.appendChild(w);
+          setTimeout(function() { w.remove(); }, 750);
+          document.documentElement.style.setProperty('--psy-shift', (active * 16) + 'deg');
+          var d = items[active].querySelector('.cf-disc');
+          if (d) { d.classList.remove('disc-pop'); void d.offsetWidth; d.classList.add('disc-pop'); }
+        }
         items.forEach(function(el, i) {
           el.addEventListener('click', function() {
             if (active === i) {
@@ -497,21 +510,21 @@ const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House'
                 title: el.getAttribute('data-title'),
               });
               if (!played) window.open(link, '_blank', 'noopener,noreferrer');
-            } else { active = i; update(); }
+            } else { active = i; update(); fireChangeFx(); }
           });
         });
         function wrap(i) { return ((i % items.length) + items.length) % items.length; }
         var prevBtn = document.querySelector('.coverflow-nav.prev');
         var nextBtn = document.querySelector('.coverflow-nav.next');
-        if (prevBtn) prevBtn.addEventListener('click', function() { active = wrap(active - 1); update(); });
-        if (nextBtn) nextBtn.addEventListener('click', function() { active = wrap(active + 1); update(); });
+        if (prevBtn) prevBtn.addEventListener('click', function() { active = wrap(active - 1); update(); fireChangeFx(); });
+        if (nextBtn) nextBtn.addEventListener('click', function() { active = wrap(active + 1); update(); fireChangeFx(); });
         var startX = 0;
         var cfEl = document.querySelector('.coverflow');
         if (cfEl) {
           cfEl.addEventListener('touchstart', function(e) { startX = e.touches[0].clientX; }, { passive: true });
           cfEl.addEventListener('touchend', function(e) {
             var diff = startX - e.changedTouches[0].clientX;
-            if (Math.abs(diff) > 50) { active = wrap(diff > 0 ? active + 1 : active - 1); update(); }
+            if (Math.abs(diff) > 50) { active = wrap(diff > 0 ? active + 1 : active - 1); update(); fireChangeFx(); }
           }, { passive: true });
         }
         window.addEventListener('resize', update);

@@ -137,6 +137,66 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <!-- Analog film grain — the warmth of vinyl over the whole site -->
     <div class="grain" aria-hidden="true"></div>
 
+    <!-- Scroll progress stylus line -->
+    <div class="scroll-progress" aria-hidden="true"></div>
+
+    <!-- Motion helpers: scroll progress + letter-stagger heading reveals -->
+    <script is:inline>
+    (function () {
+      if (window.__zippyMotion) { return; }
+      window.__zippyMotion = true;
+      var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // Scroll progress
+      var ticking = false;
+      function paint() {
+        ticking = false;
+        var bar = document.querySelector('.scroll-progress');
+        if (!bar) return;
+        var max = document.documentElement.scrollHeight - innerHeight;
+        bar.style.transform = 'scaleX(' + (max > 0 ? Math.min(1, scrollY / max) : 0) + ')';
+      }
+      addEventListener('scroll', function () {
+        if (!ticking) { ticking = true; requestAnimationFrame(paint); }
+      }, { passive: true });
+
+      // Letter-stagger reveals (keeps the original text in aria-label for a11y/SEO)
+      function initSplits() {
+        paint();
+        document.querySelectorAll('.split-reveal').forEach(function (el) {
+          if (el.dataset.srBound) return;
+          el.dataset.srBound = '1';
+          if (reduce) { el.classList.add('play'); return; }
+          var walk = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+          var nodes = [];
+          while (walk.nextNode()) nodes.push(walk.currentNode);
+          el.setAttribute('aria-label', el.textContent.trim());
+          var i = 0;
+          nodes.forEach(function (node) {
+            var frag = document.createDocumentFragment();
+            node.textContent.split('').forEach(function (ch) {
+              if (ch === ' ') { frag.appendChild(document.createTextNode(' ')); return; }
+              var s = document.createElement('span');
+              s.className = 'sr-ch';
+              s.setAttribute('aria-hidden', 'true');
+              s.style.setProperty('--i', String(i++));
+              s.textContent = ch;
+              frag.appendChild(s);
+            });
+            node.parentNode.replaceChild(frag, node);
+          });
+          new IntersectionObserver(function (entries, obs) {
+            entries.forEach(function (e) {
+              if (e.isIntersecting) { e.target.classList.add('play'); obs.unobserve(e.target); }
+            });
+          }, { threshold: 0.4 }).observe(el);
+        });
+      }
+      document.addEventListener('astro:page-load', initSplits);
+      initSplits();
+    })();
+    </script>
+
     <!-- Custom cursor: an orange "frequency point" + ring (fine pointers only) -->
     <script is:inline>
     (function () {

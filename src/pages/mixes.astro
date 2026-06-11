@@ -74,7 +74,7 @@ const mixSchema = {
         </ol>
       </nav>
       <h1 class="font-display text-4xl md:text-5xl lg:text-6xl font-black leading-tight mb-4">Stream DJ Zippy</h1>
-      <h2 class="font-display text-xl md:text-2xl lg:text-3xl font-bold text-brand-orange mb-4">All <span class="text-brand-orange">Mixes</span> & Playlists</h2>
+      <h2 class="split-reveal font-display text-xl md:text-2xl lg:text-3xl font-bold text-brand-orange mb-4">All <span class="text-brand-orange">Mixes</span> & Playlists</h2>
       <p class="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto mb-8">Every House Music Therapy session. YouTube, MixCloud, Spotify, SoundCloud, and Deezer.</p>
     </div>
   </section>
@@ -105,6 +105,7 @@ const mixSchema = {
               : <div class="absolute inset-0 bg-gradient-to-br from-brand-gray to-brand-black flex items-center justify-center"><i class={`${mixFallbackIcon(m.platform)} text-6xl text-white/10`}></i></div>
             }
             {m.featured && <div class="absolute top-3 right-3 bg-brand-orange text-white text-xs font-bold px-2 py-1 rounded z-20">FEATURED</div>}
+            <div class="tilt-glare" aria-hidden="true"></div>
             <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
             <div class="absolute bottom-0 left-0 right-0 p-5 z-10">
               <div class="text-xs text-brand-orange font-bold uppercase mb-1">{m.genre}</div>
@@ -169,6 +170,23 @@ const mixSchema = {
     tabs.forEach(function(tab) {
       tab.addEventListener('click', function() { setFilter(tab.getAttribute('data-platform')); });
     });
+
+    // 3D tilt + glare following the cursor (fine pointers, motion allowed)
+    if (matchMedia('(pointer: fine)').matches && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      cards.forEach(function(card) {
+        card.addEventListener('pointermove', function(e) {
+          var r = card.getBoundingClientRect();
+          var px = (e.clientX - r.left) / r.width;
+          var py = (e.clientY - r.top) / r.height;
+          card.classList.add('tilting');
+          card.style.setProperty('--ty', ((px - 0.5) * 10) + 'deg');
+          card.style.setProperty('--tx', ((0.5 - py) * 8) + 'deg');
+          card.style.setProperty('--gx', (px * 100) + '%');
+          card.style.setProperty('--gy', (py * 100) + '%');
+        });
+        card.addEventListener('pointerleave', function() { card.classList.remove('tilting'); });
+      });
+    }
   }
   document.addEventListener('astro:page-load', initMixesTabs);
   </script>
