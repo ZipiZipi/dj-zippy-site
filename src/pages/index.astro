@@ -327,6 +327,8 @@ const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House'
       </div>
 
       <div id="highlights" class="relative pt-2 sm:pt-3 pb-10 sm:pb-14 z-30">
+        <!-- Higgsfield photoreal record-store crates: pans sideways as you flip records -->
+        <div class="store-layer" aria-hidden="true"></div>
         <div class="container mx-auto px-6 sm:px-8 lg:px-12">
           <div class="text-center mb-6 sm:mb-8">
             <h2 class="split-reveal font-display text-2xl md:text-3xl font-bold mb-1" style="text-shadow:0 1px 12px rgba(0,0,0,0.5);">Featured <span class="text-brand-orange">Mixes</span></h2>
@@ -456,6 +458,9 @@ const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House'
             var abs = Math.abs(off);
             var tx = off * gap;
             var tz = abs === 0 ? 80 : -(abs * 140);
+            // Crate effect: side records sit lower (tucked in the bin), the
+            // active one stands pulled out above them.
+            var tyP = abs === 0 ? -56 : -44;
             var ry = off < 0 ? 55 : off > 0 ? -55 : 0;
             var sc = abs === 0 ? 1.1 : Math.max(0.65, 0.85 - (abs - 1) * 0.15);
             var op = abs > 2 ? 0.15 : abs === 0 ? 1 : 0.5 - (abs - 1) * 0.15;
@@ -467,7 +472,7 @@ const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House'
               // Teleport instantly with no transition and invisible
               el.style.transition = 'none';
               el.style.opacity = '0';
-              el.style.transform = 'translateY(-50%) translateX(' + tx + 'px) translateZ(' + tz + 'px) rotateY(' + ry + 'deg) scale(' + sc + ')';
+              el.style.transform = 'translateY(' + tyP + '%) translateX(' + tx + 'px) translateZ(' + tz + 'px) rotateY(' + ry + 'deg) scale(' + sc + ')';
               el.style.zIndex = String(10 - abs);
               // Re-enable transition after paint so it fades in at new position
               requestAnimationFrame(function() {
@@ -478,7 +483,7 @@ const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House'
               });
             } else {
               el.style.transition = '';
-              el.style.transform = 'translateY(-50%) translateX(' + tx + 'px) translateZ(' + tz + 'px) rotateY(' + ry + 'deg) scale(' + sc + ')';
+              el.style.transform = 'translateY(' + tyP + '%) translateX(' + tx + 'px) translateZ(' + tz + 'px) rotateY(' + ry + 'deg) scale(' + sc + ')';
               el.style.zIndex = String(10 - abs);
               el.style.opacity = String(op);
             }
@@ -496,6 +501,8 @@ const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House'
           cf.appendChild(w);
           setTimeout(function() { w.remove(); }, 750);
           document.documentElement.style.setProperty('--psy-shift', (active * 16) + 'deg');
+          // Step along the crate row: pan the store photo with each record
+          document.documentElement.style.setProperty('--shelf-x', (((active % items.length) - items.length / 2) * 3) + '%');
           var d = items[active].querySelector('.cf-disc');
           if (d) { d.classList.remove('disc-pop'); void d.offsetWidth; d.classList.add('disc-pop'); }
         }

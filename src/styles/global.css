@@ -217,12 +217,28 @@ html.anim-ready [data-reveal]:not(.in-view) {
   to   { transform: scale(3.2); opacity: 0; }
 }
 
-/* New active disc pops into place */
-.cf-disc.disc-pop { animation: disc-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), vinyl-spin 9s linear infinite, disc-glow 2.4s ease-in-out infinite alternate; }
-@keyframes disc-pop {
-  0% { scale: 0.86; }
-  60% { scale: 1.05; }
-  100% { scale: 1; }
+/* New active record gets PULLED UP out of the crate (animates the `translate`
+   property so it composes with the transform-based vinyl-spin rotation) */
+.cf-disc.disc-pop { animation: disc-pull 0.55s cubic-bezier(0.34, 1.56, 0.64, 1), vinyl-spin 9s linear infinite, disc-glow 2.4s ease-in-out infinite alternate; }
+@keyframes disc-pull {
+  0%   { translate: 0 58px; opacity: 0.65; }
+  70%  { translate: 0 -6px; }
+  100% { translate: 0 0; opacity: 1; }
+}
+
+/* Record-store crate backdrop behind the coverflow. --shelf-x pans the photo
+   sideways on every record change — like stepping along the crate row. */
+.store-layer {
+  position: absolute;
+  inset: -6% -12%;
+  background-image: url('/images/art/record-store.webp');
+  background-size: cover;
+  background-position: calc(50% + var(--shelf-x, 0%)) 56%;
+  transition: background-position 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  opacity: 0.55;
+  pointer-events: none;
+  -webkit-mask-image: radial-gradient(80% 78% at 50% 56%, black 30%, transparent 76%);
+  mask-image: radial-gradient(80% 78% at 50% 56%, black 30%, transparent 76%);
 }
 
 /* The psy art shifts its hue with every record change — ambient that follows the music */
@@ -299,6 +315,7 @@ html.anim-ready [data-reveal]:not(.in-view) {
   ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
   .cf-shockwave { animation: none; opacity: 0; }
   .cf-disc.disc-pop { animation: none; }
+  .store-layer { transition: none; }
   .split-reveal .sr-ch { opacity: 1; transform: none; filter: none; transition: none; }
   .mix-card.tilting { transform: none; }
 }
