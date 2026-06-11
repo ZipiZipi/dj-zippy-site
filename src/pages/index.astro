@@ -11,16 +11,6 @@ const { upcoming } = await getEvents(db);
 const homeUpcoming = upcoming.slice(0, 4);
 const { featured: featuredMixes } = await getMixes(db);
 
-// Higgsfield promo teaser (set via POST /api/admin/teaser). When present it
-// plays as a lazy hero video layer and powers the "Download Promo Video" CTA.
-let heroVideo = '';
-if (db) {
-  try {
-    const row = await db.prepare("SELECT value FROM site_settings WHERE key='hero_video_url'").first();
-    heroVideo = (row?.value as string) ?? '';
-  } catch { /* table may not exist yet — hero gradient is the fallback */ }
-}
-
 const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House', 'Tech House', 'Novi Sad', 'Selector', 'Grooves'];
 ---
 
@@ -277,58 +267,14 @@ const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House'
       .coverflow-fade-wrap { -webkit-mask-image: none; mask-image: none; padding-top: 16px; padding-bottom: 16px; }
     }
 
-    /* Hero animated gradient — brand colours (black / orange / white) that
-       shift vertically as the page scrolls (driven by --hero-shift). */
-    .hero-gradient {
-      --hero-shift: 26%;
-      background-image: linear-gradient(168deg,
-        #050505 0%,
-        #120700 12%,
-        #3a1400 24%,
-        #99360a 36%,
-        #ff5500 48%,
-        #ff9a5e 55%,
-        #ffe6d8 61%,
-        #ff6a1f 69%,
-        #5e2106 80%,
-        #0a0604 92%,
-        #050505 100%);
-      background-size: 100% 235%;
-      background-position: 50% var(--hero-shift);
-      background-repeat: no-repeat;
-      will-change: background-position;
-    }
-    html.reduce-motion .hero-gradient { --hero-shift: 30%; }
   </style>
 
   <!-- "One Record, Every Horizon" — code-drawn scroll journey through the venues -->
   <Journey />
 
-  <section class="isolate relative flex flex-col items-center justify-center bg-brand-black pt-28 sm:pt-32">
-    <div class="absolute inset-0 overflow-hidden pointer-events-none">
-      <div class="hero-gradient absolute inset-0"></div>
-      <!-- Higgsfield psy art: healing-frequency waves drifting behind the vinyls -->
-      <div class="psy-layer absolute inset-0" aria-hidden="true"></div>
-      <!-- Promo teaser layer: loads after LCP (idle callback), fades in over the
-           gradient. preload="none" + deferred src keep it off the critical path. -->
-      {heroVideo && (
-        <video data-hero-video class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-1000"
-          muted loop playsinline preload="none" aria-hidden="true">
-          <source data-src={heroVideo} type="video/mp4" />
-        </video>
-      )}
-      <!-- legibility scrim: darker at the top (behind the title), clears lower so the gradient + vinyls show -->
-      <div class="absolute inset-0" style="background:linear-gradient(to bottom, rgba(5,5,7,0.5) 0%, rgba(5,5,7,0.12) 26%, rgba(5,5,7,0) 46%, rgba(5,5,7,0) 100%);"></div>
-    </div>
-    <div data-spotlight class="spotlight absolute inset-0 pointer-events-none z-10"></div>
-    <div class="container mx-auto px-6 sm:px-8 lg:px-12 text-center z-30">
-      <h1 class="font-display text-5xl md:text-7xl lg:text-9xl font-black leading-none glitch-text glitch-auto cursor-default mb-0" style="text-shadow:0 2px 34px rgba(0,0,0,0.55), 0 1px 2px rgba(0,0,0,0.6);">ZIPPY<span class="text-brand-orange">.</span></h1>
-      <h2 class="font-display text-2xl md:text-4xl lg:text-6xl font-black mb-0 text-transparent bg-clip-text bg-gradient-to-r from-brand-orange to-white tracking-tight" style="filter:drop-shadow(0 2px 16px rgba(0,0,0,0.5));">HOUSE MUSIC THERAPY</h2>
-      <div class="eq-bars mt-3" aria-hidden="true">
-        {Array.from({ length: 24 }).map(() => <span></span>)}
-      </div>
-
-      <div id="highlights" class="relative pt-2 sm:pt-3 pb-10 sm:pb-14 z-30">
+  <!-- The Collection — crate digging through featured mixes (brand intro lives in the Journey above) -->
+  <section class="isolate relative bg-brand-black py-14 sm:py-20 overflow-hidden">
+      <div id="highlights" class="relative pb-6 z-30">
         <!-- Higgsfield photoreal record-store crates: pans sideways as you flip records -->
         <div class="store-layer" aria-hidden="true"></div>
         <div class="dust" aria-hidden="true">
@@ -336,8 +282,9 @@ const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House'
         </div>
         <div class="container mx-auto px-6 sm:px-8 lg:px-12">
           <div class="text-center mb-6 sm:mb-8">
-            <h2 class="split-reveal font-display text-2xl md:text-3xl font-bold mb-1" style="text-shadow:0 1px 12px rgba(0,0,0,0.5);">Featured <span class="text-brand-orange">Mixes</span></h2>
-            <p class="text-gray-300 text-sm" style="text-shadow:0 1px 8px rgba(0,0,0,0.6);">Listen to DJ Zippy's latest sets and mixes.</p>
+            <span class="inline-block px-3 py-1 border border-brand-orange/50 rounded-full text-brand-orange text-[10px] font-bold tracking-[0.25em] mb-3" style="text-shadow:none;">THE COLLECTION</span>
+            <h2 class="split-reveal font-display text-2xl md:text-3xl font-bold mb-1" style="text-shadow:0 1px 12px rgba(0,0,0,0.5);">Dig through the <span class="text-brand-orange">crate</span></h2>
+            <p class="text-gray-300 text-sm" style="text-shadow:0 1px 8px rgba(0,0,0,0.6);">Featured House Music Therapy sets — scroll or flip to pull a record.</p>
           </div>
           <div class="relative px-6 sm:px-14">
             <button class="coverflow-nav prev" aria-label="Previous"><i class="fa-solid fa-chevron-left text-xl"></i></button>
@@ -371,7 +318,6 @@ const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House'
           </div>
         </div>
       </div>
-    </div>
   </section>
 
   <div class="marquee bg-brand-black border-y border-white/5 py-4 sm:py-5" aria-hidden="true">
@@ -391,14 +337,6 @@ const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House'
       <h2 class="split-reveal font-display text-3xl md:text-4xl font-bold mb-8 text-center">Upcoming <span class="text-brand-orange">Therapy</span></h2>
       <div class="mb-8">
         <Countdown event={upcoming[0] ?? null} />
-        {heroVideo && (
-          <div class="mt-4 text-center">
-            <a href={heroVideo} download target="_blank" rel="noopener" data-track="promo_download"
-              class="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-brand-orange transition-colors">
-              <i class="fa-solid fa-arrow-right rotate-90"></i> Download Promo Video (Reels / TikTok)
-            </a>
-          </div>
-        )}
       </div>
       <div class="space-y-1 flex flex-col items-center max-w-3xl mx-auto" data-reveal>
         {homeUpcoming.length === 0 && <p class="text-gray-400 text-center">No upcoming events scheduled.</p>}
@@ -571,46 +509,6 @@ const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House'
   }
   document.addEventListener('astro:page-load', initCoverflow);
 
-  // Hero gradient shifts its brand colours vertically as the page scrolls down.
-  function initHeroScroll() {
-    if (window.__motionOff()) return;
-    if (window.__heroScrollBound) { if (window.__heroApply) window.__heroApply(); return; }
-    window.__heroScrollBound = true;
-    var ticking = false;
-    function apply() {
-      ticking = false;
-      var hero = document.querySelector('.hero-gradient');
-      if (!hero) return;
-      var y = window.scrollY || window.pageYOffset || 0;
-      var p = Math.max(0, Math.min(1, y / (window.innerHeight * 1.4)));
-      hero.style.setProperty('--hero-shift', (26 + p * 54) + '%');
-    }
-    window.__heroApply = apply;
-    window.addEventListener('scroll', function() {
-      if (!ticking) { ticking = true; requestAnimationFrame(apply); }
-    }, { passive: true });
-    apply();
-  }
-  document.addEventListener('astro:page-load', initHeroScroll);
-
-  // Hero promo teaser: start the video only after the page is idle so it never
-  // competes with LCP; fade it in over the gradient (which stays as fallback).
-  function initHeroVideo() {
-    var v = document.querySelector('[data-hero-video]');
-    if (!v || v.dataset.ready) return;
-    v.dataset.ready = '1';
-    if (window.__motionOff()) return;
-    function start() {
-      var s = v.querySelector('source');
-      if (s && !s.src) { s.src = s.getAttribute('data-src'); v.load(); }
-      var p = v.play();
-      if (p && p.then) p.then(function () { v.style.opacity = '0.55'; }).catch(function () {});
-      else v.style.opacity = '0.55';
-    }
-    if ('requestIdleCallback' in window) requestIdleCallback(start, { timeout: 2500 });
-    else setTimeout(start, 1200);
-  }
-  document.addEventListener('astro:page-load', initHeroVideo);
   </script>
 
   <!-- "One Night of Therapy" — scroll-driven story (GSAP ScrollTrigger + Lenis) -->
