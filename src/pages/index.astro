@@ -329,6 +329,9 @@ const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House'
       <div id="highlights" class="relative pt-2 sm:pt-3 pb-10 sm:pb-14 z-30">
         <!-- Higgsfield photoreal record-store crates: pans sideways as you flip records -->
         <div class="store-layer" aria-hidden="true"></div>
+        <div class="dust" aria-hidden="true">
+          {Array.from({ length: 7 }).map(() => <span></span>)}
+        </div>
         <div class="container mx-auto px-6 sm:px-8 lg:px-12">
           <div class="text-center mb-6 sm:mb-8">
             <h2 class="split-reveal font-display text-2xl md:text-3xl font-bold mb-1" style="text-shadow:0 1px 12px rgba(0,0,0,0.5);">Featured <span class="text-brand-orange">Mixes</span></h2>
@@ -338,6 +341,7 @@ const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House'
             <button class="coverflow-nav prev" aria-label="Previous"><i class="fa-solid fa-chevron-left text-xl"></i></button>
             <div class="coverflow-fade-wrap">
               <div class="coverflow" id="coverflow-container">
+                <div class="crate-sleeve" aria-hidden="true"><div class="crate-sleeve-inner"></div></div>
                 {featuredMixes.map(m => (
                   <article class="coverflow-item text-center" data-link={m.link} data-platform={m.platform} data-title={m.title}>
                     <div class="cf-disc">
@@ -505,6 +509,9 @@ const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House'
           document.documentElement.style.setProperty('--shelf-x', (((active % items.length) - items.length / 2) * 3) + '%');
           var d = items[active].querySelector('.cf-disc');
           if (d) { d.classList.remove('disc-pop'); void d.offsetWidth; d.classList.add('disc-pop'); }
+          // Cardboard sleeve rises out of the crate; the disc slides out of it
+          var sl = cf.querySelector('.crate-sleeve');
+          if (sl) { sl.classList.remove('pull'); void sl.offsetWidth; sl.classList.add('pull'); }
         }
         items.forEach(function(el, i) {
           el.addEventListener('click', function() {

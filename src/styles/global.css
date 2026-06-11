@@ -218,12 +218,84 @@ html.anim-ready [data-reveal]:not(.in-view) {
 }
 
 /* New active record gets PULLED UP out of the crate (animates the `translate`
-   property so it composes with the transform-based vinyl-spin rotation) */
-.cf-disc.disc-pop { animation: disc-pull 0.55s cubic-bezier(0.34, 1.56, 0.64, 1), vinyl-spin 9s linear infinite, disc-glow 2.4s ease-in-out infinite alternate; }
+   property so it composes with the transform-based vinyl-spin rotation).
+   The hold at the start lets the cardboard sleeve rise first — the disc then
+   slides out of it. */
+.cf-disc.disc-pop { animation: disc-pull 0.9s cubic-bezier(0.34, 1.56, 0.64, 1), vinyl-spin 9s linear infinite, disc-glow 2.4s ease-in-out infinite alternate; }
 @keyframes disc-pull {
-  0%   { translate: 0 58px; opacity: 0.65; }
-  70%  { translate: 0 -6px; }
+  0%   { translate: 0 64px; opacity: 0.4; }
+  30%  { translate: 0 64px; opacity: 0.7; }
+  82%  { translate: 0 -7px; }
   100% { translate: 0 0; opacity: 1; }
+}
+
+/* Cardboard record sleeve that rises out of the crate on every record change,
+   holds while the disc slides out, then drops back into the row. */
+.crate-sleeve {
+  position: absolute; top: 50%; left: 50%;
+  width: clamp(132px, 18.5vw, 238px);
+  height: clamp(132px, 18.5vw, 238px);
+  margin-left: calc(clamp(132px, 18.5vw, 238px) / -2);
+  z-index: 4;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(44%) rotate(-2deg);
+}
+.crate-sleeve.pull { animation: sleeve-pull 1.15s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+@keyframes sleeve-pull {
+  0%   { opacity: 0; transform: translateY(48%) rotate(-3deg); }
+  16%  { opacity: 1; }
+  36%  { transform: translateY(-14%) rotate(1.6deg); }
+  58%  { transform: translateY(-11%) rotate(1deg); opacity: 1; }
+  100% { opacity: 0; transform: translateY(46%) rotate(-2deg); }
+}
+.crate-sleeve-inner {
+  position: absolute; inset: 0;
+  border-radius: 6px;
+  background:
+    linear-gradient(105deg, rgba(255,255,255,0.09), transparent 32%),
+    radial-gradient(120% 90% at 80% 10%, rgba(255,85,0,0.12), transparent 55%),
+    linear-gradient(180deg, #241b14 0%, #171210 55%, #0d0b09 100%);
+  box-shadow: 0 18px 44px rgba(0,0,0,0.8), inset 0 0 44px rgba(0,0,0,0.55), inset 0 2px 0 rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.05);
+}
+/* white paper inner-sleeve peeking out at the top + worn orange spine */
+.crate-sleeve-inner::before {
+  content: ''; position: absolute; left: 7%; right: 7%; top: -7px; height: 11px;
+  border-radius: 4px 4px 0 0;
+  background: linear-gradient(180deg, #ece6da, #b8b1a4);
+  box-shadow: 0 -1px 2px rgba(0,0,0,0.4);
+}
+.crate-sleeve-inner::after {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 7px;
+  border-radius: 6px 0 0 6px;
+  background: linear-gradient(180deg, #ff5500, #6e2600);
+  opacity: 0.85;
+}
+
+/* Dust motes drifting up through the crate light — the room feels alive */
+.dust { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.dust span {
+  position: absolute; bottom: -4%;
+  width: 4px; height: 4px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,190,150,0.9), rgba(255,120,40,0) 70%);
+  filter: blur(0.5px);
+  opacity: 0;
+  animation: dust-float 11s linear infinite;
+}
+.dust span:nth-child(1) { left: 12%; animation-duration: 13s; }
+.dust span:nth-child(2) { left: 28%; animation-duration: 9s;  animation-delay: 2s; width: 3px; height: 3px; }
+.dust span:nth-child(3) { left: 41%; animation-duration: 15s; animation-delay: 5s; }
+.dust span:nth-child(4) { left: 57%; animation-duration: 10s; animation-delay: 1s; width: 5px; height: 5px; filter: blur(1px); }
+.dust span:nth-child(5) { left: 69%; animation-duration: 14s; animation-delay: 7s; width: 3px; height: 3px; }
+.dust span:nth-child(6) { left: 83%; animation-duration: 12s; animation-delay: 3.5s; }
+.dust span:nth-child(7) { left: 93%; animation-duration: 16s; animation-delay: 6s; width: 3px; height: 3px; }
+@keyframes dust-float {
+  0%   { transform: translate(0, 0); opacity: 0; }
+  8%   { opacity: 0.7; }
+  45%  { transform: translate(14px, -45vh) ; opacity: 0.45; }
+  85%  { opacity: 0.15; }
+  100% { transform: translate(-10px, -88vh); opacity: 0; }
 }
 
 /* Record-store crate backdrop behind the coverflow. --shelf-x pans the photo
@@ -239,6 +311,15 @@ html.anim-ready [data-reveal]:not(.in-view) {
   pointer-events: none;
   -webkit-mask-image: radial-gradient(80% 78% at 50% 56%, black 30%, transparent 76%);
   mask-image: radial-gradient(80% 78% at 50% 56%, black 30%, transparent 76%);
+  animation: store-breathe 9s ease-in-out infinite;
+}
+/* The neon in the store slowly breathes, with a tiny flicker — live light */
+@keyframes store-breathe {
+  0%, 100% { filter: brightness(1); }
+  42% { filter: brightness(1.12) saturate(1.05); }
+  50% { filter: brightness(0.97); }
+  56% { filter: brightness(1.09); }
+  74% { filter: brightness(1.02); }
 }
 
 /* The psy art shifts its hue with every record change — ambient that follows the music */
@@ -315,7 +396,9 @@ html.anim-ready [data-reveal]:not(.in-view) {
   ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
   .cf-shockwave { animation: none; opacity: 0; }
   .cf-disc.disc-pop { animation: none; }
-  .store-layer { transition: none; }
+  .store-layer { transition: none; animation: none; }
+  .crate-sleeve.pull { animation: none; opacity: 0; }
+  .dust { display: none; }
   .split-reveal .sr-ch { opacity: 1; transform: none; filter: none; transition: none; }
   .mix-card.tilting { transform: none; }
 }
