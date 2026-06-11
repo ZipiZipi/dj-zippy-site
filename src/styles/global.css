@@ -438,24 +438,27 @@ html.anim-ready [data-reveal]:not(.in-view) {
   100% { transform: translate(0, 0); }
 }
 
-/* Respect reduced-motion: show everything, no looping motion */
-@media (prefers-reduced-motion: reduce) {
-  html.anim-ready [data-reveal]:not(.in-view) { opacity: 1; transform: none; }
-  [data-reveal] { transition: none; }
-  .marquee__track { animation: none; }
-  .aurora { animation: none; }
-  .coverflow-item.active .cf-disc { animation: none; }
-  [data-magnetic] { transition: none; }
-  .glitch-auto { animation: none; }
-  .eq-bars span { animation: none; height: 40%; }
-  .psy-layer { animation: none; transition: none; }
-  .grain { animation: none; }
-  ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
-  .cf-shockwave { animation: none; opacity: 0; }
-  .cf-disc.disc-pop { animation: none; }
-  .store-layer { transition: none; animation: none; }
-  .crate-sleeve.pull { animation: none; opacity: 0; }
-  .dust { display: none; }
-  .split-reveal .sr-ch { opacity: 1; transform: none; filter: none; transition: none; }
-  .mix-card.tilting { transform: none; }
-}
+/* Respect reduced-motion: show everything, no looping motion.
+   Gated by the html.reduce-motion class (set by the head script in Layout from
+   the OS preference) instead of a raw media query, so the ?motion=1 override
+   can force the full experience — e.g. on Windows machines where "Show
+   animations" is off system-wide and the browser reports reduce. */
+html.reduce-motion.anim-ready [data-reveal]:not(.in-view) { opacity: 1; transform: none; }
+html.reduce-motion [data-reveal] { transition: none; }
+html.reduce-motion .marquee__track { animation: none; }
+html.reduce-motion .aurora { animation: none; }
+html.reduce-motion .coverflow-item.active .cf-disc { animation: none; }
+html.reduce-motion [data-magnetic] { transition: none; }
+html.reduce-motion .glitch-auto { animation: none; }
+html.reduce-motion .eq-bars span { animation: none; height: 40%; }
+html.reduce-motion .psy-layer { animation: none; transition: none; }
+html.reduce-motion .grain { animation: none; }
+html.reduce-motion::view-transition-old(root),
+html.reduce-motion::view-transition-new(root) { animation: none; }
+html.reduce-motion .cf-shockwave { animation: none; opacity: 0; }
+html.reduce-motion .cf-disc.disc-pop { animation: none; }
+html.reduce-motion .store-layer { transition: none; animation: none; }
+html.reduce-motion .crate-sleeve.pull { animation: none; opacity: 0; }
+html.reduce-motion .dust { display: none; }
+html.reduce-motion .split-reveal .sr-ch { opacity: 1; transform: none; filter: none; transition: none; }
+html.reduce-motion .mix-card.tilting { transform: none; }

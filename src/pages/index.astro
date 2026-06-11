@@ -297,9 +297,7 @@ const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House'
       background-repeat: no-repeat;
       will-change: background-position;
     }
-    @media (prefers-reduced-motion: reduce) {
-      .hero-gradient { --hero-shift: 30%; }
-    }
+    html.reduce-motion .hero-gradient { --hero-shift: 30%; }
   </style>
 
   <!-- Act 0 — Silence: every night starts with a single pulse in the dark -->
@@ -542,7 +540,7 @@ const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House'
         // of the psy layer, and a pop on the newly active disc.
         function fireChangeFx() {
           var cf = document.querySelector('.coverflow');
-          if (!cf || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+          if (!cf || window.__motionOff()) return;
           var w = document.createElement('div');
           w.className = 'cf-shockwave';
           cf.appendChild(w);
@@ -600,7 +598,7 @@ const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House'
 
   // Hero gradient shifts its brand colours vertically as the page scrolls down.
   function initHeroScroll() {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (window.__motionOff()) return;
     if (window.__heroScrollBound) { if (window.__heroApply) window.__heroApply(); return; }
     window.__heroScrollBound = true;
     var ticking = false;
@@ -626,7 +624,7 @@ const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House'
     var v = document.querySelector('[data-hero-video]');
     if (!v || v.dataset.ready) return;
     v.dataset.ready = '1';
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    if (window.__motionOff()) return;
     function start() {
       var s = v.querySelector('source');
       if (s && !s.src) { s.src = s.getAttribute('data-src'); v.load(); }
@@ -649,7 +647,7 @@ const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House'
       const act0 = document.getElementById('act-silence');
       if (!act0 || act0.dataset.storyBound) return;
       act0.dataset.storyBound = '1';
-      if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      if ((window as any).__motionOff()) return;
 
       gsap.registerPlugin(ScrollTrigger);
       const lenis = (window as any).__lenis;

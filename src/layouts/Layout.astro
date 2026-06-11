@@ -124,6 +124,25 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
     <ViewTransitions />
     <script is:inline>document.documentElement.classList.add('anim-ready');</script>
+    <!-- Motion gate (html.reduce-motion + window.__motionOff()). Artist call:
+         the full animated experience is ON by default — Windows machines often
+         report prefers-reduced-motion because "Show animations" is a perf
+         tweak, not a deliberate choice. Visitors can opt out with ?motion=0
+         (persisted); ?motion=1 re-enables. -->
+    <script is:inline>
+    (function () {
+      var reduce = false;
+      try {
+        var q = new URLSearchParams(location.search).get('motion');
+        if (q === '1' || q === '0') localStorage.setItem('zippy-motion', q);
+        reduce = localStorage.getItem('zippy-motion') === '0';
+      } catch (_) {}
+      if (reduce) document.documentElement.classList.add('reduce-motion');
+      window.__motionOff = function () {
+        return document.documentElement.classList.contains('reduce-motion');
+      };
+    })();
+    </script>
   </head>
   <body class="overflow-x-hidden selection:bg-brand-orange selection:text-white">
     <!-- GTM noscript -->
@@ -145,7 +164,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     (function () {
       if (window.__zippyMotion) { return; }
       window.__zippyMotion = true;
-      var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var reduce = window.__motionOff();
 
       // Scroll progress
       var ticking = false;
@@ -202,7 +221,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     (function () {
       if (window.__zippyCursor) return;
       if (!matchMedia('(pointer: fine)').matches) return;
-      if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      if (window.__motionOff()) return;
       window.__zippyCursor = true;
       var dot = document.createElement('div'); dot.className = 'cursor-dot';
       var ring = document.createElement('div'); ring.className = 'cursor-ring';
@@ -228,7 +247,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
          reduced-motion users; survives ViewTransitions since the module runs once) -->
     <script>
       import Lenis from 'lenis';
-      if (!(window as any).__lenis && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      if (!(window as any).__lenis && !(window as any).__motionOff()) {
         const lenis = new Lenis({ duration: 1.1, smoothWheel: true });
         (window as any).__lenis = lenis;
         const raf = (t: number) => { lenis.raf(t); requestAnimationFrame(raf); };
@@ -239,7 +258,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <!-- Site animations: scroll-reveal, hero spotlight, magnetic buttons -->
     <script>
       function setupAnimations() {
-        const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const reduce = (window as any).__motionOff();
 
         // Scroll-reveal
         const revealEls = document.querySelectorAll('[data-reveal]');
