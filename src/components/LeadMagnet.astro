@@ -1,15 +1,30 @@
 ---
 // Lead magnet: "Unlock unreleased mixes" newsletter capture.
 // variant="inline"  → benefit-first section (Tier 1 pattern: Brejcha/Lens style)
+// variant="story"   → bare form block for the homepage journey chapter (the
+//                     page provides the heading and the scene provides the bg)
 // variant="popup"   → polite dialog: fires once at 60% scroll or exit intent,
 //                     then stays silent for 14 days (localStorage cap).
 interface Props {
-  variant?: 'inline' | 'popup';
+  variant?: 'inline' | 'popup' | 'story';
 }
 const { variant = 'inline' } = Astro.props;
 ---
 
-{variant === 'inline' ? (
+{variant === 'story' ? (
+  <div class="max-w-md mx-auto text-center">
+    <form data-lead-form data-source="inline" class="flex flex-col sm:flex-row gap-3">
+      <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" class="hidden" />
+      <input type="email" name="email" required placeholder="your@email.com" autocomplete="email"
+        class="flex-1 bg-black/40 backdrop-blur-sm border border-white/20 rounded-full px-5 py-3 text-sm text-white placeholder-gray-400 focus:border-brand-orange focus:outline-none" />
+      <button type="submit"
+        class="bg-brand-orange hover:bg-white hover:text-brand-black text-white text-sm font-bold uppercase tracking-widest px-6 py-3 rounded-full transition-colors">
+        Unlock
+      </button>
+    </form>
+    <p data-lead-msg class="hidden text-sm mt-3" style="text-shadow:0 1px 8px rgba(0,0,0,0.8);"></p>
+  </div>
+) : variant === 'inline' ? (
   <section class="isolate relative py-12 sm:py-16 bg-brand-dark border-t border-white/5">
     <div class="container mx-auto px-6 sm:px-8 lg:px-12">
       <div class="max-w-2xl mx-auto text-center">

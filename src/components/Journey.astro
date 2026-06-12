@@ -1,10 +1,10 @@
 ---
-// "One Record, Every Horizon" — the homepage IS the animation.
-// Opens on the brand (real H1, perfect LCP), then one vinyl record travels as
-// a celestial body through five code-drawn landscapes — each one the vibe of
-// a venue type Zippy plays (festival / club / bar / afterhours) — and lands on
-// a turntable waiting on a summit at dawn. Layered SVG parallax + particles,
-// scrubbed by GSAP ScrollTrigger. Video swap-in plan: docs/one-record-every-horizon.md
+// "One Record, Every Horizon" — the WORLD layer.
+// A fixed, full-viewport stack of five code-drawn landscapes plus the traveling
+// vinyl record. The real homepage sections (brand, collection, events, lead
+// magnet, booking) scroll OVER this world; each section's arrival scrubs the
+// crossfade to its scene and moves the record. So the story runs through every
+// section, not just a hero. Video swap-in plan: docs/one-record-every-horizon.md
 
 // Deterministic star field (x%, y%, twinkle delay s, scale)
 const STARS: Array<[number, number, number, number]> = [
@@ -15,167 +15,133 @@ const STARS: Array<[number, number, number, number]> = [
 ];
 ---
 
-<section id="journey" class="journey isolate relative bg-brand-black" aria-label="One record, every horizon — a journey through the venues Zippy plays">
-  <div class="j-stage">
+<div id="journey-world" class="j-world" aria-hidden="true">
 
-    <!-- Opening: the brand. Real H1 — first thing painted, first thing read. -->
-    <div class="j-brand">
-      <p class="j-brand-kicker">ONE RECORD. EVERY HORIZON.</p>
-      <h1 class="j-brand-h glitch-text glitch-auto">ZIPPY<span class="text-brand-orange">.</span></h1>
-      <p class="j-brand-sub">HOUSE MUSIC THERAPY</p>
-      <div class="eq-bars mt-4" aria-hidden="true">
-        {Array.from({ length: 24 }).map(() => <span></span>)}
-      </div>
+  <!-- Scene 0: night / eclipse (base) -->
+  <div class="j-scene j-ecl" data-s="ecl">
+    <div class="j-stars">
+      {STARS.map(([x, y, d, s]) => <i style={`left:${x}%;top:${y}%;animation-delay:${d}s;transform:scale(${s})`}></i>)}
     </div>
-
-    <!-- The traveling record -->
-    <div class="j-disc" aria-hidden="true">
-      <div class="j-disc-glow"></div>
-      <div class="j-disc-core">
-        <div class="j-disc-label"></div>
-        <div class="j-disc-hole"></div>
-      </div>
-    </div>
-
-    <!-- Scene 0: night / eclipse (base) -->
-    <div class="j-scene j-ecl" data-s="ecl">
-      <div class="j-stars">
-        {STARS.map(([x, y, d, s]) => <i style={`left:${x}%;top:${y}%;animation-delay:${d}s;transform:scale(${s})`}></i>)}
-      </div>
-    </div>
-
-    <!-- Scene 1: canyon = festival -->
-    <div class="j-scene j-can" data-s="can">
-      <div class="j-can-sky"></div>
-      <div class="j-can-haze"></div>
-      <div class="j-ray j-ray-a"></div>
-      <div class="j-ray j-ray-b"></div>
-      <svg class="j-layer" data-depth="0.8" viewBox="0 0 100 100" preserveAspectRatio="none"><path fill="#230e05" d="M0 62 C 10 54 16 60 26 50 C 34 44 40 56 50 48 C 60 42 66 54 76 46 C 84 40 92 52 100 46 V100 H0 Z"/></svg>
-      <svg class="j-layer" data-depth="1.6" viewBox="0 0 100 100" preserveAspectRatio="none"><path fill="#150904" d="M0 74 C 12 62 20 70 30 58 C 40 48 48 64 58 54 C 70 44 78 62 88 52 C 94 46 98 56 100 52 V100 H0 Z"/></svg>
-      <svg class="j-layer" data-depth="2.6" viewBox="0 0 100 100" preserveAspectRatio="none"><path fill="#0a0402" d="M0 88 C 14 74 24 84 36 70 C 46 60 56 76 68 64 C 78 56 88 72 100 62 V100 H0 Z"/></svg>
-      <svg class="j-layer" data-depth="3.4" viewBox="0 0 100 100" preserveAspectRatio="none"><path fill="#040201" d="M0 100 V92 C 18 82 30 92 44 84 C 60 76 72 90 100 80 V100 Z"/></svg>
-      <div class="j-parts j-dustp">{Array.from({ length: 6 }).map(() => <span></span>)}</div>
-    </div>
-
-    <!-- Scene 2: night forest = club -->
-    <div class="j-scene j-for" data-s="for">
-      <div class="j-for-sky"></div>
-      <div class="j-canopy"></div>
-      <svg class="j-layer" data-depth="0.9" viewBox="0 0 100 100" preserveAspectRatio="none">
-        <g fill="#0e0804">
-          <polygon points="6,100 6.9,0 8.1,0 9,100"/><polygon points="17,100 17.6,0 18.6,0 19.2,100"/>
-          <polygon points="29,100 30,0 31.6,0 32.6,100"/><polygon points="43,100 43.7,0 44.9,0 45.6,100"/>
-          <polygon points="58,100 58.9,0 60.3,0 61.2,100"/><polygon points="71,100 71.5,0 72.5,0 73,100"/>
-          <polygon points="83,100 83.9,0 85.5,0 86.4,100"/><polygon points="94,100 94.6,0 95.7,0 96.3,100"/>
-        </g>
-      </svg>
-      <div class="j-midfog"></div>
-      <svg class="j-layer" data-depth="2.8" viewBox="0 0 100 100" preserveAspectRatio="none">
-        <g fill="#040201">
-          <polygon points="0,100 1.4,0 5.4,0 6.8,100"/><polygon points="20,100 21.6,0 26.4,0 28,100"/>
-          <polygon points="48,100 49.2,0 53.2,0 54.4,100"/><polygon points="67,100 68.8,0 73.6,0 75.4,100"/>
-          <polygon points="89,100 90.2,0 94.6,0 95.8,100"/>
-        </g>
-      </svg>
-      <div class="j-fog"></div>
-      <div class="j-parts j-flies">{Array.from({ length: 8 }).map(() => <span></span>)}</div>
-    </div>
-
-    <!-- Scene 3: open sea at dusk = bar / sunset set -->
-    <div class="j-scene j-sea" data-s="sea">
-      <div class="j-sea-sky"></div>
-      <div class="j-sea-water" data-depth="0.6"></div>
-      <div class="j-glint"></div>
-      <div class="j-sea-reflect"></div>
-      <svg class="j-wavehz" viewBox="0 0 1200 24" preserveAspectRatio="none" aria-hidden="true">
-        <path d="M0 12 Q 50 8 100 12 T 200 12 T 300 10 T 400 14 T 500 11 T 600 13 T 700 10 T 800 14 T 900 11 T 1000 13 T 1100 11 T 1200 12" fill="none" stroke="rgba(255,110,40,0.55)" stroke-width="2"/>
-      </svg>
-    </div>
-
-    <!-- Scene 4: underwater = afterhours -->
-    <div class="j-scene j-und" data-s="und">
-      <div class="j-und-deep"></div>
-      <div class="j-caustics"></div>
-      <div class="j-shaft j-shaft-a" data-depth="0.8"></div>
-      <div class="j-shaft j-shaft-b" data-depth="1.4"></div>
-      <div class="j-parts j-bubs">{Array.from({ length: 9 }).map(() => <span></span>)}</div>
-    </div>
-
-    <!-- Scene 5: summit above the clouds = dawn -->
-    <div class="j-scene j-sum" data-s="sum">
-      <div class="j-sum-sky"></div>
-      <div class="j-stars j-stars-fade">
-        {STARS.slice(0, 9).map(([x, y, d, s]) => <i style={`left:${x}%;top:${y * 0.8}%;animation-delay:${d}s;transform:scale(${s})`}></i>)}
-      </div>
-      <svg class="j-layer" data-depth="0.5" viewBox="0 0 100 100" preserveAspectRatio="none"><path fill="#0e0605" d="M0 70 C 12 58 22 66 34 56 C 46 48 58 60 70 52 C 80 46 92 58 100 52 V100 H0 Z" opacity="0.8"/></svg>
-      <div class="j-cloud j-cloud-a" data-depth="0.7"></div>
-      <div class="j-cloud j-cloud-b" data-depth="1.2"></div>
-      <svg class="j-layer" data-depth="0.9" viewBox="0 0 100 100" preserveAspectRatio="none">
-        <path fill="#050202" d="M8 100 L44 32 L50 27 L57 36 L66 31 L92 100 Z"/>
-        <g class="j-deck">
-          <rect x="45.5" y="24.4" width="9" height="2.4" rx="0.5" fill="#120b07"/>
-          <circle cx="49.5" cy="24" r="1.8" fill="#1a0f08" stroke="#3a1c0b" stroke-width="0.35"/>
-          <line x1="53.2" y1="22.4" x2="51.2" y2="24" stroke="#42200d" stroke-width="0.45" stroke-linecap="round"/>
-        </g>
-      </svg>
-      <div class="j-cloud j-cloud-c" data-depth="2"></div>
-      <div class="j-sun-overlay"></div>
-    </div>
-
-    <!-- Cinematic vignette over every scene -->
-    <div class="j-vignette" aria-hidden="true"></div>
-
-    <!-- Captions -->
-    <div class="j-cap" data-cap="can">
-      <span class="j-cap-k">VENUE 01 — OPEN AIR</span>
-      <h3 class="j-cap-t">FESTIVAL</h3>
-      <p class="j-cap-sub">Open sky. One groove, fifty thousand hearts.</p>
-    </div>
-    <div class="j-cap" data-cap="for">
-      <span class="j-cap-k">VENUE 02 — UNDERGROUND</span>
-      <h3 class="j-cap-t">CLUB</h3>
-      <p class="j-cap-sub">Four walls of trees. Hypnosis at 124 BPM.</p>
-    </div>
-    <div class="j-cap" data-cap="sea">
-      <span class="j-cap-k">VENUE 03 — SUNSET SESSION</span>
-      <h3 class="j-cap-t">GOLDEN HOUR</h3>
-      <p class="j-cap-sub">Salt air, slow grooves.</p>
-    </div>
-    <div class="j-cap" data-cap="und">
-      <span class="j-cap-k">VENUE 04 — 5AM</span>
-      <h3 class="j-cap-t">AFTERHOURS</h3>
-      <p class="j-cap-sub">Weightless. The deep end of therapy.</p>
-    </div>
-    <div class="j-cap" data-cap="sum">
-      <span class="j-cap-k">EVERY NIGHT ENDS THE SAME WAY</span>
-      <h3 class="j-cap-t">SUNRISE</h3>
-      <p class="j-cap-sub">Wherever your floor is — bring the therapy.</p>
-      <a href="#contact" data-track="booking" class="j-cap-cta">Book DJ Zippy</a>
-    </div>
-
-    <!-- Journey progress (which venue you're in) -->
-    <div class="j-dots" aria-hidden="true">
-      {['I', 'II', 'III', 'IV', 'V'].map((n) => <span>{n}</span>)}
-    </div>
-
-    <div class="j-hint" aria-hidden="true">SCROLL</div>
   </div>
-</section>
+
+  <!-- Scene 1: canyon = festival -->
+  <div class="j-scene j-can" data-s="can">
+    <div class="j-can-sky"></div>
+    <div class="j-can-haze"></div>
+    <div class="j-ray j-ray-a"></div>
+    <div class="j-ray j-ray-b"></div>
+    <svg class="j-layer" data-depth="0.8" viewBox="0 0 100 100" preserveAspectRatio="none"><path fill="#230e05" d="M0 62 C 10 54 16 60 26 50 C 34 44 40 56 50 48 C 60 42 66 54 76 46 C 84 40 92 52 100 46 V100 H0 Z"/></svg>
+    <svg class="j-layer" data-depth="1.6" viewBox="0 0 100 100" preserveAspectRatio="none"><path fill="#150904" d="M0 74 C 12 62 20 70 30 58 C 40 48 48 64 58 54 C 70 44 78 62 88 52 C 94 46 98 56 100 52 V100 H0 Z"/></svg>
+    <svg class="j-layer" data-depth="2.6" viewBox="0 0 100 100" preserveAspectRatio="none"><path fill="#0a0402" d="M0 88 C 14 74 24 84 36 70 C 46 60 56 76 68 64 C 78 56 88 72 100 62 V100 H0 Z"/></svg>
+    <div class="j-parts j-dustp">{Array.from({ length: 6 }).map(() => <span></span>)}</div>
+  </div>
+
+  <!-- Scene 2: night forest = club -->
+  <div class="j-scene j-for" data-s="for">
+    <div class="j-for-sky"></div>
+    <div class="j-canopy"></div>
+    <svg class="j-layer" data-depth="0.9" viewBox="0 0 100 100" preserveAspectRatio="none">
+      <g fill="#0e0804">
+        <polygon points="6,100 6.9,0 8.1,0 9,100"/><polygon points="17,100 17.6,0 18.6,0 19.2,100"/>
+        <polygon points="29,100 30,0 31.6,0 32.6,100"/><polygon points="43,100 43.7,0 44.9,0 45.6,100"/>
+        <polygon points="58,100 58.9,0 60.3,0 61.2,100"/><polygon points="71,100 71.5,0 72.5,0 73,100"/>
+        <polygon points="83,100 83.9,0 85.5,0 86.4,100"/><polygon points="94,100 94.6,0 95.7,0 96.3,100"/>
+      </g>
+    </svg>
+    <div class="j-midfog"></div>
+    <svg class="j-layer" data-depth="2.8" viewBox="0 0 100 100" preserveAspectRatio="none">
+      <g fill="#040201">
+        <polygon points="0,100 1.4,0 5.4,0 6.8,100"/><polygon points="20,100 21.6,0 26.4,0 28,100"/>
+        <polygon points="48,100 49.2,0 53.2,0 54.4,100"/><polygon points="67,100 68.8,0 73.6,0 75.4,100"/>
+        <polygon points="89,100 90.2,0 94.6,0 95.8,100"/>
+      </g>
+    </svg>
+    <div class="j-fog"></div>
+    <div class="j-parts j-flies">{Array.from({ length: 8 }).map(() => <span></span>)}</div>
+  </div>
+
+  <!-- Scene 3: open sea at dusk = bar / sunset set -->
+  <div class="j-scene j-sea" data-s="sea">
+    <div class="j-sea-sky"></div>
+    <div class="j-sea-water" data-depth="0.6"></div>
+    <div class="j-glint"></div>
+    <div class="j-sea-reflect"></div>
+    <svg class="j-wavehz" viewBox="0 0 1200 24" preserveAspectRatio="none">
+      <path d="M0 12 Q 50 8 100 12 T 200 12 T 300 10 T 400 14 T 500 11 T 600 13 T 700 10 T 800 14 T 900 11 T 1000 13 T 1100 11 T 1200 12" fill="none" stroke="rgba(255,110,40,0.55)" stroke-width="2"/>
+    </svg>
+  </div>
+
+  <!-- Scene 4: underwater = afterhours -->
+  <div class="j-scene j-und" data-s="und">
+    <div class="j-und-deep"></div>
+    <div class="j-caustics"></div>
+    <div class="j-shaft j-shaft-a" data-depth="0.8"></div>
+    <div class="j-shaft j-shaft-b" data-depth="1.4"></div>
+    <div class="j-parts j-bubs">{Array.from({ length: 9 }).map(() => <span></span>)}</div>
+  </div>
+
+  <!-- Scene 5: summit above the clouds = dawn -->
+  <div class="j-scene j-sum" data-s="sum">
+    <div class="j-sum-sky"></div>
+    <div class="j-stars j-stars-fade">
+      {STARS.slice(0, 9).map(([x, y, d, s]) => <i style={`left:${x}%;top:${y * 0.8}%;animation-delay:${d}s;transform:scale(${s})`}></i>)}
+    </div>
+    <svg class="j-layer" data-depth="0.5" viewBox="0 0 100 100" preserveAspectRatio="none"><path fill="#0e0605" d="M0 70 C 12 58 22 66 34 56 C 46 48 58 60 70 52 C 80 46 92 58 100 52 V100 H0 Z" opacity="0.8"/></svg>
+    <div class="j-cloud j-cloud-a" data-depth="0.7"></div>
+    <div class="j-cloud j-cloud-b" data-depth="1.2"></div>
+    <svg class="j-layer" data-depth="0.9" viewBox="0 0 100 100" preserveAspectRatio="none">
+      <path fill="#050202" d="M8 100 L44 32 L50 27 L57 36 L66 31 L92 100 Z"/>
+      <g class="j-deck">
+        <rect x="45.5" y="24.4" width="9" height="2.4" rx="0.5" fill="#120b07"/>
+        <circle cx="49.5" cy="24" r="1.8" fill="#1a0f08" stroke="#3a1c0b" stroke-width="0.35"/>
+        <line x1="53.2" y1="22.4" x2="51.2" y2="24" stroke="#42200d" stroke-width="0.45" stroke-linecap="round"/>
+      </g>
+    </svg>
+    <div class="j-cloud j-cloud-c" data-depth="2"></div>
+    <div class="j-sun-overlay"></div>
+  </div>
+
+  <!-- The traveling record -->
+  <div class="j-disc">
+    <div class="j-disc-glow"></div>
+    <div class="j-disc-core">
+      <div class="j-disc-label"></div>
+      <div class="j-disc-hole"></div>
+    </div>
+  </div>
+
+  <!-- Cinematic vignette -->
+  <div class="j-vignette"></div>
+
+  <!-- Venue progress marks -->
+  <div class="j-dots">
+    {['I', 'II', 'III', 'IV', 'V'].map((n) => <span>{n}</span>)}
+  </div>
+</div>
 
 <style is:global>
-  .journey { overflow: hidden; }
-  .j-stage {
-    position: relative;
-    height: 100vh; height: 100svh;
-    display: flex; align-items: center; justify-content: center;
-  }
+  .j-world { position: fixed; inset: 0; z-index: 0; pointer-events: none; background: #020202; }
 
   .j-scene { position: absolute; inset: 0; opacity: 0; visibility: hidden; }
   .j-scene.j-ecl { opacity: 1; visibility: visible; background: radial-gradient(120% 90% at 50% 110%, #120705 0%, #060304 45%, #020202 100%); }
   .j-layer { position: absolute; inset: -8% 0; width: 100%; height: 116%; }
 
-  /* Brand opening */
-  .j-brand { position: relative; z-index: 24; text-align: center; padding: 0 1.5rem; }
+  /* Story sections that float over the world */
+  .j-chapter { position: relative; z-index: 10; }
+  .j-chapter-head { text-align: center; margin-bottom: 2rem; }
+  .j-kicker {
+    display: block; color: rgba(255, 140, 70, 0.85);
+    font-size: 0.6rem; font-weight: 700; letter-spacing: 0.45em; margin-bottom: 0.7rem;
+  }
+  .j-title {
+    font-family: 'Unbounded', sans-serif; font-weight: 900;
+    font-size: clamp(1.7rem, 4.5vw, 3rem); letter-spacing: 0.12em;
+    color: #fff; text-shadow: 0 2px 24px rgba(0,0,0,0.7);
+  }
+  .j-title::after { content: ''; display: block; width: 56px; height: 2px; margin: 0.7rem auto 0; background: #FF5500; box-shadow: 0 0 10px rgba(255,85,0,0.8); }
+  .j-sub { color: rgba(235, 225, 218, 0.85); font-size: clamp(0.95rem, 2vw, 1.15rem); text-shadow: 0 1px 12px rgba(0,0,0,0.8); margin-top: 0.6rem; }
+
+  /* Brand opening (lives in the first chapter section) */
   .j-brand-kicker {
     color: rgba(255, 130, 60, 0.85); font-size: 0.62rem; font-weight: 700;
     letter-spacing: 0.5em; margin-bottom: 1.2rem;
@@ -192,6 +158,11 @@ const STARS: Array<[number, number, number, number]> = [
     -webkit-background-clip: text; background-clip: text; color: transparent;
     filter: drop-shadow(0 2px 16px rgba(0, 0, 0, 0.5));
   }
+  .j-hint {
+    color: rgba(255,255,255,0.4); font-size: 0.65rem; letter-spacing: 0.5em; font-weight: 700;
+    animation: j-hintpulse 2.2s ease-in-out infinite;
+  }
+  @keyframes j-hintpulse { 0%, 100% { opacity: 0.35; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-6px); } }
 
   /* Stars */
   .j-stars { position: absolute; inset: 0; }
@@ -208,7 +179,7 @@ const STARS: Array<[number, number, number, number]> = [
     position: absolute; left: 50%; top: 118%;
     width: clamp(120px, 17vw, 220px); height: clamp(120px, 17vw, 220px);
     margin-left: calc(clamp(120px, 17vw, 220px) / -2);
-    z-index: 20; pointer-events: none;
+    z-index: 20;
   }
   .j-disc-core {
     position: absolute; inset: 0; border-radius: 50%;
@@ -387,37 +358,9 @@ const STARS: Array<[number, number, number, number]> = [
   }
 
   .j-vignette {
-    position: absolute; inset: 0; z-index: 22; pointer-events: none;
+    position: absolute; inset: 0; z-index: 22;
     background: radial-gradient(120% 120% at 50% 45%, transparent 55%, rgba(0, 0, 0, 0.5) 100%);
   }
-
-  /* Captions */
-  .j-cap {
-    position: absolute; left: 50%; bottom: 13%;
-    transform: translateX(-50%);
-    width: min(92vw, 640px); text-align: center;
-    opacity: 0; visibility: hidden; z-index: 30;
-  }
-  .j-cap-k {
-    display: block; color: rgba(255, 140, 70, 0.85);
-    font-size: 0.6rem; font-weight: 700; letter-spacing: 0.45em; margin-bottom: 0.7rem;
-  }
-  .j-cap-t {
-    font-family: 'Unbounded', sans-serif; font-weight: 900;
-    font-size: clamp(1.6rem, 4.5vw, 3rem); letter-spacing: 0.14em;
-    color: #fff; text-shadow: 0 2px 24px rgba(0,0,0,0.7);
-    margin-bottom: 0.4rem;
-  }
-  .j-cap-t::after { content: ''; display: block; width: 56px; height: 2px; margin: 0.6rem auto 0; background: #FF5500; box-shadow: 0 0 10px rgba(255,85,0,0.8); }
-  .j-cap-sub { color: rgba(235, 225, 218, 0.85); font-size: clamp(0.95rem, 2vw, 1.15rem); text-shadow: 0 1px 12px rgba(0,0,0,0.8); }
-  .j-cap-cta {
-    display: inline-block; margin-top: 1.1rem;
-    background: #FF5500; color: #fff;
-    font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2em;
-    padding: 0.85rem 2rem; border-radius: 9999px;
-    transition: background 0.3s, color 0.3s;
-  }
-  .j-cap-cta:hover { background: #fff; color: #050505; }
 
   /* Venue progress marks */
   .j-dots {
@@ -435,114 +378,121 @@ const STARS: Array<[number, number, number, number]> = [
   }
   @media (max-width: 640px) { .j-dots { right: 3%; gap: 0.8rem; } }
 
-  .j-hint {
-    position: absolute; left: 50%; bottom: 4%; transform: translateX(-50%);
-    color: rgba(255,255,255,0.4); font-size: 0.65rem; letter-spacing: 0.5em; font-weight: 700;
-    animation: j-hintpulse 2.2s ease-in-out infinite; z-index: 30;
-  }
-  @keyframes j-hintpulse { 0%, 100% { opacity: 0.35; transform: translate(-50%, 0); } 50% { opacity: 1; transform: translate(-50%, -6px); } }
-
-  /* Reduced motion: keep the brand (it holds the H1), drop the moving scenery */
-  html.reduce-motion .j-stage { height: auto; padding: 9rem 0 5rem; }
-  html.reduce-motion .j-scene,
-  html.reduce-motion .j-disc,
-  html.reduce-motion .j-cap,
-  html.reduce-motion .j-dots,
-  html.reduce-motion .j-vignette,
-  html.reduce-motion .j-hint { display: none; }
+  /* Reduced motion: no moving world — sections stand on plain black */
+  html.reduce-motion .j-world { display: none; }
 </style>
 
 <script>
   import { gsap } from 'gsap';
   import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-  function initJourney() {
-    const stage = document.querySelector('.j-stage') as HTMLElement | null;
-    if (!stage || stage.dataset.bound) return;
-    stage.dataset.bound = '1';
+  // Each chapter section (.j-chapter[data-scene]) scrubs the world to its scene
+  // as it scrolls into view, and parks the record at its scene position.
+  const DISC: Record<string, Record<string, string | number>> = {
+    can: { top: '22%', x: '0vw', scale: 1.08 },
+    for: { top: '13%', x: '13vw', scale: 0.5 },
+    sea: { top: '33%', x: '0vw', scale: 0.66 },
+    und: { top: '58%', x: '0vw', scale: 0.5 },
+    sum: { top: '15%', x: '-0.5vw', scale: 0.2 },
+  };
+  const GLOW: Record<string, number> = { can: 1, for: 0.5, sea: 0.6, und: 1, sum: 0.35 };
+
+  function initWorld() {
+    const world = document.getElementById('journey-world');
+    if (!world || world.dataset.bound) return;
+    world.dataset.bound = '1';
     if ((window as any).__motionOff()) return;
 
     gsap.registerPlugin(ScrollTrigger);
+    const lenis = (window as any).__lenis;
+    if (lenis && !(window as any).__lenisGsap) {
+      (window as any).__lenisGsap = true;
+      lenis.on('scroll', ScrollTrigger.update);
+    }
 
-    // Scene windows on the master timeline (duration 1 = full pinned scroll)
-    const SCENES: Array<[string, number, number]> = [
-      ['ecl', 0.0, 0.14],
-      ['can', 0.14, 0.335],
-      ['for', 0.335, 0.52],
-      ['sea', 0.52, 0.67],
-      ['und', 0.67, 0.815],
-      ['sum', 0.815, 1.0],
-    ];
-    const FADE = 0.05;
+    const chapters = Array.from(document.querySelectorAll<HTMLElement>('.j-chapter[data-scene]'));
     const dots = Array.from(document.querySelectorAll('.j-dots span'));
+    const sceneEl = (k: string) => document.querySelector(`.j-scene[data-s="${k}"]`);
+    let master: gsap.core.Timeline | null = null;
 
-    const tl = gsap.timeline({
-      defaults: { ease: 'none' },
-      scrollTrigger: {
-        trigger: '#journey',
-        start: 'top top',
-        end: '+=560%',
-        scrub: 0.6,
-        pin: true,
-        anticipatePin: 1,
-        onUpdate(self) {
-          // venue progress marks (scenes 1-5)
-          const p = self.progress;
-          let idx = -1;
-          for (let i = 1; i < SCENES.length; i++) if (p >= SCENES[i][1]) idx = i - 1;
-          dots.forEach((d, i) => d.classList.toggle('on', i === idx));
+    // ONE master timeline over the whole page scroll. Every shared element
+    // (scenes, disc, glow, sunrise) is animated only here, at positions derived
+    // from each chapter's offset — no competing scrubbed tweens, clean reverse.
+    function build() {
+      if (master) { master.scrollTrigger?.kill(); master.kill(); master = null; }
+      const vh = window.innerHeight;
+      const total = document.documentElement.scrollHeight - vh;
+      if (total <= 0) return;
+      const pos = (px: number) => Math.max(0, Math.min(1, px / total));
+
+      master = gsap.timeline({
+        defaults: { ease: 'none' },
+        scrollTrigger: {
+          trigger: document.body, start: 0, end: total, scrub: 0.5,
+          onUpdate(self) {
+            // venue numerals: chapter whose center band we're in
+            const y = self.scroll();
+            let idx = -1;
+            chapters.forEach((sec, i) => {
+              if (i === 0) return;
+              if (y >= sec.offsetTop - vh * 0.6 && y < sec.offsetTop + sec.offsetHeight - vh * 0.4) idx = i - 1;
+            });
+            dots.forEach((d, i) => d.classList.toggle('on', i === idx));
+          },
         },
-      },
-    });
+      });
 
-    // Opening brand dissolves into the night
-    tl.to('.j-brand', { autoAlpha: 0, scale: 0.93, filter: 'blur(8px)', duration: 0.05, ease: 'power1.in' }, 0.04);
+      // Brand intro: record rises out of the dark, brand dissolves
+      const brand = chapters[0];
+      if (brand) {
+        const bEnd = pos(brand.offsetHeight * 0.55);
+        master.fromTo('.j-disc', { top: '118%' }, { top: '52%', duration: Math.max(bEnd, 0.01), ease: 'power1.out' }, 0);
+        const brandInner = brand.querySelector('.j-brand-block');
+        if (brandInner) master.to(brandInner, { autoAlpha: 0, scale: 0.93, filter: 'blur(8px)', duration: Math.max(bEnd * 0.9, 0.01), ease: 'power1.in' }, 0);
+      }
 
-    // Scene crossfades + per-scene layer parallax
-    SCENES.forEach(([key, start, end], i) => {
-      const scene = document.querySelector(`.j-scene[data-s="${key}"]`);
+      chapters.forEach((sec, i) => {
+        if (i === 0) return;
+        const key = sec.dataset.scene as string;
+        const prevKey = chapters[i - 1].dataset.scene as string;
+        const scene = sceneEl(key);
+        if (!scene || key === prevKey || !master) return;
+
+        const t0 = pos(sec.offsetTop - vh * 0.92);
+        const t1 = pos(sec.offsetTop - vh * 0.25);
+        const dur = Math.max(t1 - t0, 0.005);
+
+        master.to(sceneEl(prevKey), { autoAlpha: 0, duration: dur }, t0)
+              .to(scene, { autoAlpha: 1, duration: dur }, t0);
+        if (DISC[key]) master.to('.j-disc', { ...DISC[key], duration: dur, ease: 'power1.inOut' }, t0);
+        if (GLOW[key] !== undefined) master.to('.j-disc-glow', { opacity: GLOW[key], duration: dur }, t0);
+        if (key === 'sum') master.to('.j-sun-overlay', { '--jsun': '88%', duration: dur }, t0 + dur * 0.2);
+      });
+    }
+
+    // Per-scene parallax: each layer is touched by exactly one trigger — safe
+    // to keep outside the master (element-based, auto-refreshes on resize).
+    chapters.forEach((sec, i) => {
+      if (i === 0) return;
+      const scene = sceneEl(sec.dataset.scene as string);
       if (!scene) return;
-      if (i > 0) tl.to(scene, { autoAlpha: 1, duration: FADE }, start - FADE / 2);
-      if (i > 0 && i < SCENES.length - 1) tl.to(scene, { autoAlpha: 0, duration: FADE }, end);
       scene.querySelectorAll('[data-depth]').forEach((layer) => {
         const d = parseFloat((layer as HTMLElement).dataset.depth || '1');
-        tl.fromTo(layer, { yPercent: 4.5 * d }, { yPercent: -4.5 * d, duration: end - start }, start);
+        gsap.fromTo(layer, { yPercent: 3.5 * d }, {
+          yPercent: -3.5 * d, ease: 'none',
+          scrollTrigger: { trigger: sec, start: 'top bottom', end: 'bottom top', scrub: 0.5 },
+        });
       });
     });
 
-    // The record's voyage: eclipse → sun → moon → horizon → portal → turntable
-    tl.fromTo('.j-disc', { top: '118%', scale: 0.95 }, { top: '46%', scale: 0.95, duration: 0.075, ease: 'power1.out' }, 0.055)
-      .to('.j-disc', { top: '24%', scale: 1.12, duration: 0.13, ease: 'power1.inOut' }, 0.15)    // canyon sun
-      .to('.j-disc-glow', { opacity: 1, duration: 0.1 }, 0.16)
-      .to('.j-disc', { top: '15%', x: '13vw', scale: 0.5, duration: 0.12, ease: 'power1.inOut' }, 0.345) // forest moon
-      .to('.j-disc-glow', { opacity: 0.5, duration: 0.1 }, 0.355)
-      .to('.j-disc', { top: '35%', x: '0vw', scale: 0.66, duration: 0.09, ease: 'power1.inOut' }, 0.53)  // over the sea
-      .to('.j-disc', { top: '60%', scale: 0.5, duration: 0.09, ease: 'power1.inOut' }, 0.685)            // deep portal
-      .to('.j-disc-glow', { opacity: 1, duration: 0.08 }, 0.695)
-      .to('.j-disc', { top: '15%', x: '-0.5vw', scale: 0.2, duration: 0.11, ease: 'power1.inOut' }, 0.84) // lands on the deck
-      .to('.j-disc-glow', { opacity: 0.35, duration: 0.08 }, 0.86);
-
-    // Sunrise floods the summit once the needle is home
-    tl.to('.j-sun-overlay', { '--jsun': '88%', duration: 0.12 }, 0.875);
-
-    // Captions: in/out per scene window (the last one stays for the CTA)
-    const CAPS: Array<[string, number, number | null]> = [
-      ['can', 0.165, 0.31],
-      ['for', 0.36, 0.495],
-      ['sea', 0.545, 0.645],
-      ['und', 0.7, 0.79],
-      ['sum', 0.875, null],
-    ];
-    CAPS.forEach(([key, inAt, outAt]) => {
-      const cap = document.querySelector(`.j-cap[data-cap="${key}"]`);
-      if (!cap) return;
-      tl.fromTo(cap, { autoAlpha: 0, y: 34 }, { autoAlpha: 1, y: 0, duration: 0.035, ease: 'power2.out' }, inAt as number);
-      if (outAt !== null) tl.to(cap, { autoAlpha: 0, y: -26, duration: 0.035, ease: 'power2.in' }, outAt as number);
-    });
-
-    // Scroll hint disappears as soon as the journey starts
-    tl.to('.j-hint', { autoAlpha: 0, duration: 0.03 }, 0.02);
+    build();
+    // Section offsets are baked into the master — rebuild when layout changes.
+    let rt: ReturnType<typeof setTimeout>;
+    window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(build, 300); });
   }
 
-  document.addEventListener('astro:page-load', initJourney);
+  document.addEventListener('astro:page-load', initWorld);
+  document.addEventListener('astro:before-swap', () => {
+    ScrollTrigger.getAll().forEach((t) => t.kill());
+  });
 </script>

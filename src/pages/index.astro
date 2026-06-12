@@ -269,22 +269,30 @@ const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House'
 
   </style>
 
-  <!-- "One Record, Every Horizon" — code-drawn scroll journey through the venues -->
+  <!-- "One Record, Every Horizon" — the fixed world every section scrolls through -->
   <Journey />
 
-  <!-- The Collection — crate digging through featured mixes (brand intro lives in the Journey above) -->
-  <section class="isolate relative bg-brand-black py-14 sm:py-20 overflow-hidden">
+  <!-- Chapter 0 — the brand, under the stars -->
+  <section id="ch-brand" class="j-chapter min-h-[100svh] flex items-center justify-center" data-scene="ecl">
+    <div class="j-brand-block text-center px-6">
+      <p class="j-brand-kicker">ONE RECORD. EVERY HORIZON.</p>
+      <h1 class="j-brand-h glitch-text glitch-auto">ZIPPY<span class="text-brand-orange">.</span></h1>
+      <p class="j-brand-sub">HOUSE MUSIC THERAPY</p>
+      <div class="eq-bars mt-4" aria-hidden="true">
+        {Array.from({ length: 24 }).map(() => <span></span>)}
+      </div>
+    </div>
+    <div class="j-hint absolute bottom-[5%] left-1/2 -translate-x-1/2" aria-hidden="true">SCROLL</div>
+  </section>
+
+  <!-- Chapter 1 — FESTIVAL (canyon): dig through the crate -->
+  <section id="ch-collection" class="j-chapter min-h-[100svh] py-24 flex flex-col justify-center" data-scene="can">
       <div id="highlights" class="relative pb-6 z-30">
-        <!-- Higgsfield photoreal record-store crates: pans sideways as you flip records -->
-        <div class="store-layer" aria-hidden="true"></div>
-        <div class="dust" aria-hidden="true">
-          {Array.from({ length: 7 }).map(() => <span></span>)}
-        </div>
         <div class="container mx-auto px-6 sm:px-8 lg:px-12">
-          <div class="text-center mb-6 sm:mb-8">
-            <span class="inline-block px-3 py-1 border border-brand-orange/50 rounded-full text-brand-orange text-[10px] font-bold tracking-[0.25em] mb-3" style="text-shadow:none;">THE COLLECTION</span>
-            <h2 class="split-reveal font-display text-2xl md:text-3xl font-bold mb-1" style="text-shadow:0 1px 12px rgba(0,0,0,0.5);">Dig through the <span class="text-brand-orange">crate</span></h2>
-            <p class="text-gray-300 text-sm" style="text-shadow:0 1px 8px rgba(0,0,0,0.6);">Featured House Music Therapy sets — scroll or flip to pull a record.</p>
+          <div class="j-chapter-head">
+            <span class="j-kicker">VENUE 01 — OPEN AIR · FESTIVAL</span>
+            <h2 class="j-title">THE COLLECTION</h2>
+            <p class="j-sub">Open sky, fifty thousand hearts. Dig through the crate and pull a record.</p>
           </div>
           <div class="relative px-6 sm:px-14">
             <button class="coverflow-nav prev" aria-label="Previous"><i class="fa-solid fa-chevron-left text-xl"></i></button>
@@ -320,21 +328,14 @@ const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House'
       </div>
   </section>
 
-  <div class="marquee bg-brand-black border-y border-white/5 py-4 sm:py-5" aria-hidden="true">
-    <div class="marquee__track">
-      {[0, 1].map(() => ticker.map((w) => (
-        <span class="inline-flex items-center gap-10">
-          <span class="font-display text-lg sm:text-2xl font-black uppercase tracking-widest text-white/15">{w}</span>
-          <span class="text-brand-orange text-base">&#9679;</span>
-        </span>
-      )))}
-    </div>
-  </div>
-
-  <section id="dates" class="isolate relative py-8 sm:py-16 bg-brand-black overflow-hidden">
-    <div class="floor-layer" aria-hidden="true"></div>
+  <!-- Chapter 2 — CLUB (night forest): the upcoming sessions -->
+  <section id="ch-events" class="j-chapter min-h-[100svh] py-24 flex flex-col justify-center" data-scene="for">
     <div class="container mx-auto px-6 sm:px-8 lg:px-12 relative z-10">
-      <h2 class="split-reveal font-display text-3xl md:text-4xl font-bold mb-8 text-center">Upcoming <span class="text-brand-orange">Therapy</span></h2>
+      <div class="j-chapter-head">
+        <span class="j-kicker">VENUE 02 — UNDERGROUND · CLUB</span>
+        <h2 class="j-title">UPCOMING THERAPY</h2>
+        <p class="j-sub">Four walls, hypnosis at 124 BPM. Catch the next session.</p>
+      </div>
       <div class="mb-8">
         <Countdown event={upcoming[0] ?? null} />
       </div>
@@ -375,20 +376,53 @@ const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House'
     </div>
   </section>
 
-  <!-- Act 4 — Afterglow: the sunrise floods in, the story asks for the next city -->
-  <section id="act-afterglow" class="isolate relative overflow-hidden">
-    <div class="sunrise absolute inset-0" aria-hidden="true"></div>
-    <div class="relative z-10 container mx-auto px-6 text-center py-24 md:py-36">
-      <h2 class="split-reveal font-display text-3xl md:text-5xl font-black mb-3">Then comes the <span class="text-brand-orange">sunrise</span>.</h2>
-      <p class="text-gray-200 md:text-lg mb-8" style="text-shadow:0 1px 10px rgba(0,0,0,0.5);">Bring the therapy to your city.</p>
+  <!-- Chapter 3 — GOLDEN HOUR (open sea): a breath between sets -->
+  <section id="ch-sea" class="j-chapter min-h-[80svh] flex items-center justify-center" data-scene="sea">
+    <div class="j-chapter-head px-6">
+      <span class="j-kicker">VENUE 03 — ROOFTOPS &amp; SHORES · SUNSET SESSION</span>
+      <h2 class="j-title">GOLDEN HOUR</h2>
+      <p class="j-sub max-w-xl mx-auto">Salt air, slow grooves. Not a producer — a selector, reading every room from festival to bar.</p>
+    </div>
+  </section>
+
+  <!-- Chapter 4 — AFTERHOURS (underwater): the deep end holds the unreleased -->
+  <section id="ch-lead" class="j-chapter min-h-[90svh] py-24 flex items-center" data-scene="und">
+    <div class="container mx-auto px-6">
+      <div class="j-chapter-head">
+        <span class="j-kicker">VENUE 04 — 5AM · AFTERHOURS</span>
+        <h2 class="j-title">THE DEEP END</h2>
+        <p class="j-sub">Weightless. Down here live the unreleased mixes.</p>
+      </div>
+      <LeadMagnet variant="story" />
+    </div>
+  </section>
+
+  <!-- Chapter 5 — SUNRISE (summit): the record finds its turntable -->
+  <section id="ch-summit" class="j-chapter min-h-[100svh] flex items-end justify-center pb-[14svh]" data-scene="sum">
+    <div class="text-center px-6">
+      <div class="j-chapter-head mb-7">
+        <span class="j-kicker">EVERY NIGHT ENDS THE SAME WAY</span>
+        <h2 class="j-title">SUNRISE</h2>
+        <p class="j-sub">Wherever your floor is — bring the therapy.</p>
+      </div>
       <a href="#contact" data-track="booking"
-        class="inline-block bg-brand-black/80 hover:bg-brand-orange text-white text-sm font-bold uppercase tracking-widest px-8 py-4 rounded-full border border-white/20 hover:border-brand-orange transition-colors">
+        class="inline-block bg-brand-orange hover:bg-white hover:text-brand-black text-white text-sm font-bold uppercase tracking-widest px-8 py-4 rounded-full transition-colors">
         Book DJ Zippy
       </a>
     </div>
   </section>
 
-  <LeadMagnet variant="inline" />
+  <div class="marquee relative z-10 bg-brand-black border-y border-white/5 py-4 sm:py-5" aria-hidden="true">
+    <div class="marquee__track">
+      {[0, 1].map(() => ticker.map((w) => (
+        <span class="inline-flex items-center gap-10">
+          <span class="font-display text-lg sm:text-2xl font-black uppercase tracking-widest text-white/15">{w}</span>
+          <span class="text-brand-orange text-base">&#9679;</span>
+        </span>
+      )))}
+    </div>
+  </div>
+
   <LeadMagnet variant="popup" />
 
   <script is:inline>
@@ -511,58 +545,4 @@ const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House'
 
   </script>
 
-  <!-- "One Night of Therapy" — scroll-driven story (GSAP ScrollTrigger + Lenis) -->
-  <script>
-    import { gsap } from 'gsap';
-    import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
-    function initStory() {
-      const guard = document.getElementById('act-afterglow');
-      if (!guard || guard.dataset.storyBound) return;
-      guard.dataset.storyBound = '1';
-      if ((window as any).__motionOff()) return;
-
-      gsap.registerPlugin(ScrollTrigger);
-      const lenis = (window as any).__lenis;
-      if (lenis && !(window as any).__lenisGsap) {
-        (window as any).__lenisGsap = true;
-        lenis.on('scroll', ScrollTrigger.update);
-      }
-
-      // Crate digging: pin the coverflow, scroll flips through the records
-      gsap.matchMedia().add('(min-width: 768px)', () => {
-        const n = (window as any).__cfCount || 0;
-        if (!n) return;
-        ScrollTrigger.create({
-          trigger: '#highlights',
-          start: 'center center',
-          end: '+=' + n * 160,
-          pin: true,
-          anticipatePin: 1,
-          onUpdate(self) {
-            const idx = Math.min(n - 1, Math.floor(self.progress * n));
-            if ((window as any).__cfGoto) (window as any).__cfGoto(idx);
-          },
-        });
-      });
-
-      // The floor: event rows land like beats
-      if (document.querySelector('#dates [data-reveal] > div')) {
-        gsap.from('#dates [data-reveal] > div', {
-          y: 36, opacity: 0, stagger: 0.12, duration: 0.7, ease: 'power3.out',
-          scrollTrigger: { trigger: '#dates', start: 'top 65%' },
-        });
-      }
-
-      // Act 4 — sunrise floods upward through the gradient as you arrive
-      gsap.to('.sunrise', {
-        '--sunrise-y': '100%', ease: 'none',
-        scrollTrigger: { trigger: '#act-afterglow', start: 'top 85%', end: 'bottom 60%', scrub: true },
-      });
-    }
-    document.addEventListener('astro:page-load', initStory);
-    document.addEventListener('astro:before-swap', () => {
-      ScrollTrigger.getAll().forEach((t) => t.kill());
-    });
-  </script>
 </Layout>
