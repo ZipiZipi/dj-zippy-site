@@ -113,167 +113,116 @@ const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House'
   </script>
 
   <style is:global>
-    .coverflow {
-      perspective: 600px;
-      perspective-origin: 50% 50%;
-      position: relative;
-      height: 340px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    /* Vinyl rail — The Collection carousel (scroll-snap, nothing overlaps) */
+    .vinyl-rail-wrap { position: relative; }
+    .vinyl-rail {
+      display: flex; gap: clamp(1.2rem, 3vw, 2.6rem);
+      overflow-x: auto; scroll-snap-type: x mandatory;
+      padding: 1.6rem max(8vw, calc(50vw - 560px)) 2.2rem;
+      scrollbar-width: none;
     }
-    .coverflow-item {
-      position: absolute;
-      top: 50%;
-      width: clamp(150px, 22vw, 280px);
-      transition: transform 0.7s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.5s ease;
-      transform-style: preserve-3d;
-      cursor: pointer;
-      user-select: none;
+    .vinyl-rail::-webkit-scrollbar { display: none; }
+    .vinyl-card {
+      flex: 0 0 auto; width: clamp(150px, 19vw, 205px);
+      scroll-snap-align: center; text-align: center;
+      background: none; border: 0; cursor: pointer; padding: 0;
     }
-    .coverflow-item.active { cursor: default; }
-    .cf-disc {
-      width: clamp(125px, 18vw, 230px);
-      height: clamp(125px, 18vw, 230px);
-      background:
-        radial-gradient(circle at center, transparent 18%, #0d0d0d 19%),
-        repeating-radial-gradient(circle at center, rgba(30,30,30,1) 0px, rgba(20,20,20,1) 1px, rgba(15,15,15,1) 2px, rgba(25,25,25,1) 3px),
-        linear-gradient(135deg, #111 0%, #0a0a0a 50%, #111 100%);
-      border-radius: 50%;
-      position: relative;
-      margin: 0 auto;
-      box-shadow: 0 4px 30px rgba(0,0,0,0.7), 0 0 0 2px rgba(255,255,255,0.08), 0 0 0 4px rgba(0,0,0,0.5), inset 0 0 60px rgba(0,0,0,0.8);
-    }
-    .cf-disc::before {
-      content: '';
-      position: absolute;
-      inset: 2%;
+    .vc-disc {
+      position: relative; display: block; width: 100%; aspect-ratio: 1;
       border-radius: 50%;
       background:
-        repeating-radial-gradient(circle at center, transparent, transparent 1.5px, rgba(255,255,255,0.03) 2px, transparent 2.5px),
-        repeating-radial-gradient(circle at center, transparent, transparent 5px, rgba(255,255,255,0.015) 5.5px, transparent 6px),
-        linear-gradient(135deg, transparent 20%, rgba(255,255,255,0.07) 45%, transparent 55%, rgba(255,255,255,0.04) 80%, transparent 100%);
-      pointer-events: none;
+        radial-gradient(circle at center, transparent 17%, #0c0c0c 18%),
+        repeating-radial-gradient(circle at center, rgba(32,32,32,1) 0px, rgba(18,18,18,1) 1.5px, rgba(26,26,26,1) 3px),
+        linear-gradient(135deg, #121212 0%, #090909 55%, #121212 100%);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.65), 0 0 0 2px rgba(255,255,255,0.07), inset 0 0 44px rgba(0,0,0,0.8);
+      transition: transform 0.45s cubic-bezier(0.22,1,0.36,1), box-shadow 0.45s;
     }
-    .cf-disc::after {
-      content: '';
-      position: absolute;
-      inset: 0;
+    .vinyl-card:hover .vc-disc, .vinyl-card:focus-visible .vc-disc {
+      transform: translateY(-10px) rotate(10deg) scale(1.04);
+      box-shadow: 0 18px 44px rgba(0,0,0,0.7), 0 0 0 2px rgba(255,120,50,0.5), 0 0 30px rgba(255,85,0,0.35), inset 0 0 44px rgba(0,0,0,0.8);
+    }
+    .vc-label {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+      width: 38%; height: 38%; border-radius: 50%;
+      background-size: cover; background-position: center;
+      box-shadow: 0 0 0 3px rgba(0,0,0,0.55);
+    }
+    .vc-hole { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 6%; height: 6%; border-radius: 50%; background: #000; box-shadow: inset 0 0 3px rgba(255,255,255,0.3); }
+    .vc-play {
+      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 1.6rem; opacity: 0; transition: opacity 0.3s; text-shadow: 0 4px 14px rgba(0,0,0,0.8);
+    }
+    .vinyl-card:hover .vc-play { opacity: 1; }
+    .vc-title { display: block; margin-top: 0.9rem; font-weight: 600; font-size: 0.8rem; color: rgba(255,255,255,0.85); text-shadow: 0 1px 8px rgba(0,0,0,0.8); }
+    .vc-meta { display: block; margin-top: 0.15rem; font-size: 0.68rem; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,150,80,0.75); }
+    .rail-btn {
+      position: absolute; top: 38%; transform: translateY(-50%); z-index: 5;
+      width: 44px; height: 44px; border-radius: 50%;
+      background: rgba(5,3,2,0.55); border: 1px solid rgba(255,255,255,0.14);
+      color: rgba(255,255,255,0.75); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+      transition: color 0.3s, border-color 0.3s;
+    }
+    .rail-btn:hover { color: #FF5500; border-color: rgba(255,85,0,0.6); }
+    .rail-btn.prev { left: max(1rem, 2vw); }
+    .rail-btn.next { right: max(1rem, 2vw); }
+    @media (max-width: 640px) { .rail-btn { display: none; } }
+
+    /* Event trail — a lantern path through the forest instead of a table */
+    .ev-trail { position: relative; max-width: 46rem; margin: 0 auto; padding: 0.5rem 0; }
+    .ev-trail::before {
+      content: ''; position: absolute; top: 0; bottom: 0; left: 1.05rem; width: 2px;
+      background: linear-gradient(180deg, transparent, rgba(255,120,45,0.55) 12%, rgba(255,120,45,0.55) 88%, transparent);
+      box-shadow: 0 0 10px rgba(255,85,0,0.45);
+    }
+    .ev-node { position: relative; padding: 0 0 1.4rem 3.2rem; }
+    .ev-dot {
+      position: absolute; left: 1.05rem; top: 1.35rem; width: 14px; height: 14px; margin-left: -6px;
       border-radius: 50%;
-      border: 2px solid rgba(255,255,255,0.08);
-      box-shadow: inset 0 0 8px rgba(255,255,255,0.03);
-      pointer-events: none;
+      background: radial-gradient(circle, #ffc79b 0%, #ff7a1f 55%, rgba(255,85,0,0) 78%);
+      box-shadow: 0 0 14px rgba(255,110,30,0.85);
+      animation: j-firefly 1.935s ease-in-out infinite;
     }
-    .cf-label {
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      width: 38%; height: 38%;
-      border-radius: 50%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 0;
-      box-shadow: 0 0 0 3px rgba(0,0,0,0.5), 0 0 15px rgba(0,0,0,0.3);
-      z-index: 1;
-      background-size: cover;
-      background-position: center;
-      overflow: hidden;
+    .ev-card {
+      background: rgba(6,3,2,0.55);
+      border: 1px solid rgba(255,255,255,0.09);
+      border-left: 3px solid rgba(255,85,0,0.65);
+      border-radius: 0.9rem;
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+      padding: 1rem 1.2rem;
+      display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1.2rem;
+      transition: border-color 0.35s, transform 0.35s;
     }
-    .cf-label::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: rgba(0,0,0,0.5);
-      z-index: -1;
-    }
-    .cf-play-overlay {
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 3rem;
-      color: rgba(255,255,255,0.9);
-      text-shadow: 0 4px 15px rgba(0,0,0,0.8);
-      opacity: 0;
-      transition: opacity 0.3s;
-      pointer-events: none;
-      z-index: 10;
-    }
-    .coverflow-item.active:hover .cf-play-overlay { opacity: 1; }
-    .cf-label-title {
-      font-size: clamp(0.5rem, 1vw, 0.7rem);
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: rgba(255,255,255,0.95);
-      text-shadow: 0 1px 3px rgba(0,0,0,0.5);
-      line-height: 1;
-      margin-bottom: 10px;
-    }
-    .cf-label-sub {
-      font-size: clamp(0.4rem, 0.8vw, 0.55rem);
-      font-weight: 600;
-      color: rgba(255,255,255,0.7);
-      text-shadow: 0 1px 2px rgba(0,0,0,0.4);
-      line-height: 1;
-      margin-top: 10px;
-    }
-    .cf-spindle {
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      width: 8%; height: 8%;
-      min-width: 8px; min-height: 8px;
-      background: radial-gradient(circle, #1a1a1a 40%, #0a0a0a 100%);
-      border-radius: 50%;
-      box-shadow: inset 0 0 4px rgba(255,255,255,0.2), 0 0 2px rgba(0,0,0,0.8);
-      z-index: 2;
-    }
-    .coverflow-item.active .cf-disc {
-      box-shadow: 0 8px 40px rgba(0,0,0,0.8), 0 0 0 3px rgba(255,255,255,0.06), inset 0 0 60px rgba(0,0,0,0.8), 0 0 46px rgba(255,85,0,0.12);
-    }
-    .coverflow-nav {
-      position: absolute;
-      top: 40%;
-      transform: translateY(-50%);
-      z-index: 20;
-      width: 44px; height: 44px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: rgba(255,255,255,0.3);
-      transition: color 0.3s;
-      cursor: pointer;
-      background: none;
-      border: none;
-    }
-    .coverflow-nav:hover { color: #FF5500; }
-    .coverflow-nav.prev { left: 0; }
-    .coverflow-nav.next { right: 0; }
-    .coverflow-fade-wrap {
-      position: relative;
-      /* extra vertical room so the active disc's glow/shadow isn't clipped by the
-         horizontal fade mask (a mask clips to its own box on all sides) */
-      padding-top: 44px;
-      padding-bottom: 44px;
-      -webkit-mask-image: linear-gradient(to right, transparent 0%, black 7%, black 93%, transparent 100%);
-      mask-image: linear-gradient(to right, transparent 0%, black 7%, black 93%, transparent 100%);
-    }
-    /* On narrow screens only 1–2 discs show — drop the side fade so the active
-       disc is never clipped, and keep the coverflow compact. */
-    @media (max-width: 640px) {
-      .coverflow { height: clamp(260px, 64vw, 300px); }
-      .coverflow-fade-wrap { -webkit-mask-image: none; mask-image: none; padding-top: 16px; padding-bottom: 16px; }
+    .ev-node:hover .ev-card { border-color: rgba(255,120,50,0.55); transform: translateX(4px); }
+    .ev-date { font-family: 'Unbounded', sans-serif; font-weight: 700; font-size: 0.72rem; letter-spacing: 0.14em; color: #ff9250; }
+    .ev-title { font-family: 'Unbounded', sans-serif; font-weight: 700; font-size: 1rem; color: #fff; width: 100%; }
+    .ev-loc { font-size: 0.8rem; color: rgba(230,220,210,0.7); flex: 1; min-width: 10rem; }
+    @media (min-width: 768px) {
+      .ev-trail::before { left: 50%; }
+      .ev-node { width: 50%; padding: 0 3rem 2rem 0; }
+      .ev-node[data-side="r"] { margin-left: 50%; padding: 0 0 2rem 3rem; }
+      .ev-node .ev-dot { left: auto; right: -7px; margin-left: 0; }
+      .ev-node[data-side="r"] .ev-dot { right: auto; left: -7px; }
+      .ev-node[data-side="l"] .ev-card { justify-content: flex-end; text-align: right; }
     }
 
+    /* Booking form on the beach */
+    .bk-input {
+      width: 100%;
+      background: rgba(0,0,0,0.32);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 0.65rem;
+      padding: 0.8rem 1rem;
+      font-size: 0.875rem; color: #fff;
+    }
+    .bk-input::placeholder { color: rgba(200,190,182,0.55); }
+    .bk-input:focus { outline: none; border-color: rgba(255,85,0,0.75); box-shadow: 0 0 0 3px rgba(255,85,0,0.12); }
   </style>
 
   <!-- "One Record, Every Horizon" — the fixed world every section scrolls through -->
   <Journey />
 
-  <!-- Chapter 0 — the brand, under the stars -->
-  <section id="ch-brand" class="j-chapter min-h-[100svh] flex items-center justify-center" data-scene="ecl">
+  <!-- Chapter 0 — the brand, high above the clouds -->
+  <section id="ch-brand" class="j-chapter min-h-[100svh] flex items-end justify-center pb-[12svh]" data-scene="sky">
     <div class="j-brand-block text-center px-6">
       <p class="j-brand-kicker">ONE RECORD. EVERY HORIZON.</p>
       <h1 class="j-brand-h glitch-text glitch-auto">ZIPPY<span class="text-brand-orange">.</span></h1>
@@ -282,133 +231,129 @@ const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House'
         {Array.from({ length: 24 }).map(() => <span></span>)}
       </div>
     </div>
-    <div class="j-hint absolute bottom-[5%] left-1/2 -translate-x-1/2" aria-hidden="true">SCROLL</div>
+    <div class="j-hint absolute bottom-[4%] left-1/2 -translate-x-1/2" aria-hidden="true">SCROLL</div>
   </section>
 
-  <!-- Chapter 1 — FESTIVAL (canyon): dig through the crate -->
-  <section id="ch-collection" class="j-chapter min-h-[100svh] py-24 flex flex-col justify-center" data-scene="can">
-      <div id="highlights" class="relative pb-6 z-30">
-        <div class="container mx-auto px-6 sm:px-8 lg:px-12">
-          <div class="j-chapter-head">
-            <span class="j-kicker">VENUE 01 — OPEN AIR · FESTIVAL</span>
-            <h2 class="j-title">THE COLLECTION</h2>
-            <p class="j-sub">Open sky, fifty thousand hearts. Dig through the crate and pull a record.</p>
+  <!-- Chapter 1 — THE SUMMIT: the collection laid out at altitude -->
+  <section id="ch-collection" class="j-chapter min-h-[100svh] py-24 flex flex-col justify-center overflow-hidden" data-scene="peak">
+      <div id="highlights" class="relative pb-4">
+        <div class="j-chapter-head px-6" data-anim="up">
+          <span class="j-kicker">CHAPTER 01 — THE SUMMIT · FESTIVAL ALTITUDE</span>
+          <h2 class="j-title">THE COLLECTION</h2>
+          <p class="j-sub">Records that headline the peak. Swipe through — press play.</p>
+        </div>
+        <div class="vinyl-rail-wrap">
+          <button class="rail-btn prev" aria-label="Scroll collection left"><i class="fa-solid fa-chevron-left"></i></button>
+          <div class="vinyl-rail" id="vinyl-rail">
+            {featuredMixes.map(m => (
+              <button type="button" class="vinyl-card" data-link={m.link} data-platform={m.platform} data-title={m.title}>
+                <span class="vc-disc">
+                  <span class="vc-label" style={`background-image:url('${m.thumbnail ? ytThumb(m.thumbnail, 'mqdefault') : '/images/art/vinyl-label.webp'}')`}></span>
+                  <span class="vc-hole"></span>
+                  <span class="vc-play"><i class="fa-solid fa-play"></i></span>
+                </span>
+                <span class="vc-title">{m.title}</span>
+                <span class="vc-meta">{m.platform}</span>
+              </button>
+            ))}
           </div>
-          <div class="relative px-6 sm:px-14">
-            <button class="coverflow-nav prev" aria-label="Previous"><i class="fa-solid fa-chevron-left text-xl"></i></button>
-            <div class="coverflow-fade-wrap">
-              <div class="coverflow" id="coverflow-container">
-                <div class="crate-sleeve" aria-hidden="true"><div class="crate-sleeve-inner"></div></div>
-                {featuredMixes.map(m => (
-                  <article class="coverflow-item text-center" data-link={m.link} data-platform={m.platform} data-title={m.title}>
-                    <div class="cf-disc">
-                      <div class={m.thumbnail ? 'cf-label' : 'cf-label cf-label-art'} style={m.thumbnail ? `background-image: url('${ytThumb(m.thumbnail, 'mqdefault')}');` : undefined}>
-                        {!m.thumbnail && <span class="cf-label-title">ZIPPY</span>}
-                        {!m.thumbnail && <span class="cf-label-sub">{m.platform.toUpperCase()}</span>}
-                      </div>
-                      <div class="cf-spindle"></div>
-                      <i class="fa-solid fa-play cf-play-overlay"></i>
-                    </div>
-                    <div class="mt-3 text-xs text-gray-400 space-y-0.5">
-                      <span class="block font-semibold text-white/80">{m.title}</span>
-                      <span class="block text-gray-500">{m.platform.charAt(0).toUpperCase() + m.platform.slice(1)}</span>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            </div>
-            <button class="coverflow-nav next" aria-label="Next"><i class="fa-solid fa-chevron-right text-xl"></i></button>
-          </div>
-          <div class="mt-16 sm:mt-20 text-center">
-            <a href="/mixes" class="inline-flex items-center gap-2 text-gray-400 hover:text-brand-orange transition-colors">
-              <i class="fa-solid fa-headphones"></i> Listen Now
-            </a>
-          </div>
+          <button class="rail-btn next" aria-label="Scroll collection right"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+        <div class="mt-6 text-center" data-anim="up">
+          <a href="/mixes" class="inline-flex items-center gap-2 text-gray-300 hover:text-brand-orange transition-colors" style="text-shadow:0 1px 8px rgba(0,0,0,0.8);">
+            <i class="fa-solid fa-headphones"></i> Full collection
+          </a>
         </div>
       </div>
   </section>
 
-  <!-- Chapter 2 — CLUB (night forest): the upcoming sessions -->
-  <section id="ch-events" class="j-chapter min-h-[100svh] py-24 flex flex-col justify-center" data-scene="for">
+  <!-- Chapter 2 — THE FOREST at the mountain's foot: upcoming sessions on a lantern trail -->
+  <section id="ch-events" class="j-chapter min-h-[100svh] py-24 flex flex-col justify-center" data-scene="wood">
     <div class="container mx-auto px-6 sm:px-8 lg:px-12 relative z-10">
-      <div class="j-chapter-head">
-        <span class="j-kicker">VENUE 02 — UNDERGROUND · CLUB</span>
+      <div class="j-chapter-head" data-anim="up">
+        <span class="j-kicker">CHAPTER 02 — THE FOREST FLOOR · CLUB NIGHTS</span>
         <h2 class="j-title">UPCOMING THERAPY</h2>
-        <p class="j-sub">Four walls, hypnosis at 124 BPM. Catch the next session.</p>
+        <p class="j-sub">Follow the lanterns — hypnosis at 124 BPM. Catch the next session.</p>
       </div>
-      <div class="mb-8">
+      <div class="mb-10" data-anim="zoom">
         <Countdown event={upcoming[0] ?? null} />
       </div>
-      <div class="space-y-1 flex flex-col items-center max-w-3xl mx-auto" data-reveal>
-        {homeUpcoming.length === 0 && <p class="text-gray-400 text-center">No upcoming events scheduled.</p>}
-        {homeUpcoming.map(e => {
-          const displayDate = e.date.split('-').reverse().join('/') + (e.time ? ` | ${e.time}` : '');
+      <div class="ev-trail">
+        {homeUpcoming.length === 0 && <p class="text-gray-400 text-center" data-anim="up" style="text-shadow:0 1px 8px rgba(0,0,0,0.8);">No upcoming events scheduled — book your own therapy below.</p>}
+        {homeUpcoming.map((e, i) => {
+          const { day, month, year } = dateParts(e.date);
           return (
-            <div class="w-full">
-              <div class="flex flex-col md:flex-row items-center bg-brand-gray p-2 rounded-lg border-l-4 border-brand-orange hover:bg-white/5 transition-colors">
-                <div class="md:w-2/5 text-center md:text-left mb-1 md:mb-0 flex-shrink-0">
-                  <span class="block text-sm sm:text-base md:text-lg lg:text-xl font-display font-bold">{e.title.toUpperCase()}</span>
-                  <span class="text-xs md:text-sm text-gray-500 uppercase tracking-widest">{e.location}</span>
-                </div>
-                <div class="md:flex-1 text-center md:text-left mb-1 md:mb-0 px-2 min-w-0">
-                  <span class="block text-sm md:text-base lg:text-lg font-bold text-white">{e.subtitle || e.title}</span>
-                  <span class="text-gray-400 text-xs md:text-sm">{displayDate}</span>
-                </div>
+            <article class="ev-node" data-side={i % 2 ? 'r' : 'l'}>
+              <span class="ev-dot" aria-hidden="true"></span>
+              <div class="ev-card">
+                <span class="ev-date">{day} {month} {year}{e.time ? ` · ${e.time}` : ''}</span>
+                <h3 class="ev-title">{e.title}</h3>
+                <p class="ev-loc">{e.location}{e.subtitle ? ` — ${e.subtitle}` : ''}</p>
                 {e.link
                   ? <a href={e.link} target="_blank" rel="noopener noreferrer" data-track="tickets"
-                      class="flex-shrink-0 bg-brand-orange hover:bg-white hover:text-brand-black text-white text-[11px] font-bold uppercase tracking-widest px-3.5 py-1.5 rounded-full transition-colors mb-1 md:mb-0 md:mr-2">
+                      class="flex-shrink-0 bg-brand-orange hover:bg-white hover:text-brand-black text-white text-[11px] font-bold uppercase tracking-widest px-3.5 py-1.5 rounded-full transition-colors">
                       Get Tickets
                     </a>
-                  : <a href="/#contact" data-track="booking"
-                      class="flex-shrink-0 border border-white/20 text-gray-300 hover:border-brand-orange hover:text-brand-orange text-[11px] font-bold uppercase tracking-widest px-3.5 py-1.5 rounded-full transition-colors mb-1 md:mb-0 md:mr-2">
+                  : <a href="#contact" data-track="booking"
+                      class="flex-shrink-0 border border-white/25 text-gray-200 hover:border-brand-orange hover:text-brand-orange text-[11px] font-bold uppercase tracking-widest px-3.5 py-1.5 rounded-full transition-colors">
                       Book a Date
                     </a>}
               </div>
-            </div>
+            </article>
           );
         })}
       </div>
-      <div class="mt-8 text-center">
-        <a href="/events" class="inline-flex items-center gap-2 text-gray-400 hover:text-brand-orange transition-colors">
+      <div class="mt-8 text-center" data-anim="up">
+        <a href="/events" class="inline-flex items-center gap-2 text-gray-300 hover:text-brand-orange transition-colors" style="text-shadow:0 1px 8px rgba(0,0,0,0.8);">
           <i class="fa-solid fa-calendar"></i> View All Events & Past Highlights
         </a>
       </div>
     </div>
   </section>
 
-  <!-- Chapter 3 — GOLDEN HOUR (open sea): a breath between sets -->
-  <section id="ch-sea" class="j-chapter min-h-[80svh] flex items-center justify-center" data-scene="sea">
-    <div class="j-chapter-head px-6">
-      <span class="j-kicker">VENUE 03 — ROOFTOPS &amp; SHORES · SUNSET SESSION</span>
-      <h2 class="j-title">GOLDEN HOUR</h2>
-      <p class="j-sub max-w-xl mx-auto">Salt air, slow grooves. Not a producer — a selector, reading every room from festival to bar.</p>
-    </div>
-  </section>
-
-  <!-- Chapter 4 — AFTERHOURS (underwater): the deep end holds the unreleased -->
-  <section id="ch-lead" class="j-chapter min-h-[90svh] py-24 flex items-center" data-scene="und">
+  <!-- Chapter 3 — THE SHORE: guest list before the party -->
+  <section id="ch-lead" class="j-chapter min-h-[95svh] py-24 flex items-center" data-scene="beach">
     <div class="container mx-auto px-6">
-      <div class="j-chapter-head">
-        <span class="j-kicker">VENUE 04 — 5AM · AFTERHOURS</span>
-        <h2 class="j-title">THE DEEP END</h2>
-        <p class="j-sub">Weightless. Down here live the unreleased mixes.</p>
+      <div class="max-w-xl mx-auto j-glass px-6 sm:px-10 py-10" data-anim="zoom">
+        <div class="j-chapter-head mb-6">
+          <span class="j-kicker">CHAPTER 03 — THE SHORE · GUEST LIST</span>
+          <h2 class="j-title">THE GUEST LIST</h2>
+          <p class="j-sub">The party starts at sundown. Unreleased mixes + first invites, straight to your inbox.</p>
+        </div>
+        <LeadMagnet variant="story" />
       </div>
-      <LeadMagnet variant="story" />
     </div>
   </section>
 
-  <!-- Chapter 5 — SUNRISE (summit): the record finds its turntable -->
-  <section id="ch-summit" class="j-chapter min-h-[100svh] flex items-end justify-center pb-[14svh]" data-scene="sum">
-    <div class="text-center px-6">
-      <div class="j-chapter-head mb-7">
-        <span class="j-kicker">EVERY NIGHT ENDS THE SAME WAY</span>
-        <h2 class="j-title">SUNRISE</h2>
-        <p class="j-sub">Wherever your floor is — bring the therapy.</p>
+  <!-- Chapter 4 — SUNSET PARTY: the sun-record touches the sea, book the next one -->
+  <section id="contact" class="j-chapter min-h-[100svh] py-28 flex items-center" data-scene="beach">
+    <div class="container mx-auto px-6">
+      <div class="j-chapter-head" data-anim="up">
+        <span class="j-kicker">CHAPTER 04 — SUNSET PARTY · THE SET NEVER ENDS</span>
+        <h2 class="j-title">BOOK THE THERAPY</h2>
+        <p class="j-sub">Wherever your floor is — beach, club or festival. Tell me about the night.</p>
       </div>
-      <a href="#contact" data-track="booking"
-        class="inline-block bg-brand-orange hover:bg-white hover:text-brand-black text-white text-sm font-bold uppercase tracking-widest px-8 py-4 rounded-full transition-colors">
-        Book DJ Zippy
-      </a>
+      <form id="contact-form" name="contact" method="POST" class="j-glass max-w-xl mx-auto px-6 sm:px-10 py-9 space-y-5" data-anim="zoom">
+        <input type="hidden" name="access_key" value="53a011ae-cafe-4a90-b080-b4e4d5891262" />
+        <input type="hidden" name="subject" value="DJ Zippy — Booking Request" />
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <input type="text" name="name" placeholder="Name" required class="bk-input" />
+          <input type="text" name="venue" placeholder="Venue / Event" required class="bk-input" />
+        </div>
+        <input type="email" name="email" placeholder="Email Address" required class="bk-input" />
+        <textarea name="message" rows="3" placeholder="Tell me about the gig..." required class="bk-input resize-none"></textarea>
+        <div class="text-center pt-1">
+          <button type="submit" data-track="booking"
+            class="bg-brand-orange hover:bg-white hover:text-brand-black text-white text-sm font-bold uppercase tracking-widest px-9 py-4 rounded-full transition-colors">
+            Book DJ Zippy
+          </button>
+        </div>
+      </form>
+      <p class="text-center text-xs text-gray-300 mt-5" data-anim="up" style="text-shadow:0 1px 8px rgba(0,0,0,0.8);">
+        Direct: <a href="mailto:veljkoned@gmail.com?subject=DJ%20Zippy%20%E2%80%94%20Booking%20Request" class="text-brand-orange hover:text-white transition-colors">veljkoned@gmail.com</a>
+        <span class="mx-2 text-gray-500">·</span>
+        <a href="https://ra.co/dj/zippy-2" target="_blank" rel="noopener noreferrer" class="text-brand-orange hover:text-white transition-colors">Resident Advisor</a>
+      </p>
     </div>
   </section>
 
@@ -426,123 +371,65 @@ const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House'
   <LeadMagnet variant="popup" />
 
   <script is:inline>
-  function initCoverflow() {
-    // === COVERFLOW === (items are server-rendered from the DB)
-    var coverflowContainer = document.getElementById('coverflow-container');
-    if (coverflowContainer && !coverflowContainer.dataset.cfReady) {
-      coverflowContainer.dataset.cfReady = '1';
-      var items = document.querySelectorAll('.coverflow-item');
-      if (items.length) {
-        var active = 0;
-        function getGap() {
-          var vw = window.innerWidth;
-          if (vw < 640) return vw * 0.28;
-          if (vw < 1024) return vw * 0.2;
-          return Math.min(vw * 0.16, 220);
-        }
-        function update() {
-          var gap = getGap();
-          var half = Math.floor(items.length / 2);
-          items.forEach(function(el, i) {
-            var off = i - active;
-            if (off > half) off -= items.length;
-            if (off < -half) off += items.length;
-            var abs = Math.abs(off);
-            var tx = off * gap;
-            var tz = abs === 0 ? 80 : -(abs * 140);
-            // Crate effect: side records sit lower (tucked in the bin), the
-            // active one stands pulled out above them.
-            var tyP = abs === 0 ? -56 : -44;
-            var ry = off < 0 ? 55 : off > 0 ? -55 : 0;
-            var sc = abs === 0 ? 1.1 : Math.max(0.65, 0.85 - (abs - 1) * 0.15);
-            var op = abs > 2 ? 0.15 : abs === 0 ? 1 : 0.5 - (abs - 1) * 0.15;
-            var prevOff = parseInt(el.getAttribute('data-off') || String(i), 10);
-            var delta = Math.abs(off - prevOff);
-            var wrapping = delta > half;
-            el.setAttribute('data-off', String(off));
-            if (wrapping) {
-              // Teleport instantly with no transition and invisible
-              el.style.transition = 'none';
-              el.style.opacity = '0';
-              el.style.transform = 'translateY(' + tyP + '%) translateX(' + tx + 'px) translateZ(' + tz + 'px) rotateY(' + ry + 'deg) scale(' + sc + ')';
-              el.style.zIndex = String(10 - abs);
-              // Re-enable transition after paint so it fades in at new position
-              requestAnimationFrame(function() {
-                requestAnimationFrame(function() {
-                  el.style.transition = '';
-                  el.style.opacity = String(op);
-                });
-              });
-            } else {
-              el.style.transition = '';
-              el.style.transform = 'translateY(' + tyP + '%) translateX(' + tx + 'px) translateZ(' + tz + 'px) rotateY(' + ry + 'deg) scale(' + sc + ')';
-              el.style.zIndex = String(10 - abs);
-              el.style.opacity = String(op);
-            }
-            if (off === 0) el.classList.add('active');
-            else el.classList.remove('active');
-          });
-        }
-        // Record-change FX: shockwave ring from the spindle, ambient hue shift
-        // of the psy layer, and a pop on the newly active disc.
-        function fireChangeFx() {
-          var cf = document.querySelector('.coverflow');
-          if (!cf || window.__motionOff()) return;
-          var w = document.createElement('div');
-          w.className = 'cf-shockwave';
-          cf.appendChild(w);
-          setTimeout(function() { w.remove(); }, 750);
-          document.documentElement.style.setProperty('--psy-shift', (active * 16) + 'deg');
-          // Step along the crate row: pan the store photo with each record
-          document.documentElement.style.setProperty('--shelf-x', (((active % items.length) - items.length / 2) * 3) + '%');
-          var d = items[active].querySelector('.cf-disc');
-          if (d) { d.classList.remove('disc-pop'); void d.offsetWidth; d.classList.add('disc-pop'); }
-          // Cardboard sleeve rises out of the crate; the disc slides out of it
-          var sl = cf.querySelector('.crate-sleeve');
-          if (sl) { sl.classList.remove('pull'); void sl.offsetWidth; sl.classList.add('pull'); }
-        }
-        items.forEach(function(el, i) {
-          el.addEventListener('click', function() {
-            if (active === i) {
-              var link = el.getAttribute('data-link');
-              if (!link) return;
-              var played = window.ZippyDock && window.ZippyDock.play({
-                platform: el.getAttribute('data-platform'),
-                link: link,
-                title: el.getAttribute('data-title'),
-              });
-              if (!played) window.open(link, '_blank', 'noopener,noreferrer');
-            } else { active = i; update(); fireChangeFx(); }
-          });
+  // Vinyl rail: arrows + play-in-dock
+  function initRail() {
+    var rail = document.getElementById('vinyl-rail');
+    if (!rail || rail.dataset.bound) return;
+    rail.dataset.bound = '1';
+    var wrap = rail.parentElement;
+    function step() { return Math.min(rail.clientWidth * 0.7, 640); }
+    var prev = wrap.querySelector('.rail-btn.prev');
+    var next = wrap.querySelector('.rail-btn.next');
+    if (prev) prev.addEventListener('click', function () { rail.scrollBy({ left: -step(), behavior: 'smooth' }); });
+    if (next) next.addEventListener('click', function () { rail.scrollBy({ left: step(), behavior: 'smooth' }); });
+    rail.querySelectorAll('.vinyl-card').forEach(function (card) {
+      card.addEventListener('click', function () {
+        var link = card.getAttribute('data-link');
+        if (!link) return;
+        var played = window.ZippyDock && window.ZippyDock.play({
+          platform: card.getAttribute('data-platform'),
+          link: link,
+          title: card.getAttribute('data-title'),
         });
-        function wrap(i) { return ((i % items.length) + items.length) % items.length; }
-        // Hook for the scrollytelling act: scroll position drives record flips.
-        window.__cfCount = items.length;
-        window.__cfGoto = function(i) {
-          var n = wrap(i);
-          if (n === active) return;
-          active = n; update(); fireChangeFx();
-        };
-        var prevBtn = document.querySelector('.coverflow-nav.prev');
-        var nextBtn = document.querySelector('.coverflow-nav.next');
-        if (prevBtn) prevBtn.addEventListener('click', function() { active = wrap(active - 1); update(); fireChangeFx(); });
-        if (nextBtn) nextBtn.addEventListener('click', function() { active = wrap(active + 1); update(); fireChangeFx(); });
-        var startX = 0;
-        var cfEl = document.querySelector('.coverflow');
-        if (cfEl) {
-          cfEl.addEventListener('touchstart', function(e) { startX = e.touches[0].clientX; }, { passive: true });
-          cfEl.addEventListener('touchend', function(e) {
-            var diff = startX - e.changedTouches[0].clientX;
-            if (Math.abs(diff) > 50) { active = wrap(diff > 0 ? active + 1 : active - 1); update(); fireChangeFx(); }
-          }, { passive: true });
-        }
-        window.addEventListener('resize', update);
-        update();
-      }
-    }
+        if (!played) window.open(link, '_blank', 'noopener,noreferrer');
+      });
+    });
   }
-  document.addEventListener('astro:page-load', initCoverflow);
+  document.addEventListener('astro:page-load', initRail);
 
+  // Booking form (moved from the footer to the sunset-party finale)
+  function initBookingForm() {
+    var form = document.getElementById('contact-form');
+    if (!form || form.dataset.bound) return;
+    form.dataset.bound = '1';
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var btn = form.querySelector('button[type="submit"]');
+      var orig = btn.innerText;
+      btn.disabled = true;
+      btn.innerText = 'Sending...';
+      fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(Object.fromEntries(new FormData(form))),
+      })
+        .then(function (res) {
+          btn.innerText = res.ok ? 'Sent — see you at the party ✓' : 'Error — try veljkoned@gmail.com';
+          if (res.ok) {
+            form.reset();
+            try {
+              if (window.fbq) fbq('track', 'Lead');
+              if (window.gtag) gtag('event', 'generate_lead', { source: 'booking_form' });
+            } catch (_) {}
+          }
+        })
+        .catch(function () { btn.innerText = 'Error — try veljkoned@gmail.com'; })
+        .finally(function () {
+          setTimeout(function () { btn.disabled = false; btn.innerText = orig; }, 4500);
+        });
+    });
+  }
+  document.addEventListener('astro:page-load', initBookingForm);
   </script>
 
 </Layout>

@@ -1,113 +1,56 @@
 ---
+// Slim footer: links, socials and role contacts. The booking form lives in the
+// homepage sunset-party finale (#contact) — Book Now buttons point there.
 ---
 
-<footer id="contact" class="relative z-10 bg-brand-dark pt-12 sm:pt-14 pb-8 border-t border-white/10">
-  <div class="max-w-3xl mx-auto px-6 sm:px-8">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-10">
-      <div>
-        <h2 class="font-display text-2xl sm:text-3xl font-bold mb-3">Let's <span class="text-brand-orange">Connect</span></h2>
-        <p class="text-gray-400 text-sm leading-relaxed mb-5">
-          Available for club bookings, private events, and festivals — bringing the House Music Therapy to your event.
-        </p>
+<footer class="relative z-10 bg-brand-dark pt-10 pb-8 border-t border-white/10">
+  <div class="max-w-4xl mx-auto px-6 sm:px-8">
+    <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+      <a href="/" class="font-display font-bold text-xl tracking-tighter">
+        ZIPPY<span class="text-brand-orange">.</span>
+        <span class="block text-[10px] font-body font-normal tracking-[0.3em] text-gray-500 mt-0.5">HOUSE MUSIC THERAPY</span>
+      </a>
 
-        <!-- Role-split contacts — the Tier 1 standard (management / bookings / press) -->
-        <div class="space-y-2.5 mb-5 text-sm">
-          <a href="mailto:veljkoned@gmail.com?subject=DJ%20Zippy%20%E2%80%94%20Management" data-track="contact_management" class="flex items-center gap-3 hover:text-brand-orange transition-colors">
-            <span class="text-[10px] font-bold uppercase tracking-widest text-gray-500 w-20 flex-shrink-0">Mgmt</span> veljkoned@gmail.com
-          </a>
-          <a href="mailto:veljkoned@gmail.com?subject=DJ%20Zippy%20%E2%80%94%20Booking%20Request" data-track="booking" class="flex items-center gap-3 hover:text-brand-orange transition-colors">
-            <span class="text-[10px] font-bold uppercase tracking-widest text-gray-500 w-20 flex-shrink-0">Bookings</span> veljkoned@gmail.com
-          </a>
-          <a href="mailto:veljkoned@gmail.com?subject=DJ%20Zippy%20%E2%80%94%20Press%20%2F%20EPK" data-track="contact_press" class="flex items-center gap-3 hover:text-brand-orange transition-colors">
-            <span class="text-[10px] font-bold uppercase tracking-widest text-gray-500 w-20 flex-shrink-0">Press</span> veljkoned@gmail.com
-          </a>
-          <a href="https://ra.co/dj/zippy-2" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 hover:text-brand-orange transition-colors">
-            <span class="text-[10px] font-bold uppercase tracking-widest text-gray-500 w-20 flex-shrink-0">RA</span> Resident Advisor Profile
-          </a>
-        </div>
+      <nav class="flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs font-semibold uppercase tracking-widest text-gray-400">
+        <a href="/about" class="hover:text-brand-orange transition-colors">About</a>
+        <a href="/mixes" class="hover:text-brand-orange transition-colors">Mixes</a>
+        <a href="/events" class="hover:text-brand-orange transition-colors">Events</a>
+        <a href="/links" class="hover:text-brand-orange transition-colors">Links</a>
+        <a href="/#contact" class="text-brand-orange hover:text-white transition-colors">Book Now</a>
+      </nav>
 
-        <div class="flex gap-2.5 flex-wrap">
-          <a href="https://www.instagram.com/zovumezippy/" target="_blank" rel="me noopener noreferrer" aria-label="Instagram"
-            class="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center hover:bg-brand-orange hover:text-white transition-all">
-            <i class="fa-brands fa-instagram"></i>
-          </a>
-          <a href="https://www.youtube.com/@zovumezippy/" target="_blank" rel="me noopener noreferrer" aria-label="YouTube"
-            class="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center hover:bg-brand-orange hover:text-white transition-all">
-            <i class="fa-brands fa-youtube"></i>
-          </a>
-          <a href="https://open.spotify.com/user/31aj2g4yokqhpoxwkpo5odxegsle" target="_blank" rel="me noopener noreferrer" aria-label="Spotify"
-            class="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center hover:bg-brand-orange hover:text-white transition-all">
-            <i class="fa-brands fa-spotify"></i>
-          </a>
-          <a href="https://www.mixcloud.com/zovumezippy/" target="_blank" rel="me noopener noreferrer" aria-label="MixCloud"
-            class="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center hover:bg-brand-orange hover:text-white transition-all">
-            <i class="fa-brands fa-mixcloud"></i>
-          </a>
-          <a href="https://www.deezer.com/en/profile/2582254702" target="_blank" rel="me noopener noreferrer" aria-label="Deezer"
-            class="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center hover:bg-brand-orange hover:text-white transition-all">
-            <i class="fa-brands fa-deezer"></i>
-          </a>
-        </div>
+      <div class="flex gap-2.5">
+        <a href="https://www.instagram.com/zovumezippy/" target="_blank" rel="me noopener noreferrer" aria-label="Instagram"
+          class="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center hover:bg-brand-orange hover:text-white transition-all">
+          <i class="fa-brands fa-instagram"></i>
+        </a>
+        <a href="https://www.youtube.com/@zovumezippy/" target="_blank" rel="me noopener noreferrer" aria-label="YouTube"
+          class="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center hover:bg-brand-orange hover:text-white transition-all">
+          <i class="fa-brands fa-youtube"></i>
+        </a>
+        <a href="https://open.spotify.com/user/31aj2g4yokqhpoxwkpo5odxegsle" target="_blank" rel="me noopener noreferrer" aria-label="Spotify"
+          class="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center hover:bg-brand-orange hover:text-white transition-all">
+          <i class="fa-brands fa-spotify"></i>
+        </a>
+        <a href="https://www.mixcloud.com/zovumezippy/" target="_blank" rel="me noopener noreferrer" aria-label="MixCloud"
+          class="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center hover:bg-brand-orange hover:text-white transition-all">
+          <i class="fa-brands fa-mixcloud"></i>
+        </a>
+        <a href="https://www.deezer.com/en/profile/2582254702" target="_blank" rel="me noopener noreferrer" aria-label="Deezer"
+          class="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center hover:bg-brand-orange hover:text-white transition-all">
+          <i class="fa-brands fa-deezer"></i>
+        </a>
       </div>
-
-      <form id="contact-form" name="contact" method="POST" class="space-y-4">
-        <input type="hidden" name="access_key" value="53a011ae-cafe-4a90-b080-b4e4d5891262" />
-        <input type="hidden" name="subject" value="DJ Zippy — Booking Request" />
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <input type="text" id="name" name="name" placeholder="Name" required
-            class="w-full bg-transparent border-b border-white/15 pb-2 text-sm text-white placeholder-gray-500 focus:border-brand-orange focus:outline-none" />
-          <input type="text" id="venue" name="venue" placeholder="Venue/Event" required
-            class="w-full bg-transparent border-b border-white/15 pb-2 text-sm text-white placeholder-gray-500 focus:border-brand-orange focus:outline-none" />
-        </div>
-
-        <input type="email" id="email" name="email" placeholder="Email Address" required
-          class="w-full bg-transparent border-b border-white/15 pb-2 text-sm text-white placeholder-gray-500 focus:border-brand-orange focus:outline-none" />
-
-        <textarea id="message" name="message" rows="3" placeholder="Tell me about the gig..." required
-          class="w-full bg-transparent border-b border-white/15 pb-2 text-sm text-white placeholder-gray-500 focus:border-brand-orange focus:outline-none resize-none"></textarea>
-
-        <button type="submit"
-          class="text-sm text-brand-orange font-bold uppercase tracking-widest border-b border-brand-orange hover:text-white hover:border-white transition-colors pb-1">
-          Send Request
-        </button>
-      </form>
     </div>
 
-    <div class="mt-8 pt-5 border-t border-white/5 text-center text-gray-600 text-xs">
-      &copy; 2025 DJ Zippy. All Rights Reserved. House Music Therapy.
-      <span class="mx-2">|</span>
-      <a href="/links" class="hover:text-brand-orange transition-colors">All Links &rarr;</a>
+    <div class="mt-7 pt-5 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-gray-600">
+      <span>
+        Mgmt / Bookings / Press:
+        <a href="mailto:veljkoned@gmail.com" class="text-gray-400 hover:text-brand-orange transition-colors">veljkoned@gmail.com</a>
+        <span class="mx-1.5">·</span>
+        <a href="https://ra.co/dj/zippy-2" target="_blank" rel="noopener noreferrer" class="text-gray-400 hover:text-brand-orange transition-colors">RA</a>
+      </span>
+      <span>&copy; 2026 DJ Zippy. All Rights Reserved.</span>
     </div>
   </div>
 </footer>
-
-<script>
-  function initContactForm() {
-  const form = document.getElementById('contact-form') as HTMLFormElement | null;
-  if (form && !form.dataset.bound) {
-    form.dataset.bound = '1';
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
-      const btn = this.querySelector('button[type="submit"]') as HTMLButtonElement;
-      const orig = btn.innerText;
-      btn.disabled = true;
-      btn.innerText = 'Sending...';
-      fetch('https://api.web3forms.com/submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(Object.fromEntries(new FormData(this))),
-      })
-      .then(res => {
-        btn.innerText = res.ok ? 'Sent ✓' : 'Error — try veljkoned@gmail.com';
-        if (res.ok) form.reset();
-      })
-      .catch(() => { btn.innerText = 'Error — try veljkoned@gmail.com'; })
-      .finally(() => {
-        setTimeout(() => { btn.disabled = false; btn.innerText = orig; }, 4000);
-      });
-    });
-  }
-  }
-  document.addEventListener('astro:page-load', initContactForm);
-</script>
