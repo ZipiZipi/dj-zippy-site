@@ -169,7 +169,49 @@ const STARS: Array<[number, number, number, number]> = [
   <div class="j-dusk"></div>
   <div class="j-vignette"></div>
 
-  <!-- Chapter numerals -->
+</div>
+
+<!-- Passing-through foreground: sits ABOVE the content (screen edges only) so
+     sections feel nested inside the terrain. Rocks frame the summit and part
+     as you head down; trees surge up at the forest and split left/right on
+     the way out to the beach. -->
+<div id="journey-front" class="j-front" aria-hidden="true">
+  <svg class="pf pf-l" viewBox="0 0 100 100" preserveAspectRatio="none">
+    <path fill="#070302" d="M0 100 V26 L10 34 L18 28 L30 46 L40 42 L50 62 L62 60 L74 80 L86 88 L100 100 Z"/>
+    <path fill="rgba(255,150,90,0.07)" d="M0 26 L10 34 L18 28 L30 46 L40 42 L50 62 L62 60 L74 80 L86 88 L100 100 L97 100 L84 90 L72 82 L60 63 L49 65 L39 45 L29 49 L17 31 L9 37 L0 29 Z"/>
+  </svg>
+  <svg class="pf pf-r" viewBox="0 0 100 100" preserveAspectRatio="none">
+    <g transform="translate(100,0) scale(-1,1)">
+      <path fill="#070302" d="M0 100 V26 L10 34 L18 28 L30 46 L40 42 L50 62 L62 60 L74 80 L86 88 L100 100 Z"/>
+      <path fill="rgba(255,150,90,0.07)" d="M0 26 L10 34 L18 28 L30 46 L40 42 L50 62 L62 60 L74 80 L86 88 L100 100 L97 100 L84 90 L72 82 L60 63 L49 65 L39 45 L29 49 L17 31 L9 37 L0 29 Z"/>
+    </g>
+  </svg>
+  <svg class="wf wf-l" viewBox="0 0 60 100" preserveAspectRatio="none">
+    <g fill="#030201">
+      <path d="M12 100 C 13 74 11 48 14 22 C 15 12 17 6 18 0 L30 0 C 27 12 26 22 25 36 C 24 58 25 79 27 100 Z"/>
+      <path d="M23 28 C 32 22 40 20 48 22 C 40 27 31 30 24 32 Z"/>
+      <path d="M21 46 C 29 42 37 42 45 46 C 36 49 28 50 22 50 Z"/>
+      <ellipse cx="48" cy="20" rx="12" ry="7"/>
+      <ellipse cx="45" cy="44" rx="10" ry="6"/>
+      <ellipse cx="12" cy="7" rx="16" ry="10"/>
+      <ellipse cx="36" cy="3" rx="18" ry="9"/>
+      <ellipse cx="55" cy="9" rx="12" ry="8"/>
+    </g>
+  </svg>
+  <svg class="wf wf-r" viewBox="0 0 60 100" preserveAspectRatio="none">
+    <g transform="translate(60,0) scale(-1,1)" fill="#030201">
+      <path d="M12 100 C 13 74 11 48 14 22 C 15 12 17 6 18 0 L30 0 C 27 12 26 22 25 36 C 24 58 25 79 27 100 Z"/>
+      <path d="M23 28 C 32 22 40 20 48 22 C 40 27 31 30 24 32 Z"/>
+      <path d="M21 46 C 29 42 37 42 45 46 C 36 49 28 50 22 50 Z"/>
+      <ellipse cx="48" cy="20" rx="12" ry="7"/>
+      <ellipse cx="45" cy="44" rx="10" ry="6"/>
+      <ellipse cx="12" cy="7" rx="16" ry="10"/>
+      <ellipse cx="36" cy="3" rx="18" ry="9"/>
+      <ellipse cx="55" cy="9" rx="12" ry="8"/>
+    </g>
+  </svg>
+
+  <!-- Chapter numerals (here so the passing terrain can't cover them) -->
   <div class="j-dots">
     {['I', 'II', 'III', 'IV'].map((n) => <span>{n}</span>)}
   </div>
@@ -424,8 +466,35 @@ const STARS: Array<[number, number, number, number]> = [
   .j-dots span.on { color: #FF5500; transform: scale(1.45); text-shadow: 0 0 12px rgba(255, 85, 0, 0.8); }
   @media (max-width: 640px) { .j-dots { right: 2.5%; gap: 0.8rem; } }
 
+  /* Passing-through foreground (above content, screen edges only) */
+  .j-front { position: fixed; inset: 0; z-index: 12; pointer-events: none; overflow: hidden; }
+  .pf {
+    position: absolute; bottom: -2%;
+    width: min(38vw, 520px); height: 44vh;
+    filter: drop-shadow(0 -6px 30px rgba(0, 0, 0, 0.5));
+    opacity: 0; visibility: hidden;
+  }
+  .pf-l { left: -5%; }
+  .pf-r { right: -5%; }
+  .wf {
+    position: absolute; bottom: -2%;
+    width: min(26vw, 340px); height: 106vh;
+    filter: drop-shadow(6px 0 26px rgba(0, 0, 0, 0.55));
+    opacity: 0; visibility: hidden;
+  }
+  .wf-l { left: -4%; }
+  .wf-r { right: -4%; }
+  @media (max-width: 640px) {
+    .pf { width: 52vw; height: 34vh; }
+    .wf { width: 38vw; }
+  }
+
+  /* Dolly: scenes scale from a slight push-in as you arrive */
+  .j-scene { transform-origin: 50% 62%; }
+
   /* Reduced motion: static site on black, no moving world */
   html.reduce-motion .j-world { display: none; }
+  html.reduce-motion .j-front { display: none; }
 </style>
 
 <script>
@@ -503,9 +572,14 @@ const STARS: Array<[number, number, number, number]> = [
         if (key !== prevKey) {
           const scene = sceneEl(key);
           if (scene) {
-            master.to(sceneEl(prevKey), { autoAlpha: 0, duration: dur }, t0)
-                  .to(scene, { autoAlpha: 1, duration: dur }, t0);
-            if (key === 'beach') master.to('.j-beachfront', { autoAlpha: 1, duration: dur }, t0);
+            // Crossfade + dolly: the new scene arrives from a slight push-in,
+            // the old one grows past the camera — walking THROUGH the terrain.
+            master.to(sceneEl(prevKey), { autoAlpha: 0, scale: 1.09, duration: dur }, t0)
+                  .fromTo(scene, { scale: 1.07 }, { autoAlpha: 1, scale: 1, duration: dur, ease: 'power1.out' }, t0);
+            if (key === 'wood') master.fromTo(scene, { yPercent: 15 }, { yPercent: 0, duration: dur, ease: 'power1.out' }, t0);
+            if (key === 'beach') {
+              master.fromTo('.j-beachfront', { yPercent: 10 }, { autoAlpha: 1, yPercent: 0, duration: dur, ease: 'power1.out' }, t0);
+            }
             if (prevKey === 'beach') master.to('.j-beachfront', { autoAlpha: 0, duration: dur }, t0);
           }
         }
@@ -514,6 +588,41 @@ const STARS: Array<[number, number, number, number]> = [
         // Final descent: the party dusk settles in as the sun touches the sea
         if (sec.id === 'contact') master.to('.j-dusk', { opacity: 0.85, duration: dur }, t0 + dur * 0.25);
       });
+
+      // --- Passing-through foreground choreography ---
+      const winFor = (id: string) => {
+        const i = chapters.findIndex((s) => s.id === id);
+        if (i < 1) return null;
+        const t0 = pos(chapters[i].offsetTop - vh * 0.92);
+        const t1 = pos(chapters[i].offsetTop - vh * 0.25);
+        return { t0, t1, dur: Math.max(t1 - t0, 0.005) };
+      };
+      const sum = winFor('ch-collection');
+      const woods = winFor('ch-events');
+      const shore = winFor('ch-lead');
+      if (sum) {
+        // Rocks rise to frame the collection on the summit
+        master.fromTo('.pf-l', { yPercent: 70, autoAlpha: 0 }, { yPercent: 0, autoAlpha: 1, duration: sum.dur, ease: 'power1.out' }, sum.t0)
+              .fromTo('.pf-r', { yPercent: 78, autoAlpha: 0 }, { yPercent: 0, autoAlpha: 1, duration: sum.dur, ease: 'power1.out' }, sum.t0 + sum.dur * 0.12);
+      }
+      if (sum && woods) {
+        // ...and part left/right as the descent continues
+        master.to('.pf-l', { xPercent: -46, scale: 1.28, autoAlpha: 0, duration: woods.dur, ease: 'power1.in' }, woods.t0)
+              .to('.pf-r', { xPercent: 46, scale: 1.28, autoAlpha: 0, duration: woods.dur, ease: 'power1.in' }, woods.t0);
+      }
+      if (woods) {
+        // Trees surge up from below — the forest closes around the trail
+        master.fromTo('.wf-l', { yPercent: 85, autoAlpha: 0 }, { yPercent: 0, autoAlpha: 1, duration: woods.dur, ease: 'power1.out' }, woods.t0 + woods.dur * 0.25)
+              .fromTo('.wf-r', { yPercent: 92, autoAlpha: 0 }, { yPercent: 0, autoAlpha: 1, duration: woods.dur, ease: 'power1.out' }, woods.t0 + woods.dur * 0.35);
+      }
+      if (shore) {
+        // The trees part left and right — we step out of the forest onto the sand
+        master.to('.wf-l', { xPercent: -60, rotation: -3, scale: 1.2, autoAlpha: 0, duration: shore.dur, ease: 'power1.in' }, shore.t0)
+              .to('.wf-r', { xPercent: 60, rotation: 3, scale: 1.2, autoAlpha: 0, duration: shore.dur, ease: 'power1.in' }, shore.t0)
+              // ...and the palms slide in from the sides to greet the party
+              .fromTo('.bf-palm-l', { xPercent: -75 }, { xPercent: 0, duration: shore.dur, ease: 'power1.out' }, shore.t0 + shore.dur * 0.3)
+              .fromTo('.bf-palm-r', { xPercent: 75 }, { xPercent: 0, duration: shore.dur, ease: 'power1.out' }, shore.t0 + shore.dur * 0.3);
+      }
 
       // Pin the timeline's duration to exactly 1 so scrub progress (0..1) maps
       // 1:1 onto our pos() fractions — without this the last tween's end time
