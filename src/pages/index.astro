@@ -11,7 +11,6 @@ const { upcoming } = await getEvents(db);
 const homeUpcoming = upcoming.slice(0, 4);
 const { featured: featuredMixes } = await getMixes(db);
 
-const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House', 'Tech House', 'Novi Sad', 'Selector', 'Grooves'];
 ---
 
 <Layout
@@ -113,70 +112,60 @@ const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House'
   </script>
 
   <style is:global>
-    /* Vinyl rail — The Collection carousel (scroll-snap, nothing overlaps) */
-    .vinyl-rail-wrap { position: relative; }
-    .vinyl-rail {
-      display: flex; gap: clamp(1.2rem, 3vw, 2.6rem);
-      overflow-x: auto; scroll-snap-type: x mandatory;
-      padding: 1.6rem max(8vw, calc(50vw - 560px)) 2.2rem;
-      scrollbar-width: none;
+    /* The Collection — vertical record stack (scroll-driven, the big one is the highlight) */
+    .vstage { position: sticky; top: 0; height: 100vh; height: 100svh; display: flex; flex-direction: column; justify-content: center; }
+    .vstack { position: relative; height: 54svh; }
+    .vs-disc {
+      position: absolute; left: 50%; top: 50%;
+      width: clamp(104px, 12vw, 150px); aspect-ratio: 1;
+      background: none; border: 0; padding: 0; cursor: pointer;
+      will-change: transform, opacity;
+      transform: translate(-50%, -50%);
     }
-    .vinyl-rail::-webkit-scrollbar { display: none; }
-    .vinyl-card {
-      flex: 0 0 auto; width: clamp(150px, 19vw, 205px);
-      scroll-snap-align: center; text-align: center;
-      background: none; border: 0; cursor: pointer; padding: 0;
-    }
-    .vc-disc {
-      position: relative; display: block; width: 100%; aspect-ratio: 1;
-      border-radius: 50%;
+    .vs-core {
+      position: relative; display: block; width: 100%; height: 100%; border-radius: 50%;
       background:
         radial-gradient(circle at center, transparent 17%, #0c0c0c 18%),
         repeating-radial-gradient(circle at center, rgba(32,32,32,1) 0px, rgba(18,18,18,1) 1.5px, rgba(26,26,26,1) 3px),
         linear-gradient(135deg, #121212 0%, #090909 55%, #121212 100%);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.65), 0 0 0 2px rgba(255,255,255,0.07), inset 0 0 44px rgba(0,0,0,0.8);
-      transition: transform 0.45s cubic-bezier(0.22,1,0.36,1), box-shadow 0.45s;
+      box-shadow: 0 8px 26px rgba(0,0,0,0.6), 0 0 0 1.5px rgba(255,255,255,0.06), inset 0 0 34px rgba(0,0,0,0.8);
+      transition: box-shadow 0.4s;
     }
-    .vinyl-card:hover .vc-disc, .vinyl-card:focus-visible .vc-disc {
-      transform: translateY(-10px) rotate(10deg) scale(1.04);
-      box-shadow: 0 18px 44px rgba(0,0,0,0.7), 0 0 0 2px rgba(255,120,50,0.5), 0 0 30px rgba(255,85,0,0.35), inset 0 0 44px rgba(0,0,0,0.8);
+    .vs-disc.active .vs-core {
+      animation: vinyl-spin 12s linear infinite;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.65), 0 0 0 2px rgba(255,120,50,0.55), 0 0 26px rgba(255,85,0,0.35), inset 0 0 34px rgba(0,0,0,0.8);
     }
-    .vc-label {
+    .vs-label {
       position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
       width: 38%; height: 38%; border-radius: 50%;
       background-size: cover; background-position: center;
-      box-shadow: 0 0 0 3px rgba(0,0,0,0.55);
+      box-shadow: 0 0 0 2px rgba(0,0,0,0.55);
     }
-    .vc-hole { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 6%; height: 6%; border-radius: 50%; background: #000; box-shadow: inset 0 0 3px rgba(255,255,255,0.3); }
-    .vc-play {
-      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-      color: #fff; font-size: 1.6rem; opacity: 0; transition: opacity 0.3s; text-shadow: 0 4px 14px rgba(0,0,0,0.8);
+    .vs-hole { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 6%; height: 6%; border-radius: 50%; background: #000; box-shadow: inset 0 0 3px rgba(255,255,255,0.3); }
+    .vs-meta {
+      position: absolute; left: 50%; top: calc(50% + clamp(64px, 7.5vw, 88px) + 18px);
+      transform: translateX(-50%);
+      width: min(82vw, 400px); text-align: center; pointer-events: none;
     }
-    .vinyl-card:hover .vc-play { opacity: 1; }
-    .vc-title { display: block; margin-top: 0.9rem; font-weight: 600; font-size: 0.8rem; color: rgba(255,255,255,0.85); text-shadow: 0 1px 8px rgba(0,0,0,0.8); }
-    .vc-meta { display: block; margin-top: 0.15rem; font-size: 0.68rem; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,150,80,0.75); }
-    .rail-btn {
-      position: absolute; top: 38%; transform: translateY(-50%); z-index: 5;
-      width: 44px; height: 44px; border-radius: 50%;
-      background: rgba(5,3,2,0.55); border: 1px solid rgba(255,255,255,0.14);
-      color: rgba(255,255,255,0.75); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
-      transition: color 0.3s, border-color 0.3s;
-    }
-    .rail-btn:hover { color: #FF5500; border-color: rgba(255,85,0,0.6); }
-    .rail-btn.prev { left: max(1rem, 2vw); }
-    .rail-btn.next { right: max(1rem, 2vw); }
-    @media (max-width: 640px) { .rail-btn { display: none; } }
+    .vs-title { display: block; font-family: 'Unbounded', sans-serif; font-weight: 700; font-size: 0.76rem; color: rgba(255,255,255,0.92); text-shadow: 0 1px 10px rgba(0,0,0,0.85); }
+    .vs-sub { display: block; margin-top: 3px; font-size: 0.6rem; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255,150,80,0.8); }
+    .vs-hint { display: block; margin-top: 7px; font-size: 0.55rem; letter-spacing: 0.32em; text-transform: uppercase; color: rgba(255,255,255,0.35); }
+    html.reduce-motion .vstage { position: static; height: auto; padding: 4rem 0; }
+    html.reduce-motion .vstack { height: auto; display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; padding: 1rem 0; }
+    html.reduce-motion .vs-disc { position: static; transform: none !important; width: 92px; }
+    html.reduce-motion .vs-meta { display: none; }
+    html.reduce-motion #ch-collection { min-height: 0; }
 
     /* Event trail — a lantern path through the forest instead of a table */
-    .ev-trail { position: relative; max-width: 46rem; margin: 0 auto; padding: 0.5rem 0; }
+    .ev-trail { position: relative; max-width: 36rem; margin: 0 auto; padding: 0.5rem 0; }
     .ev-trail::before {
       content: ''; position: absolute; top: 0; bottom: 0; left: 1.05rem; width: 2px;
       background: linear-gradient(180deg, transparent, rgba(255,120,45,0.55) 12%, rgba(255,120,45,0.55) 88%, transparent);
       box-shadow: 0 0 10px rgba(255,85,0,0.45);
     }
-    .ev-node { position: relative; padding: 0 0 1.4rem 3.2rem; }
+    .ev-node { position: relative; padding: 0 0 1rem 2.5rem; }
     .ev-dot {
-      position: absolute; left: 1.05rem; top: 1.35rem; width: 14px; height: 14px; margin-left: -6px;
+      position: absolute; left: 1.05rem; top: 1rem; width: 11px; height: 11px; margin-left: -4.5px;
       border-radius: 50%;
       background: radial-gradient(circle, #ffc79b 0%, #ff7a1f 55%, rgba(255,85,0,0) 78%);
       box-shadow: 0 0 14px rgba(255,110,30,0.85);
@@ -186,20 +175,20 @@ const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House'
       background: rgba(6,3,2,0.55);
       border: 1px solid rgba(255,255,255,0.09);
       border-left: 3px solid rgba(255,85,0,0.65);
-      border-radius: 0.9rem;
+      border-radius: 0.7rem;
       backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-      padding: 1rem 1.2rem;
-      display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1.2rem;
+      padding: 0.65rem 0.9rem;
+      display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem 0.85rem;
       transition: border-color 0.35s, transform 0.35s;
     }
     .ev-node:hover .ev-card { border-color: rgba(255,120,50,0.55); transform: translateX(4px); }
-    .ev-date { font-family: 'Unbounded', sans-serif; font-weight: 700; font-size: 0.72rem; letter-spacing: 0.14em; color: #ff9250; }
-    .ev-title { font-family: 'Unbounded', sans-serif; font-weight: 700; font-size: 1rem; color: #fff; width: 100%; }
-    .ev-loc { font-size: 0.8rem; color: rgba(230,220,210,0.7); flex: 1; min-width: 10rem; }
+    .ev-date { font-family: 'Unbounded', sans-serif; font-weight: 700; font-size: 0.6rem; letter-spacing: 0.14em; color: #ff9250; }
+    .ev-title { font-family: 'Unbounded', sans-serif; font-weight: 700; font-size: 0.8rem; color: #fff; width: 100%; }
+    .ev-loc { font-size: 0.7rem; color: rgba(230,220,210,0.7); flex: 1; min-width: 8rem; }
     @media (min-width: 768px) {
       .ev-trail::before { left: 50%; }
-      .ev-node { width: 50%; padding: 0 3rem 2rem 0; }
-      .ev-node[data-side="r"] { margin-left: 50%; padding: 0 0 2rem 3rem; }
+      .ev-node { width: 50%; padding: 0 2.3rem 1.4rem 0; }
+      .ev-node[data-side="r"] { margin-left: 50%; padding: 0 0 1.4rem 2.3rem; }
       .ev-node .ev-dot { left: auto; right: -7px; margin-left: 0; }
       .ev-node[data-side="r"] .ev-dot { right: auto; left: -7px; }
       .ev-node[data-side="l"] .ev-card { justify-content: flex-end; text-align: right; }
@@ -221,8 +210,8 @@ const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House'
   <!-- "One Record, Every Horizon" — the fixed world every section scrolls through -->
   <Journey />
 
-  <!-- Chapter 0 — the brand, high above the clouds -->
-  <section id="ch-brand" class="j-chapter min-h-[100svh] flex items-end justify-center pb-[12svh]" data-scene="sky">
+  <!-- Chapter 0 — the brand, right under the record-moon -->
+  <section id="ch-brand" class="j-chapter min-h-[100svh] flex items-start justify-center pt-[37svh]" data-scene="sky">
     <div class="j-brand-block text-center px-6">
       <p class="j-brand-kicker">ONE RECORD. EVERY HORIZON.</p>
       <h1 class="j-brand-h glitch-text glitch-auto">ZIPPY<span class="text-brand-orange">.</span></h1>
@@ -234,37 +223,35 @@ const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House'
     <div class="j-hint absolute bottom-[4%] left-1/2 -translate-x-1/2" aria-hidden="true">SCROLL</div>
   </section>
 
-  <!-- Chapter 1 — THE SUMMIT: the collection laid out at altitude -->
-  <section id="ch-collection" class="j-chapter min-h-[100svh] py-24 flex flex-col justify-center overflow-hidden" data-scene="peak">
-      <div id="highlights" class="relative pb-4">
-        <div class="j-chapter-head px-6" data-anim="up">
-          <span class="j-kicker">CHAPTER 01 — THE SUMMIT · FESTIVAL ALTITUDE</span>
-          <h2 class="j-title">THE COLLECTION</h2>
-          <p class="j-sub">Records that headline the peak. Swipe through — press play.</p>
-        </div>
-        <div class="vinyl-rail-wrap">
-          <button class="rail-btn prev" aria-label="Scroll collection left"><i class="fa-solid fa-chevron-left"></i></button>
-          <div class="vinyl-rail" id="vinyl-rail">
-            {featuredMixes.map(m => (
-              <button type="button" class="vinyl-card" data-link={m.link} data-platform={m.platform} data-title={m.title}>
-                <span class="vc-disc">
-                  <span class="vc-label" style={`background-image:url('${m.thumbnail ? ytThumb(m.thumbnail, 'mqdefault') : '/images/art/vinyl-label.webp'}')`}></span>
-                  <span class="vc-hole"></span>
-                  <span class="vc-play"><i class="fa-solid fa-play"></i></span>
-                </span>
-                <span class="vc-title">{m.title}</span>
-                <span class="vc-meta">{m.platform}</span>
-              </button>
-            ))}
-          </div>
-          <button class="rail-btn next" aria-label="Scroll collection right"><i class="fa-solid fa-chevron-right"></i></button>
-        </div>
-        <div class="mt-6 text-center" data-anim="up">
-          <a href="/mixes" class="inline-flex items-center gap-2 text-gray-300 hover:text-brand-orange transition-colors" style="text-shadow:0 1px 8px rgba(0,0,0,0.8);">
-            <i class="fa-solid fa-headphones"></i> Full collection
-          </a>
+  <!-- Chapter 1 — THE SUMMIT: scroll down the ridge, the records turn over -->
+  <section id="ch-collection" class="j-chapter min-h-[240svh]" data-scene="peak">
+    <div class="vstage" id="highlights">
+      <div class="j-chapter-head px-6 mb-2" data-anim="up">
+        <span class="j-kicker">CHAPTER 01 — THE SUMMIT · FESTIVAL ALTITUDE</span>
+        <h2 class="j-title">THE COLLECTION</h2>
+        <p class="j-sub">Ride down the ridge — the records turn with you.</p>
+      </div>
+      <div class="vstack" id="vstack">
+        {featuredMixes.map(m => (
+          <button type="button" class="vs-disc" data-link={m.link} data-platform={m.platform} data-title={m.title} aria-label={`Play ${m.title}`}>
+            <span class="vs-core">
+              <span class="vs-label" style={`background-image:url('${m.thumbnail ? ytThumb(m.thumbnail, 'mqdefault') : '/images/art/vinyl-label.webp'}')`}></span>
+              <span class="vs-hole"></span>
+            </span>
+          </button>
+        ))}
+        <div class="vs-meta" id="vs-meta">
+          <span class="vs-title" id="vs-title"></span>
+          <span class="vs-sub" id="vs-sub"></span>
+          <span class="vs-hint"><i class="fa-solid fa-play"></i> play</span>
         </div>
       </div>
+      <div class="text-center mt-3" data-anim="up">
+        <a href="/mixes" class="inline-flex items-center gap-2 text-xs text-gray-400 hover:text-brand-orange transition-colors uppercase tracking-widest" style="text-shadow:0 1px 8px rgba(0,0,0,0.8);">
+          <i class="fa-solid fa-headphones"></i> Full collection
+        </a>
+      </div>
+    </div>
   </section>
 
   <!-- Chapter 2 — THE FOREST at the mountain's foot: upcoming sessions on a lantern trail -->
@@ -357,46 +344,9 @@ const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House'
     </div>
   </section>
 
-  <div class="marquee relative z-10 bg-brand-black border-y border-white/5 py-4 sm:py-5" aria-hidden="true">
-    <div class="marquee__track">
-      {[0, 1].map(() => ticker.map((w) => (
-        <span class="inline-flex items-center gap-10">
-          <span class="font-display text-lg sm:text-2xl font-black uppercase tracking-widest text-white/15">{w}</span>
-          <span class="text-brand-orange text-base">&#9679;</span>
-        </span>
-      )))}
-    </div>
-  </div>
-
   <LeadMagnet variant="popup" />
 
   <script is:inline>
-  // Vinyl rail: arrows + play-in-dock
-  function initRail() {
-    var rail = document.getElementById('vinyl-rail');
-    if (!rail || rail.dataset.bound) return;
-    rail.dataset.bound = '1';
-    var wrap = rail.parentElement;
-    function step() { return Math.min(rail.clientWidth * 0.7, 640); }
-    var prev = wrap.querySelector('.rail-btn.prev');
-    var next = wrap.querySelector('.rail-btn.next');
-    if (prev) prev.addEventListener('click', function () { rail.scrollBy({ left: -step(), behavior: 'smooth' }); });
-    if (next) next.addEventListener('click', function () { rail.scrollBy({ left: step(), behavior: 'smooth' }); });
-    rail.querySelectorAll('.vinyl-card').forEach(function (card) {
-      card.addEventListener('click', function () {
-        var link = card.getAttribute('data-link');
-        if (!link) return;
-        var played = window.ZippyDock && window.ZippyDock.play({
-          platform: card.getAttribute('data-platform'),
-          link: link,
-          title: card.getAttribute('data-title'),
-        });
-        if (!played) window.open(link, '_blank', 'noopener,noreferrer');
-      });
-    });
-  }
-  document.addEventListener('astro:page-load', initRail);
-
   // Booking form (moved from the footer to the sunset-party finale)
   function initBookingForm() {
     var form = document.getElementById('contact-form');
@@ -432,4 +382,79 @@ const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House'
   document.addEventListener('astro:page-load', initBookingForm);
   </script>
 
+  <!-- The Collection: scroll-driven vertical record stack (small discs, the
+       big one is the highlight; riding down the ridge turns the records) -->
+  <script>
+    import { gsap } from 'gsap';
+    import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+    function initStack() {
+      const stack = document.getElementById('vstack');
+      if (!stack || stack.dataset.bound) return;
+      stack.dataset.bound = '1';
+      const discs = Array.from(stack.querySelectorAll<HTMLElement>('.vs-disc'));
+      const n = discs.length;
+      if (!n) return;
+      const titleEl = document.getElementById('vs-title');
+      const subEl = document.getElementById('vs-sub');
+
+      const play = (el: HTMLElement) => {
+        const link = el.dataset.link;
+        if (!link) return;
+        const played = (window as any).ZippyDock && (window as any).ZippyDock.play({
+          platform: el.dataset.platform, link, title: el.dataset.title,
+        });
+        if (!played) window.open(link, '_blank', 'noopener,noreferrer');
+      };
+
+      if ((window as any).__motionOff()) {
+        discs.forEach((el) => el.addEventListener('click', () => play(el)));
+        return;
+      }
+
+      gsap.registerPlugin(ScrollTrigger);
+      let activeIdx = -1;
+
+      function render(a: number) {
+        const step = Math.min(window.innerHeight * 0.16, 132);
+        discs.forEach((el, i) => {
+          const d = i - a;
+          const ad = Math.abs(d);
+          const s = Math.max(0.28, 1 - 0.36 * ad);
+          el.style.transform = `translate(-50%, -50%) translateY(${d * step}px) scale(${s})`;
+          el.style.opacity = String(Math.max(0, 1 - 0.42 * ad));
+          el.style.zIndex = String(100 - Math.round(ad * 10));
+          el.style.pointerEvents = ad > 2.2 ? 'none' : 'auto';
+        });
+        const idx = Math.max(0, Math.min(n - 1, Math.round(a)));
+        if (idx !== activeIdx) {
+          activeIdx = idx;
+          discs.forEach((el, i) => el.classList.toggle('active', i === idx));
+          if (titleEl) titleEl.textContent = discs[idx].dataset.title || '';
+          if (subEl) subEl.textContent = discs[idx].dataset.platform || '';
+          gsap.fromTo('#vs-meta', { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out' });
+        }
+      }
+
+      ScrollTrigger.create({
+        trigger: '#ch-collection',
+        start: 'top top',
+        end: 'bottom bottom',
+        scrub: 0.4,
+        onUpdate(self) { render(self.progress * (n - 1)); },
+      });
+      render(0);
+
+      discs.forEach((el, i) => el.addEventListener('click', () => {
+        if (i === activeIdx) { play(el); return; }
+        const sec = document.getElementById('ch-collection');
+        if (!sec) return;
+        const len = sec.offsetHeight - window.innerHeight;
+        const target = sec.offsetTop + (i / (n - 1)) * len;
+        const lenis = (window as any).__lenis;
+        if (lenis) lenis.scrollTo(target); else window.scrollTo({ top: target, behavior: 'smooth' });
+      }));
+    }
+    document.addEventListener('astro:page-load', initStack);
+  </script>
 </Layout>

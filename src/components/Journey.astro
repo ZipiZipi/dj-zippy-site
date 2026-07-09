@@ -134,8 +134,9 @@ const STARS: Array<[number, number, number, number]> = [
     </svg>
   </div>
 
-  <!-- Beach foreground: sits ABOVE the record so the sun sets behind the waves -->
+  <!-- Beach foreground: sits ABOVE the record so the sun sets BEHIND the sea -->
   <div class="j-beachfront" data-s-front="beach">
+    <div class="bf-sea"></div>
     <svg class="bf-wave" viewBox="0 0 100 16" preserveAspectRatio="none">
       <path fill="#120803" d="M0 8 Q 5 5.6 10 8 T 20 8 T 30 7 T 40 8.6 T 50 7.2 T 60 8.6 T 70 7 T 80 8.4 T 90 7.4 T 100 8 V16 H0 Z"/>
       <path fill="rgba(255,170,110,0.14)" d="M0 8 Q 5 5.6 10 8 T 20 8 T 30 7 T 40 8.6 T 50 7.2 T 60 8.6 T 70 7 T 80 8.4 T 90 7.4 T 100 8 L100 8.8 Q 94 7.9 90 8.2 T 80 9.2 T 70 7.8 T 60 9.4 T 50 8 T 40 9.4 T 30 7.8 T 20 8.8 T 10 8.8 Q 5 6.6 0 8.8 Z"/>
@@ -483,6 +484,13 @@ const STARS: Array<[number, number, number, number]> = [
 
   /* Beach foreground (above the sun) */
   .j-beachfront { position: absolute; inset: 0; z-index: 21; opacity: 0; visibility: hidden; }
+  /* The sea surface itself lives in front of the record — the sun SETS behind it */
+  .bf-sea {
+    position: absolute; left: -4%; right: -4%; top: 63.5%; bottom: 0;
+    background:
+      repeating-linear-gradient(179deg, rgba(255, 150, 65, 0.10) 0 2px, transparent 2px 8px),
+      linear-gradient(180deg, rgba(64, 27, 11, 0.98) 0%, #1c0c05 45%, #0a0402 100%);
+  }
   .bf-wave { position: absolute; left: -3%; right: -3%; width: 106%; bottom: 15%; height: 13%; animation: j-swell 6.5s ease-in-out infinite alternate; }
   @keyframes j-swell { from { transform: translate(0, 0); } to { transform: translate(-1.4%, -1.6%); } }
   .bf-sand { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: 17%; }
@@ -561,7 +569,7 @@ const STARS: Array<[number, number, number, number]> = [
     'ch-collection': { top: '16%', x: '27vw', scale: 0.5 },
     'ch-events': { top: '7%', x: '30vw', scale: 0.38 },
     'ch-lead': { top: '33%', x: '-16vw', scale: 0.85 },
-    'contact': { top: '58%', x: '17vw', scale: 1.0 },
+    'contact': { top: '62%', x: '17vw', scale: 1.0 },
   };
   const GLOW: Record<string, number> = { 'ch-collection': 0.7, 'ch-events': 0.4, 'ch-lead': 0.95, 'contact': 1 };
 
@@ -632,15 +640,15 @@ const STARS: Array<[number, number, number, number]> = [
             //  peak→wood = we ride DOWN the mountain (peak sweeps up past camera)
             //  wood→beach = the camera TURNS (forest swings left, beach comes from the right)
             if (key === 'peak') {
-              master.to(sceneEl(prevKey), { autoAlpha: 0, yPercent: -12, scale: 1.05, duration: dur }, t0)
-                    .fromTo(scene, { yPercent: 20, scale: 1.06 }, { autoAlpha: 1, yPercent: 0, scale: 1, duration: dur, ease: 'power1.out' }, t0);
+              master.to(sceneEl(prevKey), { autoAlpha: 0, yPercent: -34, scale: 1.1, duration: dur }, t0)
+                    .fromTo(scene, { yPercent: 42, scale: 1.1 }, { autoAlpha: 1, yPercent: 0, scale: 1, duration: dur, ease: 'power1.out' }, t0);
             } else if (key === 'wood') {
-              master.to(sceneEl(prevKey), { autoAlpha: 0, yPercent: -30, scale: 1.14, duration: dur, ease: 'power1.in' }, t0)
-                    .fromTo(scene, { yPercent: 24, scale: 1.06 }, { autoAlpha: 1, yPercent: 0, scale: 1, duration: dur, ease: 'power1.out' }, t0);
+              master.to(sceneEl(prevKey), { autoAlpha: 0, yPercent: -52, scale: 1.2, duration: dur, ease: 'power1.in' }, t0)
+                    .fromTo(scene, { yPercent: 48, scale: 1.12 }, { autoAlpha: 1, yPercent: 0, scale: 1, duration: dur, ease: 'power1.out' }, t0);
             } else if (key === 'beach') {
-              master.to(sceneEl(prevKey), { autoAlpha: 0, xPercent: -22, scale: 1.07, duration: dur, ease: 'power1.in' }, t0)
-                    .fromTo(scene, { xPercent: 16, scale: 1.04 }, { autoAlpha: 1, xPercent: 0, scale: 1, duration: dur, ease: 'power1.out' }, t0)
-                    .fromTo('.j-beachfront', { xPercent: 12 }, { autoAlpha: 1, xPercent: 0, duration: dur, ease: 'power1.out' }, t0);
+              master.to(sceneEl(prevKey), { autoAlpha: 0, xPercent: -40, scale: 1.1, duration: dur, ease: 'power1.in' }, t0)
+                    .fromTo(scene, { xPercent: 34, scale: 1.06 }, { autoAlpha: 1, xPercent: 0, scale: 1, duration: dur, ease: 'power1.out' }, t0)
+                    .fromTo('.j-beachfront', { xPercent: 26 }, { autoAlpha: 1, xPercent: 0, duration: dur, ease: 'power1.out' }, t0);
             } else {
               master.to(sceneEl(prevKey), { autoAlpha: 0, scale: 1.09, duration: dur }, t0)
                     .fromTo(scene, { scale: 1.07 }, { autoAlpha: 1, scale: 1, duration: dur, ease: 'power1.out' }, t0);
@@ -702,8 +710,8 @@ const STARS: Array<[number, number, number, number]> = [
       if (!scene) return;
       scene.querySelectorAll('[data-depth]').forEach((layer) => {
         const d = parseFloat((layer as HTMLElement).dataset.depth || '1');
-        gsap.fromTo(layer, { yPercent: 3.2 * d }, {
-          yPercent: -3.2 * d, ease: 'none',
+        gsap.fromTo(layer, { yPercent: 4.6 * d }, {
+          yPercent: -4.6 * d, ease: 'none',
           scrollTrigger: { trigger: sec, start: 'top bottom', end: 'bottom top', scrub: 0.5 },
         });
       });
