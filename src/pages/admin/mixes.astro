@@ -283,5 +283,10 @@ const platformColors: Record<string, string> = {
         btn.textContent = editingId ? 'Update Mix' : 'Save Mix';
       }
     });
+
+    // Astro compiles <script> to type="module", so everything above is
+    // module-scoped. The inline onclick=/oninput= handlers in the markup resolve
+    // against the global scope, so expose them explicitly.
+    Object.assign(window as any, { openModal, closeModal, handleBackdrop, autoSlug, editMix, deleteMix });
   </script>
 </AdminLayout>

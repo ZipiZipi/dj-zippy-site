@@ -271,5 +271,10 @@ if (db) {
         btn.textContent = editingId ? 'Update Post' : 'Save Post';
       }
     });
+
+    // Astro compiles <script> to type="module", so everything above is
+    // module-scoped. The inline onclick=/oninput= handlers in the markup resolve
+    // against the global scope, so expose them explicitly.
+    Object.assign(window as any, { openModal, closeModal, handleBackdrop, autoSlug, updateSeoCount, editPost, deletePost });
   </script>
 </AdminLayout>
