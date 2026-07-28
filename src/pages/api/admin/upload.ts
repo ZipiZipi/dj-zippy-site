@@ -4,6 +4,10 @@
 import type { APIRoute } from 'astro';
 import { uploadImage, generateR2URL } from '../../../lib/r2';
 
+// output: 'hybrid' prerenders routes by default, which builds this as a static
+// asset that only answers GET — POST comes back 405. Keep it on-demand.
+export const prerender = false;
+
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 export const POST: APIRoute = async ({ request, locals }) => {

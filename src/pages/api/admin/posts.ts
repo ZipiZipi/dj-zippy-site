@@ -7,6 +7,10 @@
 import type { APIRoute } from 'astro';
 import type { Post } from '../../../types/database';
 
+// output: 'hybrid' prerenders routes by default, which builds this as a static
+// asset that only answers GET — POST/PUT/DELETE come back 405. Keep it on-demand.
+export const prerender = false;
+
 export const GET: APIRoute = async ({ locals, url }) => {
   try {
     const db = locals.runtime.env.DB;
