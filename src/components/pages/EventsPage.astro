@@ -1,6 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { getEvents } from '../../lib/content';
+import { getEvents, eventInterval } from '../../lib/content';
 import { useTranslations, localize, dateParts, htmlLang, type Lang } from '../../i18n/utils';
 
 interface Props {
@@ -16,48 +16,51 @@ const { upcoming, past } = await getEvents(db);
 
 const pageUrl = `https://zippydj.com${l('/events')}`;
 
-const toMusicEvent = (e: typeof upcoming[number]) => ({
-  "@type": "MusicEvent",
-  "@id": `${pageUrl}#${e.slug}`,
-  "name": `${e.title} — ${e.subtitle || 'House Music Therapy'}`,
-  "startDate": e.time ? `${e.date}T${e.time.split(' - ')[0]}:00` : e.date,
-  "endDate": e.time && e.time.includes(' - ') ? `${e.date}T${e.time.split(' - ')[1]}:00` : undefined,
-  "eventStatus": "https://schema.org/EventScheduled",
-  "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
-  "inLanguage": htmlLang[lang],
-  "location": {
-    "@type": "Place",
-    "name": e.title,
-    "address": {
-      "@type": "PostalAddress",
-      "addressLocality": e.location,
-      "addressCountry": e.country
-    }
-  },
-  "performer": {
-    "@type": ["Person","MusicGroup"],
-    "@id": "https://zippydj.com/#person",
-    "name": "DJ Zippy",
-    "alternateName": "Zippy"
-  },
-  "organizer": {
-    "@type": "Organization",
-    "@id": "https://zippydj.com/#organization",
-    "name": "DJ Zippy",
-    "url": "https://zippydj.com"
-  },
-  "offers": {
-    "@type": "Offer",
+const toMusicEvent = (e: typeof upcoming[number]) => {
+  const { start, end } = eventInterval(e);
+  return {
+    "@type": "MusicEvent",
+    "@id": `${pageUrl}#${e.slug}`,
+    "name": `${e.title} — ${e.subtitle || 'House Music Therapy'}`,
+    "startDate": start,
+    "endDate": end,
+    "eventStatus": "https://schema.org/EventScheduled",
+    "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+    "inLanguage": htmlLang[lang],
+    "location": {
+      "@type": "Place",
+      "name": e.title,
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": e.location,
+        "addressCountry": e.country
+      }
+    },
+    "performer": {
+      "@type": ["Person","MusicGroup"],
+      "@id": "https://zippydj.com/#person",
+      "name": "DJ Zippy",
+      "alternateName": "Zippy"
+    },
+    "organizer": {
+      "@type": "Organization",
+      "@id": "https://zippydj.com/#organization",
+      "name": "DJ Zippy",
+      "url": "https://zippydj.com"
+    },
+    "offers": {
+      "@type": "Offer",
+      "url": pageUrl,
+      "availability": "https://schema.org/InStock",
+      "price": "0",
+      "priceCurrency": "EUR",
+      "validFrom": `${e.date}T00:00:00`
+    },
     "url": pageUrl,
-    "availability": "https://schema.org/InStock",
-    "price": "0",
-    "priceCurrency": "EUR",
-    "validFrom": `${e.date}T00:00:00`
-  },
-  "url": pageUrl,
-  "image": "https://zippydj.com/images/dj-zippy-house-music-dj.webp",
-  "description": t.schema.eventDescription(e.title, e.location)
-});
+    "image": "https://zippydj.com/images/dj-zippy-house-music-dj.webp",
+    "description": t.schema.eventDescription(e.title, e.location)
+  };
+};
 
 const musicEventSchema = {
   "@context": "https://schema.org",

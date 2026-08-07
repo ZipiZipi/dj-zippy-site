@@ -43,6 +43,42 @@ export const EVENTS_FALLBACK: UIEvent[] = [
 
 // Date display parts live in src/i18n/utils.ts — month labels differ per language.
 
+function minutesOfDay(hhmm: string): number {
+  const [h, m] = hhmm.split(':');
+  return (parseInt(h, 10) || 0) * 60 + (parseInt(m, 10) || 0);
+}
+
+/** Next calendar day for a YYYY-MM-DD string, via UTC so no local offset shifts it. */
+function nextDay(date: string): string {
+  const d = new Date(`${date}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + 1);
+  return d.toISOString().slice(0, 10);
+}
+
+/**
+ * Start/end instants for an event, as schema.org date-times.
+ *
+ * `time` is a display string like "20:00 - 01:00". A club night that runs past
+ * midnight ends on the *following* day, so the end date rolls over whenever the
+ * end time is not later than the start — otherwise the markup claims the event
+ * ended before it began, and Google drops it from Event results.
+ *
+ * No timezone offset: schema.org reads a bare date-time as local to the venue,
+ * which is exactly what these times mean.
+ */
+export function eventInterval(e: UIEvent): { start: string; end?: string } {
+  if (!e.time) return { start: e.date };
+
+  const [from, to] = e.time.split(' - ').map((s) => s.trim());
+  if (!from) return { start: e.date };
+
+  const start = `${e.date}T${from}:00`;
+  if (!to) return { start };
+
+  const endDate = minutesOfDay(to) > minutesOfDay(from) ? e.date : nextDay(e.date);
+  return { start, end: `${endDate}T${to}:00` };
+}
+
 function mapRow(row: any): UIEvent {
   return {
     id: row.id,
