@@ -1,0 +1,189 @@
+---
+// Blog index. Post copy is placeholder data (see src/lib/posts.ts) — only the
+// surrounding chrome is translated, and the page stays `noindex`.
+import Layout from '../../layouts/Layout.astro';
+import { POSTS } from '../../lib/posts';
+import { useTranslations, localize, formatDate, type Lang } from '../../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props as Props;
+const t = useTranslations(lang);
+const l = (path: string) => localize(path, lang);
+
+const byNewest = (a: { date: string }, b: { date: string }) =>
+  new Date(b.date).getTime() - new Date(a.date).getTime();
+
+const featuredPosts = POSTS.filter((p) => p.featured).sort(byNewest);
+const regularPosts = POSTS.filter((p) => !p.featured && p.published).sort(byNewest);
+
+// Pagination
+const postsPerPage = 6;
+const totalPages = Math.ceil(regularPosts.length / postsPerPage);
+const currentPage = 1;
+const paginatedPosts = regularPosts.slice(0, postsPerPage);
+---
+
+<Layout lang={lang} title={t.blog.title} description={t.blog.description} activePage="blog" noindex={true}>
+  {/* Hero Section */}
+  <section class="min-h-[40vh] flex items-center justify-center bg-gradient-to-b from-brand-dark to-brand-gray relative overflow-hidden pt-20">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center z-30">
+      <h1 class="font-display font-bold text-5xl sm:text-6xl text-white mb-4">{t.blog.heading}</h1>
+      <p class="text-xl text-gray-300">{t.blog.lead}</p>
+    </div>
+  </section>
+
+  {/* Featured Posts */}
+  {featuredPosts.length > 0 && (
+    <section class="py-20 bg-brand-dark">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 z-30 relative">
+        <div class="mb-12">
+          <h2 class="font-display font-bold text-3xl text-white mb-2">{t.blog.featured}</h2>
+          <div class="w-12 h-1 bg-brand-orange rounded"></div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {featuredPosts.map((post) => (
+            <article class="group bg-brand-gray border border-white border-opacity-10 rounded-lg overflow-hidden hover:border-brand-orange hover:shadow-lg hover:shadow-brand-orange/20 transition-all">
+              {/* Image */}
+              <div class="relative aspect-video overflow-hidden bg-brand-dark">
+                {post.cover_image ? (
+                  <img
+                    src={post.cover_image}
+                    alt={post.title}
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div class="w-full h-full bg-gradient-to-br from-brand-gray to-brand-black flex items-center justify-center">
+                    <i class="fa-solid fa-pen-fancy text-4xl text-white/20"></i>
+                  </div>
+                )}
+              </div>
+
+              {/* Content */}
+              <div class="p-6">
+                {/* Meta */}
+                <div class="flex items-center justify-between mb-3">
+                  <span class="text-xs text-brand-orange font-bold uppercase tracking-wider">{t.blog.featured}</span>
+                  <span class="text-xs text-gray-500">{formatDate(post.date, lang)}</span>
+                </div>
+
+                {/* Title */}
+                <h3 class="font-display font-bold text-xl text-white mb-3 line-clamp-2 group-hover:text-brand-orange transition-colors">
+                  <a href={l(`/blog/${post.slug}`)}>{post.title}</a>
+                </h3>
+
+                {/* Description */}
+                <p class="text-gray-400 text-sm mb-4 line-clamp-2">{post.seo_description}</p>
+
+                {/* Read More Link */}
+                <a
+                  href={l(`/blog/${post.slug}`)}
+                  class="inline-flex items-center gap-2 text-brand-orange hover:text-white transition-colors font-bold text-sm group-hover:gap-3"
+                >
+                  <span>{t.blog.readArticle}</span>
+                  <i class="fa-solid fa-arrow-right"></i>
+                </a>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* All Posts Grid */}
+  <section class="py-20 bg-brand-gray">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 z-30 relative">
+      <div class="mb-12">
+        <h2 class="font-display font-bold text-3xl text-white mb-2">{t.blog.latest}</h2>
+        <div class="w-12 h-1 bg-brand-orange rounded"></div>
+      </div>
+
+      {paginatedPosts.length > 0 ? (
+        <>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+            {paginatedPosts.map((post) => (
+              <article class="group bg-brand-dark border border-white border-opacity-10 rounded-lg overflow-hidden hover:border-brand-orange hover:shadow-lg hover:shadow-brand-orange/20 transition-all">
+                {/* Image */}
+                <div class="relative aspect-video overflow-hidden bg-brand-gray">
+                  {post.cover_image ? (
+                    <img
+                      src={post.cover_image}
+                      alt={post.title}
+                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div class="w-full h-full bg-gradient-to-br from-brand-gray to-brand-black flex items-center justify-center">
+                      <i class="fa-solid fa-pen-fancy text-3xl text-white/20"></i>
+                    </div>
+                  )}
+                </div>
+
+                {/* Content */}
+                <div class="p-6">
+                  {/* Date */}
+                  <span class="text-xs text-gray-500 mb-3 block">{formatDate(post.date, lang)}</span>
+
+                  {/* Title */}
+                  <h3 class="font-display font-bold text-lg text-white mb-3 line-clamp-2 group-hover:text-brand-orange transition-colors">
+                    <a href={l(`/blog/${post.slug}`)}>{post.title}</a>
+                  </h3>
+
+                  {/* Description */}
+                  <p class="text-gray-400 text-sm mb-4 line-clamp-2">{post.seo_description}</p>
+
+                  {/* Read More */}
+                  <a
+                    href={l(`/blog/${post.slug}`)}
+                    class="inline-flex items-center gap-2 text-brand-orange hover:text-white transition-colors font-bold text-sm group-hover:gap-3"
+                  >
+                    <span>{t.blog.read}</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                  </a>
+                </div>
+              </article>
+            ))}
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div class="flex justify-center items-center gap-2">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <a
+                  href={page === 1 ? l('/blog') : `${l('/blog')}?page=${page}`}
+                  class={`px-4 py-2 rounded-lg font-bold transition-colors ${
+                    page === currentPage
+                      ? 'bg-brand-orange text-white'
+                      : 'bg-brand-dark text-gray-400 hover:text-white hover:border border-brand-orange'
+                  }`}
+                >
+                  {page}
+                </a>
+              ))}
+            </div>
+          )}
+        </>
+      ) : (
+        <div class="text-center py-12">
+          <p class="text-gray-400 text-lg">{t.blog.empty}</p>
+        </div>
+      )}
+    </div>
+  </section>
+
+  {/* Subscribe CTA */}
+  <section class="py-20 bg-brand-dark">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center z-30 relative">
+      <h2 class="font-display font-bold text-3xl text-white mb-6">{t.blog.ctaHeading}</h2>
+      <p class="text-gray-400 mb-8 text-lg">{t.blog.ctaLead}</p>
+      <a href={`${l('/')}#contact`} class="inline-block bg-brand-orange text-white px-8 py-4 rounded-lg font-bold hover:bg-opacity-90 transition-all">
+        {t.blog.ctaButton}
+      </a>
+    </div>
+  </section>
+</Layout>

@@ -22,6 +22,10 @@
 - [Events](https://zippydj.com/events): Upcoming gigs and past performance history.
 - [Links](https://zippydj.com/links): All official social and streaming profiles.
 
+The site is bilingual. Every page above has a Serbian (Latin script) counterpart
+under the `/sr` prefix — https://zippydj.com/sr, /sr/about, /sr/mixes, /sr/events,
+/sr/links — with the same content in Serbian.
+
 ## Notable performances
 
 - 2024-07-12 — Exit Festival, AS FM Stage (Novi Sad, Serbia) — first major festival stage

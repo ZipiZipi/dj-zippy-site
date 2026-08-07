@@ -1,0 +1,195 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { useTranslations, localize, htmlLang, type Lang } from '../../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props as Props;
+const t = useTranslations(lang);
+const l = (path: string) => localize(path, lang);
+
+const pageUrl = `https://zippydj.com${l('/about')}`;
+const contactHref = `${l('/')}#contact`;
+
+// The visible FAQ and the FAQPage node are generated from the same entries, so
+// they can never drift apart.
+const faq = t.about.faq.map((item) => ({
+  q: item.q,
+  aHtml: item.aHtml.replace('{contact}', contactHref),
+  aText: item.aText,
+}));
+
+const aboutSchema = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'BreadcrumbList',
+      '@id': `${pageUrl}#breadcrumb`,
+      'itemListElement': [
+        { '@type': 'ListItem', 'position': 1, 'name': t.breadcrumb.home, 'item': `https://zippydj.com${l('/')}` },
+        { '@type': 'ListItem', 'position': 2, 'name': t.breadcrumb.about, 'item': pageUrl },
+      ],
+    },
+    {
+      '@type': 'AboutPage',
+      '@id': `${pageUrl}#page`,
+      'url': pageUrl,
+      'name': t.about.schemaPageName,
+      'description': t.about.schemaPageDesc,
+      'inLanguage': htmlLang[lang],
+      'mainEntity': { '@id': 'https://zippydj.com/#person' },
+      'isPartOf': { '@id': 'https://zippydj.com/#website' },
+    },
+    {
+      '@type': ['Person', 'MusicGroup'],
+      '@id': 'https://zippydj.com/#person',
+      'name': 'DJ Zippy',
+      'givenName': 'Veljko',
+      'familyName': 'Nedeljkovic',
+      'alternateName': ['Zippy', 'Zippy DJ', 'Zovumezippy', 'Zipi', 'Veljko Nedeljković'],
+      'url': 'https://zippydj.com',
+      'image': 'https://zippydj.com/images/dj-zippy-house-music-dj.webp',
+      'description': t.schema.personDescriptionShort,
+      'jobTitle': 'DJ & Selector',
+      'nationality': { '@type': 'Country', 'name': 'Serbia' },
+      'birthPlace': { '@type': 'City', 'name': 'Belgrade' },
+      'homeLocation': { '@type': 'City', 'name': 'Belgrade' },
+      'genre': ['House', 'Tech House', 'Deep House', 'Techno', 'Organic House'],
+      'knowsLanguage': ['sr', 'en'],
+      'memberOf': [
+        { '@type': 'Organization', 'name': 'Kult Talents' },
+        { '@type': 'Organization', 'name': 'Izuvanje' },
+      ],
+      'sameAs': [
+        'https://musicbrainz.org/artist/a6a53c2e-8fa0-4612-8e43-8de7af43dc2a',
+        'https://www.wikidata.org/wiki/Q138220521',
+        'https://www.instagram.com/zovumezippy',
+        'https://www.youtube.com/@zovumezippy',
+        'https://ra.co/dj/zippy-2',
+        'https://soundcloud.com/zovumezippy',
+        'https://www.mixcloud.com/zovumezippy/',
+        'https://www.tiktok.com/@zovumezippy',
+        'https://www.facebook.com/zovumezippy',
+        'https://open.spotify.com/user/31aj2g4yokqhpoxwkpo5odxegsle',
+        'https://www.deezer.com/en/profile/2582254702',
+      ],
+    },
+    {
+      '@type': 'FAQPage',
+      '@id': `${pageUrl}#faq`,
+      'inLanguage': htmlLang[lang],
+      'mainEntity': faq.map((item) => ({
+        '@type': 'Question',
+        'name': item.q,
+        'acceptedAnswer': { '@type': 'Answer', 'text': item.aText },
+      })),
+    },
+  ],
+};
+---
+
+<Layout lang={lang} title={t.about.title} description={t.about.description} activePage="about">
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(aboutSchema)} />
+
+  {/* Hero / Bio Section */}
+  <section class="isolate relative min-h-screen flex flex-col justify-center bg-brand-black pt-24 sm:pt-28 pb-16 overflow-hidden">
+    <div class="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 z-30">
+
+      {/* Breadcrumb */}
+      <nav aria-label={t.breadcrumb.label} class="mb-6">
+        <ol class="flex items-center space-x-2 text-sm text-gray-400">
+          <li><a href={l('/')} class="hover:text-brand-orange transition-colors">{t.breadcrumb.home}</a></li>
+          <li><span class="mx-2">/</span></li>
+          <li class="text-white">{t.breadcrumb.about}</li>
+        </ol>
+      </nav>
+
+      <h1 class="font-display text-4xl md:text-5xl lg:text-6xl font-black leading-tight mb-4">
+        {t.about.heading1}<span class="text-brand-orange">{t.about.heading2}</span>
+      </h1>
+      <p class="text-gray-400 text-lg md:text-xl mb-16">
+        {t.about.lead}
+      </p>
+
+      {/* Bio Grid */}
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+
+        {/* Photo */}
+        <div class="flex items-center justify-center">
+          <img
+            src="/images/dj-zippy-house-music-dj.webp"
+            alt={t.about.photoAlt}
+            class="w-full max-h-md rounded-lg"
+          />
+        </div>
+
+        {/* Bio Text */}
+        <div>
+          <div class="inline-block px-3 py-1 border border-brand-orange/50 rounded-full text-brand-orange text-xs font-bold tracking-widest mb-6">
+            {t.about.badge}
+          </div>
+          <h2 class="font-display text-4xl md:text-5xl font-bold mb-8">
+            {t.about.subheading1}<br />{t.about.subheading2}<span class="text-brand-orange">{t.about.subheading3}</span>
+          </h2>
+
+          <div class="space-y-6 text-gray-400 font-light leading-relaxed">
+            <p set:html={t.about.bio1Html} />
+            <p set:html={t.about.bio2Html} />
+            <p set:html={t.about.bio3Html} />
+
+            {/* Affiliation Cards */}
+            <div class="pt-6">
+              <h3 class="text-white font-display text-xl mb-4">{t.about.memberOf}</h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="p-6 glass-panel rounded-lg border-l-4 border-brand-orange">
+                  <h4 class="text-xl font-bold text-white mb-2">KULT TALENTS</h4>
+                  <p class="text-sm">{t.about.kultDesc}</p>
+                </div>
+                <div class="p-6 glass-panel rounded-lg border-l-4 border-brand-orange">
+                  <h4 class="text-xl font-bold text-white mb-2">IZUVANJE</h4>
+                  <p class="text-sm">{t.about.izuvanjeDesc}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Partners / Affiliations Bar */}
+      <div class="mt-12 md:mt-20 flex justify-center items-center gap-6 sm:gap-8 md:gap-16 opacity-50 grayscale hover:grayscale-0 transition-all duration-500 flex-wrap z-30 px-4">
+        <div class="flex items-center gap-2" title={t.about.kultTitle}>
+          <i class="fa-solid fa-star text-xl"></i>
+          <span class="font-display font-bold text-lg sm:text-xl">KULT TALENTS</span>
+        </div>
+        <div class="flex items-center gap-2" title={t.about.go2Title}>
+          <i class="fa-solid fa-plane text-xl"></i>
+          <span class="font-display font-bold text-lg sm:text-xl">GO2 TRAVEL</span>
+        </div>
+        <div class="flex items-center gap-2" title={t.about.raTitle}>
+          <span class="font-display font-bold text-lg sm:text-xl bg-white text-black px-1">RA</span>
+          <span class="font-display font-bold text-lg sm:text-xl">RESIDENT ADVISOR</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* FAQ Section — mirrored in FAQPage JSON-LD for rich results & AI Overviews */}
+  <section id="faq" class="isolate relative py-16 sm:py-20 bg-brand-black border-t border-white/5">
+    <div class="container mx-auto px-6 sm:px-8 lg:px-12 max-w-3xl">
+      <h2 class="font-display text-3xl md:text-4xl font-bold mb-10 text-center">
+        {t.about.faqHeading1}<span class="text-brand-orange">{t.about.faqHeading2}</span>
+      </h2>
+      <div class="space-y-8 text-gray-300">
+        {faq.map((item) => (
+          <div>
+            <h3 class="font-display text-xl text-white mb-2">{item.q}</h3>
+            <p set:html={item.aHtml} />
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+</Layout>

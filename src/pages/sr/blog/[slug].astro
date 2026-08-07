@@ -1,6 +1,6 @@
 ---
-import BlogPostPage from '../../components/pages/BlogPostPage.astro';
-import { PUBLISHED_POSTS } from '../../lib/posts';
+import BlogPostPage from '../../../components/pages/BlogPostPage.astro';
+import { PUBLISHED_POSTS } from '../../../lib/posts';
 
 export function getStaticPaths() {
   return PUBLISHED_POSTS.map((post) => ({
@@ -12,4 +12,4 @@ export function getStaticPaths() {
 const { post } = Astro.props;
 ---
 
-<BlogPostPage lang="en" post={post} />
+<BlogPostPage lang="sr" post={post} />

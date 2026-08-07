@@ -41,14 +41,7 @@ export const EVENTS_FALLBACK: UIEvent[] = [
   { slug: "event-krivi-put-2022", date: "2022-07-30", time: "", title: "Cafe Krivi Put", subtitle: "First Public Party", location: "Smederevo", country: "RS", status: "past", featured: false },
 ];
 
-const MONTHS = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
-
-/** Split a YYYY-MM-DD string into display parts without timezone surprises. */
-export function dateParts(date: string): { day: string; month: string; year: string } {
-  const [y, m, d] = date.split('-');
-  const mi = Math.max(1, Math.min(12, parseInt(m || '1', 10))) - 1;
-  return { day: (d || '01').padStart(2, '0'), month: MONTHS[mi], year: y || '' };
-}
+// Date display parts live in src/i18n/utils.ts — month labels differ per language.
 
 function mapRow(row: any): UIEvent {
   return {

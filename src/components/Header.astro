@@ -1,34 +1,49 @@
 ---
-const { activePage = '' } = Astro.props;
+import LanguageSwitcher from './LanguageSwitcher.astro';
+import { getLangFromUrl, useTranslations, localize, type Lang } from '../i18n/utils';
+
+interface Props {
+  activePage?: string;
+  lang?: Lang;
+}
+
+const { activePage = '' } = Astro.props as Props;
+const lang: Lang = Astro.props.lang ?? getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+const l = (path: string) => localize(path, lang);
 ---
 
 <nav class="fixed top-0 w-full z-50 bg-brand-black/90 backdrop-blur-md border-b border-white/5">
   <div class="container mx-auto px-6 sm:px-8 lg:px-12 py-4 flex justify-between items-center">
-    <a href="/" class="font-display font-bold text-2xl tracking-tighter">
+    <a href={l('/')} class="font-display font-bold text-2xl tracking-tighter">
       ZIPPY<span class="text-brand-orange">.</span>
     </a>
 
-    <div class="hidden md:flex space-x-8 text-sm font-semibold tracking-wide uppercase text-gray-300">
-      {activePage !== '' && <a href="/" class="nav-link hover:text-white transition-colors">Home</a>}
-      <a href="/about" class={`nav-link hover:text-white transition-colors ${activePage === 'about' ? 'text-brand-orange' : ''}`}>About</a>
-      <a href="/mixes" class={`nav-link hover:text-white transition-colors ${activePage === 'mixes' ? 'text-brand-orange' : ''}`}>Mixes</a>
-      <a href="/events" class={`nav-link hover:text-white transition-colors ${activePage === 'events' ? 'text-brand-orange' : ''}`}>Events</a>
-      <a href="/links" class={`nav-link hover:text-white transition-colors ${activePage === 'links' ? 'text-brand-orange' : ''}`}>Links</a>
-      <a href="/#contact" data-magnetic class="inline-block text-brand-orange hover:text-white transition-colors">Book Now</a>
+    <div class="hidden md:flex items-center space-x-8 text-sm font-semibold tracking-wide uppercase text-gray-300">
+      {activePage !== '' && <a href={l('/')} class="nav-link hover:text-white transition-colors">{t.nav.home}</a>}
+      <a href={l('/about')} class={`nav-link hover:text-white transition-colors ${activePage === 'about' ? 'text-brand-orange' : ''}`}>{t.nav.about}</a>
+      <a href={l('/mixes')} class={`nav-link hover:text-white transition-colors ${activePage === 'mixes' ? 'text-brand-orange' : ''}`}>{t.nav.mixes}</a>
+      <a href={l('/events')} class={`nav-link hover:text-white transition-colors ${activePage === 'events' ? 'text-brand-orange' : ''}`}>{t.nav.events}</a>
+      <a href={l('/links')} class={`nav-link hover:text-white transition-colors ${activePage === 'links' ? 'text-brand-orange' : ''}`}>{t.nav.links}</a>
+      <a href={`${l('/')}#contact`} data-magnetic class="inline-block text-brand-orange hover:text-white transition-colors">{t.nav.book}</a>
+      <LanguageSwitcher lang={lang} />
     </div>
 
-    <button id="mobile-menu-btn" class="md:hidden text-white focus:outline-none">
-      <i class="fa-solid fa-bars text-xl"></i>
-    </button>
+    <div class="md:hidden flex items-center gap-3">
+      <LanguageSwitcher lang={lang} />
+      <button id="mobile-menu-btn" class="text-white focus:outline-none" aria-label={t.nav.openMenu} aria-expanded="false" aria-controls="mobile-menu">
+        <i class="fa-solid fa-bars text-xl"></i>
+      </button>
+    </div>
   </div>
 
   <div id="mobile-menu" class="hidden md:hidden bg-brand-dark border-t border-white/10 p-4 sm:p-6 flex flex-col space-y-4">
-    {activePage !== '' && <a href="/" class="text-gray-300 hover:text-brand-orange">Home</a>}
-    <a href="/about" class={`hover:text-brand-orange ${activePage === 'about' ? 'text-brand-orange font-bold' : 'text-gray-300'}`}>About</a>
-    <a href="/mixes" class={`hover:text-brand-orange ${activePage === 'mixes' ? 'text-brand-orange font-bold' : 'text-gray-300'}`}>Mixes</a>
-    <a href="/events" class={`hover:text-brand-orange ${activePage === 'events' ? 'text-brand-orange font-bold' : 'text-gray-300'}`}>Events</a>
-    <a href="/links" class={`hover:text-brand-orange ${activePage === 'links' ? 'text-brand-orange font-bold' : 'text-gray-300'}`}>Links</a>
-    <a href="/#contact" class="text-brand-orange font-bold">Book Now</a>
+    {activePage !== '' && <a href={l('/')} class="text-gray-300 hover:text-brand-orange">{t.nav.home}</a>}
+    <a href={l('/about')} class={`hover:text-brand-orange ${activePage === 'about' ? 'text-brand-orange font-bold' : 'text-gray-300'}`}>{t.nav.about}</a>
+    <a href={l('/mixes')} class={`hover:text-brand-orange ${activePage === 'mixes' ? 'text-brand-orange font-bold' : 'text-gray-300'}`}>{t.nav.mixes}</a>
+    <a href={l('/events')} class={`hover:text-brand-orange ${activePage === 'events' ? 'text-brand-orange font-bold' : 'text-gray-300'}`}>{t.nav.events}</a>
+    <a href={l('/links')} class={`hover:text-brand-orange ${activePage === 'links' ? 'text-brand-orange font-bold' : 'text-gray-300'}`}>{t.nav.links}</a>
+    <a href={`${l('/')}#contact`} class="text-brand-orange font-bold">{t.nav.book}</a>
   </div>
 </nav>
 
@@ -38,9 +53,15 @@ const { activePage = '' } = Astro.props;
     const menu = document.getElementById('mobile-menu');
     if (btn && menu && !btn.dataset.bound) {
       btn.dataset.bound = '1';
-      btn.addEventListener('click', () => menu.classList.toggle('hidden'));
+      btn.addEventListener('click', () => {
+        const open = menu.classList.toggle('hidden') === false;
+        btn.setAttribute('aria-expanded', String(open));
+      });
       document.querySelectorAll('.nav-link, #mobile-menu a').forEach(link => {
-        link.addEventListener('click', () => menu.classList.add('hidden'));
+        link.addEventListener('click', () => {
+          menu.classList.add('hidden');
+          btn.setAttribute('aria-expanded', 'false');
+        });
       });
     }
   }

@@ -1,0 +1,223 @@
+---
+// Single blog post. Post copy is placeholder data (see src/lib/posts.ts) —
+// only the surrounding chrome is translated, and the page stays `noindex`.
+import Layout from '../../layouts/Layout.astro';
+import type { Post } from '../../types/database';
+import { renderPostBody } from '../../lib/posts';
+import { useTranslations, localize, formatDate, htmlLang, type Lang } from '../../i18n/utils';
+
+interface Props {
+  lang: Lang;
+  post: Post;
+}
+
+const { lang, post } = Astro.props as Props;
+const t = useTranslations(lang);
+const l = (path: string) => localize(path, lang);
+
+const htmlContent = renderPostBody(post.content);
+
+// Previous/next will come from D1 alongside the real posts.
+const previousPost: Post | null = null;
+const nextPost: Post | null = null;
+
+const canonicalUrl = `https://zippydj.com${l(`/blog/${post.slug}`)}`;
+
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: post.title,
+  image: post.cover_image,
+  datePublished: post.date,
+  dateModified: post.updated_at,
+  inLanguage: htmlLang[lang],
+  author: {
+    '@type': 'Person',
+    name: post.author || 'DJ Zippy',
+    url: 'https://zippydj.com',
+  },
+  description: post.seo_description,
+};
+---
+
+<Layout lang={lang} title={`${post.title} | DJ Zippy Blog`} description={post.seo_description} noindex={true}>
+  {/* Structured Data (JSON-LD) */}
+  <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+
+  {/* Canonical URL */}
+  <link rel="canonical" href={canonicalUrl} slot="head" />
+
+  {/* Hero/Cover Image Section */}
+  {post.cover_image && (
+    <section class="relative h-[400px] sm:h-[500px] overflow-hidden">
+      <img
+        src={post.cover_image}
+        alt={post.title}
+        class="w-full h-full object-cover"
+        loading="eager"
+      />
+      <div class="absolute inset-0 bg-gradient-to-t from-brand-dark via-transparent to-transparent"></div>
+      <div class="absolute bottom-0 left-0 right-0 p-8">
+        <div class="max-w-4xl mx-auto">
+          <h1 class="font-display font-bold text-4xl sm:text-5xl text-white mb-4">{post.title}</h1>
+          <div class="flex flex-wrap items-center gap-6 text-gray-300">
+            <span class="flex items-center gap-2">
+              <i class="fa-solid fa-user"></i>
+              {post.author || 'DJ Zippy'}
+            </span>
+            <span class="flex items-center gap-2">
+              <i class="fa-solid fa-calendar"></i>
+              {formatDate(post.date, lang, 'long')}
+            </span>
+            <span class="flex items-center gap-2">
+              <i class="fa-solid fa-clock"></i>
+              {t.blog.readTime}
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* Article Content */}
+  <article class="py-20 bg-brand-dark">
+    <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* Article Body */}
+      <div class="prose prose-invert max-w-none mb-12" set:html={htmlContent} />
+
+      {/* Article Footer */}
+      <div class="border-t border-white border-opacity-10 pt-8 mt-12">
+        <div class="mb-8">
+          <h3 class="font-display font-bold text-white mb-2">{t.blog.aboutAuthor}</h3>
+          <p class="text-gray-400">
+            {post.author || 'DJ Zippy'} {t.blog.authorBio}
+          </p>
+        </div>
+
+        {/* Share Buttons */}
+        <div class="flex items-center gap-4">
+          <span class="text-gray-400 font-bold">{t.blog.share}</span>
+          <a
+            href={`https://twitter.com/intent/tweet?url=${canonicalUrl}&text=${post.title}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-brand-orange hover:text-white transition-colors"
+            title={t.blog.shareTwitter}
+          >
+            <i class="fa-brands fa-twitter text-xl"></i>
+          </a>
+          <a
+            href={`https://www.facebook.com/sharer/sharer.php?u=${canonicalUrl}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-brand-orange hover:text-white transition-colors"
+            title={t.blog.shareFacebook}
+          >
+            <i class="fa-brands fa-facebook text-xl"></i>
+          </a>
+          <a
+            href={`https://www.linkedin.com/sharing/share-offsite/?url=${canonicalUrl}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-brand-orange hover:text-white transition-colors"
+            title={t.blog.shareLinkedIn}
+          >
+            <i class="fa-brands fa-linkedin text-xl"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </article>
+
+  {/* Related Posts Navigation */}
+  {(previousPost || nextPost) && (
+    <section class="py-20 bg-brand-gray">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="font-display font-bold text-2xl text-white mb-12">{t.blog.moreArticles}</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {previousPost && (
+            <a
+              href={l(`/blog/${previousPost.slug}`)}
+              class="group bg-brand-dark border border-white border-opacity-10 rounded-lg p-6 hover:border-brand-orange hover:shadow-lg hover:shadow-brand-orange/20 transition-all"
+            >
+              <p class="text-brand-orange font-bold text-sm mb-2">{t.blog.prevArticle}</p>
+              <h3 class="font-display font-bold text-xl text-white group-hover:text-brand-orange transition-colors mb-2 line-clamp-2">
+                {previousPost.title}
+              </h3>
+              <p class="text-gray-400 text-sm mb-4">{previousPost.seo_description}</p>
+              <span class="text-xs text-gray-500">{formatDate(previousPost.date, lang)}</span>
+            </a>
+          )}
+
+          {nextPost && (
+            <a
+              href={l(`/blog/${nextPost.slug}`)}
+              class="group bg-brand-dark border border-white border-opacity-10 rounded-lg p-6 hover:border-brand-orange hover:shadow-lg hover:shadow-brand-orange/20 transition-all md:col-start-2"
+            >
+              <p class="text-brand-orange font-bold text-sm mb-2">{t.blog.nextArticle}</p>
+              <h3 class="font-display font-bold text-xl text-white group-hover:text-brand-orange transition-colors mb-2 line-clamp-2">
+                {nextPost.title}
+              </h3>
+              <p class="text-gray-400 text-sm mb-4">{nextPost.seo_description}</p>
+              <span class="text-xs text-gray-500">{formatDate(nextPost.date, lang)}</span>
+            </a>
+          )}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* Back to Blog Link */}
+  <section class="py-12 bg-brand-dark">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <a href={l('/blog')} class="inline-flex items-center gap-2 text-brand-orange hover:text-white transition-colors font-bold">
+        <i class="fa-solid fa-arrow-left"></i>
+        {t.blog.backToBlog}
+      </a>
+    </div>
+  </section>
+</Layout>
+
+<style is:global>
+  article .prose h2 {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 1rem;
+  }
+
+  article .prose li {
+    list-style-type: disc;
+  }
+
+  article .prose ol li {
+    list-style-type: decimal;
+  }
+
+  article .prose ul,
+  article .prose ol {
+    margin-bottom: 1rem;
+    margin-left: 1rem;
+  }
+
+  article .prose a {
+    color: #ff5500;
+    text-decoration: underline;
+  }
+
+  article .prose a:hover {
+    color: #ffffff;
+  }
+
+  article .prose code {
+    background-color: #1f1f1f;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.9em;
+  }
+
+  article .prose blockquote {
+    background-color: rgba(255, 85, 0, 0.05);
+    padding: 1rem;
+    border-radius: 0.5rem;
+  }
+</style>

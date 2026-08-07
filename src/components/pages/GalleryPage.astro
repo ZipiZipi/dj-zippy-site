@@ -1,0 +1,101 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { useTranslations, localize, htmlLang, type Lang } from '../../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props as Props;
+const t = useTranslations(lang);
+const l = (path: string) => localize(path, lang);
+
+const pageUrl = `https://zippydj.com${l('/gallery')}`;
+
+// The first slot has a real photo; the rest are captioned placeholders until
+// more images land.
+const [firstPhoto, ...placeholders] = t.gallery.photos;
+
+const gallerySchema = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'BreadcrumbList',
+      '@id': `${pageUrl}#breadcrumb`,
+      'itemListElement': [
+        { '@type': 'ListItem', 'position': 1, 'name': t.breadcrumb.home, 'item': `https://zippydj.com${l('/')}` },
+        { '@type': 'ListItem', 'position': 2, 'name': t.breadcrumb.gallery, 'item': pageUrl },
+      ],
+    },
+    {
+      '@type': 'ImageGallery',
+      '@id': `${pageUrl}#gallery`,
+      'url': pageUrl,
+      'name': t.gallery.schemaName,
+      'description': t.gallery.schemaDesc,
+      'inLanguage': htmlLang[lang],
+      'about': { '@id': 'https://zippydj.com/#person' },
+    },
+  ],
+};
+---
+
+<Layout lang={lang} title={t.gallery.title} description={t.gallery.description} noindex={true}>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(gallerySchema)} />
+
+  <section class="isolate relative min-h-[40vh] flex flex-col items-center justify-center bg-brand-black pt-24 sm:pt-28 pb-12 overflow-hidden">
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] bg-brand-orange/10 blur-[120px] rounded-full pointer-events-none"></div>
+    <div class="container mx-auto px-6 sm:px-8 lg:px-12 text-center z-30">
+      <nav aria-label={t.breadcrumb.label} class="mb-6">
+        <ol class="flex justify-center items-center space-x-2 text-sm text-gray-400">
+          <li><a href={l('/')} class="hover:text-brand-orange transition-colors">{t.breadcrumb.home}</a></li>
+          <li><span class="mx-2">/</span></li>
+          <li class="text-white">{t.breadcrumb.gallery}</li>
+        </ol>
+      </nav>
+      <h1 class="font-display text-4xl md:text-5xl lg:text-6xl font-black leading-tight mb-2">{t.gallery.heading}</h1>
+      <h2 class="font-display text-xl md:text-2xl lg:text-3xl font-bold text-brand-orange mb-4">{t.gallery.subheading}</h2>
+      <p class="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto">{t.gallery.lead}</p>
+    </div>
+  </section>
+
+  <section id="gallery" class="isolate relative py-16 sm:py-20 bg-brand-dark border-t border-white/5">
+    <div class="container mx-auto px-6 sm:px-8 lg:px-12">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        <div class="group relative aspect-square bg-brand-gray rounded-lg overflow-hidden">
+          <img
+            src="/images/dj-zippy-house-music-dj.webp"
+            alt={firstPhoto}
+            class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            loading="lazy"
+          />
+          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <div class="absolute bottom-4 left-4 right-4">
+              <p class="text-white font-display font-bold">{t.gallery.firstCaption}</p>
+              <p class="text-gray-300 text-sm">{t.gallery.firstCaptionSub}</p>
+            </div>
+          </div>
+        </div>
+
+        {placeholders.map((caption) => (
+          <div class="group relative aspect-square bg-brand-gray rounded-lg overflow-hidden flex items-center justify-center border-2 border-dashed border-white/10"
+            role="img" aria-label={caption}>
+            <div class="text-center text-gray-500 p-6">
+              <i class="fa-solid fa-image text-4xl mb-3"></i>
+              <p class="text-sm">{caption}</p>
+            </div>
+          </div>
+        ))}
+
+      </div>
+
+      <div class="mt-12 text-center">
+        <p class="text-gray-400 mb-4">{t.gallery.more}</p>
+        <a href={l('/')} class="inline-flex items-center gap-2 text-gray-400 hover:text-brand-orange transition-colors">
+          <i class="fa-solid fa-arrow-left"></i> {t.gallery.backHome}
+        </a>
+      </div>
+    </div>
+  </section>
+</Layout>

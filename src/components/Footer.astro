@@ -1,13 +1,21 @@
 ---
+import { getLangFromUrl, useTranslations, localize, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang?: Lang;
+}
+
+const lang: Lang = (Astro.props as Props).lang ?? getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
 ---
 
 <footer id="contact" class="bg-brand-dark pt-12 sm:pt-14 pb-8 border-t border-white/10">
   <div class="max-w-3xl mx-auto px-6 sm:px-8">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-10">
       <div>
-        <h2 class="font-display text-2xl sm:text-3xl font-bold mb-3">Let's <span class="text-brand-orange">Connect</span></h2>
+        <h2 class="font-display text-2xl sm:text-3xl font-bold mb-3">{t.footer.heading1}<span class="text-brand-orange">{t.footer.heading2}</span></h2>
         <p class="text-gray-400 text-sm leading-relaxed mb-5">
-          Available for club bookings, private events, and festivals — bringing the House Music Therapy to your event.
+          {t.footer.blurb}
         </p>
 
         <div class="space-y-2.5 mb-5 text-sm">
@@ -15,7 +23,7 @@
             <i class="fa-regular fa-envelope text-brand-orange w-4"></i> veljkoned@gmail.com
           </a>
           <a href="https://ra.co/dj/zippy-2" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 hover:text-brand-orange transition-colors">
-            <i class="fa-solid fa-square-poll-vertical text-brand-orange w-4"></i> Resident Advisor Profile
+            <i class="fa-solid fa-square-poll-vertical text-brand-orange w-4"></i> {t.footer.raProfile}
           </a>
         </div>
 
@@ -43,34 +51,43 @@
         </div>
       </div>
 
-      <form id="contact-form" name="contact" method="POST" class="space-y-4">
+      <form
+        id="contact-form"
+        name="contact"
+        method="POST"
+        class="space-y-4"
+        data-sending={t.footer.sending}
+        data-sent={t.footer.sent}
+        data-error={t.footer.error}
+      >
         <input type="hidden" name="access_key" value="53a011ae-cafe-4a90-b080-b4e4d5891262" />
-        <input type="hidden" name="subject" value="DJ Zippy — Booking Request" />
+        <input type="hidden" name="subject" value={t.footer.subject} />
+        <input type="hidden" name="language" value={lang} />
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <input type="text" id="name" name="name" placeholder="Name" required
+          <input type="text" id="name" name="name" placeholder={t.footer.name} required
             class="w-full bg-transparent border-b border-white/15 pb-2 text-sm text-white placeholder-gray-500 focus:border-brand-orange focus:outline-none" />
-          <input type="text" id="venue" name="venue" placeholder="Venue/Event" required
+          <input type="text" id="venue" name="venue" placeholder={t.footer.venue} required
             class="w-full bg-transparent border-b border-white/15 pb-2 text-sm text-white placeholder-gray-500 focus:border-brand-orange focus:outline-none" />
         </div>
 
-        <input type="email" id="email" name="email" placeholder="Email Address" required
+        <input type="email" id="email" name="email" placeholder={t.footer.email} required
           class="w-full bg-transparent border-b border-white/15 pb-2 text-sm text-white placeholder-gray-500 focus:border-brand-orange focus:outline-none" />
 
-        <textarea id="message" name="message" rows="3" placeholder="Tell me about the gig..." required
+        <textarea id="message" name="message" rows="3" placeholder={t.footer.message} required
           class="w-full bg-transparent border-b border-white/15 pb-2 text-sm text-white placeholder-gray-500 focus:border-brand-orange focus:outline-none resize-none"></textarea>
 
         <button type="submit"
           class="text-sm text-brand-orange font-bold uppercase tracking-widest border-b border-brand-orange hover:text-white hover:border-white transition-colors pb-1">
-          Send Request
+          {t.footer.submit}
         </button>
       </form>
     </div>
 
     <div class="mt-8 pt-5 border-t border-white/5 text-center text-gray-600 text-xs">
-      &copy; 2025 DJ Zippy. All Rights Reserved. House Music Therapy.
+      {t.footer.copyright}
       <span class="mx-2">|</span>
-      <a href="/links" class="hover:text-brand-orange transition-colors">All Links &rarr;</a>
+      <a href={localize('/links', lang)} class="hover:text-brand-orange transition-colors">{t.footer.allLinks} &rarr;</a>
     </div>
   </div>
 </footer>
@@ -80,22 +97,26 @@
   const form = document.getElementById('contact-form') as HTMLFormElement | null;
   if (form && !form.dataset.bound) {
     form.dataset.bound = '1';
+    // Status copy is rendered per-language onto the form element.
+    const sendingText = form.dataset.sending || 'Sending...';
+    const sentText = form.dataset.sent || 'Sent ✓';
+    const errorText = form.dataset.error || 'Error — try veljkoned@gmail.com';
     form.addEventListener('submit', function(e) {
       e.preventDefault();
       const btn = this.querySelector('button[type="submit"]') as HTMLButtonElement;
       const orig = btn.innerText;
       btn.disabled = true;
-      btn.innerText = 'Sending...';
+      btn.innerText = sendingText;
       fetch('https://api.web3forms.com/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(Object.fromEntries(new FormData(this))),
       })
       .then(res => {
-        btn.innerText = res.ok ? 'Sent ✓' : 'Error — try veljkoned@gmail.com';
+        btn.innerText = res.ok ? sentText : errorText;
         if (res.ok) form.reset();
       })
-      .catch(() => { btn.innerText = 'Error — try veljkoned@gmail.com'; })
+      .catch(() => { btn.innerText = errorText; })
       .finally(() => {
         setTimeout(() => { btn.disabled = false; btn.innerText = orig; }, 4000);
       });

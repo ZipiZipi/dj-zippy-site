@@ -1,0 +1,63 @@
+---
+// Segmented EN / SR toggle. Both options are always rendered as real links, so
+// the switcher works without JS and crawlers can follow it to the other locale.
+// `alternateUrl` keeps the current page: /mixes -> /sr/mixes, not /sr.
+import { alternateUrl, localize, stripLang, type Lang } from '../i18n/utils';
+import { ui } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  class?: string;
+}
+
+const { lang, class: className = '' } = Astro.props as Props;
+
+const basePath = stripLang(Astro.url.pathname);
+const suffix = Astro.url.search + Astro.url.hash;
+
+const options: { code: Lang; label: string; href: string; title: string }[] = [
+  {
+    code: 'en',
+    label: 'EN',
+    href: localize(basePath, 'en') + suffix,
+    title: ui.en.langSwitch.label + ': English',
+  },
+  {
+    code: 'sr',
+    label: 'SR',
+    href: localize(basePath, 'sr') + suffix,
+    title: ui.sr.langSwitch.label + ': Srpski',
+  },
+];
+
+// Kept for the aria-label on the group.
+const groupLabel = ui[lang].langSwitch.label;
+const other = alternateUrl(Astro.url, lang);
+---
+
+<div
+  class={`inline-flex items-center rounded-full border border-white/15 overflow-hidden text-xs font-bold tracking-wide ${className}`}
+  role="group"
+  aria-label={groupLabel}
+  data-lang-switcher
+  data-other={other}
+>
+  <span class="pl-2.5 pr-1 text-gray-500" aria-hidden="true"><i class="fa-solid fa-globe"></i></span>
+  {
+    options.map((o) => (
+      <a
+        href={o.href}
+        hreflang={o.code === 'sr' ? 'sr-Latn' : 'en'}
+        title={o.title}
+        aria-current={o.code === lang ? 'true' : undefined}
+        class={`px-2.5 py-1.5 transition-colors ${
+          o.code === lang
+            ? 'bg-brand-orange text-white'
+            : 'text-gray-400 hover:text-white hover:bg-white/10'
+        }`}
+      >
+        {o.label}
+      </a>
+    ))
+  }
+</div>

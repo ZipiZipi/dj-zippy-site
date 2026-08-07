@@ -3,6 +3,7 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { ViewTransitions } from 'astro:transitions';
 import '../styles/global.css';
+import { getLangFromUrl, useTranslations, alternateLinks, htmlLang, ogLocale, type Lang } from '../i18n/utils';
 
 interface Props {
   title: string;
@@ -10,21 +11,32 @@ interface Props {
   activePage?: string;
   ogImage?: string;
   noindex?: boolean;
+  lang?: Lang;
 }
+
+// The URL is authoritative for language; the prop only exists so a page can be
+// explicit about it (and so TS catches a page that forgets to pass it through).
+const lang: Lang = Astro.props.lang ?? getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
 
 const {
   title,
-  description = 'Official website of Zippy (DJ Zippy). House Music Therapy creator from Belgrade, Serbia. Curator, selector, and vibe architect. Book now.',
+  description = t.home.description,
   activePage = '',
   ogImage = 'https://zippydj.com/images/dj-zippy-house-music-dj.webp',
   noindex = false,
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+
+// hreflang: every localised page points at all of its siblings plus x-default,
+// which is the English URL.
+const alternates = alternateLinks(Astro.url, Astro.site);
+const xDefault = alternates.find((a) => a.lang === 'en')!.href;
 ---
 
 <!doctype html>
-<html lang="en" class="scroll-smooth">
+<html lang={htmlLang[lang]} class="scroll-smooth">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -36,6 +48,10 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalURL} />
 
+    <!-- hreflang — English at /, Serbian under /sr -->
+    {alternates.map((a) => <link rel="alternate" hreflang={htmlLang[a.lang]} href={a.href} />)}
+    <link rel="alternate" hreflang="x-default" href={xDefault} />
+
     <!-- Open Graph -->
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
@@ -45,7 +61,8 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <meta property="og:url" content={canonicalURL} />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="DJ Zippy" />
-    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale" content={ogLocale[lang]} />
+    {alternates.filter((a) => a.lang !== lang).map((a) => <meta property="og:locale:alternate" content={ogLocale[a.lang]} />)}
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
@@ -103,9 +120,9 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <!-- GTM noscript -->
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KLGKHMGM" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
-    <Header activePage={activePage} />
+    <Header activePage={activePage} lang={lang} />
     <slot />
-    <Footer />
+    <Footer lang={lang} />
 
     <!-- Site animations: scroll-reveal, hero spotlight, magnetic buttons -->
     <script>

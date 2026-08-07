@@ -1,0 +1,17 @@
+---
+// Serbian 404. A static 404.html cannot know which language the missing URL was
+// in, so unknown /sr/* paths are served on demand instead — this route is also
+// what puts /sr/* into the adapter's _routes.json include list. Real /sr pages
+// are prerendered or sort ahead of it, so they never fall through to here.
+export const prerender = false;
+import NotFoundPage from '../../components/pages/NotFoundPage.astro';
+
+Astro.response.status = 404;
+// Without this, Astro sees the 404 status and swaps in src/pages/404.astro —
+// which would hand a Serbian URL the English page. The header tells Astro to
+// keep this response as-is; Astro strips it before the response goes out.
+Astro.response.headers.set('x-astro-reroute', 'no');
+Astro.response.headers.set('Cache-Control', 'no-store');
+---
+
+<NotFoundPage lang="sr" />
