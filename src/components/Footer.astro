@@ -63,19 +63,33 @@ const t = useTranslations(lang);
         <input type="hidden" name="access_key" value="53a011ae-cafe-4a90-b080-b4e4d5891262" />
         <input type="hidden" name="subject" value={t.footer.subject} />
         <input type="hidden" name="language" value={lang} />
+        <!-- web3forms honeypot: people never see it, bots that tick it get rejected -->
+        <input type="checkbox" name="botcheck" class="hidden" style="display:none" tabindex="-1" autocomplete="off" aria-hidden="true" />
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <input type="text" id="name" name="name" placeholder={t.footer.name} required
-            class="w-full bg-transparent border-b border-white/15 pb-2 text-sm text-white placeholder-gray-500 focus:border-brand-orange focus:outline-none" />
-          <input type="text" id="venue" name="venue" placeholder={t.footer.venue} required
-            class="w-full bg-transparent border-b border-white/15 pb-2 text-sm text-white placeholder-gray-500 focus:border-brand-orange focus:outline-none" />
+          <div>
+            <label for="cf-name" class="block mb-1 text-[11px] font-semibold uppercase tracking-widest text-gray-400">{t.footer.name}</label>
+            <input type="text" id="cf-name" name="name" autocomplete="name" required
+              class="w-full bg-transparent border-b border-white/15 pb-2 text-sm text-white focus:border-brand-orange focus:outline-none" />
+          </div>
+          <div>
+            <label for="cf-venue" class="block mb-1 text-[11px] font-semibold uppercase tracking-widest text-gray-400">{t.footer.venue}</label>
+            <input type="text" id="cf-venue" name="venue" autocomplete="organization" required
+              class="w-full bg-transparent border-b border-white/15 pb-2 text-sm text-white focus:border-brand-orange focus:outline-none" />
+          </div>
         </div>
 
-        <input type="email" id="email" name="email" placeholder={t.footer.email} required
-          class="w-full bg-transparent border-b border-white/15 pb-2 text-sm text-white placeholder-gray-500 focus:border-brand-orange focus:outline-none" />
+        <div>
+          <label for="cf-email" class="block mb-1 text-[11px] font-semibold uppercase tracking-widest text-gray-400">{t.footer.email}</label>
+          <input type="email" id="cf-email" name="email" autocomplete="email" inputmode="email" required
+            class="w-full bg-transparent border-b border-white/15 pb-2 text-sm text-white focus:border-brand-orange focus:outline-none" />
+        </div>
 
-        <textarea id="message" name="message" rows="3" placeholder={t.footer.message} required
-          class="w-full bg-transparent border-b border-white/15 pb-2 text-sm text-white placeholder-gray-500 focus:border-brand-orange focus:outline-none resize-none"></textarea>
+        <div>
+          <label for="cf-message" class="block mb-1 text-[11px] font-semibold uppercase tracking-widest text-gray-400">{t.footer.messageLabel}</label>
+          <textarea id="cf-message" name="message" rows="3" placeholder={t.footer.message} required
+            class="w-full bg-transparent border-b border-white/15 pb-2 text-sm text-white placeholder-gray-500 focus:border-brand-orange focus:outline-none resize-none"></textarea>
+        </div>
 
         <button type="submit"
           class="text-sm text-brand-orange font-bold uppercase tracking-widest border-b border-brand-orange hover:text-white hover:border-white transition-colors pb-1">
@@ -93,6 +107,31 @@ const t = useTranslations(lang);
 </footer>
 
 <script>
+  // Google Ads conversion label for the booking form: Google Ads → Goals →
+  // Conversions → (the booking conversion) → Tag setup, the part after
+  // "AW-975400552/". Empty = the Ads conversion is skipped; Meta Lead and the
+  // GTM event still fire.
+  const ADS_CONVERSION_LABEL = '';
+
+  // Reports a sent booking request to every tracker on the page. Analytics may
+  // still be loading (or blocked), so each call is guarded and none of them
+  // can break the form.
+  function trackBookingLead(lang: string) {
+    const w = window as any;
+    try {
+      w.dataLayer = w.dataLayer || [];
+      w.dataLayer.push({ event: 'booking_form_submit', form_language: lang });
+    } catch { /* ignore */ }
+    try {
+      if (typeof w.fbq === 'function') w.fbq('track', 'Lead');
+    } catch { /* ignore */ }
+    try {
+      if (ADS_CONVERSION_LABEL && typeof w.gtag === 'function') {
+        w.gtag('event', 'conversion', { send_to: `AW-975400552/${ADS_CONVERSION_LABEL}` });
+      }
+    } catch { /* ignore */ }
+  }
+
   function initContactForm() {
   const form = document.getElementById('contact-form') as HTMLFormElement | null;
   if (form && !form.dataset.bound) {
@@ -114,7 +153,11 @@ const t = useTranslations(lang);
       })
       .then(res => {
         btn.innerText = res.ok ? sentText : errorText;
-        if (res.ok) form.reset();
+        if (res.ok) {
+          const lang = (form.elements.namedItem('language') as HTMLInputElement | null)?.value || 'en';
+          form.reset();
+          trackBookingLead(lang);
+        }
       })
       .catch(() => { btn.innerText = errorText; })
       .finally(() => {
