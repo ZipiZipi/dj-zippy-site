@@ -31,7 +31,11 @@ const xDefault = alternates.find((a) => a.lang === 'en')!.href;
     <!-- Open Graph -->
     <meta property="og:title" content={t.links.title} />
     <meta property="og:description" content={t.links.ogDescription} />
-    <meta property="og:image" content="https://zippydj.com/images/dj-zippy-house-music-dj.webp" />
+    <meta property="og:image" content="https://zippydj.com/images/og-dj-zippy.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:alt" content={t.schema.ogImageAlt} />
     <meta property="og:url" content={canonical} />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="DJ Zippy" />
@@ -40,7 +44,8 @@ const xDefault = alternates.find((a) => a.lang === 'en')!.href;
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={t.links.title} />
     <meta name="twitter:description" content={t.links.twitterDescription} />
-    <meta name="twitter:image" content="https://zippydj.com/images/dj-zippy-house-music-dj.webp" />
+    <meta name="twitter:image" content="https://zippydj.com/images/og-dj-zippy.jpg" />
+    <meta name="twitter:image:alt" content={t.schema.ogImageAlt} />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -71,6 +76,7 @@ const xDefault = alternates.find((a) => a.lang === 'en')!.href;
 
       :root {
         --orange: #ff5500;
+        --orange-fill: #cc4400;
       }
 
       html { overflow-x: hidden; }
@@ -229,13 +235,7 @@ const xDefault = alternates.find((a) => a.lang === 'en')!.href;
         border: 1px solid rgba(255, 255, 255, 0.12);
         box-shadow: 0 6px 26px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(255,255,255,0.05);
       }
-      a.link-primary:hover {
-        transform: translateY(-2px);
-        background: rgba(30, 25, 23, 0.58);
-        border-color: rgba(255, 85, 0, 0.55);
-        box-shadow: 0 14px 38px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 85, 0, 0.18), 0 0 30px rgba(255, 85, 0, 0.12);
-      }
-      a.link-primary i { color: var(--orange); width: 22px; font-size: 1.1rem; flex-shrink: 0; text-align: center; }
+      a.link-primary i { color: var(--orange); width: 22px; font-size: 1.1rem; flex-shrink: 0; text-align: center; transition: color 0.3s; }
 
       a.link-secondary {
         padding: 13px 22px;
@@ -246,13 +246,51 @@ const xDefault = alternates.find((a) => a.lang === 'en')!.href;
         border: 1px solid rgba(255, 255, 255, 0.08);
         box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
       }
-      a.link-secondary:hover {
-        transform: translateY(-2px);
+      a.link-secondary i { width: 20px; flex-shrink: 0; text-align: center; color: #cfcfd6; transition: color 0.3s; }
+
+      /* Orange fill on hover/focus/tap. #cc4400 keeps white text at 4.7:1
+         (plain #ff5500 is only 3.2:1); the brighter #ff5500 lives in the border and glow. */
+      a.link-primary,
+      a.link-secondary,
+      a.link-site { -webkit-tap-highlight-color: transparent; }
+
+      a.link-primary:focus-visible,
+      a.link-primary:active {
         color: #fff;
-        border-color: rgba(255, 255, 255, 0.28);
-        background: rgba(22, 22, 26, 0.55);
+        background: var(--orange-fill);
+        border-color: var(--orange);
+        box-shadow: 0 14px 38px rgba(0, 0, 0, 0.5), 0 0 28px rgba(255, 85, 0, 0.45);
       }
-      a.link-secondary i { width: 20px; flex-shrink: 0; text-align: center; color: #cfcfd6; }
+      a.link-secondary:focus-visible,
+      a.link-secondary:active {
+        color: #fff;
+        background: rgba(204, 68, 0, 0.88);
+        border-color: rgba(255, 85, 0, 0.9);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45), 0 0 22px rgba(255, 85, 0, 0.35);
+      }
+      a.link-primary:focus-visible i, a.link-primary:active i,
+      a.link-secondary:focus-visible i, a.link-secondary:active i { color: #fff; }
+      a.link-primary:focus-visible, a.link-secondary:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+      a.link-primary:active, a.link-secondary:active { transform: scale(0.98); transition-duration: 0.1s; }
+
+      @media (hover: hover) {
+        a.link-primary:hover {
+          transform: translateY(-2px);
+          color: #fff;
+          background: var(--orange-fill);
+          border-color: var(--orange);
+          box-shadow: 0 14px 38px rgba(0, 0, 0, 0.5), 0 0 28px rgba(255, 85, 0, 0.45);
+        }
+        a.link-secondary:hover {
+          transform: translateY(-2px);
+          color: #fff;
+          background: rgba(204, 68, 0, 0.88);
+          border-color: rgba(255, 85, 0, 0.9);
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45), 0 0 22px rgba(255, 85, 0, 0.35);
+        }
+        a.link-primary:hover i, a.link-secondary:hover i { color: #fff; }
+        a.link-primary:active:hover, a.link-secondary:active:hover { transform: scale(0.98); }
+      }
 
       /* === Site nav (minimal) === */
       a.link-site {
@@ -268,10 +306,16 @@ const xDefault = alternates.find((a) => a.lang === 'en')!.href;
         border-radius: 11px;
         transition: color 0.3s, background 0.3s;
       }
-      a.link-site:hover { color: #fff; background: rgba(255,255,255,0.06); }
       a.link-site i { width: 16px; flex-shrink: 0; text-align: center; }
       a.link-site .arrow { margin-left: auto; font-size: 0.75rem; opacity: 0; transition: opacity 0.3s, transform 0.3s; transform: translateX(-4px); }
-      a.link-site:hover .arrow { opacity: 1; transform: translateX(0); }
+      a.link-site:focus-visible,
+      a.link-site:active { color: var(--orange); background: rgba(255,85,0,0.08); }
+      a.link-site:focus-visible .arrow,
+      a.link-site:active .arrow { opacity: 1; transform: translateX(0); }
+      @media (hover: hover) {
+        a.link-site:hover { color: var(--orange); background: rgba(255,85,0,0.08); }
+        a.link-site:hover .arrow { opacity: 1; transform: translateX(0); }
+      }
 
       .divider {
         width: 56px;
@@ -301,8 +345,9 @@ const xDefault = alternates.find((a) => a.lang === 'en')!.href;
 
       @media (prefers-reduced-motion: reduce) {
         main > * { animation: none; }
-        a.link-primary, a.link-secondary { transition: border-color 0.3s, background 0.3s; }
-        a.link-primary:hover, a.link-secondary:hover { transform: none; }
+        a.link-primary, a.link-secondary { transition: border-color 0.3s, background 0.3s, color 0.3s; }
+        a.link-primary:hover, a.link-secondary:hover,
+        a.link-primary:active, a.link-secondary:active { transform: none; }
       }
     </style>
   </head>

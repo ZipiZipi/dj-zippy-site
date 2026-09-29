@@ -49,6 +49,7 @@ const en = {
       'House Music Therapy - DJ brand curating frequencies, grooves, and the journey through house music.',
     eventDescription: (title: string, location: string) =>
       `DJ Zippy (Zippy) performing live at ${title} in ${location}. House Music Therapy.`,
+    ogImageAlt: 'DJ Zippy with headphones — Serbian house DJ, House Music Therapy',
   },
 
   langSwitch: {
@@ -322,6 +323,7 @@ const sr: Dict = {
       'House Music Therapy - DJ brend koji bira frekvencije, groove i vodi kroz putovanje house muzikom.',
     eventDescription: (title: string, location: string) =>
       `DJ Zippy (Zippy) nastupa uživo u ${title}, ${location}. House Music Therapy.`,
+    ogImageAlt: 'DJ Zippy sa slušalicama — srpski house DJ, House Music Therapy',
   },
 
   langSwitch: {
