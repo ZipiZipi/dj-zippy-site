@@ -91,7 +91,7 @@ const en = {
     sent: 'Sent ✓',
     error: 'Error — try veljkoned@gmail.com',
     subject: 'DJ Zippy — Booking Request',
-    copyright: '© 2025 DJ Zippy. All Rights Reserved. House Music Therapy.',
+    copyright: (year: number) => `© ${year} DJ Zippy. All Rights Reserved. House Music Therapy.`,
     allLinks: 'All Links',
   },
 
@@ -192,7 +192,7 @@ const en = {
   mixes: {
     title: 'DJ Zippy Mixes | House Music Therapy Sessions & Playlists',
     description:
-      'Stream all DJ Zippy mixes and playlists. House Music Therapy sessions on YouTube, MixCloud, Spotify, SoundCloud, and Deezer. Deep house, tech house, and grooves from Belgrade.',
+      'Stream DJ Zippy mixes and playlists: House Music Therapy sessions on YouTube, MixCloud, Spotify, SoundCloud and Deezer. Deep and tech house from Belgrade.',
     heading: 'Stream DJ Zippy',
     subheading1: 'All ',
     subheading2: 'Mixes',
@@ -258,7 +258,7 @@ const en = {
   links: {
     title: 'DJ Zippy | Official Links & Socials',
     description:
-      'Official links for Zippy (DJ Zippy). Connect with House Music Therapy, tour dates, Spotify, SoundCloud, Deezer, and Resident Advisor profiles. Based in Belgrade, Serbia.',
+      'Official links for Zippy (DJ Zippy): House Music Therapy, tour dates, Spotify, SoundCloud, Deezer and Resident Advisor. Based in Belgrade, Serbia.',
     ogDescription:
       'All official DJ Zippy links — streaming, socials, events and bookings. House Music Therapy from Belgrade, Serbia.',
     twitterDescription: 'All official DJ Zippy links — streaming, socials, events and bookings.',
@@ -278,7 +278,7 @@ const en = {
     mixes: 'Mixes & Playlists',
     contact: 'Bookings / Contact',
     visit: 'Visit Website',
-    copyright: '© 2025 Zippy',
+    copyright: (year: number) => `© ${year} Zippy`,
   },
 
   blog: {
@@ -364,7 +364,7 @@ const sr: Dict = {
     sent: 'Poslato ✓',
     error: 'Greška — piši na veljkoned@gmail.com',
     subject: 'DJ Zippy — Upit za nastup',
-    copyright: '© 2025 DJ Zippy. Sva prava zadržana. House Music Therapy.',
+    copyright: (year: number) => `© ${year} DJ Zippy. Sva prava zadržana. House Music Therapy.`,
     allLinks: 'Svi linkovi',
   },
 
@@ -465,7 +465,7 @@ const sr: Dict = {
   mixes: {
     title: 'Miksevi DJ Zippyja | House Music Therapy setovi i plejliste',
     description:
-      'Slušaj sve mikseve i plejliste DJ Zippyja. House Music Therapy setovi na YouTube, MixCloud, Spotify, SoundCloud i Deezer. Deep house, tech house i groove iz Beograda.',
+      'Slušaj mikseve i plejliste DJ Zippyja: House Music Therapy setovi na YouTube, MixCloud, Spotify, SoundCloud i Deezer. Deep i tech house iz Beograda.',
     heading: 'Slušaj DJ Zippyja',
     subheading1: 'Svi ',
     subheading2: 'miksevi',
@@ -551,7 +551,7 @@ const sr: Dict = {
     mixes: 'Miksevi i plejliste',
     contact: 'Booking / Kontakt',
     visit: 'Poseti sajt',
-    copyright: '© 2025 Zippy',
+    copyright: (year: number) => `© ${year} Zippy`,
   },
 
   blog: {

@@ -31,7 +31,7 @@ u isto vreme, jer se izmene sudaraju. Najsigurnije je raditi ih redom i commit-o
 |---|------|-----------|-------|--------|---------|
 | [x] 2026-09-29 | T1 Favicon od 2.7 MB + keširanje asseta — favicon.svg zamenjen „Z.“ znakom sa dev grane (247 B), dodat `public/_headers` sa dugim keširanjem za _astro/fonts/images/videos. | 🔴 P0 | Sonnet 5.5 | medium | `public/images/favicon.svg`, `public/_headers` |
 | [x] 2026-09-29 | T2 Pokvarena 404 stranica (error 523) — dodata SSR ruta `src/pages/[...slug].astro` koja renderuje englesku 404 (worker više ne dohvata /404.html sam od sebe, što je davalo 523). | 🔴 P0 | Sonnet 5.5 | high | `src/pages/[...slug].astro`, blog slug |
-| [ ] | T3 Sitne SEO/tehničke ispravke | 🟠 P1 | Haiku 4.5 | medium | `public/robots.txt`, `sitemap.xml.ts`, `ui.ts` |
+| [x] 2026-09-29 | T3 Sitne SEO/tehničke ispravke — robots.txt spojen u jednu grupu, lažni lastmod izbačen iz sitemap-a, © godina dinamička, dateModified osvežen, opisi /mixes i /links ≤ 155 znakova. | 🟠 P1 | Haiku 4.5 | medium | `public/robots.txt`, `sitemap.xml.ts`, `ui.ts` |
 | [ ] | T4 Prava OG slika za deljenje (1200×630) | 🟠 P1 | Sonnet 5.5 | medium | `Layout.astro`, `LinksPage.astro`, schema |
 | [ ] | T5 Vinili na početnoj: svetliji + mobilni + tastatura | 🔴 P0 | Opus 5.5 | high | `HomePage.astro` |
 | [ ] | T6 Links stranica: ceo link narandžast na hover/tap | 🔴 P0 | Sonnet 5.5 | low | `LinksPage.astro` |

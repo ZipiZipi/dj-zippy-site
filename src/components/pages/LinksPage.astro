@@ -452,7 +452,7 @@ const xDefault = alternates.find((a) => a.lang === 'en')!.href;
 
       <!-- Footer -->
       <footer>
-        <p>{t.links.copyright}</p>
+        <p>{t.links.copyright(new Date().getFullYear())}</p>
         <a href={`https://zippydj.com${l('/')}`}>{t.links.visit}</a>
       </footer>
 

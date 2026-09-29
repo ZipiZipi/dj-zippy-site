@@ -2,6 +2,10 @@
 // Emits every indexable page once per language, with reciprocal xhtml:link
 // alternates so Google can pair /about with /sr/about instead of treating them
 // as duplicates.
+//
+// No <lastmod>: this file is prerendered, so the only date available here is
+// the build time, which would claim every page changed on every deploy and
+// teach Google to ignore the field. Leaving it out is the honest option.
 
 import type { APIRoute } from 'astro';
 import { localize, htmlLang, type Lang } from '../i18n/utils';
@@ -57,7 +61,6 @@ const pages: { path: string; priority: string; changefreq: string; extra?: strin
 
 export const GET: APIRoute = async ({ site }) => {
   const origin = (site ?? new URL('https://zippydj.com')).origin;
-  const now = new Date().toISOString();
 
   const url = (path: string, lang: Lang) => `${origin}${localize(path, lang)}`;
 
@@ -69,7 +72,6 @@ export const GET: APIRoute = async ({ site }) => {
 
       return `  <url>
     <loc>${url(page.path, lang)}</loc>
-    <lastmod>${now}</lastmod>
     <changefreq>${page.changefreq}</changefreq>
     <priority>${page.priority}</priority>
 ${alternates}
