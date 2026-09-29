@@ -112,6 +112,19 @@ const en = {
     next: 'Next',
     playOn: 'Play {title} on {platform}',
     showMix: 'Show {title}',
+    playedAt: 'Played at',
+    venues: [
+      'Exit Festival · Dance Arena',
+      'Exit Festival · AS FM Stage',
+      'Exit Festival · Students Stage',
+      'Club Kult',
+      'Toucan · Zakynthos',
+      'Capital · Lefkada',
+      'Borisov Atelje',
+      'Ray Bar',
+      'Kult Talents',
+    ],
+    tapeWords: ['House Music Therapy', 'Serbian House DJ', 'House', 'Tech House', 'Deep House', 'Organic House'],
   },
 
   about: {
@@ -388,6 +401,19 @@ const sr: Dict = {
     next: 'Sledeći',
     playOn: 'Pusti {title} na {platform}',
     showMix: 'Prikaži {title}',
+    playedAt: 'Svirao na',
+    venues: [
+      'Exit festival · Dance Arena',
+      'Exit festival · AS FM bina',
+      'Exit festival · Studentska bina',
+      'Club Kult',
+      'Toucan · Zakintos',
+      'Capital · Lefkada',
+      'Borisov Atelje',
+      'Ray Bar',
+      'Kult Talents',
+    ],
+    tapeWords: ['House Music Therapy', 'Srpski house DJ', 'House', 'Tech house', 'Deep house', 'Organic house'],
   },
 
   about: {

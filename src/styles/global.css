@@ -61,22 +61,87 @@ html.anim-ready [data-reveal]:not(.in-view) {
   transform: translateY(26px);
 }
 
-/* Marquee ticker */
-.marquee {
+/* "Played at" festival tapes under the home hero: an orange tape with the
+   venues and a thinner black one running the other way, crossing near the
+   left edge. Both are wider than the screen and tilted; the section clips
+   them, so the page never scrolls sideways. Each track holds the list twice
+   and slides by half its width, so the loop is seamless. */
+.tapes {
+  position: relative;
   overflow: hidden;
-  white-space: nowrap;
-  -webkit-mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
-  mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+  padding: 34px 0 40px;
 }
-.marquee__track {
-  display: inline-flex;
-  gap: 2.5rem;
-  padding-right: 2.5rem;
-  animation: marquee 32s linear infinite;
+.tape {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  width: calc(100% + 80px);
+  margin-left: -40px;
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+.tape--main {
+  z-index: 2;
+  transform: rotate(-1.5deg);
+  background: #FF5500;
+  color: #050505;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+}
+.tape--sub {
+  z-index: 1;
+  margin-top: -3px;
+  transform: rotate(1.1deg);
+  background: #141414;
+  color: #fff;
+  border-top: 1px solid rgba(255,255,255,0.12);
+  border-bottom: 1px solid rgba(255,255,255,0.12);
+}
+.tape__label {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0 0.75rem 0 calc(40px + 1rem);
+  background: #050505;
+  color: #fff;
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+.tape__label::before {
+  content: '';
+  width: 0.5em;
+  height: 0.5em;
+  border-radius: 50%;
+  background: #FF5500;
+}
+.tape__viewport { flex: 1; min-width: 0; overflow: hidden; }
+.tape__track {
+  display: flex;
+  width: max-content;
+  animation: tape-scroll 46s linear infinite;
   will-change: transform;
 }
-.marquee:hover .marquee__track { animation-play-state: paused; }
-@keyframes marquee {
+.tape--sub .tape__track { animation-duration: 38s; animation-direction: reverse; }
+.tapes:hover .tape__track { animation-play-state: paused; }
+.tape__list { display: flex; list-style: none; margin: 0; padding: 0; }
+.tape__list li { display: flex; align-items: center; }
+.tape__list li::after { content: '\2726'; margin: 0 0.9em; font-size: 0.7em; opacity: 0.55; }
+.tape--main .tape__list li { padding: 0.55rem 0; font-size: 1.05rem; font-weight: 900; letter-spacing: 0.02em; }
+.tape--sub .tape__list li { padding: 0.5rem 0; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.22em; }
+.tape--sub .tape__list li::after { color: #FF5500; opacity: 1; }
+@media (min-width: 640px) {
+  .tapes { padding: 44px 0 52px; }
+  .tape--sub { margin-top: -14px; }
+  .tape__label { padding: 0 1rem 0 calc(40px + 1.5rem); letter-spacing: 0.2em; }
+  .tape--main .tape__list li { padding: 0.7rem 0; font-size: 1.5rem; }
+  .tape--sub .tape__list li { font-size: 0.8rem; }
+  .tape__label { font-size: 0.75rem; }
+}
+@media (min-width: 1024px) {
+  .tape--main .tape__list li { font-size: 1.75rem; }
+}
+@keyframes tape-scroll {
   from { transform: translateX(0); }
   to   { transform: translateX(-50%); }
 }
@@ -123,7 +188,9 @@ html.anim-ready [data-reveal]:not(.in-view) {
 @media (prefers-reduced-motion: reduce) {
   html.anim-ready [data-reveal]:not(.in-view) { opacity: 1; transform: none; }
   [data-reveal] { transition: none; }
-  .marquee__track { animation: none; }
+  .tape__track { animation: none; }
+  /* no auto-scroll, so let people swipe through the venues instead */
+  .tape--main .tape__viewport { overflow-x: auto; scrollbar-width: none; }
   .aurora { animation: none; }
   .coverflow-item.active .cf-disc { animation: none; }
   [data-magnetic] { transition: none; }

@@ -32,8 +32,6 @@ const featuredMixes = featured.map(m => {
   };
 });
 
-const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House', 'Tech House', 'Novi Sad', 'Selector', 'Grooves'];
-
 const pageUrl = `https://zippydj.com${l('/')}`;
 
 // Person / Organization / WebSite are one entity across both locales, so their
@@ -480,16 +478,34 @@ const homeSchema = {
     </div>
   </section>
 
-  <div class="marquee bg-brand-black border-y border-white/5 py-4 sm:py-5" aria-hidden="true">
-    <div class="marquee__track">
-      {[0, 1].map(() => ticker.map((w) => (
-        <span class="inline-flex items-center gap-10">
-          <span class="font-display text-lg sm:text-2xl font-black uppercase tracking-widest text-white/15">{w}</span>
-          <span class="text-brand-orange text-base">&#9679;</span>
-        </span>
-      )))}
+  <!-- "Played at" tapes. The first venue list is the one screen readers get;
+       the loop copy and the black genre tape are decoration. -->
+  <section class="tapes bg-brand-black font-display" aria-labelledby="played-at">
+    <div class="tape tape--main">
+      <h2 id="played-at" class="tape__label">{t.home.playedAt}</h2>
+      <div class="tape__viewport">
+        <div class="tape__track">
+          <ul class="tape__list">
+            {t.home.venues.map((v) => <li>{v}</li>)}
+          </ul>
+          <ul class="tape__list" aria-hidden="true">
+            {t.home.venues.map((v) => <li>{v}</li>)}
+          </ul>
+        </div>
+      </div>
     </div>
-  </div>
+    <div class="tape tape--sub" aria-hidden="true">
+      <div class="tape__viewport">
+        <div class="tape__track">
+          {[0, 1, 2, 3].map(() => (
+            <ul class="tape__list">
+              {t.home.tapeWords.map((w) => <li>{w}</li>)}
+            </ul>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
 
   <section id="dates" class="isolate relative py-8 sm:py-16 bg-brand-black">
     <div class="container mx-auto px-6 sm:px-8 lg:px-12">
