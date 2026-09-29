@@ -2,7 +2,7 @@
   "name": "dj-zippy-v2",
   "type": "module",
   "version": "0.0.1",
-  "description": "DJ Zippy - House Music House Music from Belgrade, Serbia",
+  "description": "DJ Zippy - Serbian house DJ, House Music Therapy",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",

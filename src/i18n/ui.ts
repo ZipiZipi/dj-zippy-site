@@ -42,9 +42,9 @@ const en = {
   // Prose that only ever appears inside JSON-LD.
   schema: {
     personDescription:
-      "DJ Zippy (Veljko Nedeljković) is a House and Tech-House DJ and selector based in Belgrade, Serbia, known for the 'House Music Therapy' mix series and performances at Exit Festival and major regional clubs.",
+      "DJ Zippy (Veljko Nedeljković) is a Serbian house and tech house DJ and selector, known for the 'House Music Therapy' mix series and performances at Exit Festival and leading clubs in Serbia and Greece.",
     personDescriptionShort:
-      "DJ Zippy (Veljko Nedeljković) is a House and Tech-House DJ and selector based in Belgrade, Serbia, creator of the 'House Music Therapy' mix series.",
+      "DJ Zippy (Veljko Nedeljković) is a Serbian house and tech house DJ and selector, creator of the 'House Music Therapy' mix series.",
     orgDescription:
       'House Music Therapy - DJ brand curating frequencies, grooves, and the journey through house music.',
     eventDescription: (title: string, location: string) =>
@@ -97,9 +97,9 @@ const en = {
   },
 
   home: {
-    title: 'Zippy | House Music Therapy | DJ from Serbia',
+    title: 'DJ Zippy – Serbian House DJ | House Music Therapy',
     description:
-      'Official website of Zippy (DJ Zippy). House Music Therapy creator from Belgrade, Serbia. Curator, selector, and vibe architect. Book now.',
+      'DJ Zippy is a Serbian house and tech house DJ, creator of House Music Therapy. Exit Festival stages, club nights and private events. Book now.',
     featured1: 'Featured ',
     featured2: 'Mixes',
     featuredSub: "Listen to DJ Zippy's latest sets and mixes.",
@@ -115,14 +115,14 @@ const en = {
   },
 
   about: {
-    title: 'About DJ Zippy | House Music Therapy Creator from Belgrade',
+    title: 'About DJ Zippy – Serbian House & Tech House DJ',
     description:
-      'Learn about DJ Zippy (Veljko Nedeljkovic), the House Music Therapy creator from Belgrade, Serbia. A selector dedicated to the groove, the vibe, and the journey.',
+      'DJ Zippy (Veljko Nedeljković) is a Serbian house and tech house DJ and selector, creator of House Music Therapy, with sets at Exit Festival.',
     heading1: 'About ',
     heading2: 'DJ Zippy',
     lead:
       'DJ Zippy curates frequencies from club nights to festival main stages, dedicated to the groove, the vibe, and the journey.',
-    photoAlt: 'DJ Zippy a DJ from Serbia, creator of House Music Therapy.',
+    photoAlt: 'DJ Zippy, Serbian house DJ and creator of House Music Therapy.',
     badge: 'THE ARTIST',
     subheading1: 'Not a Producer.',
     subheading2: 'A ',
@@ -147,9 +147,9 @@ const en = {
       {
         q: 'Who is DJ Zippy?',
         aHtml:
-          'DJ Zippy (Veljko Nedeljković) is a House and Tech-House DJ and selector from Belgrade, Serbia. He is the creator of the <strong>House Music Therapy</strong> mix series and has performed at Exit Festival and leading regional clubs.',
+          'DJ Zippy (Veljko Nedeljković) is a Serbian house and tech house DJ and selector. He is the creator of the <strong>House Music Therapy</strong> mix series and has performed at Exit Festival and leading clubs in Serbia and Greece.',
         aText:
-          "DJ Zippy (Veljko Nedeljković) is a House and Tech-House DJ and selector from Belgrade, Serbia. He is the creator of the 'House Music Therapy' mix series and has performed at Exit Festival and leading regional clubs.",
+          "DJ Zippy (Veljko Nedeljković) is a Serbian house and tech house DJ and selector. He is the creator of the 'House Music Therapy' mix series and has performed at Exit Festival and leading clubs in Serbia and Greece.",
       },
       {
         q: 'What music genres does DJ Zippy play?',
@@ -159,11 +159,11 @@ const en = {
           'DJ Zippy specializes in House, Tech House, Deep House and Organic House, and shifts into Techno when the night calls for darker, driving rhythms.',
       },
       {
-        q: 'Where is DJ Zippy based?',
+        q: 'Where is DJ Zippy from?',
         aHtml:
-          'DJ Zippy is based in Belgrade, Serbia, and performs regularly across Serbia and the wider region, including Novi Sad, Smederevo and Greece.',
+          'DJ Zippy is a DJ from Serbia who plays across the country and abroad — from Exit Festival in Novi Sad and clubs in Belgrade and Smederevo to summer club nights in Greece.',
         aText:
-          'DJ Zippy is based in Belgrade, Serbia, and performs regularly across Serbia and the wider region, including Novi Sad, Smederevo and Greece.',
+          'DJ Zippy is a DJ from Serbia who plays across the country and abroad — from Exit Festival in Novi Sad and clubs in Belgrade and Smederevo to summer club nights in Greece.',
       },
       {
         q: 'How can I book DJ Zippy for an event?',
@@ -189,13 +189,13 @@ const en = {
     ],
     schemaPageName: 'About DJ Zippy',
     schemaPageDesc:
-      'Learn about DJ Zippy (Veljko Nedeljkovic), the House Music Therapy creator from Belgrade, Serbia.',
+      'Learn about DJ Zippy (Veljko Nedeljković), Serbian house DJ and creator of House Music Therapy.',
   },
 
   mixes: {
     title: 'DJ Zippy Mixes | House Music Therapy Sessions & Playlists',
     description:
-      'Stream DJ Zippy mixes and playlists: House Music Therapy sessions on YouTube, MixCloud, Spotify, SoundCloud and Deezer. Deep and tech house from Belgrade.',
+      'Stream DJ Zippy mixes: House Music Therapy sessions on YouTube, MixCloud, Spotify, SoundCloud and Deezer. Deep and tech house by a Serbian DJ.',
     heading: 'Stream DJ Zippy',
     subheading1: 'All ',
     subheading2: 'Mixes',
@@ -211,9 +211,9 @@ const en = {
   },
 
   events: {
-    title: 'DJ Zippy Events | Live Shows & Festival Performances',
+    title: 'DJ Zippy Live Events | Serbian House DJ Gigs & Festivals',
     description:
-      "Explore DJ Zippy's live performances, festival appearances, and club nights across Serbia including Exit Festival and Belgrade events.",
+      'DJ Zippy live: Serbian house DJ at Exit Festival, club nights across Serbia and summer gigs in Greece. Upcoming dates and past highlights.',
     heading: 'DJ Zippy',
     subheading: 'Live Events & Festival Performances',
     lead: 'From intimate club nights to major festival stages. House Music Therapy live.',
@@ -227,9 +227,9 @@ const en = {
   },
 
   gallery: {
-    title: 'DJ Zippy Gallery | Live Performances & House Music Therapy Moments',
+    title: 'DJ Zippy Gallery | Serbian House DJ Live Photos',
     description:
-      "Photo gallery of DJ Zippy's live performances, festival appearances, and House Music Therapy moments across Serbia including Exit Festival and Belgrade venues.",
+      'Photos of DJ Zippy live: Exit Festival stages, club nights across Serbia and House Music Therapy moments from behind the decks.',
     heading: 'DJ Zippy Gallery',
     subheading: 'Live Performances & House Music Therapy Moments',
     lead: 'Capturing the energy of the dancefloor. From club nights to festival stages.',
@@ -259,11 +259,11 @@ const en = {
   },
 
   links: {
-    title: 'DJ Zippy | Official Links & Socials',
+    title: 'DJ Zippy – Serbian House DJ | Official Links',
     description:
-      'Official links for Zippy (DJ Zippy): House Music Therapy, tour dates, Spotify, SoundCloud, Deezer and Resident Advisor. Based in Belgrade, Serbia.',
+      'Official links for DJ Zippy, Serbian house DJ: House Music Therapy mixes, Spotify, SoundCloud, YouTube, Resident Advisor, gigs and bookings.',
     ogDescription:
-      'All official DJ Zippy links — streaming, socials, events and bookings. House Music Therapy from Belgrade, Serbia.',
+      'All official DJ Zippy links — streaming, socials, events and bookings. House Music Therapy by a Serbian house DJ.',
     twitterDescription: 'All official DJ Zippy links — streaming, socials, events and bookings.',
     avatarAlt: 'Zippy (DJ Zippy) - House Music Therapy Profile',
     tagline: 'House Music Therapy',
@@ -301,7 +301,7 @@ const en = {
     readTime: '5 min read',
     aboutAuthor: 'About the Author',
     authorBio:
-      'is a house music curator and producer based in Belgrade, Serbia. He creates immersive sonic experiences that blend classic selections with contemporary sounds.',
+      'is a Serbian house DJ and selector and the creator of House Music Therapy. His sets blend classic house selections with contemporary sounds.',
     share: 'Share:',
     shareTwitter: 'Share on Twitter',
     shareFacebook: 'Share on Facebook',
@@ -318,9 +318,9 @@ export type Dict = typeof en;
 const sr: Dict = {
   schema: {
     personDescription:
-      "DJ Zippy (Veljko Nedeljković) je house i tech-house DJ i selektor iz Beograda, poznat po serijalu mikseva 'House Music Therapy' i nastupima na Exit festivalu i u velikim regionalnim klubovima.",
+      "DJ Zippy (Veljko Nedeljković) je srpski house i tech house DJ i selektor, poznat po serijalu mikseva 'House Music Therapy' i nastupima na Exit festivalu i u vodećim klubovima u Srbiji i Grčkoj.",
     personDescriptionShort:
-      "DJ Zippy (Veljko Nedeljković) je house i tech-house DJ i selektor iz Beograda, tvorac serijala mikseva 'House Music Therapy'.",
+      "DJ Zippy (Veljko Nedeljković) je srpski house i tech house DJ i selektor, tvorac serijala mikseva 'House Music Therapy'.",
     orgDescription:
       'House Music Therapy - DJ brend koji bira frekvencije, groove i vodi kroz putovanje house muzikom.',
     eventDescription: (title: string, location: string) =>
@@ -373,9 +373,9 @@ const sr: Dict = {
   },
 
   home: {
-    title: 'Zippy | House Music Therapy | DJ iz Srbije',
+    title: 'DJ Zippy – srpski house DJ | House Music Therapy',
     description:
-      'Zvanični sajt Zippyja (DJ Zippy). Tvorac House Music Therapy iz Beograda. Kurator, selektor i arhitekta vibe-a. Rezerviši nastup.',
+      'DJ Zippy je srpski house i tech house DJ, tvorac House Music Therapy. Bine Exit festivala, klupske večeri i privatne žurke. Rezerviši nastup.',
     featured1: 'Izdvojeni ',
     featured2: 'miksevi',
     featuredSub: 'Poslušaj najnovije setove i mikseve DJ Zippyja.',
@@ -391,14 +391,14 @@ const sr: Dict = {
   },
 
   about: {
-    title: 'O DJ Zippyju | Tvorac House Music Therapy iz Beograda',
+    title: 'O DJ Zippyju – srpski house i tech house DJ',
     description:
-      'Saznaj sve o DJ Zippyju (Veljko Nedeljković), tvorcu House Music Therapy iz Beograda. Selektor posvećen grooveu, vibe-u i putovanju kroz zvuk.',
+      'DJ Zippy (Veljko Nedeljković) je srpski house i tech house DJ i selektor, tvorac House Music Therapy, sa nastupima na Exit festivalu.',
     heading1: 'O ',
     heading2: 'DJ Zippyju',
     lead:
       'DJ Zippy bira frekvencije — od klupskih večeri do festivalskih bina — posvećen grooveu, vibe-u i putovanju kroz zvuk.',
-    photoAlt: 'DJ Zippy, DJ iz Srbije i tvorac House Music Therapy.',
+    photoAlt: 'DJ Zippy, srpski house DJ i tvorac House Music Therapy.',
     badge: 'ARTIST',
     subheading1: 'Nije producent.',
     subheading2: 'Već ',
@@ -423,9 +423,9 @@ const sr: Dict = {
       {
         q: 'Ko je DJ Zippy?',
         aHtml:
-          'DJ Zippy (Veljko Nedeljković) je house i tech-house DJ i selektor iz Beograda. Tvorac je serijala mikseva <strong>House Music Therapy</strong> i nastupao je na Exit festivalu i u vodećim regionalnim klubovima.',
+          'DJ Zippy (Veljko Nedeljković) je srpski house i tech house DJ i selektor. Tvorac je serijala mikseva <strong>House Music Therapy</strong> i nastupao je na Exit festivalu i u vodećim klubovima u Srbiji i Grčkoj.',
         aText:
-          "DJ Zippy (Veljko Nedeljković) je house i tech-house DJ i selektor iz Beograda. Tvorac je serijala mikseva 'House Music Therapy' i nastupao je na Exit festivalu i u vodećim regionalnim klubovima.",
+          "DJ Zippy (Veljko Nedeljković) je srpski house i tech house DJ i selektor. Tvorac je serijala mikseva 'House Music Therapy' i nastupao je na Exit festivalu i u vodećim klubovima u Srbiji i Grčkoj.",
       },
       {
         q: 'Koje žanrove pušta DJ Zippy?',
@@ -437,9 +437,9 @@ const sr: Dict = {
       {
         q: 'Odakle je DJ Zippy?',
         aHtml:
-          'DJ Zippy je iz Beograda i redovno nastupa širom Srbije i regiona, uključujući Novi Sad, Smederevo i Grčku.',
+          'DJ Zippy je DJ iz Srbije koji svira širom zemlje i van nje — od Exit festivala u Novom Sadu i klubova u Beogradu i Smederevu do letnjih klupskih večeri u Grčkoj.',
         aText:
-          'DJ Zippy je iz Beograda i redovno nastupa širom Srbije i regiona, uključujući Novi Sad, Smederevo i Grčku.',
+          'DJ Zippy je DJ iz Srbije koji svira širom zemlje i van nje — od Exit festivala u Novom Sadu i klubova u Beogradu i Smederevu do letnjih klupskih večeri u Grčkoj.',
       },
       {
         q: 'Kako mogu da rezervišem DJ Zippyja za event?',
@@ -465,13 +465,13 @@ const sr: Dict = {
     ],
     schemaPageName: 'O DJ Zippyju',
     schemaPageDesc:
-      'Saznaj sve o DJ Zippyju (Veljko Nedeljković), tvorcu House Music Therapy iz Beograda.',
+      'Saznaj sve o DJ Zippyju (Veljko Nedeljković), srpskom house DJ-u i tvorcu House Music Therapy.',
   },
 
   mixes: {
     title: 'Miksevi DJ Zippyja | House Music Therapy setovi i plejliste',
     description:
-      'Slušaj mikseve i plejliste DJ Zippyja: House Music Therapy setovi na YouTube, MixCloud, Spotify, SoundCloud i Deezer. Deep i tech house iz Beograda.',
+      'Slušaj mikseve DJ Zippyja: House Music Therapy setovi na YouTube, MixCloud, Spotify, SoundCloud i Deezer. Deep i tech house srpskog DJ-a.',
     heading: 'Slušaj DJ Zippyja',
     subheading1: 'Svi ',
     subheading2: 'miksevi',
@@ -487,9 +487,9 @@ const sr: Dict = {
   },
 
   events: {
-    title: 'Nastupi DJ Zippyja | Svirke uživo i festivali',
+    title: 'Nastupi DJ Zippyja | Srpski house DJ uživo i na festivalima',
     description:
-      'Pogledaj nastupe DJ Zippyja uživo, festivalske svirke i klupske večeri širom Srbije, uključujući Exit festival i beogradske klubove.',
+      'DJ Zippy uživo: srpski house DJ na Exit festivalu, klupske večeri širom Srbije i letnje svirke u Grčkoj. Naredni nastupi i arhiva.',
     heading: 'DJ Zippy',
     subheading: 'Nastupi uživo i festivalske bine',
     lead: 'Od intimnih klupskih večeri do velikih festivalskih bina. House Music Therapy uživo.',
@@ -503,9 +503,9 @@ const sr: Dict = {
   },
 
   gallery: {
-    title: 'Galerija DJ Zippyja | Nastupi uživo i House Music Therapy trenuci',
+    title: 'Galerija DJ Zippyja | Srpski house DJ uživo',
     description:
-      'Foto galerija nastupa DJ Zippyja uživo, festivalskih svirki i House Music Therapy trenutaka širom Srbije, uključujući Exit festival i beogradske klubove.',
+      'Fotografije DJ Zippyja uživo: bine Exit festivala, klupske večeri širom Srbije i House Music Therapy trenuci iza pulta.',
     heading: 'Galerija DJ Zippyja',
     subheading: 'Nastupi uživo i House Music Therapy trenuci',
     lead: 'Energija podijuma na jednom mestu. Od klupskih večeri do festivalskih bina.',
@@ -535,11 +535,11 @@ const sr: Dict = {
   },
 
   links: {
-    title: 'DJ Zippy | Zvanični linkovi i mreže',
+    title: 'DJ Zippy – srpski house DJ | Zvanični linkovi',
     description:
-      'Zvanični linkovi Zippyja (DJ Zippy). House Music Therapy, datumi nastupa, Spotify, SoundCloud, Deezer i Resident Advisor profil. Iz Beograda, Srbija.',
+      'Zvanični linkovi DJ Zippyja, srpskog house DJ-a: House Music Therapy miksevi, Spotify, SoundCloud, YouTube, Resident Advisor, nastupi i booking.',
     ogDescription:
-      'Svi zvanični linkovi DJ Zippyja — striming, mreže, nastupi i booking. House Music Therapy iz Beograda.',
+      'Svi zvanični linkovi DJ Zippyja — striming, mreže, nastupi i booking. House Music Therapy srpskog house DJ-a.',
     twitterDescription: 'Svi zvanični linkovi DJ Zippyja — striming, mreže, nastupi i booking.',
     avatarAlt: 'Zippy (DJ Zippy) - House Music Therapy profil',
     tagline: 'House Music Therapy',
@@ -577,7 +577,7 @@ const sr: Dict = {
     readTime: '5 min čitanja',
     aboutAuthor: 'O autoru',
     authorBio:
-      'je kurator i producent house muzike iz Beograda. Pravi zvučna iskustva koja spajaju klasične selekcije sa savremenim zvukom.',
+      'je srpski house DJ i selektor i tvorac House Music Therapy. Njegovi setovi spajaju klasične house selekcije sa savremenim zvukom.',
     share: 'Podeli:',
     shareTwitter: 'Podeli na Twitteru',
     shareFacebook: 'Podeli na Facebooku',
