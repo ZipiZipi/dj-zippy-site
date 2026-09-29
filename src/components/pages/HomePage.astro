@@ -2,7 +2,7 @@
 // Home page body. Rendered by /index.astro (en) and /sr/index.astro (sr) —
 // the only difference between them is the `lang` prop.
 import Layout from '../../layouts/Layout.astro';
-import { getEvents, getMixes, MIX_PLATFORMS } from '../../lib/content';
+import { getEvents, getMixes, MIX_PLATFORMS, youtubeThumb } from '../../lib/content';
 import { useTranslations, localize, htmlLang, type Lang } from '../../i18n/utils';
 
 interface Props {
@@ -17,16 +17,20 @@ const db = (Astro.locals as any).runtime?.env?.DB;
 const { upcoming } = await getEvents(db);
 const homeUpcoming = upcoming.slice(0, 4);
 const { featured } = await getMixes(db);
-// YouTube has no maxresdefault for some uploads; the coverflow script swaps in
-// hqdefault (4:3 letterboxed, so it's zoomed to crop the bars) when it's missing.
+// A disc label is ~230px at most, so YouTube's hqdefault (~30 KB) is plenty —
+// maxresdefault was 100–200 KB each. hqdefault is 4:3 letterboxed, so the label
+// zooms it to crop the black bars.
 const featuredMixes = featured.map(m => {
   const p = MIX_PLATFORMS.find(x => x.id === m.platform);
   const platformLabel = p?.label ?? m.platform;
+  const thumb = m.thumbnail ? youtubeThumb(m.thumbnail, 'hqdefault') : '';
   return {
     ...m,
     platformLabel,
     platformIcon: p?.icon ?? 'fa-solid fa-music',
-    thumbFallback: m.thumbnail.includes('/maxresdefault.') ? m.thumbnail.replace('/maxresdefault.', '/hqdefault.') : '',
+    thumbStyle: !thumb ? undefined
+      : thumb.endsWith('/hqdefault.jpg') ? `background-image: url('${thumb}'); background-size: auto 134%;`
+      : `background-image: url('${thumb}');`,
     playLabel: t.home.playOn.replace('{title}', m.title).replace('{platform}', platformLabel),
     showLabel: t.home.showMix.replace('{title}', m.title),
   };
@@ -458,12 +462,7 @@ const homeSchema = {
                   <a class="coverflow-item text-center" href={m.link} target="_blank" rel="noopener" draggable="false" aria-label={m.playLabel} data-play={m.playLabel} data-show={m.showLabel}>
                     <div class="cf-vinyl">
                       <div class="cf-disc">
-                        <div
-                          class={m.thumbnail ? 'cf-label' : 'cf-label bg-brand-orange'}
-                          style={m.thumbnail ? `background-image: url('${m.thumbnail}');` : undefined}
-                          data-src={m.thumbFallback ? m.thumbnail : undefined}
-                          data-fallback={m.thumbFallback || undefined}
-                        >
+                        <div class={m.thumbStyle ? 'cf-label' : 'cf-label bg-brand-orange'} style={m.thumbStyle}>
                           {!m.thumbnail && <span class="cf-label-title">ZIPPY</span>}
                           {!m.thumbnail && <span class="cf-label-sub">{m.platform.toUpperCase()}</span>}
                         </div>
@@ -819,19 +818,6 @@ const homeSchema = {
         step(e.key === 'ArrowRight' ? 1 : -1);
       });
     }
-
-    // YouTube serves a 120px grey placeholder when maxresdefault doesn't exist —
-    // fall back to hqdefault, zoomed so its letterbox bars are cropped away.
-    container.querySelectorAll('.cf-label[data-fallback]').forEach(function(lb) {
-      var img = new Image();
-      function useFallback() {
-        lb.style.backgroundImage = "url('" + lb.getAttribute('data-fallback') + "')";
-        lb.style.backgroundSize = 'auto 134%';
-      }
-      img.onload = function() { if (img.naturalWidth <= 120) useFallback(); };
-      img.onerror = useFallback;
-      img.src = lb.getAttribute('data-src');
-    });
 
     window.addEventListener('resize', render);
     render();

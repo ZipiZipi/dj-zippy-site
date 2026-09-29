@@ -2,7 +2,9 @@
 // Standalone link-in-bio page — no site nav or footer, and no Tailwind, so the
 // language toggle here is styled with the page's own CSS rather than reusing
 // <LanguageSwitcher />.
+import Analytics from '../Analytics.astro';
 import { useTranslations, localize, alternateLinks, htmlLang, ogLocale, type Lang } from '../../i18n/utils';
+import '../../styles/fonts.css';
 
 interface Props {
   lang: Lang;
@@ -46,30 +48,18 @@ const xDefault = alternates.find((a) => a.lang === 'en')!.href;
     <meta name="twitter:description" content={t.links.twitterDescription} />
     <meta name="twitter:image" content="https://zippydj.com/images/og-dj-zippy.jpg" />
     <meta name="twitter:image:alt" content={t.schema.ogImageAlt} />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Inter:wght@300;400;600&display=swap"
-      rel="stylesheet"
-    />
+    <!-- Self-hosted fonts (src/styles/fonts.css) + the above-the-fold portrait -->
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/unbounded/unbounded-latin.woff2" crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/inter/inter-latin.woff2" crossorigin />
+    <link rel="preload" as="image" href="/images/dj-zippy-house-music-dj.webp" fetchpriority="high" />
     <!-- Favicons -->
     <link rel="icon" type="image/png" href="/images/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
     <link rel="shortcut icon" href="/images/favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png" />
     <meta name="apple-mobile-web-app-title" content="Zippy" />
-    <!-- Meta Pixel -->
-    <script>
-      !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-      n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
-      n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
-      t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}
-      (window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
-      fbq('init','3891455414321405');fbq('track','PageView');
-    </script>
-    <noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=3891455414321405&ev=PageView&noscript=1" /></noscript>
-    <!-- Google Tag Manager -->
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-KLGKHMGM');</script>
+    <!-- Meta Pixel + GTM + Google Ads (deferred, see Analytics.astro) -->
+    <Analytics />
     <link rel="stylesheet" href="/fonts/fa/fa-subset.css" />
     <style>
       *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -371,24 +361,30 @@ const xDefault = alternates.find((a) => a.lang === 'en')!.href;
     <!-- GTM noscript -->
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KLGKHMGM" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
-    <!-- Background video.
-         No `poster`: the only image available is the square profile portrait,
-         which `object-fit: cover` blew up and cropped across the whole viewport
-         until the video painted — and it is already on screen as the avatar
-         below. Falling through to the black page background instead makes the
-         hand-off to the first frame invisible. A real frame grabbed from
-         links-bg.mp4 would work as a poster; the portrait will not. -->
+    <!-- Background video (540×960, ~0.7 MB, no audio). The poster is its own
+         first frame, so the hand-off is seamless. The source is attached by the
+         script below — skipped on Save-Data / 2G, where the poster stays. -->
     <video
       class="bg-video"
       autoplay
       muted
       loop
       playsinline
-      preload="metadata"
+      preload="none"
+      poster="/videos/links-bg-poster.jpg"
+      data-src="/videos/links-bg.mp4"
       aria-hidden="true"
-    >
-      <source src="/videos/links-bg.mp4" type="video/mp4" />
-    </video>
+    ></video>
+    <script is:inline>
+      (function () {
+        var v = document.querySelector('.bg-video');
+        var c = navigator.connection || {};
+        if (!v || c.saveData || /(^|-)2g$/.test(c.effectiveType || '')) return;
+        v.src = v.getAttribute('data-src');
+        var p = v.play();
+        if (p && p.catch) p.catch(function () {});
+      })();
+    </script>
     <div class="bg-overlay" aria-hidden="true"></div>
 
     <div class="lang-switch" role="group" aria-label={t.langSwitch.label}>
@@ -402,11 +398,9 @@ const xDefault = alternates.find((a) => a.lang === 'en')!.href;
       <!-- Profile Header -->
       <header>
         <div class="avatar-ring">
-          {/* Above the fold and the only real image on the page, so it loads
-              eagerly at high priority — otherwise it queues behind the 2.6 MB
-              background video and the ring sits empty for a beat. It used to
-              look instant only because the video's `poster` happened to fetch
-              this same file first; that crutch is gone. */}
+          {/* Above the fold and the only real image on the page, so it is
+              preloaded and loads eagerly at high priority — otherwise it queues
+              behind the background video and the ring sits empty for a beat. */}
           <img
             src="/images/dj-zippy-house-music-dj.webp"
             alt={t.links.avatarAlt}
@@ -518,14 +512,5 @@ const xDefault = alternates.find((a) => a.lang === 'en')!.href;
       </footer>
 
     </main>
-    <!-- Google Ads -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-975400552"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'AW-975400552');
-      // Conversion event removed from page load — fire it on a real action instead.
-    </script>
   </body>
 </html>

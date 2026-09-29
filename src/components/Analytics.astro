@@ -1,0 +1,73 @@
+---
+// Meta Pixel + Google Tag Manager + Google Ads, without blocking the first
+// paint. The inline stubs below define fbq / gtag / dataLayer right away, so
+// PageView, config and any early event are queued; the ~400 KB of third-party
+// scripts load on the first interaction, or once the page has been loaded for
+// a few seconds and the main thread is idle — whichever comes first.
+//
+// Used by Layout.astro and by the standalone links page.
+---
+
+<script is:inline>
+  (function (w, d) {
+    if (w.__zippyAnalytics) return;
+    w.__zippyAnalytics = true;
+
+    // gtag.js only understands the `arguments` object, not a plain array.
+    w.dataLayer = w.dataLayer || [];
+    w.gtag = function () { w.dataLayer.push(arguments); };
+    w.gtag('js', new Date());
+    w.gtag('config', 'AW-975400552');
+    w.dataLayer.push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
+
+    var fbq = (w.fbq = function () {
+      fbq.callMethod ? fbq.callMethod.apply(fbq, arguments) : fbq.queue.push(arguments);
+    });
+    if (!w._fbq) w._fbq = fbq;
+    fbq.push = fbq;
+    fbq.loaded = true;
+    fbq.version = '2.0';
+    fbq.queue = [];
+    fbq('init', '3891455414321405');
+    fbq('track', 'PageView');
+
+    var loaded = false;
+    function load() {
+      if (loaded) return;
+      loaded = true;
+      [
+        'https://connect.facebook.net/en_US/fbevents.js',
+        'https://www.googletagmanager.com/gtm.js?id=GTM-KLGKHMGM',
+        'https://www.googletagmanager.com/gtag/js?id=AW-975400552',
+      ].forEach(function (src) {
+        var s = d.createElement('script');
+        s.async = true;
+        s.src = src;
+        d.head.appendChild(s);
+      });
+    }
+    ['pointerdown', 'keydown', 'touchstart', 'scroll'].forEach(function (type) {
+      w.addEventListener(type, load, { once: true, passive: true });
+    });
+    function later() {
+      setTimeout(function () {
+        if ('requestIdleCallback' in w) w.requestIdleCallback(load, { timeout: 1500 });
+        else load();
+      }, 3000);
+    }
+    if (d.readyState === 'complete') later();
+    else w.addEventListener('load', later, { once: true });
+
+    // View Transitions swap pages without a reload, so later navigations are
+    // reported by hand (the first page is covered by the PageView above).
+    var first = true;
+    d.addEventListener('astro:page-load', function () {
+      if (first) { first = false; return; }
+      try {
+        fbq('track', 'PageView');
+        w.dataLayer.push({ event: 'virtual_pageview', page_path: location.pathname, page_title: d.title });
+      } catch (e) { /* analytics must never break navigation */ }
+    });
+  })(window, document);
+</script>
+<noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=3891455414321405&ev=PageView&noscript=1" alt="" /></noscript>

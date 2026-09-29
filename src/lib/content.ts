@@ -162,6 +162,17 @@ export function mixIcon(platform: string): string {
   }
 }
 
+/**
+ * Rewrites a YouTube thumbnail URL to another size; other URLs pass through.
+ * maxresdefault is 100–200 KB and missing for some uploads, while hqdefault
+ * (480×360, ~30 KB) always exists — but it is 4:3 with letterbox bars around a
+ * 16:9 video, so whoever shows it has to crop the bars.
+ */
+export function youtubeThumb(url: string, size: 'hqdefault' | 'sddefault' | 'maxresdefault'): string {
+  const m = url.match(/^https?:\/\/(?:img\.youtube\.com|i\.ytimg\.com)\/vi(?:_webp)?\/([\w-]{11})\//);
+  return m ? `https://i.ytimg.com/vi/${m[1]}/${size}.jpg` : url;
+}
+
 /** Background glyph used when a card has no thumbnail image. */
 export function mixFallbackIcon(platform: string): string {
   return MIX_PLATFORMS.find(p => p.id === platform)?.icon ?? 'fa-brands fa-youtube';
