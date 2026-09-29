@@ -139,7 +139,9 @@ const xDefault = alternates.find((a) => a.lang === 'en')!.href;
         main { max-width: 496px; padding: 108px 28px 64px; }
       }
 
-      /* === Language toggle === */
+      /* === Language toggle ===
+         Segmented control: the track has its own inner padding, so the globe and
+         the pills sit inside the rounded edge instead of running into its curve. */
       .lang-switch {
         position: absolute;
         top: 20px;
@@ -147,25 +149,39 @@ const xDefault = alternates.find((a) => a.lang === 'en')!.href;
         z-index: 3;
         display: inline-flex;
         align-items: center;
+        gap: 2px;
+        padding: 4px;
         border: 1px solid rgba(255,255,255,0.15);
         border-radius: 999px;
-        overflow: hidden;
-        font-size: 0.7rem;
+        font-size: 0.72rem;
         font-weight: 700;
         letter-spacing: 0.04em;
         background: rgba(14,14,17,0.55);
         -webkit-backdrop-filter: blur(14px);
         backdrop-filter: blur(14px);
       }
-      .lang-switch > .globe { padding: 0 2px 0 10px; color: rgba(255,255,255,0.4); font-size: 0.75rem; }
+      .lang-switch > .globe { display: flex; padding: 0 6px 0 8px; color: rgba(255,255,255,0.45); font-size: 0.8rem; }
       .lang-switch a {
-        padding: 6px 10px;
-        color: rgba(255,255,255,0.55);
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 40px;
+        height: 32px;
+        padding: 0 12px;
+        border-radius: 999px;
+        color: rgba(255,255,255,0.6);
         text-decoration: none;
+        -webkit-tap-highlight-color: transparent;
         transition: color 0.3s, background 0.3s;
       }
-      .lang-switch a:hover { color: #fff; background: rgba(255,255,255,0.08); }
-      .lang-switch a[aria-current] { background: var(--orange); color: #fff; }
+      /* 40px tap target on touch screens, spilling into the track's padding */
+      @media (pointer: coarse) {
+        .lang-switch a::after { content: ''; position: absolute; inset: -4px -1px; }
+      }
+      .lang-switch a:hover { color: #fff; background: rgba(255,255,255,0.1); }
+      .lang-switch a:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+      .lang-switch a[aria-current] { background: var(--orange); color: #000; }
       @media (min-width: 640px) {
         .lang-switch { top: 28px; right: 28px; }
       }

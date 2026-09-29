@@ -19,7 +19,9 @@ const l = (path: string) => localize(path, lang);
       ZIPPY<span class="text-brand-orange">.</span>
     </a>
 
-    <div class="hidden md:flex items-center space-x-8 text-sm font-semibold tracking-wide uppercase text-gray-300">
+    <!-- Tighter gap + smaller type between md and lg, where the Serbian labels
+         plus the language toggle would otherwise wrap or crowd the logo -->
+    <div class="hidden md:flex items-center gap-4 lg:gap-8 text-xs lg:text-sm font-semibold tracking-wide uppercase text-gray-300 whitespace-nowrap">
       {activePage !== '' && <a href={l('/')} class="nav-link hover:text-white transition-colors">{t.nav.home}</a>}
       <a href={l('/about')} class={`nav-link hover:text-white transition-colors ${activePage === 'about' ? 'text-brand-orange' : ''}`}>{t.nav.about}</a>
       <a href={l('/mixes')} class={`nav-link hover:text-white transition-colors ${activePage === 'mixes' ? 'text-brand-orange' : ''}`}>{t.nav.mixes}</a>

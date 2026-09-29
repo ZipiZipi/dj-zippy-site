@@ -35,14 +35,16 @@ const groupLabel = ui[lang].langSwitch.label;
 const other = alternateUrl(Astro.url, lang);
 ---
 
+<!-- The track has its own inner padding, so the globe and the pills sit inside
+     the rounded edge instead of running into its curve. -->
 <div
-  class={`inline-flex items-center rounded-full border border-white/15 overflow-hidden text-xs font-bold tracking-wide ${className}`}
+  class={`inline-flex items-center gap-0.5 p-1 rounded-full border border-white/15 bg-white/5 text-xs font-bold tracking-wide ${className}`}
   role="group"
   aria-label={groupLabel}
   data-lang-switcher
   data-other={other}
 >
-  <span class="pl-2.5 pr-1 text-gray-500" aria-hidden="true"><i class="fa-solid fa-globe"></i></span>
+  <span class="flex items-center pl-2 pr-1.5 text-[13px] leading-none text-gray-500" aria-hidden="true"><i class="fa-solid fa-globe"></i></span>
   {
     options.map((o) => (
       <a
@@ -50,9 +52,9 @@ const other = alternateUrl(Astro.url, lang);
         hreflang={o.code === 'sr' ? 'sr-Latn' : 'en'}
         title={o.title}
         aria-current={o.code === lang ? 'true' : undefined}
-        class={`px-2.5 py-1.5 transition-colors ${
+        class={`lang-opt relative inline-flex h-8 min-w-[2.5rem] items-center justify-center rounded-full px-3 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white ${
           o.code === lang
-            ? 'bg-brand-orange text-white'
+            ? 'bg-brand-orange text-brand-black'
             : 'text-gray-400 hover:text-white hover:bg-white/10'
         }`}
       >
@@ -61,3 +63,15 @@ const other = alternateUrl(Astro.url, lang);
     ))
   }
 </div>
+
+<style>
+  /* Pills stay 32px tall, but on touch screens the tap target reaches 40px by
+     spilling into the track's padding. */
+  @media (pointer: coarse) {
+    .lang-opt::after {
+      content: '';
+      position: absolute;
+      inset: -4px -1px;
+    }
+  }
+</style>
