@@ -34,7 +34,7 @@ u isto vreme, jer se izmene sudaraju. Najsigurnije je raditi ih redom i commit-o
 | [x] 2026-09-29 | T3 Sitne SEO/tehničke ispravke — robots.txt spojen u jednu grupu, lažni lastmod izbačen iz sitemap-a, © godina dinamička, dateModified osvežen, opisi /mixes i /links ≤ 155 znakova. | 🟠 P1 | Haiku 4.5 | medium | `public/robots.txt`, `sitemap.xml.ts`, `ui.ts` |
 | [x] 2026-09-29 | T4 Prava OG slika za deljenje (1200×630) — nova `og-dj-zippy.jpg` (1200×630, 35 KB, Unbounded) kao default og:image/twitter:image u Layout i Links, sa og:image:alt (en/sr) i tipom; schema ImageObject na početnoj ispravljen na 800×800. | 🟠 P1 | Sonnet 5.5 | medium | `Layout.astro`, `LinksPage.astro`, schema |
 | [ ] | T5 Vinili na početnoj: svetliji + mobilni + tastatura | 🔴 P0 | Opus 5.5 | high | `HomePage.astro` |
-| [ ] | T6 Links stranica: ceo link narandžast na hover/tap | 🔴 P0 | Sonnet 5.5 | low | `LinksPage.astro` |
+| [x] 2026-09-29 | T6 Links stranica: ceo link narandžast na hover/tap — kartice se na hover (samo `hover:hover`), fokus i tap pune narandžastom (#cc4400 pozadina zbog kontrasta 4.7:1, #ff5500 ivica i glow), bela ikonica i tekst, `:active` scale(0.98), bez sivog tap highlight-a; Explore linkovi dobijaju narandžast tekst i strelicu. | 🔴 P0 | Sonnet 5.5 | low | `LinksPage.astro` |
 | [ ] | T7 EN/SR prekidač: globus se preklapa | 🔴 P0 | Sonnet 5.5 | medium | `LanguageSwitcher.astro`, `LinksPage.astro` |
 | [ ] | T8 Traka (marquee) na početnoj: novi tekst + jači izgled | 🔴 P0 | Opus 5.5 | high | `HomePage.astro`, `global.css`, `ui.ts` |
 | [ ] | T9 "Srpski DJ" pozicioniranje kroz ceo sajt | 🔴 P0 | Opus 5.5 | high | `ui.ts`, `llms.txt`, schema u stranicama |
