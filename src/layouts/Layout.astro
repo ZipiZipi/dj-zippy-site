@@ -129,7 +129,9 @@ const xDefault = alternates.find((a) => a.lang === 'en')!.href;
             entries.forEach((e) => {
               if (e.isIntersecting) { e.target.classList.add('in-view'); obs.unobserve(e.target); }
             });
-          }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+          // Reveal as soon as any part is on screen (plus a small lead), rather
+          // than waiting for 12% of a possibly very tall block to scroll in.
+          }, { threshold: 0, rootMargin: '0px 0px 6% 0px' });
           revealEls.forEach((el) => { if (!el.classList.contains('in-view')) io.observe(el); });
           // Safety net: never leave content hidden if something misfires
           setTimeout(() => revealEls.forEach((el) => el.classList.add('in-view')), 3000);

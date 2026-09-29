@@ -52,13 +52,15 @@
    site degrades gracefully when JS is off/fails) and only while the element has
    not yet been revealed — using :not(.in-view) avoids any competing opacity
    rules, so a revealed element simply returns to its default visible state. */
+/* Short and small on purpose: a long fade on a tall block (the mixes grid, the
+   events list) used to leave the screen black for a moment on a fast scroll. */
 [data-reveal] {
-  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
-              transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
 }
 html.anim-ready [data-reveal]:not(.in-view) {
   opacity: 0;
-  transform: translateY(26px);
+  transform: translateY(12px);
 }
 
 /* "Played at" festival tapes under the home hero: an orange tape with the

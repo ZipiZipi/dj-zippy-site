@@ -13,6 +13,9 @@ const l = (path: string) => localize(path, lang);
 
 const db = (Astro.locals as any).runtime?.env?.DB;
 const { upcoming, past } = await getEvents(db);
+// `past` is already featured-first, then newest first.
+const highlights = past.filter(e => e.featured);
+const others = past.filter(e => !e.featured);
 
 const pageUrl = `https://zippydj.com${l('/events')}`;
 
@@ -93,7 +96,7 @@ const musicEventSchema = {
         </ol>
       </nav>
       <h1 class="font-display text-4xl md:text-5xl lg:text-6xl font-black leading-tight mb-2">{t.events.heading}</h1>
-      <h2 class="font-display font-black leading-tight mb-4 text-brand-orange">{t.events.subheading}</h2>
+      <h2 class="font-display text-xl md:text-2xl lg:text-3xl font-bold leading-tight mb-4 text-brand-orange">{t.events.subheading}</h2>
       <p class="text-gray-400 text-lg md:text-xl max-w-2xl mb-10">{t.events.lead}</p>
       <div class="flex items-center gap-4 mb-6">
         <div class="w-2 h-8 bg-brand-orange"></div>
@@ -108,7 +111,7 @@ const musicEventSchema = {
               <div class="flex-shrink-0 text-center min-w-[4rem]">
                 <span class="block font-display font-bold text-brand-orange text-xl leading-none">{day}</span>
                 <span class="block text-xs text-gray-400 uppercase tracking-widest">{month}</span>
-                <span class="block text-xs text-gray-500">{year}</span>
+                <span class="block text-xs text-gray-400">{year}</span>
               </div>
               <div class="w-px h-10 bg-white/10 flex-shrink-0"></div>
               <div class="flex-1 min-w-0">
@@ -128,44 +131,46 @@ const musicEventSchema = {
         <div class="w-2 h-8 bg-white/30"></div>
         <h2 class="font-display text-3xl md:text-4xl font-bold">{t.events.past1}<span class="text-gray-400">{t.events.past2}</span></h2>
       </div>
-      <div class="space-y-3" data-reveal>
-        {past.map(e => {
+      {/* Highlights (featured) as cards, two per row on wider screens */}
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4" data-reveal>
+        {highlights.map(e => {
           const { day, month, year } = dateParts(e.date, lang);
-          if (e.featured) {
-            return (
-              <article class="relative flex items-center gap-4 sm:gap-6 border-l-4 border-brand-orange bg-brand-gray rounded-r-lg p-4 sm:p-5 hover:bg-white/5 transition-colors">
-                <span class="absolute top-2 right-3 inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-brand-orange">
-                  <i class="fa-solid fa-star"></i> {t.events.highlightBadge}
-                </span>
-                <div class="flex-shrink-0 text-center min-w-[4rem]">
-                  <span class="block font-display font-bold text-brand-orange text-xl leading-none">{day}</span>
-                  <span class="block text-xs text-gray-400 uppercase tracking-widest">{month}</span>
-                  <span class="block text-xs text-gray-500">{year}</span>
-                </div>
-                <div class="w-px h-10 bg-white/10 flex-shrink-0"></div>
-                <div class="flex-1 min-w-0">
-                  <h3 class="font-display font-bold text-white text-base sm:text-lg leading-tight">{e.title}</h3>
-                  <p class="text-gray-400 text-sm"><i class="fa-solid fa-location-dot mr-1 text-brand-orange"></i>{e.location}{e.subtitle ? ` · ${e.subtitle}` : ''}</p>
-                </div>
-              </article>
-            );
-          }
           return (
-            <article class="flex items-center gap-4 sm:gap-6 border-l-2 border-brand-gray bg-brand-dark rounded-r-lg p-4 hover:border-white/30 transition-colors">
-              <div class="flex-shrink-0 text-center min-w-[4rem]">
-                <span class="block font-display font-bold text-gray-400 text-lg leading-none">{day}</span>
-                <span class="block text-xs text-gray-500 uppercase tracking-widest">{month}</span>
-                <span class="block text-xs text-gray-600">{year}</span>
+            <article class="relative flex flex-col rounded-xl border border-white/10 border-l-4 border-l-brand-orange bg-brand-gray p-5 sm:p-6 hover:border-white/25 hover:border-l-brand-orange transition-colors">
+              <div class="flex items-center justify-between gap-3 mb-3">
+                <span class="font-display font-bold text-brand-orange text-sm tracking-wide">{day} {month} {year}</span>
+                <span class="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-brand-orange">
+                  <i class="fa-solid fa-star" aria-hidden="true"></i> {t.events.highlightBadge}
+                </span>
               </div>
-              <div class="w-px h-8 bg-white/5 flex-shrink-0"></div>
-              <div class="flex-1 min-w-0">
-                <h3 class="font-display font-bold text-gray-300 text-sm sm:text-base leading-tight">{e.title}</h3>
-                <p class="text-gray-500 text-xs sm:text-sm"><i class="fa-solid fa-location-dot mr-1"></i>{e.location}{e.subtitle ? ` · ${e.subtitle}` : ''}</p>
-              </div>
+              <h3 class="font-display font-bold text-white text-lg sm:text-xl leading-tight mb-2">{e.title}</h3>
+              <p class="text-gray-300 text-sm"><i class="fa-solid fa-location-dot mr-1.5 text-brand-orange" aria-hidden="true"></i>{e.location}{e.subtitle ? ` · ${e.subtitle}` : ''}</p>
             </article>
           );
         })}
       </div>
+
+      {/* Everything else folds into a compact list — native <details>, no JS */}
+      {others.length > 0 && (
+        <details class="past-more mt-8 rounded-xl border border-white/10 bg-brand-dark">
+          <summary class="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 font-display text-sm font-bold uppercase tracking-wide text-white hover:text-brand-orange transition-colors">
+            <span>{t.events.showAllPast} <span class="text-gray-400">({others.length})</span></span>
+            <i class="fa-solid fa-chevron-right past-more__chevron text-brand-orange transition-transform" aria-hidden="true"></i>
+          </summary>
+          <ol class="divide-y divide-white/5 border-t border-white/10">
+            {others.map(e => {
+              const { day, month, year } = dateParts(e.date, lang);
+              return (
+                <li class="grid grid-cols-[6.75rem_minmax(0,1fr)] sm:grid-cols-[8.75rem_minmax(0,1fr)_minmax(0,1fr)] items-baseline gap-x-4 gap-y-0.5 px-5 py-3">
+                  <span class="font-display text-[11px] sm:text-sm font-bold text-gray-300 whitespace-nowrap">{day} {month} {year}</span>
+                  <h3 class="font-display text-sm sm:text-base font-bold text-white leading-tight">{e.title}</h3>
+                  <p class="col-start-2 sm:col-start-3 text-gray-300 text-xs sm:text-sm"><i class="fa-solid fa-location-dot mr-1.5 text-brand-orange" aria-hidden="true"></i>{e.location}{e.subtitle ? ` · ${e.subtitle}` : ''}</p>
+                </li>
+              );
+            })}
+          </ol>
+        </details>
+      )}
       <div class="mt-12 text-center">
         <a href={l('/')} class="inline-flex items-center gap-2 text-gray-400 hover:text-brand-orange transition-colors">
           <i class="fa-solid fa-arrow-left"></i> {t.events.backHome}
@@ -173,4 +178,10 @@ const musicEventSchema = {
       </div>
     </div>
   </section>
+
+  <style>
+    .past-more summary::-webkit-details-marker { display: none; }
+    .past-more[open] .past-more__chevron { transform: rotate(90deg); }
+    .past-more summary:focus-visible { outline: 2px solid #fff; outline-offset: -2px; border-radius: 0.75rem; }
+  </style>
 </Layout>

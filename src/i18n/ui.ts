@@ -246,6 +246,7 @@ const en = {
     past1: 'Past ',
     past2: 'Highlights',
     highlightBadge: 'Highlight',
+    showAllPast: 'All past gigs',
     backHome: 'Back to Homepage',
   },
 
@@ -545,6 +546,7 @@ const sr: Dict = {
     past1: 'Iz ',
     past2: 'arhive',
     highlightBadge: 'Izdvojeno',
+    showAllPast: 'Svi prošli nastupi',
     backHome: 'Nazad na početnu',
   },
 
