@@ -1,0 +1,18 @@
+---
+// English 404. Without this route an unknown path reaches the worker with no
+// matching route, and Astro tries to fetch the prerendered /404.html from the
+// site itself; Cloudflare rejects that self-request with "error code: 523".
+// Rendering on demand avoids the round trip. Real pages are prerendered or
+// sort ahead of this rest route (as do prerendered blog slugs, which the
+// worker never matches), so they never fall through to here.
+export const prerender = false;
+import NotFoundPage from '../components/pages/NotFoundPage.astro';
+
+Astro.response.status = 404;
+// Keep Astro from swapping in src/pages/404.astro for the 404 status — see
+// src/pages/sr/[...slug].astro.
+Astro.response.headers.set('x-astro-reroute', 'no');
+Astro.response.headers.set('Cache-Control', 'no-store');
+---
+
+<NotFoundPage lang="en" />
