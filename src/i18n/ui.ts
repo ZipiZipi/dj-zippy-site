@@ -110,6 +110,8 @@ const en = {
     viewAllEvents: 'View All Events & Past Highlights',
     prev: 'Previous',
     next: 'Next',
+    playOn: 'Play {title} on {platform}',
+    showMix: 'Show {title}',
   },
 
   about: {
@@ -384,6 +386,8 @@ const sr: Dict = {
     viewAllEvents: 'Pogledaj sve nastupe i arhivu',
     prev: 'Prethodni',
     next: 'Sledeći',
+    playOn: 'Pusti {title} na {platform}',
+    showMix: 'Prikaži {title}',
   },
 
   about: {

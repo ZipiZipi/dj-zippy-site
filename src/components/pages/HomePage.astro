@@ -2,7 +2,7 @@
 // Home page body. Rendered by /index.astro (en) and /sr/index.astro (sr) —
 // the only difference between them is the `lang` prop.
 import Layout from '../../layouts/Layout.astro';
-import { getEvents, getMixes } from '../../lib/content';
+import { getEvents, getMixes, MIX_PLATFORMS } from '../../lib/content';
 import { useTranslations, localize, htmlLang, type Lang } from '../../i18n/utils';
 
 interface Props {
@@ -16,7 +16,21 @@ const l = (path: string) => localize(path, lang);
 const db = (Astro.locals as any).runtime?.env?.DB;
 const { upcoming } = await getEvents(db);
 const homeUpcoming = upcoming.slice(0, 4);
-const { featured: featuredMixes } = await getMixes(db);
+const { featured } = await getMixes(db);
+// YouTube has no maxresdefault for some uploads; the coverflow script swaps in
+// hqdefault (4:3 letterboxed, so it's zoomed to crop the bars) when it's missing.
+const featuredMixes = featured.map(m => {
+  const p = MIX_PLATFORMS.find(x => x.id === m.platform);
+  const platformLabel = p?.label ?? m.platform;
+  return {
+    ...m,
+    platformLabel,
+    platformIcon: p?.icon ?? 'fa-solid fa-music',
+    thumbFallback: m.thumbnail.includes('/maxresdefault.') ? m.thumbnail.replace('/maxresdefault.', '/hqdefault.') : '',
+    playLabel: t.home.playOn.replace('{title}', m.title).replace('{platform}', platformLabel),
+    showLabel: t.home.showMix.replace('{title}', m.title),
+  };
+});
 
 const ticker = ['House Music Therapy', 'Exit Festival', 'Belgrade', 'Deep House', 'Tech House', 'Novi Sad', 'Selector', 'Grooves'];
 
@@ -133,28 +147,48 @@ const homeSchema = {
       display: flex;
       align-items: center;
       justify-content: center;
+      /* free horizontal drag/flick (the script spins it); vertical swipes still scroll the page */
+      touch-action: pan-y;
+      cursor: grab;
+      user-select: none;
+      -webkit-user-select: none;
     }
+    /* Positions are driven every frame by the script (drag + momentum), so no CSS transitions here */
     .coverflow-item {
       position: absolute;
       top: 50%;
+      display: block;
       width: clamp(150px, 22vw, 280px);
-      transition: transform 0.7s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.5s ease;
+      will-change: transform, opacity;
       transform-style: preserve-3d;
-      cursor: pointer;
+      cursor: grab;
       user-select: none;
+      outline: none;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-user-drag: none;
     }
-    .coverflow-item.active { cursor: default; }
-    .cf-disc {
+    .coverflow-item.active { cursor: pointer; }
+    .coverflow.is-dragging, .coverflow.is-dragging .coverflow-item { cursor: grabbing; }
+    /* Non-rotating wrapper: holds the spinning disc plus the fixed light sheen,
+       play icon and focus ring (so none of them spin with the record). */
+    .cf-vinyl {
+      position: relative;
       width: clamp(125px, 18vw, 230px);
-      height: clamp(125px, 18vw, 230px);
+      aspect-ratio: 1;
+      margin: 0 auto;
+      border-radius: 50%;
+    }
+    .coverflow-item:focus-visible .cf-vinyl { outline: 3px solid #fff; outline-offset: 5px; }
+    .cf-disc {
+      width: 100%;
+      height: 100%;
       background:
-        radial-gradient(circle at center, transparent 18%, #0d0d0d 19%),
-        repeating-radial-gradient(circle at center, rgba(30,30,30,1) 0px, rgba(20,20,20,1) 1px, rgba(15,15,15,1) 2px, rgba(25,25,25,1) 3px),
-        linear-gradient(135deg, #111 0%, #0a0a0a 50%, #111 100%);
+        radial-gradient(circle at center, transparent 18%, #101010 19%),
+        repeating-radial-gradient(circle at center, #1e1e1e 0px, #141414 1px, #0f0f0f 2px, #191919 3px),
+        linear-gradient(135deg, #141414 0%, #0a0a0a 50%, #141414 100%);
       border-radius: 50%;
       position: relative;
-      margin: 0 auto;
-      box-shadow: 0 4px 30px rgba(0,0,0,0.7), 0 0 0 2px rgba(255,255,255,0.08), 0 0 0 4px rgba(0,0,0,0.5), inset 0 0 60px rgba(0,0,0,0.8);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.45), 0 0 0 2px rgba(255,255,255,0.1), inset 0 0 50px rgba(0,0,0,0.6);
     }
     .cf-disc::before {
       content: '';
@@ -162,9 +196,8 @@ const homeSchema = {
       inset: 2%;
       border-radius: 50%;
       background:
-        repeating-radial-gradient(circle at center, transparent, transparent 1.5px, rgba(255,255,255,0.03) 2px, transparent 2.5px),
-        repeating-radial-gradient(circle at center, transparent, transparent 5px, rgba(255,255,255,0.015) 5.5px, transparent 6px),
-        linear-gradient(135deg, transparent 20%, rgba(255,255,255,0.07) 45%, transparent 55%, rgba(255,255,255,0.04) 80%, transparent 100%);
+        repeating-radial-gradient(circle at center, transparent, transparent 1.5px, rgba(255,255,255,0.035) 2px, transparent 2.5px),
+        repeating-radial-gradient(circle at center, transparent, transparent 5px, rgba(255,255,255,0.02) 5.5px, transparent 6px);
       pointer-events: none;
     }
     .cf-disc::after {
@@ -172,32 +205,46 @@ const homeSchema = {
       position: absolute;
       inset: 0;
       border-radius: 50%;
-      border: 2px solid rgba(255,255,255,0.08);
-      box-shadow: inset 0 0 8px rgba(255,255,255,0.03);
+      border: 2px solid rgba(255,255,255,0.1);
       pointer-events: none;
+    }
+    /* Fixed "light" reflection on the grooves — a soft bow-tie highlight like a
+       real record under a lamp. Masked off the label so the artwork stays clean. */
+    .cf-sheen {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 3;
+      background:
+        conic-gradient(from 20deg, transparent 0deg, rgba(255,255,255,0.14) 24deg, transparent 58deg, transparent 180deg, rgba(255,255,255,0.1) 204deg, transparent 238deg),
+        radial-gradient(circle at 30% 24%, rgba(255,255,255,0.1), transparent 46%);
+      -webkit-mask-image: radial-gradient(circle closest-side, transparent 49%, #000 51%);
+      mask-image: radial-gradient(circle closest-side, transparent 49%, #000 51%);
     }
     .cf-label {
       position: absolute;
       top: 50%; left: 50%;
       transform: translate(-50%, -50%);
-      width: 38%; height: 38%;
+      width: 48%; height: 48%;
       border-radius: 50%;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       gap: 0;
-      box-shadow: 0 0 0 3px rgba(0,0,0,0.5), 0 0 15px rgba(0,0,0,0.3);
+      box-shadow: 0 0 0 2px rgba(0,0,0,0.55), 0 0 12px rgba(0,0,0,0.3);
       z-index: 1;
       background-size: cover;
       background-position: center;
       overflow: hidden;
     }
+    /* only a faint rim so the label reads as printed paper — the artwork stays bright */
     .cf-label::before {
       content: '';
       position: absolute;
       inset: 0;
-      background: rgba(0,0,0,0.5);
+      background: radial-gradient(circle closest-side, transparent 72%, rgba(0,0,0,0.1) 100%);
       z-index: -1;
     }
     .cf-play-overlay {
@@ -205,29 +252,28 @@ const homeSchema = {
       top: 50%; left: 50%;
       transform: translate(-50%, -50%);
       font-size: 3rem;
-      color: rgba(255,255,255,0.9);
+      color: rgba(255,255,255,0.95);
       text-shadow: 0 4px 15px rgba(0,0,0,0.8);
       opacity: 0;
       transition: opacity 0.3s;
       pointer-events: none;
       z-index: 10;
     }
-    .coverflow-item.active:hover .cf-play-overlay { opacity: 1; }
+    .coverflow-item.active:hover .cf-play-overlay,
+    .coverflow-item.active:focus-visible .cf-play-overlay { opacity: 1; }
     .cf-label-title {
-      font-size: clamp(0.5rem, 1vw, 0.7rem);
+      font-size: clamp(0.55rem, 1.1vw, 0.8rem);
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.1em;
-      color: rgba(255,255,255,0.95);
-      text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+      color: #fff;
       line-height: 1;
       margin-bottom: 10px;
     }
     .cf-label-sub {
-      font-size: clamp(0.4rem, 0.8vw, 0.55rem);
-      font-weight: 600;
-      color: rgba(255,255,255,0.7);
-      text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+      font-size: clamp(0.45rem, 0.85vw, 0.6rem);
+      font-weight: 700;
+      color: #fff;
       line-height: 1;
       margin-top: 10px;
     }
@@ -235,7 +281,7 @@ const homeSchema = {
       position: absolute;
       top: 50%; left: 50%;
       transform: translate(-50%, -50%);
-      width: 8%; height: 8%;
+      width: 7%; height: 7%;
       min-width: 8px; min-height: 8px;
       background: radial-gradient(circle, #1a1a1a 40%, #0a0a0a 100%);
       border-radius: 50%;
@@ -243,8 +289,30 @@ const homeSchema = {
       z-index: 2;
     }
     .coverflow-item.active .cf-disc {
-      box-shadow: 0 8px 40px rgba(0,0,0,0.8), 0 0 0 3px rgba(255,255,255,0.06), inset 0 0 60px rgba(0,0,0,0.8), 0 0 46px rgba(255,85,0,0.12);
+      box-shadow: 0 14px 40px rgba(0,0,0,0.55), 0 0 0 2px rgba(255,255,255,0.12), inset 0 0 50px rgba(0,0,0,0.6), 0 0 46px rgba(255,85,0,0.15);
     }
+    /* Caption sits on a dark pill so it stays legible over the bright orange/peach gradient */
+    .cf-caption {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      max-width: 100%;
+      margin-top: 14px;
+      padding: 6px 12px;
+      border-radius: 12px;
+      background: rgba(5,5,5,0.78);
+      transition: opacity 0.4s;
+    }
+    .cf-caption-title { font-size: 12px; font-weight: 600; line-height: 1.3; color: #fff; }
+    .cf-caption-platform {
+      font-size: 10.5px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.8);
+    }
+    .cf-caption-platform i { color: #FF5500; margin-right: 2px; }
     .coverflow-nav {
       position: absolute;
       top: 40%;
@@ -254,15 +322,43 @@ const homeSchema = {
       display: flex;
       align-items: center;
       justify-content: center;
-      color: rgba(255,255,255,0.3);
-      transition: color 0.3s;
+      border-radius: 50%;
+      color: #fff;
+      background: rgba(5,5,5,0.55);
+      transition: color 0.3s, background-color 0.3s;
       cursor: pointer;
-      background: none;
       border: none;
     }
-    .coverflow-nav:hover { color: #FF5500; }
+    .coverflow-nav:hover { color: #FF5500; background: #050505; }
+    .coverflow-nav:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
     .coverflow-nav.prev { left: 0; }
     .coverflow-nav.next { right: 0; }
+    .cf-dots { display: none; }
+    .cf-dot {
+      width: 24px; height: 24px;
+      display: grid;
+      place-items: center;
+      padding: 0;
+      border: 0;
+      background: none;
+      cursor: pointer;
+    }
+    .cf-dot::before {
+      content: '';
+      width: 8px; height: 8px;
+      border-radius: 999px;
+      background: rgba(5,5,5,0.4);
+      transition: width 0.3s, background-color 0.3s;
+    }
+    .cf-dot[aria-current="true"]::before { width: 20px; background: #050505; }
+    .cf-dot:focus-visible { outline: 2px solid #050505; outline-offset: 1px; border-radius: 6px; }
+    .cf-listen {
+      color: #fff;
+      background: rgba(5,5,5,0.82);
+      border: 1px solid rgba(255,255,255,0.14);
+      transition: color 0.3s, background-color 0.3s;
+    }
+    .cf-listen:hover { color: #FF5500; background: #050505; }
     .coverflow-fade-wrap {
       position: relative;
       /* extra vertical room so the active disc's glow/shadow isn't clipped by the
@@ -272,11 +368,22 @@ const homeSchema = {
       -webkit-mask-image: linear-gradient(to right, transparent 0%, black 7%, black 93%, transparent 100%);
       mask-image: linear-gradient(to right, transparent 0%, black 7%, black 93%, transparent 100%);
     }
-    /* On narrow screens only 1–2 discs show — drop the side fade so the active
-       disc is never clipped, and keep the coverflow compact. */
-    @media (max-width: 640px) {
-      .coverflow { height: clamp(260px, 64vw, 300px); }
-      .coverflow-fade-wrap { -webkit-mask-image: none; mask-image: none; padding-top: 16px; padding-bottom: 16px; }
+    /* Phones: one big active disc with a neighbour peeking on each side (the rest
+       are hidden by the script), no side fade, and the arrows move under the disc
+       next to the dots so they never cover it. */
+    @media (max-width: 639px) {
+      .coverflow { height: clamp(320px, 96vw, 400px); }
+      .coverflow-fade-wrap { -webkit-mask-image: none; mask-image: none; padding-top: 8px; padding-bottom: 8px; }
+      .coverflow-item { width: clamp(200px, 64vw, 290px); }
+      .cf-vinyl { width: clamp(180px, 56vw, 250px); }
+      .cf-caption-title { font-size: 13px; }
+      .coverflow-item:not(.active) .cf-caption { opacity: 0; }
+      .cf-controls { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 4px; }
+      .coverflow-nav { position: static; transform: none; }
+      .cf-dots { display: flex; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .cf-caption, .cf-play-overlay, .cf-dot::before { transition: none; }
     }
 
     /* Hero animated gradient — brand colours (black / orange / white) that
@@ -305,7 +412,8 @@ const homeSchema = {
     }
   </style>
 
-  <section class="isolate relative flex flex-col items-center justify-center bg-brand-black pt-28 sm:pt-32">
+  <!-- overflow-x-clip: discs parked off-screen behind the "cylinder" must not widen the page -->
+  <section class="isolate relative flex flex-col items-center justify-center overflow-x-clip bg-brand-black pt-28 sm:pt-32">
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
       <div class="hero-gradient absolute inset-0"></div>
       <!-- legibility scrim: darker at the top (behind the title), clears lower so the gradient + vinyls show -->
@@ -322,33 +430,49 @@ const homeSchema = {
             <h2 class="font-display text-2xl md:text-3xl font-bold mb-1" style="text-shadow:0 1px 12px rgba(0,0,0,0.5);">{t.home.featured1}<span class="text-brand-orange">{t.home.featured2}</span></h2>
             <p class="text-gray-300 text-sm" style="text-shadow:0 1px 8px rgba(0,0,0,0.6);">{t.home.featuredSub}</p>
           </div>
-          <div class="relative px-6 sm:px-14">
-            <button class="coverflow-nav prev" aria-label={t.home.prev}><i class="fa-solid fa-chevron-left text-xl"></i></button>
+          <div id="cf-root" class="relative sm:px-14" role="region" aria-roledescription="carousel" aria-label={t.home.featured1 + t.home.featured2}>
             <div class="coverflow-fade-wrap">
               <div class="coverflow" id="coverflow-container">
                 {featuredMixes.map(m => (
-                  <article class="coverflow-item text-center" data-link={m.link}>
-                    <div class="cf-disc">
-                      <div class={m.thumbnail ? 'cf-label' : 'cf-label bg-brand-orange'} style={m.thumbnail ? `background-image: url('${m.thumbnail}');` : undefined}>
-                        {!m.thumbnail && <span class="cf-label-title">ZIPPY</span>}
-                        {!m.thumbnail && <span class="cf-label-sub">{m.platform.toUpperCase()}</span>}
+                  <a class="coverflow-item text-center" href={m.link} target="_blank" rel="noopener" draggable="false" aria-label={m.playLabel} data-play={m.playLabel} data-show={m.showLabel}>
+                    <div class="cf-vinyl">
+                      <div class="cf-disc">
+                        <div
+                          class={m.thumbnail ? 'cf-label' : 'cf-label bg-brand-orange'}
+                          style={m.thumbnail ? `background-image: url('${m.thumbnail}');` : undefined}
+                          data-src={m.thumbFallback ? m.thumbnail : undefined}
+                          data-fallback={m.thumbFallback || undefined}
+                        >
+                          {!m.thumbnail && <span class="cf-label-title">ZIPPY</span>}
+                          {!m.thumbnail && <span class="cf-label-sub">{m.platform.toUpperCase()}</span>}
+                        </div>
+                        <div class="cf-spindle"></div>
                       </div>
-                      <div class="cf-spindle"></div>
-                      <i class="fa-solid fa-play cf-play-overlay"></i>
+                      <div class="cf-sheen"></div>
+                      <i class="fa-solid fa-play cf-play-overlay" aria-hidden="true"></i>
                     </div>
-                    <div class="mt-3 text-xs text-gray-400 space-y-0.5">
-                      <span class="block font-semibold text-white/80">{m.title}</span>
-                      <span class="block text-gray-500">{m.platform.charAt(0).toUpperCase() + m.platform.slice(1)}</span>
-                    </div>
-                  </article>
+                    <span class="cf-caption" aria-hidden="true">
+                      <span class="cf-caption-title">{m.title}</span>
+                      <span class="cf-caption-platform"><i class={m.platformIcon}></i> {m.platformLabel}</span>
+                    </span>
+                  </a>
                 ))}
               </div>
             </div>
-            <button class="coverflow-nav next" aria-label={t.home.next}><i class="fa-solid fa-chevron-right text-xl"></i></button>
+            <div class="cf-controls">
+              <button type="button" class="coverflow-nav prev" aria-label={t.home.prev}><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
+              <div class="cf-dots">
+                {featuredMixes.map((m, i) => (
+                  <button type="button" class="cf-dot" data-index={i} aria-label={m.showLabel} aria-current={i === 0 ? 'true' : undefined}></button>
+                ))}
+              </div>
+              <button type="button" class="coverflow-nav next" aria-label={t.home.next}><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>
+            </div>
+            <p id="cf-status" class="sr-only" aria-live="polite"></p>
           </div>
-          <div class="mt-16 sm:mt-20 text-center">
-            <a href={l('/mixes')} class="inline-flex items-center gap-2 text-gray-400 hover:text-brand-orange transition-colors">
-              <i class="fa-solid fa-headphones"></i> {t.home.listenNow}
+          <div class="mt-12 sm:mt-16 text-center">
+            <a href={l('/mixes')} class="cf-listen inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold">
+              <i class="fa-solid fa-headphones" aria-hidden="true"></i> {t.home.listenNow}
             </a>
           </div>
         </div>
@@ -401,84 +525,237 @@ const homeSchema = {
   <script is:inline>
   function initCoverflow() {
     // === COVERFLOW === (items are server-rendered from the DB)
-    var coverflowContainer = document.getElementById('coverflow-container');
-    if (coverflowContainer && !coverflowContainer.dataset.cfReady) {
-      coverflowContainer.dataset.cfReady = '1';
-      var items = document.querySelectorAll('.coverflow-item');
-      if (items.length) {
-        var active = 0;
-        function getGap() {
-          var vw = window.innerWidth;
-          if (vw < 640) return vw * 0.28;
-          if (vw < 1024) return vw * 0.2;
-          return Math.min(vw * 0.16, 220);
+    // An endless "revolver": `pos` is a continuous position (an integer = a disc
+    // is centred) that wraps around forever. Drag / flick / horizontal wheel move
+    // it freely, momentum carries a fast flick and always comes to rest on a disc.
+    // Every item is a real link; side discs act as buttons that bring that disc to
+    // the centre, and only the centred one opens the mix.
+    var container = document.getElementById('coverflow-container');
+    if (!container || container.dataset.cfReady) return;
+    container.dataset.cfReady = '1';
+    var root = document.getElementById('cf-root');
+    var items = container.querySelectorAll('.coverflow-item');
+    var n = items.length;
+    if (!n) return;
+    var dots = root ? root.querySelectorAll('.cf-dot') : [];
+    var status = document.getElementById('cf-status');
+    var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    var pos = 0;           // continuous position
+    var target = 0;        // where the current animation will rest
+    var active = -1;       // index of the centred disc
+    var anim = null;       // { to, amp, start, tau } — exponential ease-out towards `to`
+    var raf = 0;
+    var announce = false;  // read the new mix out once the spin settles
+    var refocus = null;    // 'item' | 'dot' — move keyboard focus once settled
+
+    function wrap(i) { return ((i % n) + n) % n; }
+    function getGap() {
+      var vw = window.innerWidth;
+      if (vw < 640) return vw * 0.34;
+      if (vw < 1024) return vw * 0.2;
+      return Math.min(vw * 0.16, 220);
+    }
+
+    function setActive(a) {
+      active = a;
+      items.forEach(function(el, i) {
+        var on = i === a;
+        el.classList.toggle('active', on);
+        if (on) el.removeAttribute('role');
+        else el.setAttribute('role', 'button');
+        el.setAttribute('aria-label', el.getAttribute(on ? 'data-play' : 'data-show') || '');
+      });
+      dots.forEach(function(d, i) {
+        if (i === a) d.setAttribute('aria-current', 'true');
+        else d.removeAttribute('aria-current');
+      });
+    }
+
+    function render() {
+      var gap = getGap();
+      var mobile = window.innerWidth < 640;
+      var half = n / 2;
+      // discs fade out before they reach the back of the cylinder, where they
+      // jump from one side to the other — so the wrap-around is never visible
+      var fadeStart = Math.min(mobile ? 1 : 2, half - 0.5);
+      var fadeEnd = Math.min(fadeStart + (mobile ? 0.6 : 0.5), half);
+      items.forEach(function(el, i) {
+        var off = i - pos;
+        off -= n * Math.round(off / n);   // shortest way round: [-n/2, n/2]
+        var abs = Math.abs(off);
+        var tz = abs < 1 ? 80 - abs * 220 : -(abs * 140);
+        var ry = -Math.max(-1, Math.min(1, off)) * 55;
+        var sc = abs < 1 ? 1.1 - abs * 0.25 : Math.max(0.65, 0.85 - (abs - 1) * 0.15);
+        // side discs are dimmed with a filter instead of opacity, so the disc
+        // stays solid black rather than letting the orange gradient bleed through
+        var br = abs < 1 ? 1 - abs * 0.28 : Math.max(0.5, 0.72 - (abs - 1) * 0.22);
+        var sat = 1 - Math.min(abs, 2) * 0.1;
+        var op = abs <= fadeStart ? 1 : abs >= fadeEnd ? 0 : 1 - (abs - fadeStart) / (fadeEnd - fadeStart);
+        el.style.transform = 'translateY(-50%) translateX(' + (off * gap).toFixed(2) + 'px) translateZ(' + tz.toFixed(2) + 'px) rotateY(' + ry.toFixed(2) + 'deg) scale(' + sc.toFixed(4) + ')';
+        el.style.opacity = op.toFixed(3);
+        el.style.filter = abs < 0.005 ? 'none' : 'brightness(' + br.toFixed(3) + ') saturate(' + sat.toFixed(3) + ')';
+        el.style.zIndex = String(100 - Math.round(abs * 10));
+        el.style.visibility = op === 0 ? 'hidden' : '';
+        if (op === 0) el.setAttribute('tabindex', '-1');
+        else el.removeAttribute('tabindex');
+      });
+      var a = wrap(Math.round(pos));
+      if (a !== active) setActive(a);
+    }
+
+    function settle() {
+      // keep the numbers small; an integer shift of n changes nothing on screen
+      var k = n * Math.floor(pos / n);
+      pos -= k; target -= k;
+      if (announce && status) status.textContent = (active + 1) + ' / ' + n + ': ' + (items[active].getAttribute('data-play') || '');
+      announce = false;
+      if (refocus === 'item') items[active].focus({ preventScroll: true });
+      else if (refocus === 'dot' && dots[active]) dots[active].focus({ preventScroll: true });
+      refocus = null;
+    }
+
+    function tick(now) {
+      raf = 0;
+      if (!anim) return;
+      var d = anim.amp * Math.exp(-(now - anim.start) / anim.tau);
+      if (Math.abs(d) < 0.003) {
+        pos = anim.to; anim = null; render(); settle();
+        return;
+      }
+      pos = anim.to - d;
+      render();
+      raf = requestAnimationFrame(tick);
+    }
+    function animateTo(to, tau) {
+      target = to;
+      if (reduceMotion) { anim = null; pos = to; render(); settle(); return; }
+      anim = { to: to, amp: to - pos, start: performance.now(), tau: tau };
+      if (!raf) raf = requestAnimationFrame(tick);
+    }
+    function stop() { anim = null; target = pos; }
+
+    // Buttons / arrow keys: one disc per press, presses stack up so holding a key
+    // (or clicking fast) keeps the cylinder spinning.
+    function step(dir) {
+      announce = true;
+      animateTo(Math.round(anim ? target : pos) + dir, 140);
+    }
+    function goTo(i) {
+      var cur = Math.round(anim ? target : pos);
+      var d = wrap(i - cur);
+      if (d > n / 2) d -= n;
+      announce = true;
+      animateTo(cur + d, 160);
+    }
+
+    // --- drag / flick ---
+    var drag = null;
+    var suppressClick = false;
+    container.addEventListener('pointerdown', function(e) {
+      if (e.button !== 0) return;
+      suppressClick = false;
+      var wasSpinning = !!anim;
+      stop();   // grabbing a spinning cylinder stops it under your finger
+      drag = { id: e.pointerId, x: e.clientX, startPos: pos, moved: false, wasSpinning: wasSpinning, samples: [{ t: e.timeStamp, p: pos }] };
+    });
+    container.addEventListener('pointermove', function(e) {
+      if (!drag || e.pointerId !== drag.id) return;
+      var dx = e.clientX - drag.x;
+      if (!drag.moved) {
+        if (Math.abs(dx) < 6) return;
+        drag.moved = true;
+        try { container.setPointerCapture(e.pointerId); } catch (err) {}
+        container.classList.add('is-dragging');
+      }
+      pos = drag.startPos - dx / getGap();
+      var s = drag.samples;
+      s.push({ t: e.timeStamp, p: pos });
+      while (s.length > 2 && e.timeStamp - s[0].t > 100) s.shift();
+      render();
+    });
+    function release(e) {
+      if (!drag || e.pointerId !== drag.id) return;
+      var d = drag;
+      drag = null;
+      container.classList.remove('is-dragging');
+      if (d.moved) {
+        suppressClick = true;
+        // flick velocity (discs per ms) over the last ~100ms of the gesture
+        var s = d.samples.filter(function(x) { return e.timeStamp - x.t < 100; });
+        var v = 0;
+        if (s.length >= 2) {
+          var dt = s[s.length - 1].t - s[0].t;
+          if (dt > 0) v = (s[s.length - 1].p - s[0].p) / dt;
         }
-        function update() {
-          var gap = getGap();
-          var half = Math.floor(items.length / 2);
-          items.forEach(function(el, i) {
-            var off = i - active;
-            if (off > half) off -= items.length;
-            if (off < -half) off += items.length;
-            var abs = Math.abs(off);
-            var tx = off * gap;
-            var tz = abs === 0 ? 80 : -(abs * 140);
-            var ry = off < 0 ? 55 : off > 0 ? -55 : 0;
-            var sc = abs === 0 ? 1.1 : Math.max(0.65, 0.85 - (abs - 1) * 0.15);
-            var op = abs > 2 ? 0.15 : abs === 0 ? 1 : 0.5 - (abs - 1) * 0.15;
-            var prevOff = parseInt(el.getAttribute('data-off') || String(i), 10);
-            var delta = Math.abs(off - prevOff);
-            var wrapping = delta > half;
-            el.setAttribute('data-off', String(off));
-            if (wrapping) {
-              // Teleport instantly with no transition and invisible
-              el.style.transition = 'none';
-              el.style.opacity = '0';
-              el.style.transform = 'translateY(-50%) translateX(' + tx + 'px) translateZ(' + tz + 'px) rotateY(' + ry + 'deg) scale(' + sc + ')';
-              el.style.zIndex = String(10 - abs);
-              // Re-enable transition after paint so it fades in at new position
-              requestAnimationFrame(function() {
-                requestAnimationFrame(function() {
-                  el.style.transition = '';
-                  el.style.opacity = String(op);
-                });
-              });
-            } else {
-              el.style.transition = '';
-              el.style.transform = 'translateY(-50%) translateX(' + tx + 'px) translateZ(' + tz + 'px) rotateY(' + ry + 'deg) scale(' + sc + ')';
-              el.style.zIndex = String(10 - abs);
-              el.style.opacity = String(op);
-            }
-            if (off === 0) el.classList.add('active');
-            else el.classList.remove('active');
-          });
-        }
-        items.forEach(function(el, i) {
-          el.addEventListener('click', function() {
-            if (active === i) {
-              var link = el.getAttribute('data-link');
-              if (link) window.open(link, '_blank', 'noopener,noreferrer');
-            } else { active = i; update(); }
-          });
-        });
-        function wrap(i) { return ((i % items.length) + items.length) % items.length; }
-        var prevBtn = document.querySelector('.coverflow-nav.prev');
-        var nextBtn = document.querySelector('.coverflow-nav.next');
-        if (prevBtn) prevBtn.addEventListener('click', function() { active = wrap(active - 1); update(); });
-        if (nextBtn) nextBtn.addEventListener('click', function() { active = wrap(active + 1); update(); });
-        var startX = 0;
-        var cfEl = document.querySelector('.coverflow');
-        if (cfEl) {
-          cfEl.addEventListener('touchstart', function(e) { startX = e.touches[0].clientX; }, { passive: true });
-          cfEl.addEventListener('touchend', function(e) {
-            var diff = startX - e.changedTouches[0].clientX;
-            if (Math.abs(diff) > 50) { active = wrap(diff > 0 ? active + 1 : active - 1); update(); }
-          }, { passive: true });
-        }
-        window.addEventListener('resize', update);
-        update();
+        var fling = Math.abs(v) > 0.0008;
+        // project where the momentum would coast to, then rest on the nearest disc
+        announce = true;
+        animateTo(Math.round(pos + (fling ? v * 380 : 0)), fling ? 380 : 170);
+      } else if (d.wasSpinning) {
+        // a tap that stopped the spin shouldn't also open/select a mix
+        suppressClick = true;
+        animateTo(Math.round(pos), 170);
       }
     }
+    container.addEventListener('pointerup', release);
+    container.addEventListener('pointercancel', release);
+    container.addEventListener('dragstart', function(e) { e.preventDefault(); });
+    container.addEventListener('click', function(e) {
+      if (suppressClick) { suppressClick = false; e.preventDefault(); e.stopPropagation(); }
+    }, true);
+
+    // trackpad / shift+wheel horizontal scrolling spins it too
+    var wheelTimer = 0;
+    container.addEventListener('wheel', function(e) {
+      if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+      e.preventDefault();
+      stop();
+      pos += e.deltaX / getGap();
+      render();
+      clearTimeout(wheelTimer);
+      wheelTimer = setTimeout(function() { announce = true; animateTo(Math.round(pos), 170); }, 120);
+    }, { passive: false });
+
+    items.forEach(function(el, i) {
+      el.addEventListener('click', function(e) {
+        if (i !== active) { e.preventDefault(); goTo(i); }
+      });
+      el.addEventListener('keydown', function(e) {
+        if (e.key === ' ' && i !== active) { e.preventDefault(); goTo(i); }
+      });
+    });
+    dots.forEach(function(d, i) { d.addEventListener('click', function() { goTo(i); }); });
+    var prevBtn = root && root.querySelector('.coverflow-nav.prev');
+    var nextBtn = root && root.querySelector('.coverflow-nav.next');
+    if (prevBtn) prevBtn.addEventListener('click', function() { step(-1); });
+    if (nextBtn) nextBtn.addEventListener('click', function() { step(1); });
+    if (root) {
+      root.addEventListener('keydown', function(e) {
+        if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+        e.preventDefault();
+        var f = document.activeElement;
+        // keep focus on the same kind of control, now pointing at the new mix
+        refocus = f && f.classList.contains('coverflow-item') ? 'item' : f && f.classList.contains('cf-dot') ? 'dot' : null;
+        step(e.key === 'ArrowRight' ? 1 : -1);
+      });
+    }
+
+    // YouTube serves a 120px grey placeholder when maxresdefault doesn't exist —
+    // fall back to hqdefault, zoomed so its letterbox bars are cropped away.
+    container.querySelectorAll('.cf-label[data-fallback]').forEach(function(lb) {
+      var img = new Image();
+      function useFallback() {
+        lb.style.backgroundImage = "url('" + lb.getAttribute('data-fallback') + "')";
+        lb.style.backgroundSize = 'auto 134%';
+      }
+      img.onload = function() { if (img.naturalWidth <= 120) useFallback(); };
+      img.onerror = useFallback;
+      img.src = lb.getAttribute('data-src');
+    });
+
+    window.addEventListener('resize', render);
+    render();
   }
   document.addEventListener('astro:page-load', initCoverflow);
 
