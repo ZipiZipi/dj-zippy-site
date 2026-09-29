@@ -125,6 +125,15 @@ const en = {
       'Kult Talents',
     ],
     tapeWords: ['House Music Therapy', 'Serbian House DJ', 'House', 'Tech House', 'Deep House', 'Organic House'],
+    kicker: 'Serbian House DJ',
+    introHeading1: 'The selector behind ',
+    introHeading2: 'House Music Therapy',
+    introBody:
+      'DJ Zippy (Veljko Nedeljković) is a Serbian house and tech house DJ who reads the room first and plays second. He has played three Exit Festival stages, Club Kult in Belgrade and summer club nights on Zakynthos and Lefkada, moving from deep grooves to driving tech house when the floor asks for it. Available for clubs, festivals and private events across Serbia and Europe.',
+    introChips: ['Exit Festival 2024 & 2025', '3 Exit Festival stages', 'Kult Talents member', 'Serbia · Greece'],
+    introPhotoAlt: 'DJ Zippy, Serbian house DJ, wearing headphones',
+    introBook: 'Book Zippy',
+    introBio: 'Full bio',
   },
 
   about: {
@@ -227,8 +236,8 @@ const en = {
     title: 'DJ Zippy Live Events | Serbian House DJ Gigs & Festivals',
     description:
       'DJ Zippy live: Serbian house DJ at Exit Festival, club nights across Serbia and summer gigs in Greece. Upcoming dates and past highlights.',
-    heading: 'DJ Zippy',
-    subheading: 'Live Events & Festival Performances',
+    heading: 'DJ Zippy Live Events',
+    subheading: 'Festival Stages & Club Nights',
     lead: 'From intimate club nights to major festival stages. House Music Therapy live.',
     upcoming1: 'Upcoming ',
     upcoming2: 'Events',
@@ -414,6 +423,15 @@ const sr: Dict = {
       'Kult Talents',
     ],
     tapeWords: ['House Music Therapy', 'Srpski house DJ', 'House', 'Tech house', 'Deep house', 'Organic house'],
+    kicker: 'Srpski house DJ',
+    introHeading1: 'Selektor iza ',
+    introHeading2: 'House Music Therapy',
+    introBody:
+      'DJ Zippy (Veljko Nedeljković) je srpski house i tech house DJ koji prvo čita publiku, pa tek onda pušta. Svirao je na tri bine Exit festivala, u klubu Kult u Beogradu i na letnjim klupskim večerima na Zakintosu i Lefkadi, a iz dubokog groove-a prelazi u jak tech house kad podijum to traži. Dostupan za klubove, festivale i privatne žurke u Srbiji i Evropi.',
+    introChips: ['Exit festival 2024. i 2025.', '3 bine Exit festivala', 'Član Kult Talents', 'Srbija · Grčka'],
+    introPhotoAlt: 'DJ Zippy, srpski house DJ, sa slušalicama',
+    introBook: 'Rezerviši Zippyja',
+    introBio: 'Cela biografija',
   },
 
   about: {
@@ -516,8 +534,8 @@ const sr: Dict = {
     title: 'Nastupi DJ Zippyja | Srpski house DJ uživo i na festivalima',
     description:
       'DJ Zippy uživo: srpski house DJ na Exit festivalu, klupske večeri širom Srbije i letnje svirke u Grčkoj. Naredni nastupi i arhiva.',
-    heading: 'DJ Zippy',
-    subheading: 'Nastupi uživo i festivalske bine',
+    heading: 'Nastupi DJ Zippyja',
+    subheading: 'Festivalske bine i klupske večeri',
     lead: 'Od intimnih klupskih večeri do velikih festivalskih bina. House Music Therapy uživo.',
     upcoming1: 'Naredni ',
     upcoming2: 'nastupi',

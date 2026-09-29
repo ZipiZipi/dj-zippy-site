@@ -408,6 +408,23 @@ const homeSchema = {
     @media (prefers-reduced-motion: reduce) {
       .hero-gradient { --hero-shift: 30%; }
     }
+
+    /* "SERBIAN HOUSE DJ" kicker over the name, framed by two short orange rules.
+       The trailing letter-spacing is balanced with the same left padding. */
+    .hero-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.9em;
+      letter-spacing: 0.4em;
+      padding-left: 0.4em;
+    }
+    .hero-kicker::before,
+    .hero-kicker::after {
+      content: '';
+      width: 1.8em;
+      height: 2px;
+      background: #FF5500;
+    }
   </style>
 
   <!-- overflow-x-clip: discs parked off-screen behind the "cylinder" must not widen the page -->
@@ -419,7 +436,13 @@ const homeSchema = {
     </div>
     <div data-spotlight class="spotlight absolute inset-0 pointer-events-none z-10"></div>
     <div class="container mx-auto px-6 sm:px-8 lg:px-12 text-center z-30">
-      <h1 class="font-display text-5xl md:text-7xl lg:text-9xl font-black leading-none glitch-text cursor-default mb-0" style="text-shadow:0 2px 34px rgba(0,0,0,0.55), 0 1px 2px rgba(0,0,0,0.6);">ZIPPY<span class="text-brand-orange">.</span></h1>
+      <!-- One H1 that reads "ZIPPY. — Serbian House DJ"; flex-col-reverse lifts
+           the kicker above the name without changing the reading order. -->
+      <h1 class="font-display flex flex-col-reverse items-center mb-0">
+        <span class="block text-5xl md:text-7xl lg:text-9xl font-black leading-none glitch-text cursor-default" style="text-shadow:0 2px 34px rgba(0,0,0,0.55), 0 1px 2px rgba(0,0,0,0.6);">ZIPPY<span class="text-brand-orange">.</span></span>
+        <span class="sr-only"> — </span>
+        <span class="hero-kicker mb-2 sm:mb-3 text-[11px] sm:text-xs md:text-sm font-bold uppercase text-white/90" style="text-shadow:0 1px 10px rgba(0,0,0,0.6);">{t.home.kicker}</span>
+      </h1>
       <h2 class="font-display text-2xl md:text-4xl lg:text-6xl font-black mb-0 text-transparent bg-clip-text bg-gradient-to-r from-brand-orange to-white tracking-tight" style="filter:drop-shadow(0 2px 16px rgba(0,0,0,0.5));">HOUSE MUSIC THERAPY</h2>
 
       <div id="highlights" class="relative pt-2 sm:pt-3 pb-10 sm:pb-14 z-30">
@@ -534,6 +557,46 @@ const homeSchema = {
         <a href={l('/events')} class="inline-flex items-center gap-2 text-gray-400 hover:text-brand-orange transition-colors">
           <i class="fa-solid fa-calendar"></i> {t.home.viewAllEvents}
         </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Intro: the only real photo on the home page, plus enough copy for search
+       engines to know who this is. Photo stacks above the text on phones. -->
+  <section id="intro" class="isolate relative py-16 sm:py-24 bg-brand-black border-t border-white/5">
+    <div class="container mx-auto px-6 sm:px-8 lg:px-12">
+      <div class="grid md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] gap-10 md:gap-14 lg:gap-20 items-center max-w-5xl mx-auto" data-reveal>
+        <div class="relative w-full max-w-[320px] sm:max-w-[360px] md:max-w-none mx-auto">
+          <div class="absolute inset-0 translate-x-3 translate-y-3 rounded-2xl border-2 border-brand-orange" aria-hidden="true"></div>
+          <img
+            src="/images/dj-zippy-house-music-dj.webp"
+            alt={t.home.introPhotoAlt}
+            width="800"
+            height="800"
+            loading="lazy"
+            decoding="async"
+            class="relative block w-full h-auto rounded-2xl"
+          />
+        </div>
+        <div class="text-center md:text-left">
+          <h2 class="font-display text-3xl md:text-4xl font-bold leading-tight mb-5">{t.home.introHeading1}<span class="text-brand-orange">{t.home.introHeading2}</span></h2>
+          <p class="text-gray-300 text-base md:text-lg leading-relaxed mb-6">{t.home.introBody}</p>
+          <ul class="flex flex-wrap justify-center md:justify-start gap-2 mb-8">
+            {t.home.introChips.map((c, i) => (
+              <li class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-xs sm:text-sm font-semibold text-gray-200">
+                <i class={`${['fa-solid fa-star', 'fa-solid fa-music', 'fa-solid fa-compact-disc', 'fa-solid fa-location-dot'][i] ?? 'fa-solid fa-star'} text-brand-orange`} aria-hidden="true"></i>{c}
+              </li>
+            ))}
+          </ul>
+          <div class="flex flex-wrap justify-center md:justify-start gap-3">
+            <a href={`${l('/')}#contact`} class="inline-flex items-center gap-2 rounded-full bg-brand-orange px-6 py-3 text-sm font-bold text-brand-black hover:bg-white transition-colors">
+              <i class="fa-solid fa-envelope" aria-hidden="true"></i> {t.home.introBook}
+            </a>
+            <a href={l('/about')} class="inline-flex items-center gap-2 rounded-full border border-white/20 px-6 py-3 text-sm font-bold text-white hover:border-brand-orange hover:text-brand-orange transition-colors">
+              {t.home.introBio} <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   </section>
