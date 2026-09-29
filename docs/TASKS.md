@@ -42,9 +42,18 @@ u isto vreme, jer se izmene sudaraju. Najsigurnije je raditi ih redom i commit-o
 | [x] 2026-09-30 | T11 Booking forma: labele + praćenje konverzija — vidljive labele (for/id, en/sr) + autocomplete name/organization/email; posle uspešnog slanja: GTM `booking_form_submit`, Meta `Lead` i Google Ads konverzija (čeka label u konstanti `ADS_CONVERSION_LABEL` u Footer.astro), sve u try/catch; web3forms `botcheck` honeypot. Koraci za booking@zippydj.com su u odgovoru chata (DNS nije diran). | 🟠 P1 | Sonnet 5.5 | medium | `Footer.astro` |
 | [x] 2026-09-30 | T12 Mixes i Events stranice: dorada izgleda — mix kartice: čista slika bez gradijenta, žanr/naslov/„Listen Now“ ispod slike na crnoj kartici, hover zoom + narandžasta ivica, 1 kolona na mobilnom; Events: istaknuti nastupi kao kartice u 2 kolone, ostali u kompaktnoj `<details>` listi „All past gigs (N)“ bez JS-a, lokacije i godine podignute na gray-300/400; scroll-reveal kraći (0.45 s, 12px) i kreće čim element uđe u ekran (threshold 0, rootMargin +6%). | 🟡 P2 | Sonnet 5.5 | high | `MixesPage.astro`, `EventsPage.astro` |
 | [x] 2026-09-30 | T13 Performanse: skripte, fontovi, video — Pixel/GTM/Ads u `Analytics.astro` (stubovi odmah, skripte na prvu interakciju ili ~3 s posle load-a + idle; virtualni PageView za View Transitions; ispravljen gtag koji je slao niz umesto `arguments`); Unbounded + Inter self-hostovani (latin + latin-ext, `fonts.css`), Google Fonts izbačen; preload fotke samo na About i Links; coverflow koristi YouTube hqdefault (~30 KB umesto ~130 KB); links video 2.5 MB → 0.7 MB (540×960, bez zvuka, faststart) + poster 8 KB, ne učitava se na Save-Data/2G. Lighthouse mobile: / 55 → 98, /links 49 → 98 (posle meren na lokalnom build-u, tabela u chatu). | 🟠 P1 | Opus 5.5 | high | `Layout.astro`, `LinksPage.astro`, `content.ts` |
-| [ ] | T14 Blog i sadržaj: strategija (opciono) | 🟡 P2 | Opus 5.5 | high | plan, pa `posts.ts` |
+| [x] 2026-09-30 | T14 Blog i sadržaj: strategija (opciono) — plan je na dnu fajla („T14 rezultat“): kada skinuti noindex sa bloga i galerije, 10 tema za članke, off-site profili i backlink-ovi, EPK; iz njega su nastali T15–T22. | 🟡 P2 | Opus 5.5 | high | plan, pa `posts.ts` |
+| [ ] | T15 Blog: prava infrastruktura (jezik, schema, sitemap) | 🟠 P1 | Sonnet 5.5 | high | `posts.ts`, `types/database.ts`, `BlogIndexPage.astro`, `BlogPostPage.astro`, `sitemap.xml.ts`, `migrations/` |
+| [ ] | T16 Prvi pravi članak: Exit 2025 recap (en + sr) | 🟠 P1 | Opus 5.5 | high | D1 `posts` (preko admina) |
+| [ ] | T17 Galerija: prave fotke + indeksiranje | 🟠 P1 | Sonnet 5.5 | medium | `GalleryPage.astro`, `public/images/gallery/`, `sitemap.xml.ts`, `ui.ts` |
+| [ ] | T18 Off-site profili: isti bio svuda (checklist) | 🔴 P0 | Sonnet 5.5 | low | `docs/offsite-profiles.md` (novi) |
+| [ ] | T19 Wikidata + MusicBrainz dopune | 🟡 P2 | Sonnet 5.5 | medium | ručno, uz uputstvo |
+| [ ] | T20 EPK (press kit) stranica za bukere | 🟠 P1 | Opus 5.5 | high | `src/pages/epk.astro`, `sr/epk.astro`, `EpkPage.astro`, `ui.ts` |
+| [ ] | T21 booking@zippydj.com + Google Ads label | 🟠 P1 | Sonnet 5.5 | low | `Footer.astro`, `ui.ts`, schema, `llms.txt` |
+| [ ] | T22 Ostaci iz 2026-09-30: MixCloud slike, GTM tag, Inter | 🟡 P2 | Sonnet 5.5 | medium | D1 `mixes`, GTM (ručno), `global.css` |
 
 Preporučeni redosled: **T1 → T2 → T6 → T7 → T9 → T8 → T5 → T10 → T3 → T4 → T11 → T13 → T12 → T14**.
+Posle toga: **T18 → T21 → T15 → T16 → T17 → T20 → T19 → T22**. T18 i T21 su skoro bez koda, a daju najviše za pozicioniranje i konverzije.
 T9 ide pre T8 i T10 zato što oni koriste njegove tekstove. T5, T8 i T10 menjaju `HomePage.astro`,
 pa se rade jedan po jedan.
 
@@ -504,4 +513,256 @@ Napravi plan:
    backlink-ove (klubovi, festivali, lokalni mediji, Kult Talents).
 4. EPK (press kit) stranica za bukere: šta sadrži i da li je vredi napraviti.
 Rezultat upiši kao novu sekciju na dnu docs/TASKS.md i dodaj nove taskove u tabelu (T15+), u istom formatu.
+```
+
+---
+
+## T14 rezultat — plan sadržaja i SEO-a (2026-09-30)
+
+Cilj: da sajt rangira za „Serbian house DJ“, „DJ Srbija“, „house DJ za klub/festival/privatnu žurku“
+i „House Music Therapy“. Ništa od ovoga još nije implementirano; svaki korak je task T15–T22 ispod.
+
+### 1. Blog i galerija: kada skinuti noindex
+
+**Galerija (/gallery)** ima jednu pravu fotku (istu kao profilna) i 5 praznih placeholder-a sa
+tekstom „More photos coming soon“. Takva stranica bi u indeksu bila „thin content“, pa **noindex ostaje**
+dok ne važi sve sledeće:
+- najmanje 12 pravih fotki sa nastupa (Exit Dance Arena, Students Stage, AS FM, Club Kult, Toucan,
+  Capital, Krivi Put…), webp ≤ 200 KB, sa width/height i lazy load;
+- svaka ima alt i kratak caption (bina · grad · godina). Alt tekstovi već postoje u `ui.ts` (`gallery.photos`);
+- nema placeholder-a.
+Tada skini noindex, dodaj /gallery i /sr/gallery u sitemap sa `<image:image>` i `ImageGallery` schema → **T17**.
+
+**Blog (/blog)** ima 2 generička sample posta („The Evolution of House Music“, „Deep House Vibes for
+Summer“) na engleskom. Isti engleski tekst stoji i na /sr/blog. Takav sadržaj ne rangira i razvodnjava
+sajt, pa **noindex ostaje** dok ne važi sve sledeće:
+- `posts` tabela zna jezik (kolona `locale` ili par slug-ova en/sr), da /sr/blog prikazuje srpske tekstove;
+- sample postovi su obrisani;
+- postoje bar 3 prava teksta iz iskustva DJ Zippyja (tema 1–3 ispod);
+- svaki post ima autora, datum, `BlogPosting` schema, realan `lastmod` u sitemap-u i interne linkove
+  ka /events, /mixes i #contact.
+Infrastruktura je **T15**, prvi članak je **T16**.
+
+### 2. Teme za članke (en + sr)
+
+| # | Tema (en / sr) | Ciljna fraza | Intent |
+|---|----------------|--------------|--------|
+| 1 | Exit Festival 2025: playing the Dance Arena and the Students Stage / Exit 2025: kako izgleda set na Dance Areni | „Exit Festival DJ“, „DJ na Exit festivalu“ | dokaz za bukere + informativno |
+| 2 | What a House Music Therapy set sounds like (with tracklist) / Kako zvuči House Music Therapy set | „House Music Therapy“ | brend |
+| 3 | Booking a DJ for a private party in Serbia: 10 questions to ask / Kako da rezervišeš DJ-a za privatnu žurku: 10 pitanja | „DJ za privatnu žurku“, „DJ za proslavu Srbija“ | komercijalni (booking) |
+| 4 | House, tech house, deep house: the difference, explained by a DJ / House, tech house i deep house: u čemu je razlika | „šta je tech house“, „deep house vs tech house“ | informativno (vrh levka) |
+| 5 | How I prepare a festival set / Kako spremam festivalski set | „DJ set priprema“, „festival DJ set“ | autoritet |
+| 6 | The Serbian house scene: clubs and nights worth knowing / Srpska house scena: klubovi i večeri koje vredi znati | „house muzika Srbija“, „house klubovi Srbija“ | lokalni SEO + tekst koji klubovi rado dele (backlink) |
+| 7 | Summer in Greece: Toucan Zakynthos and Capital Lefkada / Leto u Grčkoj: Zakintos i Lefkada | „Serbian DJ Greece“, „DJ Zakynthos“ | inostrani bukeri |
+| 8 | Club set vs festival set: what changes / Klub ili festival: šta se menja u setu | „club DJ vs festival DJ“ | informativno |
+| 9 | Kult Talents from the inside / Kult Talents iz ugla člana | „Kult Talents“ | brend + backlink sa Kulta |
+| 10 | Monthly House Music Therapy selection (10 tracks + Spotify) / Mesečna House Music Therapy selekcija | „house music playlist 2026“ | povratne posete + Spotify |
+
+Ritam: jedan tekst mesečno je dovoljan. Svaki tekst se piše na oba jezika, a ne mašinski prevodi.
+
+### 3. Off-site SEO
+
+Svuda isto ime, ista rečenica i isti link. To Google-u potvrđuje entitet i hrani knowledge panel.
+- **Ime:** DJ Zippy (alternativno Zippy)
+- **Bio (en):** Serbian house DJ · creator of House Music Therapy · Exit Festival 2024 & 2025
+- **Bio (sr):** Srpski house DJ · tvorac House Music Therapy · Exit festival 2024. i 2025.
+- **Link:** https://zippydj.com (na Instagramu i TikTok-u https://zippydj.com/links)
+
+| Profil | Šta uraditi |
+|--------|-------------|
+| Resident Advisor (ra.co/dj/zippy-2) | bio (en), lokacija Serbia, link na sajt, prošli nastupi (Exit, Kult) upisani kao RA eventi |
+| MixCloud / SoundCloud | bio + link, cover slike za svaki miks (rešava i miksove bez slike na sajtu), tagovi house / tech house |
+| Spotify (plejliste) | opis svake plejliste: „… by DJ Zippy, Serbian house DJ — zippydj.com“ |
+| Instagram (@zovumezippy) | bio iznad + link na /links |
+| YouTube | opis kanala i linkovi; u opisu svakog seta tracklist i zippydj.com |
+| Facebook / TikTok | isti bio i link |
+| Wikidata Q138220521 | P106 zanimanje (disc jockey), P27 državljanstvo (Serbia), P136 žanr (house, tech house), P856 zvanični sajt, P2003 Instagram, P2397 YouTube kanal, P434 MusicBrainz ID; opis en/sr „Serbian house DJ“ |
+| MusicBrainz | tip Person, area Serbia, alias „Zippy“, URL veze (sajt, Instagram, YouTube, SoundCloud, MixCloud, Spotify, RA, Wikidata) |
+| Google Business Profile | kategorija „DJ service“, service area Srbija, link i fotke. Donosi prisustvo u Maps/lokalnoj pretrazi za „DJ za žurku“ |
+
+**Backlink ideje (od najlakšeg):**
+- Klubovi i organizatori gde je svirao (Club Kult, Ray Bar, KC Lab, Borisov Atelje, Krivi Put, Toucan, Capital):
+  da ime na event stranici ili FB eventu linkuje na zippydj.com.
+- Exit arhiva lineup-a 2024/2025 i AS FM (bina njihovog imena): link na artist profil; kod AS FM i guest mix ili intervju.
+- Kult Talents: profil člana sa linkom. Go2 Travel: partner/testimonial sa linkom.
+- Lokalni mediji i portali za noćni život (gradski portali, studentski mediji zbog Students Stage-a):
+  priča „srpski DJ na tri bine Exita“ + House Music Therapy.
+- Tekstovi 6 i 9 iznad su pisani da ih klubovi i Kult rado podele.
+
+### 4. EPK (press kit) stranica
+
+**Isplati se.** Bukeri festivala i klubova u inostranstvu traže jedan link, a ne Instagram.
+Predlog: /epk i /sr/epk, van glavnog menija (link iz footera, sa /links i u mejlovima), indeksirana.
+Sadržaj:
+- bio u dve dužine (≈50 i ≈150 reči), en + sr, sa dugmetom „kopiraj“;
+- 4–6 press fotki u visokoj rezoluciji (portret + landscape, sa kreditom fotografa) i ZIP za preuzimanje;
+- logo „ZIPPY.“ (SVG/PNG, svetli i tamni);
+- highlights: 3 bine Exita (2024, 2025), Club Kult, Grčka, Kult Talents;
+- 3 najbolja seta (YouTube/MixCloud), žanrovi, BPM raspon, dužine setova;
+- tehnički rider (npr. 2–3× CDJ-3000 + DJM-900NXS2/A9, booth monitori) i hospitality rider kao PDF;
+- booking kontakt (booking@zippydj.com), teritorija (Srbija, EU), rok odgovora.
+To je **T20**.
+
+---
+
+## T15 — Blog: prava infrastruktura (jezik, schema, sitemap)
+
+**Model:** Sonnet 5.5 · **Effort:** high
+
+**Prompt:**
+```
+Sajt zippydj.com (Astro 4, en + sr, D1 baza), folder F:\ZippySite\dj-zippy-site. Ostani na trenutnoj grani,
+build najviše jednom, ne commit-uj bez pitanja. Pročitaj „T14 rezultat“ u docs/TASKS.md.
+
+Blog je noindex jer ima 2 sample posta na engleskom (src/lib/posts.ts), a /sr/blog prikazuje iste engleske tekstove.
+Pripremi infrastrukturu, ali noindex NE skidaj dok ne postoje 3 prava teksta:
+1. D1 tabela posts dobija kolonu `locale` ('en' | 'sr') i `translation_of` (slug para). Napiši migraciju u migrations/,
+   ažuriraj src/types/database.ts, API (src/pages/api/posts*.ts) i admin (src/pages/admin/posts.astro) da biraju jezik.
+   Pitaj me pre pokretanja migracije na produkcionoj bazi.
+2. /blog prikazuje samo en postove, /sr/blog samo sr. Post bez prevoda nema hreflang ka drugom jeziku.
+3. BlogPostPage: BlogPosting schema (author = #person, datePublished/Modified, image, inLanguage), breadcrumb,
+   linkovi ka /events, /mixes i #contact na kraju teksta.
+4. sitemap.xml.ts: /blog i postovi sa realnim lastmod, ali samo kad je blog indeksiran (jedan flag, npr. BLOG_INDEXABLE u posts.ts).
+5. Obriši sample postove iz posts.ts (fallback neka bude prazna lista sa porukom „uskoro“).
+Na kraju u docs/TASKS.md štikliraj T15 sa datumom.
+```
+
+---
+
+## T16 — Prvi pravi članak: Exit 2025 recap (en + sr)
+
+**Model:** Opus 5.5 · **Effort:** high · **Zavisi od:** T15 · **Treba od tebe:** fotke, tracklist, par anegdota
+
+**Prompt:**
+```
+Sajt zippydj.com, folder F:\ZippySite\dj-zippy-site. Ne commit-uj bez pitanja. Pročitaj „T14 rezultat“ u docs/TASKS.md
+(tema 1 u tabeli) i ton iz T9 (srpski DJ, bez klišea tipa „vibe architect“).
+
+Napiši članak „Exit Festival 2025: playing the Dance Arena and the Students Stage“ i srpsku verziju
+„Exit 2025: kako izgleda set na Dance Areni“ (ne prevod, nego prirodan srpski tekst), 700–1000 reči.
+Pre pisanja me pitaj: kako je došlo do nastupa, satnica, publika, 5–10 numera iz seta, jedan trenutak
+koji pamtim, i koje fotke imam. Ciljne fraze: „Exit Festival DJ“ / „DJ na Exit festivalu“, „Serbian house DJ“.
+Struktura: uvod, priprema, set, publika, šta sledi + CTA za booking. Meta title ≤ 60, description ≤ 155.
+Upis ide preko admina u D1 (pitaj me pre upisa u produkciju). Na kraju štikliraj T16.
+```
+
+---
+
+## T17 — Galerija: prave fotke + indeksiranje
+
+**Model:** Sonnet 5.5 · **Effort:** medium · **Treba od tebe:** 12+ fotki sa nastupa (i ime fotografa)
+
+**Prompt:**
+```
+Sajt zippydj.com (Astro 4 + Tailwind), folder F:\ZippySite\dj-zippy-site. Ostani na trenutnoj grani, build
+najviše jednom, ne commit-uj bez pitanja.
+
+/gallery (src/components/pages/GalleryPage.astro) ima jednu fotku i 5 placeholder-a, pa je noindex.
+Fotke koje ti dam stavi u public/images/gallery/ kao webp (sharp iz node_modules, dugačka strana 1600px, ≤ 200 KB)
+plus 600px thumbnail. Grid sa pravim <img> (width/height, lazy, srcset), alt i caption (bina · grad · godina)
+iz src/i18n/ui.ts (en + sr), lightbox bez biblioteke (<dialog>). Ukloni placeholder-e i tekst „coming soon“.
+Kad ima ≥ 12 fotki: skini noindex, dodaj /gallery i /sr/gallery u sitemap.xml.ts sa <image:image>,
+ImageGallery schema. Proveri 390px i 1440px. Na kraju štikliraj T17.
+```
+
+---
+
+## T18 — Off-site profili: isti bio svuda (checklist)
+
+**Model:** Sonnet 5.5 · **Effort:** low · **Radiš ti** (Claude priprema tekstove)
+
+**Prompt:**
+```
+Folder F:\ZippySite\dj-zippy-site. Pročitaj „T14 rezultat“ → „3. Off-site SEO“ u docs/TASKS.md.
+Napravi docs/offsite-profiles.md: za svaki profil (RA, MixCloud, SoundCloud, Spotify plejliste, Instagram,
+YouTube, Facebook, TikTok, Google Business Profile) gotov tekst za copy-paste, en i sr gde platforma to podržava,
+u granici broja znakova te platforme (Instagram bio 150), sa linkom i checkbox-om „urađeno“.
+Kod se ne menja. Na kraju štikliraj T18.
+```
+
+---
+
+## T19 — Wikidata + MusicBrainz dopune
+
+**Model:** Sonnet 5.5 · **Effort:** medium · **Radiš ti** (Claude vodi korak po korak)
+
+**Prompt:**
+```
+Pomozi mi da dopunim Wikidata stavku Q138220521 (DJ Zippy) i MusicBrainz artist
+a6a53c2e-8fa0-4612-8e43-8de7af43dc2a. Pročitaj „T14 rezultat“ → „3. Off-site SEO“ u
+F:\ZippySite\dj-zippy-site\docs\TASKS.md. Prvo pročitaj trenutno stanje obe stranice (samo čitanje),
+pa mi daj tačnu listu izjava/veza koje fale, sa vrednostima i izvorima (reference URL). Unos radim ja.
+Ništa ne menjaj u mom nalogu. Na kraju štikliraj T19.
+```
+
+---
+
+## T20 — EPK (press kit) stranica za bukere
+
+**Model:** Opus 5.5 · **Effort:** high · **Treba od tebe:** press fotke, logo fajl, rider
+
+**Prompt:**
+```
+Sajt zippydj.com (Astro 4 + Tailwind, en + sr), folder F:\ZippySite\dj-zippy-site. Ostani na trenutnoj grani,
+build najviše jednom, ne commit-uj bez pitanja. Pročitaj „T14 rezultat“ → „4. EPK“ u docs/TASKS.md.
+
+Napravi /epk i /sr/epk (src/components/pages/EpkPage.astro + rute), van glavnog menija, sa linkom iz footera
+i sa /links. Sadržaj po planu iz T14: bio u 2 dužine sa dugmetom „kopiraj“, press fotke + ZIP, logo, highlights,
+3 seta, tehnički i hospitality rider (PDF), booking kontakt. Tekstovi idu u ui.ts (en + sr), ton iz T9.
+Schema: ProfilePage + Person (#person). Pre pisanja ridera me pitaj za opremu. Proveri 390px i 1440px.
+Na kraju štikliraj T20.
+```
+
+---
+
+## T21 — booking@zippydj.com + Google Ads label
+
+**Model:** Sonnet 5.5 · **Effort:** low · **Treba od tebe:** Email Routing podešen na Cloudflare-u, Ads conversion label
+
+Koraci za adresu (radiš ti, u Cloudflare dashboard-u; kod se ne dira):
+1. Cloudflare → zippydj.com → **Email** → **Email Routing** → *Get started / Enable*. Cloudflare sam dodaje
+   MX i SPF (TXT) zapise. Ako domen već ima MX za neki drugi mail, prvo proveri da ga ne gaziš.
+2. **Destination addresses** → dodaj veljkoned@gmail.com i potvrdi link iz mejla.
+3. **Routing rules** → *Create address*: `booking@zippydj.com` → *Send to* veljkoned@gmail.com.
+4. (Opciono) Da odgovaraš SA te adrese: u Gmail-u Settings → Accounts → „Send mail as“ → booking@zippydj.com.
+   Za to treba SMTP (npr. Gmail app password ili neki transactional servis). Do tada odgovori stižu sa gmail-a, što je ok.
+5. Pošalji probni mejl na booking@zippydj.com sa nekog drugog naloga.
+
+**Prompt:**
+```
+Sajt zippydj.com, folder F:\ZippySite\dj-zippy-site. Ostani na trenutnoj grani, build najviše jednom, ne commit-uj bez pitanja.
+1. Email Routing za booking@zippydj.com je podešen (pitaj me da potvrdim). Zameni javno prikazanu adresu
+   veljkoned@gmail.com sa booking@zippydj.com u: src/components/Footer.astro (link + poruka o grešci u ui.ts),
+   FAQ u src/i18n/ui.ts (en + sr), schema contactPoint u HomePage.astro, public/llms.txt.
+2. U src/components/Footer.astro upiši Google Ads conversion label u konstantu ADS_CONVERSION_LABEL
+   (pitaj me za vrednost, ne izmišljaj je).
+Na kraju štikliraj T21.
+```
+
+---
+
+## T22 — Ostaci iz 2026-09-30: MixCloud slike, GTM tag, Inter
+
+**Model:** Sonnet 5.5 · **Effort:** medium
+
+Tri sitnice primećene dok su rađeni T5–T13:
+- **MixCloud miksevi nemaju sliku** na vinilima i na /mixes (prazno `cover_image` u D1). Slika se dobija iz
+  API-ja: link `www.mixcloud.com/zovumezippy/<slug>/` → `api.mixcloud.com/zovumezippy/<slug>/` → `pictures.extra_large`. Upis u produkcionu bazu traži potvrdu.
+- **GTM kontejner GTM-KLGKHMGM** ima Google tag sa ID-jem „zippydj“, što nije validan tag ID (očekuje se G-… ili AW-…).
+  Google Ads tag (AW-975400552) NIJE u GTM-u, nego se učitava direktno sa sajta, pa nema duplog učitavanja.
+  GTM ima i „Form Submission“ okidač; za booking konverziju je pouzdaniji custom event `booking_form_submit` (T11).
+- **Inter** se učitava samo na /links. Na ostatku sajta tekst ide sistemskim fontom, jer Tailwind `font-body`
+  nigde nije primenjen. Treba odlučiti da li body tekst prebaciti na Inter (vizuelna promena, +48 KB).
+
+**Prompt:**
+```
+Sajt zippydj.com, folder F:\ZippySite\dj-zippy-site. Ostani na trenutnoj grani, build najviše jednom, ne commit-uj bez pitanja.
+Pročitaj T22 u docs/TASKS.md.
+1. Za svaki MixCloud miks iz D1 (tabela mixes, platform = 'mixcloud') povuci pictures.extra_large sa MixCloud API-ja
+   i pokaži mi listu slug → URL. Posle moje potvrde upiši cover_image u produkcionu D1 (wrangler d1 execute --remote),
+   pa proveri vinile na početnoj i kartice na /mixes.
+2. Napiši mi korake za GTM: šta je Google tag „zippydj“ i kako da ga ispravim ili uklonim, i kako da napravim
+   okidač na custom event booking_form_submit. U GTM ne ulaziš ti.
+3. Napravi screenshot početne sa body tekstom u Inter-u i bez njega (samo lokalno), pa me pitaj koji ostaje.
+Na kraju štikliraj T22.
 ```
