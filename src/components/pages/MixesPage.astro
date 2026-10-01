@@ -109,9 +109,10 @@ const mixSchema = {
             data-platform={m.platform}
             data-link={m.link}
           >
-            <div class="relative aspect-video overflow-hidden bg-brand-gray">
+            {/* YouTube thumbnails are 16:9; Spotify, MixCloud, SoundCloud and Deezer covers are square */}
+            <div class={`relative ${m.platform === 'youtube' ? 'aspect-video' : 'aspect-square'} overflow-hidden bg-brand-gray`}>
               {m.thumbnail
-                ? <img src={m.thumbnail} alt={m.alt} loading="lazy" decoding="async" width="1280" height="720" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                ? <img src={m.thumbnail} alt={m.alt} loading="lazy" decoding="async" width={m.platform === 'youtube' ? 1280 : 640} height={m.platform === 'youtube' ? 720 : 640} class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                 : <div class="absolute inset-0 bg-gradient-to-br from-brand-gray to-brand-black flex items-center justify-center"><i class={`${mixFallbackIcon(m.platform)} text-6xl text-white/10`}></i></div>
               }
               {m.featured && <div class="absolute top-3 right-3 bg-brand-orange text-brand-black text-xs font-bold px-2 py-1 rounded">{t.mixes.featuredBadge}</div>}
