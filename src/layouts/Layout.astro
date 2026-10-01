@@ -115,7 +115,7 @@ const xDefault = alternates.find((a) => a.lang === 'en')!.href;
     <slot />
     <Footer lang={lang} />
 
-    <!-- Site animations: scroll-reveal, hero spotlight, magnetic buttons -->
+    <!-- Site animations: scroll-reveal, magnetic buttons -->
     <script>
       function setupAnimations() {
         const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -140,19 +140,6 @@ const xDefault = alternates.find((a) => a.lang === 'en')!.href;
         if (reduce) return;
         const fine = window.matchMedia('(pointer: fine)').matches;
         if (!fine) return;
-
-        // Hero cursor spotlight
-        const spot = document.querySelector('[data-spotlight]');
-        const host = spot && spot.parentElement;
-        if (spot && host) {
-          host.addEventListener('pointermove', (ev) => {
-            const r = host.getBoundingClientRect();
-            spot.style.setProperty('--mx', ((ev.clientX - r.left) / r.width * 100) + '%');
-            spot.style.setProperty('--my', ((ev.clientY - r.top) / r.height * 100) + '%');
-            spot.classList.add('is-active');
-          });
-          host.addEventListener('pointerleave', () => spot.classList.remove('is-active'));
-        }
 
         // Magnetic buttons
         document.querySelectorAll('[data-magnetic]').forEach((el) => {

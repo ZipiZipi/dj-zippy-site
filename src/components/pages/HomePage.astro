@@ -2,7 +2,7 @@
 // Home page body. Rendered by /index.astro (en) and /sr/index.astro (sr) —
 // the only difference between them is the `lang` prop.
 import Layout from '../../layouts/Layout.astro';
-import { getEvents, getMixes, MIX_PLATFORMS, youtubeThumb, eventSound } from '../../lib/content';
+import { getEvents, getMixes, MIX_PLATFORMS, youtubeThumb, eventSound, type UIMix } from '../../lib/content';
 import { useTranslations, localize, htmlLang, type Lang } from '../../i18n/utils';
 
 interface Props {
@@ -16,48 +16,57 @@ const l = (path: string) => localize(path, lang);
 const db = (Astro.locals as any).runtime?.env?.DB;
 const { upcoming } = await getEvents(db);
 const homeUpcoming = upcoming.slice(0, 4);
-const { featured } = await getMixes(db);
-// A disc label is ~230px at most, so YouTube's hqdefault (~30 KB) is plenty —
-// maxresdefault was 100–200 KB each. hqdefault is 4:3 letterboxed, so the label
-// zooms it to crop the black bars.
-const featuredMixes = featured.map(m => {
+const { all } = await getMixes(db);
+
+// Hero ring: three objects, each one a kind of set. Mixes come newest first.
+// Playlists are not sets, so they never land on the vinyl or the tape.
+const sets = all.filter(m => m.platform !== 'spotify' && m.platform !== 'deezer' && !/playlist/i.test(m.genre));
+const hmtSets = sets.filter(m => /house music therapy/i.test(m.title));
+const hmtMix = hmtSets[0] ?? sets[0] ?? all[0];
+const exitSets = sets.filter(m => /\bexit\b/i.test(m.title));
+const tapeMix = exitSets.find(m => m.platform === 'youtube') ?? exitSets[0] ?? sets.find(m => m !== hmtMix) ?? hmtMix;
+
+function ringMix(m: UIMix) {
   const p = MIX_PLATFORMS.find(x => x.id === m.platform);
   const platformLabel = p?.label ?? m.platform;
+  // The sleeve is ~200px, so YouTube's hqdefault (~30 KB) is plenty. It is 4:3
+  // letterboxed, so it is zoomed to crop the black bars.
   const thumb = m.thumbnail ? youtubeThumb(m.thumbnail, 'hqdefault') : '';
   return {
-    ...m,
+    link: m.link,
+    title: m.title,
     platformLabel,
     platformIcon: p?.icon ?? 'fa-solid fa-music',
-    thumbStyle: !thumb ? undefined
+    coverStyle: !thumb ? undefined
       : thumb.endsWith('/hqdefault.jpg') ? `background-image: url('${thumb}'); background-size: auto 134%;`
       : `background-image: url('${thumb}');`,
     playLabel: t.home.playOn.replace('{title}', m.title).replace('{platform}', platformLabel),
     showLabel: t.home.showMix.replace('{title}', m.title),
   };
-});
+}
+const vinyl = ringMix(hmtMix);
+const tape = ringMix(tapeMix);
+// "EXIT 2024 | AS FM Stage Live" → printed strip "EXIT 2024", handwritten line "AS FM Stage Live"
+const [tapeStrip, ...tapeRest] = tapeMix.title.split(/\s*[|/]\s*/);
+const tapeLine = tapeRest.join(' · ') || tape.platformLabel;
 
-// The coverflow's resting layout (disc 0 centred), worked out here with the same
-// numbers as render() in the script below, so the first paint already shows the
-// finished carousel instead of a pile of discs until the script runs. Only the
-// gap depends on the viewport; CSS supplies it as --cf-gap.
-const cfCount = featuredMixes.length;
-function cfFade(abs: number, start: number, len: number) {
-  const half = cfCount / 2;
-  const s = Math.min(start, half - 0.5);
-  const e = Math.min(s + len, half);
-  return abs <= s ? 1 : abs >= e ? 0 : 1 - (abs - s) / (e - s);
-}
-function cfStyle(i: number) {
-  const off = i - cfCount * Math.round(i / cfCount);
-  const abs = Math.abs(off);
-  const tz = abs < 1 ? 80 - abs * 220 : -(abs * 140);
-  const ry = -Math.max(-1, Math.min(1, off)) * 55;
-  const sc = abs < 1 ? 1.1 - abs * 0.25 : Math.max(0.65, 0.85 - (abs - 1) * 0.15);
-  const br = abs < 1 ? 1 - abs * 0.28 : Math.max(0.5, 0.72 - (abs - 1) * 0.22);
-  const sat = 1 - Math.min(abs, 2) * 0.1;
-  const filter = abs === 0 ? '' : `--cf-filter:brightness(${br}) saturate(${sat});`;
-  return `--off:${off};--tz:${tz}px;--ry:${ry}deg;--sc:${sc};--op:${cfFade(abs, 2, 0.5)};--op-m:${cfFade(abs, 1, 0.6)};${filter}z-index:${100 - abs * 10}`;
-}
+// The line under the ring: the next gig, or the newest set when nothing is booked.
+const nextGig = upcoming[0];
+const heroLine = nextGig
+  ? (() => {
+      const [y, mo, d] = nextGig.date.split('-');
+      const sound = eventSound(nextGig);
+      return {
+        label: t.home.heroNext,
+        when: `${t.home.weekdays[new Date(Date.UTC(+y, +mo - 1, +d)).getUTCDay()]} ${d}.${mo}`,
+        name: sound.name,
+        openFormat: sound.openFormat,
+        where: `${nextGig.title}, ${nextGig.location}`,
+        href: l('/events'),
+        external: false,
+      };
+    })()
+  : sets[0] && { label: t.home.heroLatest, when: '', name: sets[0].title, openFormat: false, where: '', href: sets[0].link, external: true };
 
 const pageUrl = `https://zippydj.com${l('/')}`;
 
@@ -164,293 +173,223 @@ const homeSchema = {
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(homeSchema)} />
 
   <style is:global>
-    .coverflow {
-      perspective: 600px;
-      perspective-origin: 50% 50%;
+    /* Hero scene: a dark booth, a warm key light from the decks below the ring and a
+       cool rim light in the top right corner, under a fine film grain. */
+    .hero-light {
+      background:
+        radial-gradient(ellipse 58% 40% at 50% 74%, rgba(255,85,0,0.42), rgba(255,85,0,0.12) 45%, transparent 72%),
+        radial-gradient(ellipse 38% 30% at 92% 3%, rgba(56,189,248,0.18), transparent 70%);
+    }
+    .hero-light::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: 0.09;
+      mix-blend-mode: overlay;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    /* The ring: vinyl in its sleeve, a tape and a USB stick on a turning plate.
+       --ring-r / --ring-k must match ringRadius() / ringScale() in the script;
+       until it runs, --sx/--y/--s from the server hold the resting layout. */
+    .ring {
+      --ring-r: min(200px, 26vw);
+      --ring-k: 1;
       position: relative;
-      height: 340px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      height: 300px;
       /* free horizontal drag/flick (the script spins it); vertical swipes still scroll the page */
       touch-action: pan-y;
       cursor: grab;
       user-select: none;
       -webkit-user-select: none;
     }
-    /* Same gap as getGap() in the script */
-    .coverflow { --cf-gap: min(16vw, 220px); }
-    @media (max-width: 1023px) { .coverflow { --cf-gap: 20vw; } }
-    @media (max-width: 639px) { .coverflow { --cf-gap: 34vw; } }
-    /* Positions are driven every frame by the script (drag + momentum), so no CSS transitions here.
-       Until it runs, the --off/--tz/... values from the server hold the resting layout. */
-    .coverflow-item {
+    @media (max-width: 1023px) { .ring { --ring-k: 0.86; height: 270px; } }
+    @media (max-width: 639px) { .ring { --ring-r: 31vw; --ring-k: 0.72; height: 230px; } }
+    .ring.is-dragging, .ring.is-dragging .ring-item { cursor: grabbing; }
+    .ring-item {
       position: absolute;
+      left: 50%;
       top: 50%;
-      transform: translateY(-50%) translateX(calc(var(--off, 0) * var(--cf-gap))) translateZ(var(--tz, 0px)) rotateY(var(--ry, 0deg)) scale(var(--sc, 1));
-      opacity: var(--op, 1);
-      filter: var(--cf-filter, none);
-      display: block;
-      width: clamp(150px, 22vw, 280px);
-      will-change: transform, opacity;
-      transform-style: preserve-3d;
-      cursor: grab;
-      user-select: none;
+      width: 260px;
+      height: 260px;
+      margin: -130px 0 0 -130px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: translate3d(calc(var(--sx, 0) * var(--ring-r)), calc(var(--y, 0) * var(--ring-k) * 1px), 0) scale(calc(var(--s, 1) * var(--ring-k)));
+      filter: var(--f, none);
+      will-change: transform;
       outline: none;
+      cursor: pointer;
       -webkit-tap-highlight-color: transparent;
       -webkit-user-drag: none;
     }
-    .coverflow-item.active { cursor: pointer; }
-    .coverflow.is-dragging, .coverflow.is-dragging .coverflow-item { cursor: grabbing; }
-    /* Non-rotating wrapper: holds the spinning disc plus the fixed light sheen,
-       play icon and focus ring (so none of them spin with the record). */
-    .cf-vinyl {
-      position: relative;
-      width: clamp(125px, 18vw, 230px);
-      aspect-ratio: 1;
-      margin: 0 auto;
-      border-radius: 50%;
-      /* the drop shadow lives here, not on the spinning .cf-disc, so it stays put */
-      box-shadow: 0 10px 30px rgba(0,0,0,0.45);
-    }
-    .coverflow-item:focus-visible .cf-vinyl { outline: 3px solid #fff; outline-offset: 5px; }
-    .cf-disc {
-      width: 100%;
-      height: 100%;
-      background:
-        radial-gradient(circle at center, transparent 18%, #101010 19%),
-        repeating-radial-gradient(circle at center, #1e1e1e 0px, #141414 1px, #0f0f0f 2px, #191919 3px),
-        linear-gradient(135deg, #141414 0%, #0a0a0a 50%, #141414 100%);
-      border-radius: 50%;
-      position: relative;
-      /* centred shadows only — anything offset would turn with the record */
-      box-shadow: 0 0 0 2px rgba(255,255,255,0.1), inset 0 0 50px rgba(0,0,0,0.6);
-    }
-    .cf-disc::before {
-      content: '';
+    .ring-item * { -webkit-user-drag: none; }
+    .ring-obj { position: relative; display: block; border-radius: 10px; }
+    .ring-item:focus-visible .ring-obj { outline: 3px solid #fff; outline-offset: 8px; }
+
+    /* Vinyl in its sleeve: the record is tucked in and slides out when it comes to the front.
+       The shadow sits on the slot, which never turns, so it stays put like the sleeve's. */
+    .sv { width: 190px; height: 190px; transition: transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1); }
+    .sv-slot {
       position: absolute;
-      inset: 2%;
+      left: 0;
+      top: 5px;
+      width: 180px;
+      height: 180px;
       border-radius: 50%;
-      background:
-        repeating-radial-gradient(circle at center, transparent, transparent 1.5px, rgba(255,255,255,0.035) 2px, transparent 2.5px),
-        repeating-radial-gradient(circle at center, transparent, transparent 5px, rgba(255,255,255,0.02) 5.5px, transparent 6px);
-      pointer-events: none;
+      box-shadow: 0 18px 40px -8px rgba(0,0,0,0.75);
+      transform: translateX(14%);
+      transition: transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
     }
-    .cf-disc::after {
-      content: '';
+    .sv-disc {
       position: absolute;
       inset: 0;
       border-radius: 50%;
-      border: 2px solid rgba(255,255,255,0.1);
-      pointer-events: none;
-    }
-    /* Fixed "light" reflection on the grooves — a soft bow-tie highlight like a
-       real record under a lamp. Masked off the label so the artwork stays clean. */
-    .cf-sheen {
-      position: absolute;
-      inset: 0;
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 3;
       background:
-        conic-gradient(from 20deg, transparent 0deg, rgba(255,255,255,0.14) 24deg, transparent 58deg, transparent 180deg, rgba(255,255,255,0.1) 204deg, transparent 238deg),
-        radial-gradient(circle at 30% 24%, rgba(255,255,255,0.1), transparent 46%);
-      -webkit-mask-image: radial-gradient(circle closest-side, transparent 49%, #000 51%);
-      mask-image: radial-gradient(circle closest-side, transparent 49%, #000 51%);
+        radial-gradient(circle, transparent 0 31%, rgba(255,255,255,0.07) 31.5%, transparent 33%),
+        repeating-radial-gradient(circle, #0c0c0c 0 2px, #191919 2px 3px);
     }
-    .cf-label {
+    .sv-label {
       position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      width: 48%; height: 48%;
+      inset: 31%;
       border-radius: 50%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 0;
-      box-shadow: 0 0 0 2px rgba(0,0,0,0.55), 0 0 12px rgba(0,0,0,0.3);
-      z-index: 1;
+      background-color: #FF5500;
       background-size: cover;
       background-position: center;
-      overflow: hidden;
     }
-    /* only a faint rim so the label reads as printed paper — the artwork stays bright */
-    .cf-label::before {
+    .sv-disc::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 7px;
+      height: 7px;
+      margin: -3.5px;
+      border-radius: 50%;
+      background: #0a0a0a;
+    }
+    .sv-sleeve {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      overflow: hidden;
+      border-radius: 3px;
+      background-color: #FF5500;
+      background-size: cover;
+      background-position: center;
+      box-shadow: 0 20px 40px -10px rgba(0,0,0,0.85);
+      color: #050505;
+      text-align: left;
+    }
+    .sv-sleeve::before {
       content: '';
       position: absolute;
       inset: 0;
-      background: radial-gradient(circle closest-side, transparent 72%, rgba(0,0,0,0.1) 100%);
-      z-index: -1;
+      background: linear-gradient(135deg, rgba(255,255,255,0.18), transparent 35%, rgba(0,0,0,0.25));
     }
-    .cf-play-overlay {
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 3rem;
-      color: rgba(255,255,255,0.95);
-      text-shadow: 0 4px 15px rgba(0,0,0,0.8);
-      opacity: 0;
-      transition: opacity 0.3s;
-      pointer-events: none;
-      z-index: 10;
+    .sv-sleeve-title { position: absolute; left: 12px; top: 30px; font-size: 24px; font-weight: 900; line-height: 1; }
+    .sv-cat { position: absolute; left: 9px; bottom: 8px; font-size: 9px; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.8); }
+    .ring-item.active .sv { transform: translateX(-26%); }
+    .ring-item.active .sv-slot { transform: translateX(56%); }
+    .ring-item.active .sv-disc { animation: ring-spin 1.8s linear infinite; }
+    @keyframes ring-spin { to { transform: rotate(360deg); } }
+
+    /* Tape: the EXIT set. Leans left, straightens a little at the front. */
+    .tape-obj {
+      width: 236px;
+      height: 150px;
+      border-radius: 10px;
+      background: linear-gradient(180deg, #262626, #141414);
+      box-shadow: 0 20px 34px -10px rgba(0,0,0,0.85), inset 0 1px 0 rgba(255,255,255,0.08);
+      transform: rotate(-9deg);
+      transition: transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
     }
-    .coverflow-item.active:hover .cf-play-overlay,
-    .coverflow-item.active:focus-visible .cf-play-overlay { opacity: 1; }
-    .cf-label-title {
-      font-size: clamp(0.55rem, 1.1vw, 0.8rem);
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: #fff;
-      line-height: 1;
-      margin-bottom: 10px;
-    }
-    .cf-label-sub {
-      font-size: clamp(0.45rem, 0.85vw, 0.6rem);
-      font-weight: 700;
-      color: #fff;
-      line-height: 1;
-      margin-top: 10px;
-    }
-    .cf-spindle {
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      width: 7%; height: 7%;
-      min-width: 8px; min-height: 8px;
-      background: radial-gradient(circle, #1a1a1a 40%, #0a0a0a 100%);
+    .ring-item.active .tape-obj { transform: rotate(-4deg); }
+    .tape-label { position: absolute; left: 12px; right: 12px; top: 12px; height: 86px; border-radius: 5px; background: #efe8dc; overflow: hidden; text-align: left; }
+    .tape-strip { position: absolute; left: 0; right: 0; top: 0; height: 20px; padding: 4px 8px; background: #FF5500; color: #050505; font-size: 10px; line-height: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .tape-line { position: absolute; left: 9px; right: 28px; bottom: 6px; font-size: 11px; font-weight: 600; color: #2a2a2a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .tape-side { position: absolute; right: 9px; bottom: 5px; font-size: 13px; font-weight: 900; color: #2a2a2a; }
+    .tape-window { position: absolute; left: 52px; right: 52px; top: 38px; height: 36px; border-radius: 18px; background: #0b0b0b; display: flex; justify-content: space-between; align-items: center; padding: 0 7px; }
+    .tape-reel {
+      width: 24px;
+      height: 24px;
       border-radius: 50%;
-      box-shadow: inset 0 0 4px rgba(255,255,255,0.2), 0 0 2px rgba(0,0,0,0.8);
-      z-index: 2;
+      background: repeating-conic-gradient(#d8d0c4 0 20deg, #0b0b0b 20deg 60deg);
+      -webkit-mask: radial-gradient(circle, transparent 0 4.5px, #000 5px);
+      mask: radial-gradient(circle, transparent 0 4.5px, #000 5px);
     }
-    .coverflow-item.active .cf-disc {
-      box-shadow: 0 0 0 2px rgba(255,255,255,0.12), inset 0 0 50px rgba(0,0,0,0.6);
+    .ring-item.active .tape-reel { animation: ring-spin 2.4s linear infinite; }
+    .tape-teeth { position: absolute; left: 62px; right: 62px; bottom: 12px; height: 22px; border-radius: 4px 4px 0 0; background: #0e0e0e; }
+    .tape-screw { position: absolute; width: 6px; height: 6px; border-radius: 50%; background: #444; }
+
+    /* USB stick: all mixes. Leans right, straightens a little at the front. */
+    .usb-obj { display: flex; align-items: center; border-radius: 10px; transform: rotate(11deg); transition: transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1); }
+    .ring-item.active .usb-obj { transform: rotate(6deg); }
+    .usb-body {
+      position: relative;
+      width: 168px;
+      height: 66px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: linear-gradient(180deg, #ff6a1f, #dc4800);
+      box-shadow: 0 16px 28px -8px rgba(0,0,0,0.85), inset 0 1px 0 rgba(255,255,255,0.28);
+      color: #050505;
+      text-align: left;
     }
-    .coverflow-item.active .cf-vinyl {
-      box-shadow: 0 14px 40px rgba(0,0,0,0.55), 0 0 46px rgba(255,85,0,0.15);
-    }
-    /* Caption sits on a dark pill so it stays legible over the bright orange/peach gradient */
-    .cf-caption {
-      display: inline-flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 3px;
-      max-width: 100%;
-      margin-top: 14px;
-      padding: 6px 12px;
-      border-radius: 12px;
-      background: rgba(5,5,5,0.78);
-      transition: opacity 0.4s;
-    }
-    .cf-caption-title { font-size: 12px; font-weight: 600; line-height: 1.3; color: #fff; }
-    .cf-caption-platform {
-      font-size: 10.5px;
-      font-weight: 600;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.8);
-    }
-    .cf-caption-platform i { color: #FF5500; margin-right: 2px; }
-    .coverflow-nav {
+    .usb-name { display: block; font-size: 22px; font-weight: 900; line-height: 1; }
+    .usb-sub { display: block; margin-top: 6px; font-size: 10px; }
+    .usb-led {
       position: absolute;
-      top: 40%;
-      transform: translateY(-50%);
-      z-index: 20;
-      width: 44px; height: 44px;
+      right: 11px;
+      top: 11px;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #38bdf8;
+      box-shadow: 0 0 8px 2px rgba(56,189,248,0.8);
+      animation: ring-blink 0.484s steps(1) infinite alternate;   /* one beat at 124 BPM */
+    }
+    @keyframes ring-blink { 50% { opacity: 0.25; } }
+    .usb-plug { position: relative; width: 41px; height: 40px; border-radius: 0 4px 4px 0; background: linear-gradient(180deg, #dedede, #8a8a8a); }
+    .usb-plug::before, .usb-plug::after { content: ''; position: absolute; left: 14px; width: 10px; height: 8px; background: #3a3a3a; }
+    .usb-plug::before { top: 8px; }
+    .usb-plug::after { bottom: 8px; }
+
+    .ring-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace; letter-spacing: 0.08em; text-transform: uppercase; }
+    .ring-caption-title { font-size: 15px; font-weight: 700; line-height: 1.3; color: #fff; }
+    .ring-caption-platform { margin-top: 4px; font-size: 11px; color: rgba(255,255,255,0.65); }
+    .ring-caption-platform i { color: #FF5500; margin-right: 3px; }
+    .ring-nav {
+      width: 40px;
+      height: 40px;
       display: flex;
       align-items: center;
       justify-content: center;
       border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(5,5,5,0.5);
       color: #fff;
-      background: rgba(5,5,5,0.55);
-      transition: color 0.3s, background-color 0.3s;
-      cursor: pointer;
-      border: none;
-    }
-    .coverflow-nav:hover { color: #FF5500; background: #050505; }
-    .coverflow-nav:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
-    .coverflow-nav.prev { left: 0; }
-    .coverflow-nav.next { right: 0; }
-    .cf-dots { display: none; }
-    .cf-dot {
-      width: 24px; height: 24px;
-      display: grid;
-      place-items: center;
-      padding: 0;
-      border: 0;
-      background: none;
+      transition: color 0.3s, border-color 0.3s;
       cursor: pointer;
     }
-    .cf-dot::before {
-      content: '';
-      width: 8px; height: 8px;
-      border-radius: 999px;
-      background: rgba(5,5,5,0.4);
-      transition: width 0.3s, background-color 0.3s;
-    }
-    .cf-dot[aria-current="true"]::before { width: 20px; background: #050505; }
-    .cf-dot:focus-visible { outline: 2px solid #050505; outline-offset: 1px; border-radius: 6px; }
-    .cf-listen {
-      color: #fff;
-      background: rgba(5,5,5,0.82);
-      border: 1px solid rgba(255,255,255,0.14);
-      transition: color 0.3s, background-color 0.3s;
-    }
-    .cf-listen:hover { color: #FF5500; background: #050505; }
-    .coverflow-fade-wrap {
-      position: relative;
-      /* extra vertical room so the active disc's glow/shadow isn't clipped by the
-         horizontal fade mask (a mask clips to its own box on all sides); the
-         negative margins hand that room back so the layout doesn't move */
-      padding-top: 84px;
-      padding-bottom: 64px;
-      margin-top: -40px;
-      margin-bottom: -20px;
-      -webkit-mask-image: linear-gradient(to right, transparent 0%, black 7%, black 93%, transparent 100%);
-      mask-image: linear-gradient(to right, transparent 0%, black 7%, black 93%, transparent 100%);
-    }
-    /* Phones: one big active disc with a neighbour peeking on each side (the rest
-       are hidden by the script), no side fade, and the arrows move under the disc
-       next to the dots so they never cover it. */
-    @media (max-width: 639px) {
-      .coverflow { height: clamp(320px, 96vw, 400px); }
-      .coverflow-fade-wrap { -webkit-mask-image: none; mask-image: none; padding-top: 8px; padding-bottom: 8px; margin: 0; }
-      .coverflow-item { width: clamp(200px, 64vw, 290px); opacity: var(--op-m, 1); }
-      .cf-vinyl { width: clamp(180px, 56vw, 250px); }
-      .cf-caption-title { font-size: 13px; }
-      .coverflow-item:not(.active) .cf-caption { opacity: 0; }
-      .cf-controls { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 4px; }
-      .coverflow-nav { position: static; transform: none; }
-      .cf-dots { display: flex; }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      .cf-caption, .cf-play-overlay, .cf-dot::before { transition: none; }
-    }
+    .ring-nav:hover { color: #FF5500; border-color: #FF5500; }
+    .ring-nav:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+    .ring-dot { width: 24px; height: 24px; display: grid; place-items: center; padding: 0; border: 0; background: none; cursor: pointer; }
+    .ring-dot::before { content: ''; width: 8px; height: 8px; border-radius: 999px; background: rgba(255,255,255,0.28); transition: width 0.3s, background-color 0.3s; }
+    .ring-dot[aria-current="true"]::before { width: 20px; background: #FF5500; }
+    .ring-dot:focus-visible { outline: 2px solid #fff; outline-offset: 1px; border-radius: 6px; }
 
-    /* Hero animated gradient — brand colours (black / orange / white) that
-       shift vertically as the page scrolls (driven by --hero-shift). */
-    .hero-gradient {
-      --hero-shift: 26%;
-      background-image: linear-gradient(168deg,
-        #050505 0%,
-        #120700 12%,
-        #3a1400 24%,
-        #99360a 36%,
-        #ff5500 48%,
-        #ff9a5e 55%,
-        #ffe6d8 61%,
-        #ff6a1f 69%,
-        #5e2106 80%,
-        #0a0604 92%,
-        #050505 100%);
-      background-size: 100% 235%;
-      background-position: 50% var(--hero-shift);
-      background-repeat: no-repeat;
-      will-change: background-position;
-    }
+    /* The next gig (or the newest set) under the ring; the dot blinks on the beat */
+    .hero-next { color: rgba(255,255,255,0.7); font-size: 11px; transition: color 0.3s; }
+    .hero-next:hover { color: #fff; }
+    .hero-next b { font-weight: 600; color: #FF5500; }
+    .hero-next b.is-open { color: #7dd3fc; }
+    .hero-next-dot { display: inline-block; width: 6px; height: 6px; margin-right: 8px; border-radius: 50%; background: #FF5500; vertical-align: 1px; animation: ring-blink 0.484s steps(1) infinite alternate; }
+
     @media (prefers-reduced-motion: reduce) {
-      .hero-gradient { --hero-shift: 30%; }
+      .sv, .sv-slot, .tape-obj, .usb-obj, .ring-dot::before { transition: none; }
+      .ring-item.active .sv-disc, .ring-item.active .tape-reel, .usb-led, .hero-next-dot { animation: none; }
     }
 
     /* "SERBIAN HOUSE DJ" kicker over the name, framed by two short orange rules.
@@ -471,71 +410,81 @@ const homeSchema = {
     }
   </style>
 
-  <!-- overflow-x-clip: discs parked off-screen behind the "cylinder" must not widen the page -->
+  <!-- overflow-x-clip: the objects at the back of the ring must not widen the page -->
   <section class="isolate relative flex flex-col items-center justify-center overflow-x-clip bg-brand-black pt-28 sm:pt-32">
-    <div class="absolute inset-0 overflow-hidden pointer-events-none">
-      <div class="hero-gradient absolute inset-0"></div>
-      <!-- legibility scrim: darker at the top (behind the title), clears lower so the gradient + vinyls show -->
-      <div class="absolute inset-0" style="background:linear-gradient(to bottom, rgba(5,5,7,0.5) 0%, rgba(5,5,7,0.12) 26%, rgba(5,5,7,0) 46%, rgba(5,5,7,0) 100%);"></div>
+    <div class="hero-light absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+      <!-- legibility scrim: darker at the top, behind the title -->
+      <div class="absolute inset-0" style="background:linear-gradient(to bottom, rgba(5,5,7,0.5) 0%, rgba(5,5,7,0.12) 26%, rgba(5,5,7,0) 46%);"></div>
     </div>
-    <div data-spotlight class="spotlight absolute inset-0 pointer-events-none z-10"></div>
     <div class="container mx-auto px-6 sm:px-8 lg:px-12 text-center z-30">
       <!-- One H1 that reads "ZIPPY. — Serbian House DJ"; flex-col-reverse lifts
            the kicker above the name without changing the reading order. -->
       <h1 class="font-display flex flex-col-reverse items-center mb-0">
-        <span class="block text-5xl md:text-7xl lg:text-9xl font-black leading-none glitch-text cursor-default" style="text-shadow:0 2px 34px rgba(0,0,0,0.55), 0 1px 2px rgba(0,0,0,0.6);">ZIPPY<span class="text-brand-orange">.</span></span>
+        <span class="block text-5xl md:text-7xl lg:text-9xl font-black leading-none" style="text-shadow:0 2px 34px rgba(0,0,0,0.55), 0 1px 2px rgba(0,0,0,0.6);">ZIPPY<span class="text-brand-orange">.</span></span>
         <span class="sr-only"> — </span>
         <span class="hero-kicker mb-2 sm:mb-3 text-[11px] sm:text-xs md:text-sm font-bold uppercase text-white/90" style="text-shadow:0 1px 10px rgba(0,0,0,0.6);">{t.home.kicker}</span>
       </h1>
-      <h2 class="font-display text-2xl md:text-4xl lg:text-6xl font-black mb-0 text-transparent bg-clip-text bg-gradient-to-r from-brand-orange to-white tracking-tight" style="filter:drop-shadow(0 2px 16px rgba(0,0,0,0.5));">HOUSE MUSIC THERAPY</h2>
+      <h2 class="font-display text-2xl md:text-4xl lg:text-6xl font-black mb-0 text-brand-orange tracking-tight">HOUSE MUSIC THERAPY</h2>
 
-      <div id="highlights" class="relative pt-2 sm:pt-3 pb-10 sm:pb-14 z-30">
-        <div class="container mx-auto px-6 sm:px-8 lg:px-12">
-          <div class="text-center mb-6 sm:mb-8">
-            <h2 class="font-display text-2xl md:text-3xl font-bold mb-1" style="text-shadow:0 1px 12px rgba(0,0,0,0.5);">{t.home.featured1}<span class="text-brand-orange">{t.home.featured2}</span></h2>
-            <p class="text-gray-300 text-sm" style="text-shadow:0 1px 8px rgba(0,0,0,0.6);">{t.home.featuredSub}</p>
-          </div>
-          <div id="cf-root" class="relative sm:px-14" role="region" aria-roledescription="carousel" aria-label={t.home.featured1 + t.home.featured2}>
-            <div class="coverflow-fade-wrap">
-              <div class="coverflow" id="coverflow-container">
-                {featuredMixes.map((m, i) => (
-                  <a class={i === 0 ? 'coverflow-item text-center active' : 'coverflow-item text-center'} style={cfStyle(i)} href={m.link} target="_blank" rel="noopener" draggable="false" aria-label={m.playLabel} data-play={m.playLabel} data-show={m.showLabel}>
-                    <div class="cf-vinyl">
-                      <div class="cf-disc">
-                        <div class={m.thumbStyle ? 'cf-label' : 'cf-label bg-brand-orange'} style={m.thumbStyle}>
-                          {!m.thumbnail && <span class="cf-label-title">ZIPPY</span>}
-                          {!m.thumbnail && <span class="cf-label-sub">{m.platform.toUpperCase()}</span>}
-                        </div>
-                        <div class="cf-spindle"></div>
-                      </div>
-                      <div class="cf-sheen"></div>
-                      <i class="fa-solid fa-play cf-play-overlay" aria-hidden="true"></i>
-                    </div>
-                    <span class="cf-caption" aria-hidden="true">
-                      <span class="cf-caption-title">{m.title}</span>
-                      <span class="cf-caption-platform"><i class={m.platformIcon}></i> {m.platformLabel}</span>
-                    </span>
-                  </a>
-                ))}
-              </div>
-            </div>
-            <div class="cf-controls">
-              <button type="button" class="coverflow-nav prev" aria-label={t.home.prev}><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
-              <div class="cf-dots">
-                {featuredMixes.map((m, i) => (
-                  <button type="button" class="cf-dot" data-index={i} aria-label={m.showLabel} aria-current={i === 0 ? 'true' : undefined}></button>
-                ))}
-              </div>
-              <button type="button" class="coverflow-nav next" aria-label={t.home.next}><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>
-            </div>
-            <p id="cf-status" class="sr-only" aria-live="polite"></p>
-          </div>
-          <div class="mt-12 sm:mt-16 text-center">
-            <a href={l('/mixes')} class="cf-listen inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold">
-              <i class="fa-solid fa-headphones" aria-hidden="true"></i> {t.home.listenNow}
+      <div id="highlights" class="relative pt-1 sm:pt-2 pb-8 sm:pb-12 z-30">
+        <h2 class="sr-only">{t.home.featured1}{t.home.featured2}</h2>
+        <div id="ring-root" class="relative" role="region" aria-roledescription="carousel" aria-label={t.home.featured1 + t.home.featured2}>
+          <div class="ring" id="ring">
+            <a class="ring-item active" style="--sx:0;--y:0;--s:1.08;z-index:100" href={vinyl.link} target="_blank" rel="noopener" draggable="false"
+               aria-label={vinyl.playLabel} data-play={vinyl.playLabel} data-show={vinyl.showLabel}
+               data-title={vinyl.title} data-platform={vinyl.platformLabel} data-icon={vinyl.platformIcon}>
+              <span class="ring-obj sv">
+                <span class="sv-slot"><span class="sv-disc"><span class="sv-label" style={vinyl.coverStyle}></span></span></span>
+                <span class="sv-sleeve" style={vinyl.coverStyle}>
+                  {!vinyl.coverStyle && <span class="sv-sleeve-title font-display">HOUSE<br />MUSIC<br />THERAPY</span>}
+                  <span class="sv-cat ring-mono">HMT · {t.home.heroLatestTag}</span>
+                </span>
+              </span>
+            </a>
+            <a class="ring-item" style="--sx:0.866;--y:-22.5;--s:0.735;--f:brightness(0.57) saturate(0.78);z-index:25" href={l('/mixes')} draggable="false"
+               role="button" aria-label={t.home.showMix.replace('{title}', t.home.heroAllMixes)} data-play={t.home.heroAllMixes} data-show={t.home.showMix.replace('{title}', t.home.heroAllMixes)}
+               data-title={t.home.heroAllMixes} data-platform="zippydj.com/mixes" data-icon="fa-solid fa-headphones">
+              <span class="ring-obj usb-obj">
+                <span class="usb-body"><span class="usb-name font-display">ZIPPY</span><span class="usb-sub ring-mono">{t.home.heroAllMixes} →</span><span class="usb-led"></span></span>
+                <span class="usb-plug"></span>
+              </span>
+            </a>
+            <a class="ring-item" style="--sx:-0.866;--y:-22.5;--s:0.735;--f:brightness(0.57) saturate(0.78);z-index:25" href={tape.link} target="_blank" rel="noopener" draggable="false"
+               role="button" aria-label={tape.showLabel} data-play={tape.playLabel} data-show={tape.showLabel}
+               data-title={tape.title} data-platform={tape.platformLabel} data-icon={tape.platformIcon}>
+              <span class="ring-obj tape-obj">
+                <span class="tape-label">
+                  <span class="tape-strip ring-mono">{tapeStrip}</span>
+                  <span class="tape-line">{tapeLine}</span>
+                  <span class="tape-side font-display">A</span>
+                </span>
+                <span class="tape-window"><span class="tape-reel"></span><span class="tape-reel"></span></span>
+                <span class="tape-teeth"></span>
+                <span class="tape-screw" style="left:7px;top:7px"></span><span class="tape-screw" style="right:7px;top:7px"></span>
+                <span class="tape-screw" style="left:7px;bottom:7px"></span><span class="tape-screw" style="right:7px;bottom:7px"></span>
+              </span>
             </a>
           </div>
+          <div class="mt-1" aria-hidden="true">
+            <div class="ring-caption-title" id="ring-title">{vinyl.title}</div>
+            <div class="ring-caption-platform ring-mono" id="ring-platform"><i class={vinyl.platformIcon}></i> {vinyl.platformLabel}</div>
+          </div>
+          <div class="flex items-center justify-center gap-3 mt-4">
+            <button type="button" class="ring-nav prev" aria-label={t.home.prev}><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
+            <div class="flex">
+              {[vinyl.showLabel, t.home.showMix.replace('{title}', t.home.heroAllMixes), tape.showLabel].map((label, i) => (
+                <button type="button" class="ring-dot" data-index={i} aria-label={label} aria-current={i === 0 ? 'true' : undefined}></button>
+              ))}
+            </div>
+            <button type="button" class="ring-nav next" aria-label={t.home.next}><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>
+          </div>
+          <p id="ring-status" class="sr-only" aria-live="polite"></p>
         </div>
+        {heroLine && (
+          <a href={heroLine.href} class="hero-next ring-mono inline-block mt-6 sm:mt-8" {...(heroLine.external ? { target: '_blank', rel: 'noopener' } : {})}>
+            <span class="hero-next-dot" aria-hidden="true"></span>{heroLine.label}{heroLine.when && <> · {heroLine.when}</>}{heroLine.name && <> · <b class={heroLine.openFormat ? 'is-open' : undefined}>{heroLine.name}</b></>}{heroLine.where && <> · {heroLine.where}</>} →
+          </a>
+        )}
       </div>
     </div>
   </section>
@@ -648,39 +597,42 @@ const homeSchema = {
   </section>
 
   <script is:inline>
-  function initCoverflow() {
-    // === COVERFLOW === (items are server-rendered from the DB)
-    // An endless "revolver": `pos` is a continuous position (an integer = a disc
-    // is centred) that wraps around forever. Drag / flick / horizontal wheel move
-    // it freely, momentum carries a fast flick and always comes to rest on a disc.
-    // Every item is a real link; side discs act as buttons that bring that disc to
-    // the centre, and only the centred one opens the mix.
-    var container = document.getElementById('coverflow-container');
-    if (!container || container.dataset.cfReady) return;
-    container.dataset.cfReady = '1';
-    var root = document.getElementById('cf-root');
-    var items = container.querySelectorAll('.coverflow-item');
+  function initHeroRing() {
+    // === HERO RING === vinyl / USB / tape on a turning plate.
+    // `pos` is a continuous position (an integer = an object at the front) that
+    // wraps around forever. Drag / flick / horizontal wheel turn it freely, momentum
+    // carries a fast flick and always comes to rest on an object. Left alone it
+    // turns to the next one every 4 bars at 124 BPM, until someone touches it.
+    // Every item is a real link; the ones at the back act as buttons that bring
+    // that object to the front, and only the front one opens.
+    var ring = document.getElementById('ring');
+    if (!ring || ring.dataset.ringReady) return;
+    ring.dataset.ringReady = '1';
+    var root = document.getElementById('ring-root');
+    var items = ring.querySelectorAll('.ring-item');
     var n = items.length;
     if (!n) return;
-    var dots = root ? root.querySelectorAll('.cf-dot') : [];
-    var status = document.getElementById('cf-status');
+    var dots = root.querySelectorAll('.ring-dot');
+    var status = document.getElementById('ring-status');
+    var title = document.getElementById('ring-title');
+    var platform = document.getElementById('ring-platform');
     var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var STEP = 2 * Math.PI / n;
+    var AUTO_MS = 4 * 4 * 60000 / 124;   // 4 bars
 
     var pos = 0;           // continuous position
     var target = 0;        // where the current animation will rest
-    var active = -1;       // index of the centred disc
+    var active = -1;       // index of the object at the front
     var anim = null;       // { to, amp, start, tau } — exponential ease-out towards `to`
     var raf = 0;
-    var announce = false;  // read the new mix out once the spin settles
+    var announce = false;  // read the new object out once the turn settles
     var refocus = null;    // 'item' | 'dot' — move keyboard focus once settled
 
     function wrap(i) { return ((i % n) + n) % n; }
-    function getGap() {
-      var vw = window.innerWidth;
-      if (vw < 640) return vw * 0.34;
-      if (vw < 1024) return vw * 0.2;
-      return Math.min(vw * 0.16, 220);
-    }
+    // same numbers as --ring-r / --ring-k in the CSS
+    function ringRadius() { var vw = window.innerWidth; return vw < 640 ? vw * 0.31 : Math.min(200, vw * 0.26); }
+    function ringScale() { var vw = window.innerWidth; return vw < 640 ? 0.72 : vw < 1024 ? 0.86 : 1; }
+    function pxPerItem() { return ringRadius() * STEP * 1.15; }
 
     function setActive(a) {
       active = a;
@@ -695,35 +647,26 @@ const homeSchema = {
         if (i === a) d.setAttribute('aria-current', 'true');
         else d.removeAttribute('aria-current');
       });
+      var it = items[a];
+      title.textContent = it.getAttribute('data-title');
+      platform.innerHTML = '';
+      var icon = document.createElement('i');
+      icon.className = it.getAttribute('data-icon');
+      platform.appendChild(icon);
+      platform.appendChild(document.createTextNode(' ' + it.getAttribute('data-platform')));
     }
 
     function render() {
-      var gap = getGap();
-      var mobile = window.innerWidth < 640;
-      var half = n / 2;
-      // discs fade out before they reach the back of the cylinder, where they
-      // jump from one side to the other — so the wrap-around is never visible
-      var fadeStart = Math.min(mobile ? 1 : 2, half - 0.5);
-      var fadeEnd = Math.min(fadeStart + (mobile ? 0.6 : 0.5), half);
+      var R = ringRadius(), k = ringScale();
       items.forEach(function(el, i) {
-        var off = i - pos;
-        off -= n * Math.round(off / n);   // shortest way round: [-n/2, n/2]
-        var abs = Math.abs(off);
-        var tz = abs < 1 ? 80 - abs * 220 : -(abs * 140);
-        var ry = -Math.max(-1, Math.min(1, off)) * 55;
-        var sc = abs < 1 ? 1.1 - abs * 0.25 : Math.max(0.65, 0.85 - (abs - 1) * 0.15);
-        // side discs are dimmed with a filter instead of opacity, so the disc
-        // stays solid black rather than letting the orange gradient bleed through
-        var br = abs < 1 ? 1 - abs * 0.28 : Math.max(0.5, 0.72 - (abs - 1) * 0.22);
-        var sat = 1 - Math.min(abs, 2) * 0.1;
-        var op = abs <= fadeStart ? 1 : abs >= fadeEnd ? 0 : 1 - (abs - fadeStart) / (fadeEnd - fadeStart);
-        el.style.transform = 'translateY(-50%) translateX(' + (off * gap).toFixed(2) + 'px) translateZ(' + tz.toFixed(2) + 'px) rotateY(' + ry.toFixed(2) + 'deg) scale(' + sc.toFixed(4) + ')';
-        el.style.opacity = op.toFixed(3);
-        el.style.filter = abs < 0.005 ? 'none' : 'brightness(' + br.toFixed(3) + ') saturate(' + sat.toFixed(3) + ')';
-        el.style.zIndex = String(100 - Math.round(abs * 10));
-        el.style.visibility = op === 0 ? 'hidden' : '';
-        if (op === 0) el.setAttribute('tabindex', '-1');
-        else el.removeAttribute('tabindex');
+        var ang = (i - pos) * STEP;
+        var z = (Math.cos(ang) + 1) / 2;   // 1 = front, 0 = back
+        var x = Math.sin(ang) * R;
+        var y = -(1 - z) * 30 * k;
+        var sc = (0.62 + 0.46 * z) * k;
+        el.style.transform = 'translate3d(' + x.toFixed(2) + 'px,' + y.toFixed(2) + 'px,0) scale(' + sc.toFixed(4) + ')';
+        el.style.filter = z > 0.995 ? 'none' : 'brightness(' + (0.42 + 0.58 * z).toFixed(3) + ') saturate(' + (0.7 + 0.3 * z).toFixed(3) + ')';
+        el.style.zIndex = String(Math.round(z * 100));
       });
       var a = wrap(Math.round(pos));
       if (a !== active) setActive(a);
@@ -744,7 +687,7 @@ const homeSchema = {
       raf = 0;
       if (!anim) return;
       var d = anim.amp * Math.exp(-(now - anim.start) / anim.tau);
-      if (Math.abs(d) < 0.003) {
+      if (Math.abs(d) < 0.002) {
         pos = anim.to; anim = null; render(); settle();
         return;
       }
@@ -760,40 +703,61 @@ const homeSchema = {
     }
     function stop() { anim = null; target = pos; }
 
-    // Buttons / arrow keys: one disc per press, presses stack up so holding a key
-    // (or clicking fast) keeps the cylinder spinning.
+    // --- auto-turn: stops for good on the first touch, pauses while hovered,
+    //     focused, off screen or in a background tab ---
+    var touched = false, hovered = false, focused = false, visible = true;
+    var autoTimer = reduceMotion ? 0 : setInterval(function() {
+      if (!ring.isConnected) { clearInterval(autoTimer); return; }   // page swapped by a view transition
+      if (touched || hovered || focused || !visible || document.hidden || anim) return;
+      animateTo(Math.round(pos) + 1, 260);
+    }, AUTO_MS);
+    function interact() {
+      touched = true;
+      if (autoTimer) { clearInterval(autoTimer); autoTimer = 0; }
+    }
+    if (autoTimer && 'IntersectionObserver' in window) {
+      new IntersectionObserver(function(entries) { visible = entries[0].isIntersecting; }).observe(ring);
+    }
+    root.addEventListener('pointerenter', function(e) { if (e.pointerType === 'mouse') hovered = true; });
+    root.addEventListener('pointerleave', function() { hovered = false; });
+    root.addEventListener('focusin', function() { focused = true; });
+    root.addEventListener('focusout', function() { focused = false; });
+
+    // Buttons / arrow keys: one object per press, presses stack up so holding a
+    // key (or clicking fast) keeps the plate turning.
     function step(dir) {
       announce = true;
-      animateTo(Math.round(anim ? target : pos) + dir, 140);
+      animateTo(Math.round(anim ? target : pos) + dir, 160);
     }
     function goTo(i) {
       var cur = Math.round(anim ? target : pos);
       var d = wrap(i - cur);
       if (d > n / 2) d -= n;
       announce = true;
-      animateTo(cur + d, 160);
+      animateTo(cur + d, 180);
     }
 
     // --- drag / flick ---
     var drag = null;
     var suppressClick = false;
-    container.addEventListener('pointerdown', function(e) {
+    ring.addEventListener('pointerdown', function(e) {
       if (e.button !== 0) return;
+      interact();
       suppressClick = false;
       var wasSpinning = !!anim;
-      stop();   // grabbing a spinning cylinder stops it under your finger
+      stop();   // grabbing a turning plate stops it under your finger
       drag = { id: e.pointerId, x: e.clientX, startPos: pos, moved: false, wasSpinning: wasSpinning, samples: [{ t: e.timeStamp, p: pos }] };
     });
-    container.addEventListener('pointermove', function(e) {
+    ring.addEventListener('pointermove', function(e) {
       if (!drag || e.pointerId !== drag.id) return;
       var dx = e.clientX - drag.x;
       if (!drag.moved) {
         if (Math.abs(dx) < 6) return;
         drag.moved = true;
-        try { container.setPointerCapture(e.pointerId); } catch (err) {}
-        container.classList.add('is-dragging');
+        try { ring.setPointerCapture(e.pointerId); } catch (err) {}
+        ring.classList.add('is-dragging');
       }
-      pos = drag.startPos - dx / getGap();
+      pos = drag.startPos - dx / pxPerItem();
       var s = drag.samples;
       s.push({ t: e.timeStamp, p: pos });
       while (s.length > 2 && e.timeStamp - s[0].t > 100) s.shift();
@@ -803,94 +767,71 @@ const homeSchema = {
       if (!drag || e.pointerId !== drag.id) return;
       var d = drag;
       drag = null;
-      container.classList.remove('is-dragging');
+      ring.classList.remove('is-dragging');
       if (d.moved) {
         suppressClick = true;
-        // flick velocity (discs per ms) over the last ~100ms of the gesture
+        // flick velocity (objects per ms) over the last ~100ms of the gesture
         var s = d.samples.filter(function(x) { return e.timeStamp - x.t < 100; });
         var v = 0;
         if (s.length >= 2) {
           var dt = s[s.length - 1].t - s[0].t;
           if (dt > 0) v = (s[s.length - 1].p - s[0].p) / dt;
         }
-        var fling = Math.abs(v) > 0.0008;
-        // project where the momentum would coast to, then rest on the nearest disc
+        var fling = Math.abs(v) > 0.0006;
+        // project where the momentum would coast to, then rest on the nearest object
         announce = true;
-        animateTo(Math.round(pos + (fling ? v * 380 : 0)), fling ? 380 : 170);
+        animateTo(Math.round(pos + (fling ? v * 480 : 0)), fling ? 480 : 200);
       } else if (d.wasSpinning) {
-        // a tap that stopped the spin shouldn't also open/select a mix
+        // a tap that stopped the turn shouldn't also open/select anything
         suppressClick = true;
-        animateTo(Math.round(pos), 170);
+        animateTo(Math.round(pos), 200);
       }
     }
-    container.addEventListener('pointerup', release);
-    container.addEventListener('pointercancel', release);
-    container.addEventListener('dragstart', function(e) { e.preventDefault(); });
-    container.addEventListener('click', function(e) {
+    ring.addEventListener('pointerup', release);
+    ring.addEventListener('pointercancel', release);
+    ring.addEventListener('dragstart', function(e) { e.preventDefault(); });
+    ring.addEventListener('click', function(e) {
       if (suppressClick) { suppressClick = false; e.preventDefault(); e.stopPropagation(); }
     }, true);
 
-    // trackpad / shift+wheel horizontal scrolling spins it too
+    // trackpad / shift+wheel horizontal scrolling turns it too
     var wheelTimer = 0;
-    container.addEventListener('wheel', function(e) {
+    ring.addEventListener('wheel', function(e) {
       if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
       e.preventDefault();
+      interact();
       stop();
-      pos += e.deltaX / getGap();
+      pos += e.deltaX / pxPerItem();
       render();
       clearTimeout(wheelTimer);
-      wheelTimer = setTimeout(function() { announce = true; animateTo(Math.round(pos), 170); }, 120);
+      wheelTimer = setTimeout(function() { announce = true; animateTo(Math.round(pos), 200); }, 120);
     }, { passive: false });
 
     items.forEach(function(el, i) {
       el.addEventListener('click', function(e) {
+        interact();
         if (i !== active) { e.preventDefault(); goTo(i); }
       });
       el.addEventListener('keydown', function(e) {
-        if (e.key === ' ' && i !== active) { e.preventDefault(); goTo(i); }
+        if (e.key === ' ' && i !== active) { e.preventDefault(); interact(); goTo(i); }
       });
     });
-    dots.forEach(function(d, i) { d.addEventListener('click', function() { goTo(i); }); });
-    var prevBtn = root && root.querySelector('.coverflow-nav.prev');
-    var nextBtn = root && root.querySelector('.coverflow-nav.next');
-    if (prevBtn) prevBtn.addEventListener('click', function() { step(-1); });
-    if (nextBtn) nextBtn.addEventListener('click', function() { step(1); });
-    if (root) {
-      root.addEventListener('keydown', function(e) {
-        if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
-        e.preventDefault();
-        var f = document.activeElement;
-        // keep focus on the same kind of control, now pointing at the new mix
-        refocus = f && f.classList.contains('coverflow-item') ? 'item' : f && f.classList.contains('cf-dot') ? 'dot' : null;
-        step(e.key === 'ArrowRight' ? 1 : -1);
-      });
-    }
+    dots.forEach(function(d, i) { d.addEventListener('click', function() { interact(); goTo(i); }); });
+    root.querySelector('.ring-nav.prev').addEventListener('click', function() { interact(); step(-1); });
+    root.querySelector('.ring-nav.next').addEventListener('click', function() { interact(); step(1); });
+    root.addEventListener('keydown', function(e) {
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      e.preventDefault();
+      interact();
+      var f = document.activeElement;
+      // keep focus on the same kind of control, now pointing at the new object
+      refocus = f && f.classList.contains('ring-item') ? 'item' : f && f.classList.contains('ring-dot') ? 'dot' : null;
+      step(e.key === 'ArrowRight' ? 1 : -1);
+    });
 
     window.addEventListener('resize', render);
     render();
   }
-  document.addEventListener('astro:page-load', initCoverflow);
-
-  // Hero gradient shifts its brand colours vertically as the page scrolls down.
-  function initHeroScroll() {
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    if (window.__heroScrollBound) { if (window.__heroApply) window.__heroApply(); return; }
-    window.__heroScrollBound = true;
-    var ticking = false;
-    function apply() {
-      ticking = false;
-      var hero = document.querySelector('.hero-gradient');
-      if (!hero) return;
-      var y = window.scrollY || window.pageYOffset || 0;
-      var p = Math.max(0, Math.min(1, y / (window.innerHeight * 1.4)));
-      hero.style.setProperty('--hero-shift', (26 + p * 54) + '%');
-    }
-    window.__heroApply = apply;
-    window.addEventListener('scroll', function() {
-      if (!ticking) { ticking = true; requestAnimationFrame(apply); }
-    }, { passive: true });
-    apply();
-  }
-  document.addEventListener('astro:page-load', initHeroScroll);
+  document.addEventListener('astro:page-load', initHeroRing);
   </script>
 </Layout>

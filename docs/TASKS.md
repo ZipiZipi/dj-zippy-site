@@ -51,7 +51,7 @@ u isto vreme, jer se izmene sudaraju. Najsigurnije je raditi ih redom i commit-o
 | [ ] | T20 EPK (press kit) stranica za bukere | 🟠 P1 | Opus 5.5 | high | `src/pages/epk.astro`, `sr/epk.astro`, `EpkPage.astro`, `ui.ts` |
 | [ ] | T21 booking@zippydj.com + Google Ads label | 🟠 P1 | Sonnet 5.5 | low | `Footer.astro`, `ui.ts`, schema, `llms.txt` |
 | [ ] | T22 Ostaci iz 2026-09-30: MixCloud slike, GTM tag, Inter | 🟡 P2 | Sonnet 5.5 | medium | D1 `mixes`, GTM (ručno), `global.css` |
-| [ ] | T23 Hero: nova scena umesto narandžasto-belog gradijenta | 🔴 P0 | Opus 5.5 | high | `HomePage.astro`, `global.css` |
+| [x] 2026-10-01 | T23 Hero: nova scena umesto narandžasto-belog gradijenta | 🔴 P0 | Opus 5.5 | high | `HomePage.astro`, `global.css` |
 | [ ] | T24 Plava kao druga boja: open format strana | 🟠 P1 | Sonnet 5.5 | medium | `tailwind.config.mjs`, `global.css`, `HomePage.astro`, `EventsPage.astro`, `AboutPage.astro` |
 | [ ] | T25 Vinili: klik pušta miks u plejeru na dnu (MixCloud widget), hover pali ploču | 🟠 P1 | Opus 5.5 | high | `HomePage.astro`, `Layout.astro`, `content.ts` |
 | [ ] | T26 Stranica za svaki miks (`/mixes/[slug]`) sa tracklistom | 🟡 P2 | Opus 5.5 | high | `src/pages/mixes/[slug].astro`, `sr/…`, `MixPage.astro`, `content.ts`, `sitemap.xml.ts` |
@@ -65,7 +65,7 @@ Preporučeni redosled: **T1 → T2 → T6 → T7 → T9 → T8 → T5 → T10 �
 Posle toga: **T18 → T21 → T15 → T16 → T17 → T20 → T19 → T22**. T18 i T21 su skoro bez koda, a daju najviše za pozicioniranje i konverzije.
 Identitet (pregled 2026-10-01): **T31 → T23 → T24 → T25 → T26 → T29**, pa **T27 → T28** kad korisnik odluči (T27 je
 odložen, T28 zavisi od njegovih tekstova). T30 je otkazan. T23, T24 i T25 menjaju `HomePage.astro`, pa se rade
-jedan po jedan. T23 (hero) korisnik radi u posebnom chatu.
+jedan po jedan. T23 je urađen (varijanta S, vidi dole).
 T9 ide pre T8 i T10 zato što oni koriste njegove tekstove. T5, T8 i T10 menjaju `HomePage.astro`,
 pa se rade jedan po jedan.
 
@@ -996,7 +996,6 @@ sajt treba da ga ustanovi kao **artistu**, a ne da deluje kao šablon „klišej
 7. **Bug:** `/mixes/`, `/events/` i `/sr/mixes/` sa kosom crtom na kraju vraćaju 404, a `/about/` i ostale
    prerenderovane stranice preusmere. Vidi T31.
 
-Skica hero varijanti: `docs/mockups/hero-varijante.html` (otvori lokalno u browseru).
 
 ---
 
@@ -1008,7 +1007,7 @@ Skica hero varijanti: `docs/mockups/hero-varijante.html` (otvori lokalno u brows
 pomera na skrol. Bela traka dole desno ubija kontrast vinila i izgleda kao stock pozadina. `HOUSE MUSIC THERAPY`
 je gradijent narandžasto → belo, a glitch hover sa cijan senkom i cursor spotlight su šablonski efekti.
 
-**Varijante** (skice u `docs/mockups/hero-varijante.html`):
+**Varijante** (skice u `hero-varijante.html`):
 - **A · Svetlo iz kabine (preporuka):** crna scena, jedno toplo narandžasto radijalno svetlo odozdo iza vinila
   (kao iz DJ pulta), hladno plavo kontra-svetlo (`#38bdf8`, ~20 % alfe) u gornjem desnom uglu, zrno filma
   (SVG `feTurbulence`, opacity ~0.08, `mix-blend-mode: overlay`). HMT u punoj narandžastoj, ne gradijent.
@@ -1020,7 +1019,7 @@ je gradijent narandžasto → belo, a glitch hover sa cijan senkom i cursor spot
   Najhrabrije, ali menja ton cele početne.
 
 **Druga runda (2026-10-01, posle odgovora korisnika):** korisniku se dopada A, hoće nešto dinamično kao B, ali
-brazde u tom obliku deluju čudno, a D mu je zanimljiv. Nove skice su u `docs/mockups/hero-varijante-2.html`
+brazde u tom obliku deluju čudno, a D mu je zanimljiv. Nove skice su u `hero-varijante-2.html`
 (animirane, otvoriti u Chrome-u). Sve imaju A kao osnovu:
 - **E · Svetlo + odsjaj ploče:** dva meka odsjaja svetla (conic-gradient) i jedva vidljivi široki krugovi oko
   vinila, sve se okreće vrlo sporo (48 s po krugu).
@@ -1031,7 +1030,7 @@ brazde u tom obliku deluju čudno, a D mu je zanimljiv. Nove skice su u `docs/mo
 - **H · Omot + puls (preporuka):** G + F zajedno.
 
 **Treća runda (2026-10-01):** korisniku se dopada tamno + narandžasto + malo plavog svetla; ne želi „Ray Bar resident“
-odmah na hero-u. Skice u `docs/mockups/hero-varijante-3.html`, sve na A osnovi, pokret na 124 BPM:
+odmah na hero-u. Skice u `hero-varijante-3.html`, sve na A osnovi, pokret na 124 BPM:
 - **I · Reflektori:** plavi snop iz ugla sporo šeta (moving head), topli stub svetla iza vinila diše u taktu.
 - **J · Dim u kabini:** narandžasti (dole) i plavi (gore) oblaci dima sporo plove.
 - **K · Plavi odsjaj na ploči (preporuka):** ploča se vrti, odsjaj stoji (plavo gore, toplo dole, tanka plava ivica);
@@ -1040,7 +1039,7 @@ odmah na hero-u. Skice u `docs/mockups/hero-varijante-3.html`, sve na A osnovi, 
   samo tu, kao fusnota).
 
 **Četvrta runda (2026-10-01):** korisniku je L „kao radio“, želi CDJ waveform koji klizi zdesna nalevo umesto stubova;
-iz K mu se dopada svetlo ploče i red sa najavom. Skice u `docs/mockups/hero-varijante-4.html` (waveform se crta jednom u
+iz K mu se dopada svetlo ploče i red sa najavom. Skice u `hero-varijante-4.html` (waveform se crta jednom u
 canvas i klizi preko `transform`, 40 px po udarcu = 124 BPM):
 - **M · Waveform iznad ploča:** traka sa belom glavom u sredini i bit-gridom, bez svetla ploče.
 - **N · Ploča je glava (preporuka):** waveform prolazi kroz red vinila, ploča koja svira stoji na mestu glave; svetlo iz K + najava.
@@ -1048,7 +1047,7 @@ canvas i klizi preko `transform`, 40 px po udarcu = 124 BPM):
 - **P · Dva deka:** narandžasta (house) i plava (open format) traka, jedna glava.
 
 **Peta runda (2026-10-01):** korisnik pita za kasetu, CD, fleš i vinil u omotu pored vinila. Skice u
-`docs/mockups/hero-varijante-5.html`, sve na N osnovi: **Q** svi formati u redu, **R** samo vinili u omotima, ploča koja
+`hero-varijante-5.html`, sve na N osnovi: **Q** svi formati u redu, **R** samo vinili u omotima, ploča koja
 svira izlazi iz omota (preporuka; omot = cover miksa, veza sa T25), **S** svaki format nešto znači (vinil = HMT,
 kaseta = Core Memories, fleš = CDJ danas), sto u kabini. Mišljenje: omot da, fleš kao detalj, kaseta/CD samo sa
 značenjem (Zippy počinje 2022, retro kolaž nije njegova priča).
@@ -1060,12 +1059,21 @@ stane na najbližem; sam prelazi na sledeći na 2 takta; kaseta i fleš nakrivlj
 najnoviji House Music Therapy, kaseta (bez „Core Memories“, set je house / tech house, narandžasta traka) odmah pušta
 EXIT 2024 set, fleš vodi na /mixes i na
 njemu ispod ZIPPY piše „ALL MIXES →“ / „SVI MIKSEVI →“. Ispod je red sa sledećim nastupom (iz K, klik na Events).
-Svetlo ploče iz K ne ide (ne uklapa se u estetiku). Skica: `docs/mockups/hero-varijante-6.html`.
+Svetlo ploče iz K ne ide (ne uklapa se u estetiku). Skica: `hero-varijante-6.html`.
 
-**Prompt:**
+**Urađeno (2026-10-01): varijanta S.** Skice (šest rundi) su obrisane iz repoa, ostao je samo ovaj opis.
+- Hero je crna scena sa toplim svetlom iz pulta, plavim kontra-svetlom u uglu i zrnom; gradijent, glitch i cursor
+  spotlight su uklonjeni (`global.css`, `Layout.astro`), HMT je u punoj narandžastoj.
+- Umesto coverflow-a su tri predmeta na „tanjiru“ koji se okreće (drag / flick sa inercijom, strelice, tačkice,
+  tastatura ← →): vinil u omotu = najnoviji House Music Therapy set, kaseta = EXIT set, fleš = /mixes
+  („ALL MIXES →“ / „SVI MIKSEVI →“). Sam prelazi na sledeći na 4 takta (124 BPM) dok ga niko ne dirne.
+- Ispod je red sa sledećim nastupom (plava reč = open format veče); kad nema nastupa, prikazuje najnoviji set.
+- Predmeti se biraju sami iz baze miksa (naslov), pa `featured` u adminu više ne utiče na početnu.
+
+**Prompt (istorija):**
 > Uradi Task T23 iz docs/TASKS.md. Korisnik je izabrao varijantu ___ (pitaj ako nije upisano). U
 > `src/components/pages/HomePage.astro` zameni `.hero-gradient` novom scenom po skici iz
-> `docs/mockups/hero-varijante-2.html` (E–H) ili `hero-varijante.html` (A–D). Pokret (puls, odsjaj, okretanje)
+> `hero-varijante-2.html` (E–H) ili `hero-varijante.html` (A–D). Pokret (puls, odsjaj, okretanje)
 > se gasi pod reduced motion, kao ostale animacije na `main`. Talasi idu preko `transform`/`opacity` (GPU), bez
 > animiranja `box-shadow` ili `filter` po frejmu. Na telefonu omot ne sme da gura vinile ispod prvog ekrana. Zadrži: H1 strukturu iz T10, coverflow i njegov SSR raspored iz B1, scrim
 > za čitljivost naslova, `overflow-x-clip`. Pomeranje pozadine na skrol (`--hero-shift`) zadrži samo ako ima smisla

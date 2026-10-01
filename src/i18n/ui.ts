@@ -114,6 +114,12 @@ const en = {
     next: 'Next',
     playOn: 'Play {title} on {platform}',
     showMix: 'Show {title}',
+    // Hero: the vinyl / tape / USB ring and the line under it
+    heroAllMixes: 'All mixes',
+    heroNext: 'Next',
+    heroLatest: 'Latest mix',
+    heroLatestTag: 'Latest',
+    weekdays: ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'],
     playedAt: 'Played at',
     venues: [
       'Exit Festival · Dance Arena',
@@ -416,6 +422,12 @@ const sr: Dict = {
     next: 'Sledeći',
     playOn: 'Pusti {title} na {platform}',
     showMix: 'Prikaži {title}',
+    // Hero: the vinyl / tape / USB ring and the line under it
+    heroAllMixes: 'Svi miksevi',
+    heroNext: 'Sledeće',
+    heroLatest: 'Najnoviji miks',
+    heroLatestTag: 'Najnovije',
+    weekdays: ['NED', 'PON', 'UTO', 'SRE', 'ČET', 'PET', 'SUB'],
     playedAt: 'Nastupao na',
     venues: [
       'Exit festival · Dance Arena',
