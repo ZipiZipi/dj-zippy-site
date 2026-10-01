@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="sr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hero varijante 4</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=IBM+Plex+Mono:wght@500&family=Unbounded:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root { --photo:url('../../public/images/dj-zippy-house-music-dj.webp'); --o:#FF5500; --b:#38bdf8; --bt:#7dd3fc; --k:#050505;
+          --beat:.484s; --bar:1.935s; /* 124 BPM */
+          --loop:30.97s; /* 64 beats; the waveform strip is 64 × 40 px = 2560 px */ }
+  * { box-sizing:border-box; margin:0; }
+  body { background:#111; color:#fff; font-family:Inter, sans-serif; padding:24px 16px 48px; }
+  h1.page { font:700 20px Unbounded, sans-serif; max-width:1100px; margin:0 auto 6px; }
+  p.page { color:#aaa; font-size:14px; line-height:1.55; max-width:1100px; margin:0 auto 26px; }
+  .wrap { max-width:1100px; margin:0 auto 40px; }
+  .cap { display:flex; gap:12px; align-items:baseline; margin-bottom:10px; flex-wrap:wrap; }
+  .cap b { font:700 15px Unbounded, sans-serif; }
+  .cap span { color:#bbb; font-size:13.5px; line-height:1.5; flex:1 1 420px; }
+  .tag { font:600 11px Inter; letter-spacing:.08em; padding:3px 8px; border-radius:99px; background:rgba(255,85,0,.15); color:#ff8a4d; flex:none !important; }
+
+  /* ---------- shared base: A "booth light" ---------- */
+  .hero { position:relative; height:560px; border-radius:14px; overflow:hidden; isolation:isolate;
+          display:flex; flex-direction:column; align-items:center; padding-top:56px; text-align:center;
+          background:
+            radial-gradient(ellipse 55% 48% at 50% 86%, rgba(255,85,0,.46), rgba(255,85,0,.12) 45%, transparent 72%),
+            radial-gradient(ellipse 38% 34% at 92% 4%, rgba(56,189,248,.18), transparent 70%),
+            #050505; }
+  .hero::after { content:''; position:absolute; inset:0; z-index:8; pointer-events:none; opacity:.09; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  .t { position:relative; z-index:5; display:flex; flex-direction:column; align-items:center; }
+  .kicker { font:700 11px Unbounded; letter-spacing:.4em; padding-left:.4em; display:inline-flex; gap:.9em; align-items:center; color:rgba(255,255,255,.9); }
+  .kicker::before, .kicker::after { content:''; width:1.8em; height:2px; background:var(--o); }
+  .name { font:900 92px/1 Unbounded; margin-top:10px; letter-spacing:-.01em; }
+  .name i { font-style:normal; color:var(--o); }
+  .hmt { font:900 34px Unbounded; letter-spacing:-.01em; margin-top:4px; color:var(--o); }
+  .mono { font:500 11px 'IBM Plex Mono', ui-monospace, Consolas, monospace; letter-spacing:.08em; }
+
+  /* vinyl row */
+  .row { position:absolute; z-index:5; left:0; right:0; bottom:48px; display:flex; justify-content:center; align-items:center; gap:18px; }
+  .v { --s:120px; width:var(--s); aspect-ratio:1; border-radius:50%; position:relative; flex:none; }
+  .v .rec, .v.side { background:radial-gradient(circle, transparent 0 31%, rgba(255,255,255,.07) 31.5%, transparent 33%),
+                     repeating-radial-gradient(circle, #0c0c0c 0 2px, #191919 2px 3px); border-radius:50%; }
+  .v.side { box-shadow:0 18px 40px -8px rgba(0,0,0,.7); filter:brightness(.7); }
+  .v.side::after, .v .rec::after { content:''; position:absolute; inset:31%; border-radius:50%; background:var(--o); background:var(--lab, var(--o)) center/cover, var(--o); }
+  .v .rec { position:absolute; inset:0; animation:spin 1.8s linear infinite; box-shadow:0 18px 40px -8px rgba(0,0,0,.7); }
+  .v .rec::before { content:''; position:absolute; left:50%; top:50%; width:7px; height:7px; margin:-3.5px; border-radius:50%; background:#0a0a0a; z-index:2; }
+  .v.big { --s:200px; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+
+  /* K: record light — the sheen stays still while the record turns */
+  .spec { position:absolute; inset:0; border-radius:50%; pointer-events:none; z-index:3; mix-blend-mode:screen;
+          background:conic-gradient(from -30deg, transparent 0 20deg, rgba(125,211,252,.55) 34deg, transparent 50deg 200deg, rgba(255,140,80,.35) 214deg, transparent 230deg);
+          -webkit-mask:radial-gradient(circle, transparent 0 32%, #000 34% 98%, transparent 99%);
+                  mask:radial-gradient(circle, transparent 0 32%, #000 34% 98%, transparent 99%); }
+  .rim { position:absolute; inset:-3px; border-radius:50%; z-index:2; pointer-events:none;
+         background:conic-gradient(from 300deg, transparent 0 10deg, rgba(56,189,248,.9) 40deg, transparent 80deg);
+         -webkit-mask:radial-gradient(circle, transparent 0 calc(50% - 2px), #000 calc(50% - 1.5px));
+                 mask:radial-gradient(circle, transparent 0 calc(50% - 2px), #000 calc(50% - 1.5px)); filter:blur(.6px); }
+  .glow { position:absolute; inset:-30%; border-radius:50%; z-index:-1; background:radial-gradient(circle, rgba(255,85,0,.45), transparent 62%);
+          animation:breathe var(--bar) ease-in-out infinite; }
+  @keyframes breathe { 50% { opacity:.35; } }
+
+  /* K: announcement line */
+  .nowline { position:absolute; z-index:5; left:0; right:0; bottom:16px; color:rgba(255,255,255,.6); }
+  .nowline b { color:var(--bt); font-weight:500; }
+  .nowline .dot { display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--o); margin-right:8px; vertical-align:1px; animation:blink var(--beat) steps(1) infinite alternate; }
+  @keyframes blink { 50% { opacity:.25; } }
+
+  /* ---------- CDJ waveform lane: a pre-drawn strip slides right → left past a fixed playhead ---------- */
+  .lane { position:absolute; z-index:2; left:0; right:0; height:var(--h,64px); top:var(--y,252px); overflow:hidden;
+          -webkit-mask:linear-gradient(90deg, transparent, #000 18% 82%, transparent); mask:linear-gradient(90deg, transparent, #000 18% 82%, transparent); }
+  .track { position:absolute; top:0; bottom:0; left:50%; width:5120px; background-repeat:repeat-x; background-size:2560px 100%;
+           animation:scroll var(--loop) linear infinite; will-change:transform; }
+  @keyframes scroll { to { transform:translateX(-2560px); } }
+  .lane .played { position:absolute; inset:0 50% 0 0; background:rgba(5,5,5,.45); }   /* left of the playhead = already played */
+  .playhead { position:absolute; z-index:3; top:var(--y,252px); height:var(--h,64px); left:50%; width:2px; margin-left:-1px; background:#fff;
+              box-shadow:0 0 10px 1px rgba(255,255,255,.6); }
+  .playhead::before, .playhead::after { content:''; position:absolute; left:-4px; border:5px solid transparent; }
+  .playhead::before { top:-6px; border-top-color:#fff; }
+  .playhead::after { bottom:-6px; border-bottom-color:#fff; }
+  .deck { position:absolute; z-index:3; left:calc(18% + 4px); color:rgba(255,255,255,.45); font-size:9.5px; }
+
+  /* N: waveform runs through the record — the playing disc is the playhead */
+  .hN .lane { --y:auto; top:auto; bottom:98px; --h:100px; }
+
+  /* O: CDJ display under the decks */
+  .hO .row { bottom:96px; }
+  .cdj { position:absolute; z-index:6; left:50%; bottom:16px; width:min(560px, calc(100% - 28px)); transform:translateX(-50%);
+         background:linear-gradient(180deg, #0d0d0f, #070708); border:1px solid rgba(255,255,255,.1); border-radius:8px; padding:8px 12px 9px;
+         box-shadow:0 10px 30px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.05); text-align:left; }
+  .cdj .top { display:flex; gap:14px; align-items:baseline; }
+  .cdj .lbl { color:rgba(255,255,255,.4); font-size:9px; }
+  .cdj .title { color:var(--bt); font-size:12.5px; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .cdj .num { color:#fff; font-size:12.5px; } .cdj .num.o { color:#ff8a4d; }
+  .ov { position:relative; height:18px; margin-top:6px; background-size:100% 100%; border-radius:2px; overflow:hidden; }
+  .ov::after { content:''; position:absolute; inset:0 0 0 var(--p,62%); background:rgba(7,7,8,.0); }
+  .ov .done { position:absolute; inset:0 calc(100% - var(--p,62%)) 0 0; background:rgba(7,7,8,.55); }
+  .ov .ph { position:absolute; top:-2px; bottom:-2px; left:var(--p,62%); width:2px; background:#ff3b30; }
+
+  /* P: two decks, orange = house, blue = open format, beatmatched */
+  .hP .lane.a { --y:236px; --h:44px; } .hP .lane.b { --y:286px; --h:44px; }
+  .hP .playhead { --y:232px; --h:102px; }
+  .hP .deck.a { top:236px; } .hP .deck.b { top:286px; }
+
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation:none !important; } }
+
+  @media (max-width:760px) {
+    .hero { height:500px; padding-top:42px; }
+    .name { font-size:54px; } .hmt { font-size:20px; } .kicker { font-size:9.5px; }
+    .v { --s:72px; } .v.big { --s:130px; } .v.far { display:none; }
+    .lane, .playhead { --y:196px; --h:56px; }
+    .hN .lane { bottom:71px; --h:76px; }
+    .hP .lane.a { --y:184px; --h:38px; } .hP .lane.b { --y:228px; --h:38px; } .hP .playhead { --y:180px; --h:90px; }
+    .hP .deck.a { top:184px; } .hP .deck.b { top:228px; } .deck { left:8px; }
+    .hO .row { bottom:92px; }
+    .nowline { font-size:9.5px; }
+  }
+
+  .notes { max-width:1100px; margin:0 auto; background:#1a1a1a; border:1px solid #2a2a2a; border-radius:12px; padding:18px 20px; }
+  .notes h2 { font:700 15px Unbounded; margin-bottom:10px; }
+  .notes li { color:#ccc; font-size:14px; line-height:1.6; margin:0 0 6px 18px; }
+  .notes b { color:#fff; }
+</style>
+</head>
+<body>
+<h1 class="page">Hero, četvrta runda: CDJ waveform + svetlo ploče iz K</h1>
+<p class="page">Umesto stubova koji skaču, sada waveform kao na CDJ-u: ide zdesna nalevo pored bele „glave“ u sredini, a levo od nje je već odsvirano (tamnije). Brzina je tačno 124 BPM (40 px po udarcu), pa se kickovi poklapaju sa disanjem svetla. Svetlo ploče i red sa najavom iz K su u svim varijantama osim M. Na sajtu se waveform crta jednom, a posle se samo pomera, što ne opterećuje telefon.</p>
+
+<div class="wrap">
+  <div class="cap"><b>M · Waveform iznad ploča</b><span>Čist CDJ: traka iznad vinila, bela glava u sredini, bit-grid (crtice na svaki udarac, jače na takt). Narandžasto telo, plavi vrhovi gde su hi-hatovi. Waveform ima i break (4 takta tiše), kao pravi house track.</span></div>
+  <section class="hero">
+    <div class="lane"><div class="track" data-wave="house"></div><div class="played"></div></div>
+    <div class="playhead"></div>
+    <div class="t"><span class="kicker">SERBIAN HOUSE DJ</span><div class="name">ZIPPY<i>.</i></div><div class="hmt">HOUSE MUSIC THERAPY</div></div>
+    <div class="row"><div class="v side far"></div><div class="v side"></div><div class="v big" style="--lab:var(--photo)"><i class="rec"></i></div><div class="v side"></div><div class="v side far"></div></div>
+  </section>
+</div>
+
+<div class="wrap">
+  <div class="cap"><b>N · Ploča je glava</b><span class="tag">MOJA PREPORUKA</span><span>Waveform prolazi kroz red vinila, a ploča koja svira stoji tačno na mestu glave, kao da ona „čita“ muziku. Na ploči je svetlo iz K, ispod najava. Najmanje elemenata, a priča je jasna: ovo je neko ko pušta ploče.</span></div>
+  <section class="hero hN">
+    <div class="lane"><div class="track" data-wave="house"></div><div class="played"></div></div>
+    <div class="t"><span class="kicker">SERBIAN HOUSE DJ</span><div class="name">ZIPPY<i>.</i></div><div class="hmt">HOUSE MUSIC THERAPY</div></div>
+    <div class="row"><div class="v side far"></div><div class="v side"></div>
+      <div class="v big" style="--lab:var(--photo)"><span class="glow"></span><i class="rec"></i><span class="spec"></span><span class="rim"></span></div>
+      <div class="v side"></div><div class="v side far"></div></div>
+    <div class="nowline mono"><span class="dot"></span>SLEDEĆE · PET 10.10 · <b>IZUVANJE</b> · BEOGRAD</div>
+  </section>
+</div>
+
+<div class="wrap">
+  <div class="cap"><b>O · CDJ ekran sa najavom</b><span>Svetlo ploče iz K, a najava je napravljena kao displej CDJ-a: „NEXT“, ime večeri (plavo = open format), datum, odbrojavanje u danima i 124.0 BPM. Ispod je mali pregled waveforma sa crvenom glavom, kao na vrhu ekrana CDJ-a. Sve se puni samo iz rasporeda.</span></div>
+  <section class="hero hO">
+    <div class="t"><span class="kicker">SERBIAN HOUSE DJ</span><div class="name">ZIPPY<i>.</i></div><div class="hmt">HOUSE MUSIC THERAPY</div></div>
+    <div class="row"><div class="v side far"></div><div class="v side"></div>
+      <div class="v big" style="--lab:var(--photo)"><span class="glow"></span><i class="rec"></i><span class="spec"></span><span class="rim"></span></div>
+      <div class="v side"></div><div class="v side far"></div></div>
+    <div class="cdj mono">
+      <div class="top"><span class="lbl">NEXT</span><span class="title">IZUVANJE · BEOGRAD</span><span class="num">PET 10.10</span><span class="num o">−09 D</span><span class="lbl">124.0 BPM</span></div>
+      <div class="ov" data-wave="overview"><span class="done"></span><span class="ph"></span></div>
+    </div>
+  </section>
+</div>
+
+<div class="wrap">
+  <div class="cap"><b>P · Dva deka</b><span>Dve trake jedna iznad druge, kao dva plejera u miksu: gornja narandžasta (house, House Music Therapy), donja plava (open format). Udarci su poravnati, jedna glava za obe. Najbolje objašnjava pravilo boja iz T24, ali je najviše „tehnike“ na ekranu.</span></div>
+  <section class="hero hP">
+    <div class="lane a"><div class="track" data-wave="house"></div><div class="played"></div></div>
+    <div class="lane b"><div class="track" data-wave="open"></div><div class="played"></div></div>
+    <div class="playhead"></div>
+    <span class="deck a mono">1 · HOUSE</span><span class="deck b mono">2 · OPEN</span>
+    <div class="t"><span class="kicker">SERBIAN HOUSE DJ</span><div class="name">ZIPPY<i>.</i></div><div class="hmt">HOUSE MUSIC THERAPY</div></div>
+    <div class="row"><div class="v side far"></div><div class="v side"></div>
+      <div class="v big" style="--lab:var(--photo)"><span class="glow"></span><i class="rec"></i><span class="spec"></span><span class="rim"></span></div>
+      <div class="v side"></div><div class="v side far"></div></div>
+    <div class="nowline mono"><span class="dot"></span>SLEDEĆE · PET 10.10 · <b>IZUVANJE</b> · BEOGRAD</div>
+  </section>
+</div>
+
+<div class="notes">
+  <h2>Za odluku</h2>
+  <ul>
+    <li><b>Mogu da se mešaju:</b> npr. N + CDJ ekran iz O umesto običnog reda, ili M sa svetlom ploče. Reci slova.</li>
+    <li><b>Waveform je izmišljen</b> (napravljen da liči na house track). Može i pravi, iz jednog Zippyjevog miksa, ali to traži da se jednom izvuče iz audio fajla. Izmišljeni ne traži ništa.</li>
+    <li><b>Datumi su primer.</b> Na sajtu idu iz istog rasporeda kao „Upcoming Events“. Plava reč = open format veče.</li>
+    <li><b>Telefon:</b> smanji prozor na ~390 px da vidiš da vinili ostaju u prvom ekranu.</li>
+  </ul>
+</div>
+
+<script>
+  // Draws a fake but house-shaped CDJ waveform once into a canvas and uses it as a sliding background.
+  // 64 beats × 40 px = 2560 px (one loop), 4/4 kick, offbeat bass, hats on the off-16ths, a 4-bar break.
+  (function () {
+    var PX = 40, BEATS = 64, W = PX * BEATS, DPR = 2;
+    function rng(seed) { return function () { seed |= 0; seed = seed + 0x6D2B79F5 | 0; var t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+    function draw(kind, H, grid) {
+      var c = document.createElement('canvas'); c.width = W * DPR; c.height = H * DPR;
+      var g = c.getContext('2d'); g.scale(DPR, DPR);
+      var r = rng(kind === 'open' ? 7 : 3), mid = H / 2;
+      var body = kind === 'open' ? '#38bdf8' : '#FF5500', core = kind === 'open' ? '#bae6fd' : '#ff9a5c', fringe = kind === 'open' ? '#ffffff' : '#7dd3fc';
+      if (grid) for (var b = 0; b < BEATS; b++) {
+        g.fillStyle = b % 4 === 0 ? 'rgba(255,255,255,.22)' : 'rgba(255,255,255,.07)';
+        g.fillRect(b * PX, 0, 1, H);
+      }
+      for (var x = 0; x < W; x++) {
+        var beat = x / PX, ph = beat % 1, bar = Math.floor(beat / 4);
+        var brk = bar >= 8 && bar < 12, build = bar === 11;
+        var swing = kind === 'open' ? 0.7 : 1;                       // the open-format deck is less four-to-the-floor
+        var kick = Math.exp(-ph * 7) * (brk ? 0.12 : 1) * swing;
+        var bass = ph > 0.5 ? Math.exp(-(ph - 0.5) * 5) * (brk ? 0.1 : 0.4) : 0;
+        var hat = ((ph * 4) % 1 > 0.45 && (ph * 4) % 1 < 0.6) ? 0.5 + r() * 0.3 : r() * 0.12;
+        var pad = brk ? 0.35 + 0.15 * Math.sin(x / 60) : 0.18;
+        var roll = build ? ((beat - 44) / 4) * (0.5 + 0.5 * ((ph * 8) % 1 < 0.5)) : 0;
+        var noise = r() * 0.12;
+        var low = Math.min(1, kick * 0.85 + bass);
+        var amp = Math.min(1, low * 0.75 + pad + noise + hat * 0.18 + roll * 0.5);
+        var h = amp * (mid - 2), hc = (low * 0.6 + pad * 0.4) * (mid - 2), hf = Math.max(1, hat * 3 * (brk ? 0.5 : 1));
+        g.fillStyle = body;  g.globalAlpha = 0.9; g.fillRect(x, mid - h, 1, h * 2);
+        g.fillStyle = core;  g.globalAlpha = 0.85; g.fillRect(x, mid - hc * 0.55, 1, hc * 1.1);
+        g.fillStyle = fringe; g.globalAlpha = 0.9; g.fillRect(x, mid - h - hf, 1, hf); g.fillRect(x, mid + h, 1, hf);
+      }
+      g.globalAlpha = 1;
+      return c.toDataURL();
+    }
+
+    var cache = {};
+    document.querySelectorAll('[data-wave]').forEach(function (el) {
+      var kind = el.getAttribute('data-wave');
+      if (kind === 'overview') { el.style.backgroundImage = 'url(' + (cache.ov || (cache.ov = draw('house', 18, false))) + ')'; return; }
+      var H = Math.round(el.parentNode.getBoundingClientRect().height) || 64, key = kind + H;
+      el.style.backgroundImage = 'url(' + (cache[key] || (cache[key] = draw(kind, H, true))) + ')';
+    });
+  })();
+</script>
+</body>
+</html>

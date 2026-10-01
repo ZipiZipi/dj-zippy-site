@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="sr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hero varijante 2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=IBM+Plex+Mono:wght@500&family=Unbounded:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root { --photo:url('../../public/images/dj-zippy-house-music-dj.webp'); --o:#FF5500; --b:#38bdf8; --k:#050505; --bar:3.87s; }
+  * { box-sizing:border-box; margin:0; }
+  body { background:#111; color:#fff; font-family:Inter, sans-serif; padding:24px 16px 48px; }
+  h1.page { font:700 20px Unbounded, sans-serif; max-width:1100px; margin:0 auto 6px; }
+  p.page { color:#aaa; font-size:14px; line-height:1.5; max-width:1100px; margin:0 auto 24px; }
+  .wrap { max-width:1100px; margin:0 auto 36px; }
+  .cap { display:flex; gap:12px; align-items:baseline; margin-bottom:10px; flex-wrap:wrap; }
+  .cap b { font:700 15px Unbounded, sans-serif; }
+  .cap span { color:#bbb; font-size:13.5px; line-height:1.5; }
+  .tag { font:600 11px Inter; letter-spacing:.08em; padding:3px 8px; border-radius:99px; background:rgba(255,85,0,.15); color:#ff8a4d; }
+
+  .hero { position:relative; height:540px; border-radius:14px; overflow:hidden; isolation:isolate;
+          display:flex; flex-direction:column; align-items:center; padding-top:58px; text-align:center;
+          /* A: booth light — warm key light from below, cool rim light top right */
+          background:
+            radial-gradient(ellipse 55% 48% at 50% 84%, rgba(255,85,0,.58), rgba(255,85,0,.16) 45%, transparent 72%),
+            radial-gradient(ellipse 38% 34% at 92% 4%, rgba(56,189,248,.20), transparent 70%),
+            radial-gradient(ellipse 30% 30% at 6% 100%, rgba(56,189,248,.08), transparent 70%),
+            #050505; }
+  .hero::after { content:''; position:absolute; inset:0; z-index:6; pointer-events:none; opacity:.09; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  .t { position:relative; z-index:4; display:flex; flex-direction:column; align-items:center; }
+  .kicker { font:700 11px Unbounded; letter-spacing:.4em; padding-left:.4em; display:inline-flex; gap:.9em; align-items:center; color:rgba(255,255,255,.9); }
+  .kicker::before, .kicker::after { content:''; width:1.8em; height:2px; background:var(--o); }
+  .name { font:900 92px/1 Unbounded; margin-top:10px; letter-spacing:-.01em; }
+  .name i { font-style:normal; color:var(--o); }
+  .hmt { font:900 34px Unbounded; letter-spacing:-.01em; margin-top:4px; color:var(--o); }
+
+  /* vinyl row; the big disc's centre sits at bottom: 44px + 100px */
+  .row { position:absolute; z-index:4; left:0; right:0; bottom:44px; display:flex; justify-content:center; align-items:center; gap:18px; }
+  .v { --s:120px; width:var(--s); aspect-ratio:1; border-radius:50%; position:relative; flex:none;
+       background:radial-gradient(circle, transparent 0 31%, rgba(255,255,255,.07) 31.5%, transparent 33%),
+                  repeating-radial-gradient(circle, #0c0c0c 0 2px, #191919 2px 3px);
+       box-shadow:0 18px 40px -8px rgba(0,0,0,.7); }
+  .v::after { content:''; position:absolute; inset:31%; border-radius:50%; background:var(--lab, var(--o)) center/cover; }
+  .v::before { content:''; position:absolute; left:50%; top:50%; width:7px; height:7px; margin:-3.5px; border-radius:50%; background:#0a0a0a; z-index:2; }
+  .v.big { --s:200px; animation:spin 1.8s linear infinite; }
+  .v.side { filter:brightness(.7); }
+  @keyframes spin { to { transform:rotate(360deg); } }
+
+  /* E — record sheen: two soft light wedges + a hint of wide grooves around the disc, slowly turning */
+  .sheen { position:absolute; z-index:1; left:50%; bottom:144px; width:1500px; height:1500px; margin:0 0 -750px -750px;
+    border-radius:50%;
+    background:
+      conic-gradient(from 0deg, transparent 0 18deg, rgba(255,190,140,.13) 34deg, transparent 52deg 196deg, rgba(255,190,140,.10) 214deg, transparent 232deg),
+      repeating-radial-gradient(circle, rgba(255,255,255,.028) 0 1px, transparent 1px 38px);
+    -webkit-mask-image:radial-gradient(circle, #000 8%, rgba(0,0,0,.6) 22%, transparent 46%);
+            mask-image:radial-gradient(circle, #000 8%, rgba(0,0,0,.6) 22%, transparent 46%);
+    animation:turn 48s linear infinite; }
+  @keyframes turn { to { transform:rotate(360deg); } }
+
+  /* F — pulse: soft blurred rings leave the disc once every bar at 124 BPM */
+  .pulse { position:absolute; z-index:2; left:50%; bottom:44px; width:200px; height:200px; margin-left:-100px; pointer-events:none; }
+  .pulse span { position:absolute; inset:0; border-radius:50%; opacity:0;
+    box-shadow:0 0 0 2px rgba(255,85,0,.45), 0 0 26px 6px rgba(255,85,0,.25); filter:blur(1.5px);
+    animation:ring calc(var(--bar) * 2) cubic-bezier(.2,.6,.3,1) infinite; }
+  .pulse span:nth-child(2) { animation-delay:calc(var(--bar) * 2 / 3); }
+  .pulse span:nth-child(3) { animation-delay:calc(var(--bar) * 4 / 3); box-shadow:0 0 0 2px rgba(56,189,248,.45), 0 0 26px 6px rgba(56,189,248,.22); }
+  @keyframes ring { 0% { transform:scale(1); opacity:.9; } 100% { transform:scale(4.6); opacity:0; } }
+  /* the key light breathes with the bar */
+  .breathe { position:absolute; inset:0; z-index:0; background:radial-gradient(ellipse 45% 38% at 50% 86%, rgba(255,85,0,.28), transparent 70%);
+    animation:breathe var(--bar) ease-in-out infinite; }
+  @keyframes breathe { 50% { opacity:.35; } }
+
+  /* G — sleeve in the booth: the title is printed on an orange record sleeve */
+  .sleeve { position:relative; z-index:4; background:var(--o); color:#050505; padding:34px 64px 30px; border-radius:4px;
+    transform:rotate(-1.6deg); box-shadow:0 30px 60px -20px rgba(0,0,0,.8), 0 0 80px -10px rgba(255,85,0,.35); }
+  .sleeve::before { content:''; position:absolute; inset:0; border-radius:4px; opacity:.2; mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  .sleeve .kicker { color:#050505; }
+  .sleeve .kicker::before, .sleeve .kicker::after { background:#050505; }
+  .sleeve .name { font-size:84px; }
+  .sleeve .name i { color:#fff; }
+  .sleeve .hmt { color:#050505; font-size:28px; }
+  .mono { font:500 11px 'IBM Plex Mono', ui-monospace, Consolas, monospace; letter-spacing:.06em; }
+  .sleeve .cat { position:absolute; top:10px; left:14px; }
+  .sleeve .cat.r { left:auto; right:14px; }
+  .sticker { position:absolute; z-index:5; right:-30px; bottom:-26px; width:78px; height:78px; border-radius:50%; background:var(--b); color:#04121b;
+    display:flex; align-items:center; justify-content:center; text-align:center; font:700 9.5px/1.25 Unbounded; transform:rotate(14deg);
+    box-shadow:0 6px 16px rgba(0,0,0,.35); }
+  .hG { padding-top:40px; }
+  .hG .row { bottom:36px; }
+  .hG .pulse { bottom:36px; }
+
+  @media (max-width:760px) {
+    .hero { height:470px; padding-top:40px; }
+    .name { font-size:54px; } .hmt { font-size:20px; }
+    .sleeve { padding:36px 22px 22px; margin:0 14px; } .sleeve .name { font-size:46px; } .sleeve .hmt { font-size:15px; }
+    .sleeve .cat { font-size:9.5px; }
+    .sticker { right:-8px; bottom:-30px; width:62px; height:62px; font-size:8px; }
+    .v { --s:72px; } .v.big { --s:130px; } .v.far { display:none; }
+    .pulse { width:130px; height:130px; margin-left:-65px; }
+    .sheen { bottom:109px; }
+  }
+</style>
+</head>
+<body>
+<h1 class="page">Hero, druga runda: „Svetlo iz kabine“ + pokret + omot ploče</h1>
+<p class="page">Sve četiri imaju istu osnovu (A): crna scena, toplo svetlo iz pulta odozdo, hladno plavo kontra-svetlo u uglu, zrno. Razlika je šta se kreće. Otvori u Chrome-u da vidiš animaciju. Na sajtu bi pokret stao za one koji su u sistemu isključili animacije.</p>
+
+<div class="wrap">
+  <div class="cap"><b>E · Svetlo + odsjaj ploče</b><span>Umesto gustih brazdi: dva meka odsjaja svetla, kao na ploči koja se vrti, i jedva vidljivi široki krugovi oko vinila. Sve se okreće vrlo sporo (jedan krug za 48 s). Najmirnije, a i dalje „živo“.</span></div>
+  <section class="hero">
+    <div class="sheen"></div>
+    <div class="t"><span class="kicker">SERBIAN HOUSE DJ</span><div class="name">ZIPPY<i>.</i></div><div class="hmt">HOUSE MUSIC THERAPY</div></div>
+    <div class="row"><div class="v side far"></div><div class="v side"></div><div class="v big" style="--lab:var(--photo)"></div><div class="v side"></div><div class="v side far"></div></div>
+  </section>
+</div>
+
+<div class="wrap">
+  <div class="cap"><b>F · Svetlo + puls na 124 BPM</b><span>Iz vinila na svaka dva takta izađe mek, zamućen talas (ne linija), a svetlo iz pulta lagano „diše“ u ritmu takta. Svaki treći talas je plav. Muzičko, a ne kičasto: tempo je house tempo, ne nasumična animacija.</span></div>
+  <section class="hero">
+    <div class="breathe"></div>
+    <div class="pulse"><span></span><span></span><span></span></div>
+    <div class="t"><span class="kicker">SERBIAN HOUSE DJ</span><div class="name">ZIPPY<i>.</i></div><div class="hmt">HOUSE MUSIC THERAPY</div></div>
+    <div class="row"><div class="v side far"></div><div class="v side"></div><div class="v big" style="--lab:var(--photo)"></div><div class="v side"></div><div class="v side far"></div></div>
+  </section>
+</div>
+
+<div class="wrap">
+  <div class="cap"><b>G · Omot u kabini</b><span>D unutar A: ime je odštampano na narandžastom omotu ploče, koji leži malo nakrivo u mraku kabine. Kataloški broj u mono fontu i plava nalepnica, kao na pravoj ploči. Ostatak sajta ostaje crn.</span></div>
+  <section class="hero hG">
+    <div class="sleeve">
+      <span class="mono cat">HMT 001—012</span><span class="mono cat r">SRB · EST. 2022</span>
+      <span class="kicker">SERBIAN HOUSE DJ</span><div class="name">ZIPPY<i>.</i></div><div class="hmt">HOUSE MUSIC THERAPY</div>
+      <div class="sticker">RAY BAR<br>RESIDENT</div>
+    </div>
+    <div class="row"><div class="v side far"></div><div class="v side"></div><div class="v big" style="--lab:var(--photo)"></div><div class="v side"></div><div class="v side far"></div></div>
+  </section>
+</div>
+
+<div class="wrap">
+  <div class="cap"><b>H · Omot + puls</b><span class="tag">MOJA PREPORUKA</span><span>G i F zajedno: omot daje identitet (izgleda kao izdanje, ne kao DJ šablon), puls daje život, a plava se pojavljuje u nalepnici, u kontra-svetlu i u svakom trećem talasu.</span></div>
+  <section class="hero hG">
+    <div class="breathe"></div>
+    <div class="pulse"><span></span><span></span><span></span></div>
+    <div class="sleeve">
+      <span class="mono cat">HMT 001—012</span><span class="mono cat r">SRB · EST. 2022</span>
+      <span class="kicker">SERBIAN HOUSE DJ</span><div class="name">ZIPPY<i>.</i></div><div class="hmt">HOUSE MUSIC THERAPY</div>
+      <div class="sticker">RAY BAR<br>RESIDENT</div>
+    </div>
+    <div class="row"><div class="v side far"></div><div class="v side"></div><div class="v big" style="--lab:var(--photo)"></div><div class="v side"></div><div class="v side far"></div></div>
+  </section>
+</div>
+</body>
+</html>

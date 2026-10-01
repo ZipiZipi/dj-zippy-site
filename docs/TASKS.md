@@ -47,13 +47,25 @@ u isto vreme, jer se izmene sudaraju. Najsigurnije je raditi ih redom i commit-o
 | [ ] | T16 Prvi pravi članak: Exit 2025 recap (en + sr) | 🟠 P1 | Opus 5.5 | high | D1 `posts` (preko admina) |
 | [ ] | T17 Galerija: prave fotke + indeksiranje | 🟠 P1 | Sonnet 5.5 | medium | `GalleryPage.astro`, `public/images/gallery/`, `sitemap.xml.ts`, `ui.ts` |
 | [ ] | T18 Off-site profili: isti bio svuda (checklist) | 🔴 P0 | Sonnet 5.5 | low | `docs/offsite-profiles.md` (novi) |
-| [ ] | T19 Wikidata + MusicBrainz dopune | 🟡 P2 | Sonnet 5.5 | medium | ručno, uz uputstvo |
+| [x] 2026-10-01 | T19 Wikidata + MusicBrainz dopune — unos radio Claude kroz Chrome uz potvrdu. MusicBrainz: aliasi „Zippy DJ“ i „Zipi“ (search hint), legal name „Veljko Nedeljković“, veza ka Wikidata Q138220521, tagovi house / tech house / techno / deep house. Wikidata: sr-el labela, opis „srpski house DJ i selektor“ i aliasi; reference (P854) na occupation (RA profil) te na citizenship i svih 5 žanrova (zippydj.com). Ostaje samo Spotify artist ID, tek kad postoji artist profil. | 🟡 P2 | Sonnet 5.5 | medium | ručno, uz uputstvo |
 | [ ] | T20 EPK (press kit) stranica za bukere | 🟠 P1 | Opus 5.5 | high | `src/pages/epk.astro`, `sr/epk.astro`, `EpkPage.astro`, `ui.ts` |
 | [ ] | T21 booking@zippydj.com + Google Ads label | 🟠 P1 | Sonnet 5.5 | low | `Footer.astro`, `ui.ts`, schema, `llms.txt` |
 | [ ] | T22 Ostaci iz 2026-09-30: MixCloud slike, GTM tag, Inter | 🟡 P2 | Sonnet 5.5 | medium | D1 `mixes`, GTM (ručno), `global.css` |
+| [ ] | T23 Hero: nova scena umesto narandžasto-belog gradijenta | 🔴 P0 | Opus 5.5 | high | `HomePage.astro`, `global.css` |
+| [ ] | T24 Plava kao druga boja: open format strana | 🟠 P1 | Sonnet 5.5 | medium | `tailwind.config.mjs`, `global.css`, `HomePage.astro`, `EventsPage.astro`, `AboutPage.astro` |
+| [ ] | T25 Vinili: klik pušta miks u plejeru na dnu (MixCloud widget), hover pali ploču | 🟠 P1 | Opus 5.5 | high | `HomePage.astro`, `Layout.astro`, `content.ts` |
+| [ ] | T26 Stranica za svaki miks (`/mixes/[slug]`) sa tracklistom | 🟡 P2 | Opus 5.5 | high | `src/pages/mixes/[slug].astro`, `sr/…`, `MixPage.astro`, `content.ts`, `sitemap.xml.ts` |
+| [ ] ⏸ odloženo 2026-10-01 | T27 Tekstovi: novi glas bez DJ klišea (en + sr) — korisnik: „ostavi za kasnije“ | 🔴 P0 | Opus 5.5 | high | `ui.ts`, `llms.txt`, schema opisi |
+| [ ] | T28 About kao priča: put od 2022. do danas (rešava B9) | 🟠 P1 | Opus 5.5 | high | `AboutPage.astro`, `ui.ts` |
+| [ ] | T29 „U torbi“: ploče koje Zippy trenutno pušta | 🟡 P2 | Sonnet 5.5 | medium | `HomePage.astro` ili `MixesPage.astro`, `ui.ts` ili D1 |
+| [–] otkazano 2026-10-01 | ~~T30 Potpisi identiteta: HMT kataloški brojevi, mono metapodaci, zrno~~ — korisnik: „nećemo“ | 🟡 P2 | Sonnet 5.5 | medium | `global.css`, `MixesPage.astro`, `HomePage.astro`, `fonts.css` |
+| [ ] | T31 Bug: `/mixes/` i `/events/` sa kosom crtom na kraju daju 404 | 🔴 P0 | Sonnet 5.5 | low | `src/middleware/index.ts` |
 
 Preporučeni redosled: **T1 → T2 → T6 → T7 → T9 → T8 → T5 → T10 → T3 → T4 → T11 → T13 → T12 → T14**.
 Posle toga: **T18 → T21 → T15 → T16 → T17 → T20 → T19 → T22**. T18 i T21 su skoro bez koda, a daju najviše za pozicioniranje i konverzije.
+Identitet (pregled 2026-10-01): **T31 → T23 → T24 → T25 → T26 → T29**, pa **T27 → T28** kad korisnik odluči (T27 je
+odložen, T28 zavisi od njegovih tekstova). T30 je otkazan. T23, T24 i T25 menjaju `HomePage.astro`, pa se rade
+jedan po jedan. T23 (hero) korisnik radi u posebnom chatu.
 T9 ide pre T8 i T10 zato što oni koriste njegove tekstove. T5, T8 i T10 menjaju `HomePage.astro`,
 pa se rade jedan po jedan.
 
@@ -948,3 +960,377 @@ ostaje vidljiv (ispravljen u D1, umesto „Millenial Shuffle“). Dakle, po redu
 - Lazino Tele → „Core Memories“ + istaknut čip „Open format“.
 Znači da polje `genres` mora da podrži i posebnu vrednost/zastavicu `open_format` (ili `tag`) da šablon zna
 kad da prikaže čip umesto liste žanrova.
+
+---
+
+## Pregled 2026-10-01: identitet artiste (da sajt ne bude generičan)
+
+Pregledano uživo na zippydj.com (Chrome, 1440 px, sve stranice) i u kodu na `main`. Cilj korisnika:
+sajt treba da ga ustanovi kao **artistu**, a ne da deluje kao šablon „klišej DJ“ sajta.
+
+### Dijagnoza: zašto deluje generično
+
+1. **Svaki vizuelni element je čest DJ šablon, a nijedan nije samo njegov.** Narandžasti „zalazak sunca“ gradijent
+   (crno → narandžasto → skoro belo `#ffe6d8` → narandžasto, `.hero-gradient` u `HomePage.astro`), glitch hover sa
+   cijan senkom (`.glitch-text:hover`, `#00E5FF`), spotlight koji prati kursor, marquee trake i coverflow. Na prvom
+   ekranu nema ničeg ličnog. Jedina prava fotka je tek u trećoj sekciji.
+2. **Tekst je saopštenje za štampu u trećem licu, pun apstrakcija:** „curates frequencies“, „the groove, the vibe,
+   and the journey“, „bridging the gap between the DJ booth and the dancefloor“, „Reliability is key… a safe and
+   exciting bet for any promoter“, „Proud Member of“, „the artists who will soon define tomorrow's sound“.
+   Na srpskom je još gore: „posvećen grooveu, vibe-u i putovanju kroz zvuk“.
+3. **Tekstovi protivreče jedni drugima:**
+   - About: „his foundation is strictly House… shifting into Techno“. Lista žanrova (B8) kaže deep tech, minimal,
+     deep house, french house, disco, funk, jazz, a na sajtu su i open format večeri (Izuvanje, Core Memories).
+   - About lead: „festival main stages“. Exit nastupi su bili Dance Arena, Students Stage i AS FM, a ne main stage.
+   - Blog opis obećava „production tips“ / „saveti za produkciju“, a About kaže „Not a Producer“.
+   - Srpski meni kaže „O meni“ (prvo lice), a ceo sadržaj je u trećem licu.
+4. **Prava priča postoji u bazi, ali se nigde ne priča.** Iz `events`: prvi javni nastup u kafiću Krivi Put u
+   Smederevu (2022) → silent disco u KC LAB (2023) → KST (2024) → Exit AS FM (2024, „first major festival stage“)
+   → Capital na Lefkadi, Borisov Atelje → dve bine Exita (2025) → Toucan na Zakintosu → Club Kult → rezidencija u
+   Ray Baru (2026) → Zippy x Naya live (2026). Četiri godine od kafića do Exita uverljivije su od svakog prideva.
+5. **„Selektor“ bez selekcije.** Sajt tvrdi da je on selektor, ali nigde ne pokazuje šta bira: nema tracklista
+   ni ploča koje trenutno pušta.
+6. **Lični znakovi postoje, ali se ne koriste:** majica sa vanzemaljcem (glavna fotka i YouTube thumbnailovi),
+   sopstveni thumbnailovi („GROOVE FUNK“, „DEEP GROOVE“), biljke u kućnom studiju, i dve strane njegovog rada:
+   house (House Music Therapy, narandžasto) i open format (Izuvanje, Core Memories, plavo).
+7. **Bug:** `/mixes/`, `/events/` i `/sr/mixes/` sa kosom crtom na kraju vraćaju 404, a `/about/` i ostale
+   prerenderovane stranice preusmere. Vidi T31.
+
+Skica hero varijanti: `docs/mockups/hero-varijante.html` (otvori lokalno u browseru).
+
+---
+
+## T23 — Hero: nova scena umesto narandžasto-belog gradijenta
+
+**Prioritet:** 🔴 P0 · **Model:** Opus 5.5 · **Effort:** high · **Pitaj me:** koja varijanta (A/B/C/D)
+
+**Problem:** `.hero-gradient` je linearni „sunset“ (crno → narandžasto → `#ffe6d8` → narandžasto → crno) koji se
+pomera na skrol. Bela traka dole desno ubija kontrast vinila i izgleda kao stock pozadina. `HOUSE MUSIC THERAPY`
+je gradijent narandžasto → belo, a glitch hover sa cijan senkom i cursor spotlight su šablonski efekti.
+
+**Varijante** (skice u `docs/mockups/hero-varijante.html`):
+- **A · Svetlo iz kabine (preporuka):** crna scena, jedno toplo narandžasto radijalno svetlo odozdo iza vinila
+  (kao iz DJ pulta), hladno plavo kontra-svetlo (`#38bdf8`, ~20 % alfe) u gornjem desnom uglu, zrno filma
+  (SVG `feTurbulence`, opacity ~0.08, `mix-blend-mode: overlay`). HMT u punoj narandžastoj, ne gradijent.
+- **B · Brazde:** pozadina je ploča. `repeating-radial-gradient` brazde iz centra aktivnog vinila, utapaju se u crno,
+  narandžasti sjaj u centru, HMT kao kontura, plavi prsten oko vinila koji svira (veza sa T25).
+- **C · Duotone portret:** velika crno-narandžasta fotka desno, ime levo, vinili ispod. Traži bar jednu dobru
+  horizontalnu fotku sa nastupa (sada postoji samo kvadratna studijska `dj-zippy-house-music-dj.webp`).
+- **D · Omot ploče:** ravna `#FF5500` + zrno, crna slova, kataloški broj u uglu, plava okrugla „nalepnica“.
+  Najhrabrije, ali menja ton cele početne.
+
+**Druga runda (2026-10-01, posle odgovora korisnika):** korisniku se dopada A, hoće nešto dinamično kao B, ali
+brazde u tom obliku deluju čudno, a D mu je zanimljiv. Nove skice su u `docs/mockups/hero-varijante-2.html`
+(animirane, otvoriti u Chrome-u). Sve imaju A kao osnovu:
+- **E · Svetlo + odsjaj ploče:** dva meka odsjaja svetla (conic-gradient) i jedva vidljivi široki krugovi oko
+  vinila, sve se okreće vrlo sporo (48 s po krugu).
+- **F · Svetlo + puls na 124 BPM:** iz vinila na svaka 2 takta izađe mek, zamućen talas (svaki treći plav), a svetlo
+  iz pulta „diše“ u ritmu takta (1 takt = 4 × 60/124 s ≈ 1.94 s).
+- **G · Omot u kabini:** ime odštampano na narandžastom omotu (`#FF5500` + zrno, crna slova, rotate −1.6°) u mraku
+  kabine, kataloški broj u mono fontu i plava nalepnica „Ray Bar resident“.
+- **H · Omot + puls (preporuka):** G + F zajedno.
+
+**Treća runda (2026-10-01):** korisniku se dopada tamno + narandžasto + malo plavog svetla; ne želi „Ray Bar resident“
+odmah na hero-u. Skice u `docs/mockups/hero-varijante-3.html`, sve na A osnovi, pokret na 124 BPM:
+- **I · Reflektori:** plavi snop iz ugla sporo šeta (moving head), topli stub svetla iza vinila diše u taktu.
+- **J · Dim u kabini:** narandžasti (dole) i plavi (gore) oblaci dima sporo plove.
+- **K · Plavi odsjaj na ploči (preporuka):** ploča se vrti, odsjaj stoji (plavo gore, toplo dole, tanka plava ivica);
+  ispod jedan mono red „SLEDEĆE · datum · veče“ iz rasporeda nastupa.
+- **L · Horizont + ekvilajzer:** vinili na liniji svetla, ekvilajzer na četvrtine, traka sa nastupima na dnu (Ray Bar
+  samo tu, kao fusnota).
+
+**Četvrta runda (2026-10-01):** korisniku je L „kao radio“, želi CDJ waveform koji klizi zdesna nalevo umesto stubova;
+iz K mu se dopada svetlo ploče i red sa najavom. Skice u `docs/mockups/hero-varijante-4.html` (waveform se crta jednom u
+canvas i klizi preko `transform`, 40 px po udarcu = 124 BPM):
+- **M · Waveform iznad ploča:** traka sa belom glavom u sredini i bit-gridom, bez svetla ploče.
+- **N · Ploča je glava (preporuka):** waveform prolazi kroz red vinila, ploča koja svira stoji na mestu glave; svetlo iz K + najava.
+- **O · CDJ ekran sa najavom:** svetlo iz K, najava kao displej CDJ-a (NEXT, veče, datum, odbrojavanje, BPM, mali pregled waveforma).
+- **P · Dva deka:** narandžasta (house) i plava (open format) traka, jedna glava.
+
+**Peta runda (2026-10-01):** korisnik pita za kasetu, CD, fleš i vinil u omotu pored vinila. Skice u
+`docs/mockups/hero-varijante-5.html`, sve na N osnovi: **Q** svi formati u redu, **R** samo vinili u omotima, ploča koja
+svira izlazi iz omota (preporuka; omot = cover miksa, veza sa T25), **S** svaki format nešto znači (vinil = HMT,
+kaseta = Core Memories, fleš = CDJ danas), sto u kabini. Mišljenje: omot da, fleš kao detalj, kaseta/CD samo sa
+značenjem (Zippy počinje 2022, retro kolaž nije njegova priča).
+
+**Trenutni izbor korisnika (2026-10-01): S.** Sviđa mu se simbolika: svaki predmet je jedan set (Core Memories na kaseti je kasnije izbačen).
+Odluke korisnika: coverflow ostaje (vrti se u krug i pokazuje setove), samo se ikone diverzifikuju; waveform ne treba;
+samo tri predmeta (vinil u omotu, kaseta, fleš) na „tanjiru“ koji se okreće: prevuci i pusti, vrti se po inerciji i
+stane na najbližem; sam prelazi na sledeći na 2 takta; kaseta i fleš nakrivljeni. Vinil u omotu =
+najnoviji House Music Therapy, kaseta (bez „Core Memories“, set je house / tech house, narandžasta traka) odmah pušta
+EXIT 2024 set, fleš vodi na /mixes i na
+njemu ispod ZIPPY piše „ALL MIXES →“ / „SVI MIKSEVI →“. Ispod je red sa sledećim nastupom (iz K, klik na Events).
+Svetlo ploče iz K ne ide (ne uklapa se u estetiku). Skica: `docs/mockups/hero-varijante-6.html`.
+
+**Prompt:**
+> Uradi Task T23 iz docs/TASKS.md. Korisnik je izabrao varijantu ___ (pitaj ako nije upisano). U
+> `src/components/pages/HomePage.astro` zameni `.hero-gradient` novom scenom po skici iz
+> `docs/mockups/hero-varijante-2.html` (E–H) ili `hero-varijante.html` (A–D). Pokret (puls, odsjaj, okretanje)
+> se gasi pod reduced motion, kao ostale animacije na `main`. Talasi idu preko `transform`/`opacity` (GPU), bez
+> animiranja `box-shadow` ili `filter` po frejmu. Na telefonu omot ne sme da gura vinile ispod prvog ekrana. Zadrži: H1 strukturu iz T10, coverflow i njegov SSR raspored iz B1, scrim
+> za čitljivost naslova, `overflow-x-clip`. Pomeranje pozadine na skrol (`--hero-shift`) zadrži samo ako ima smisla
+> za novu scenu (A: svetlo može blago da se diže; B: brazde mogu sporo da rotiraju, pod `prefers-reduced-motion`
+> stoji). Zrno je jedan mali inline SVG data URI, bez novih fajlova. Ukloni glitch hover sa „ZIPPY.“ (i
+> `.glitch-text` iz `global.css` ako se nigde drugde ne koristi) i cursor spotlight na hero-u (`data-spotlight`, JS u
+> `Layout.astro`), osim ako korisnik kaže da ih zadrži. HMT u punoj boji. Proveri kontrast natpisa ispod vinila
+> (≥ 4.5:1), desktop 1440 i mobilni 390, i da Lighthouse mobile na `/` ostane ≥ 95 (nema novih slika ni fontova).
+> Ne diraj boje ostatka sajta.
+
+---
+
+## T24 — Plava kao druga boja: open format strana
+
+**Prioritet:** 🟠 P1 · **Model:** Sonnet 5.5 · **Effort:** medium
+
+**Ideja:** plava (`sky-400` `#38bdf8` za ivice i svetla, `sky-300` `#7dd3fc` za tekst na crnom) dobija **značenje**:
+narandžasta = House Music Therapy (house strana), plava = open format (Izuvanje, Core Memories). Tako plava nije
+ukras nego drugi glas, i zato sme da se pojavi na još par mesta. Pravilo: najviše ~5 % površine ekrana, nikad na
+CTA dugmićima (Book / Send ostaju narandžasti), nikad kao pozadina velikih površina.
+
+**Mesta:**
+1. Token u `tailwind.config.mjs`: `brand.blue: '#38bdf8'`, `brand.blueText: '#7dd3fc'` i `.open-chip` prebaciti na njih.
+2. Hero: plavo kontra-svetlo (ako je u T23 izabrana A) ili plavi prsten na vinilu koji svira (B / T25).
+3. About: kartica/odeljak **Izuvanje** u plavom (ivica, naslov), Kult Talents u narandžastom. Vizuelno: dve strane.
+4. Events lead objašnjava boju: „Plavo znači open format veče.“ (tekst iz T27; dok je T27 odložen, T24 sme da promeni samo
+   `events.lead` u en + sr). Datum open format nastupa je već plav.
+5. `:focus-visible` prsten za tastaturu u plavoj (bolje se vidi od narandžaste na narandžastim dugmićima) i
+   `::selection` (označen tekst) u plavoj sa crnim tekstom.
+6. Mixes: ako postoje open format miksevi, čip „Open format“ na kartici (isti `.open-chip`).
+7. Ukloniti stari cijan `#00E5FF` iz glitch efekta (ako ga T23 već nije uklonio), da ne postoje dve različite plave.
+
+**Prompt:**
+> Uradi Task T24 iz docs/TASKS.md. Uvedi `brand.blue` / `brand.blueText` token i primeni plavu samo na mestima sa
+> liste u tasku (proveri šta je T23 već uradio). Kontrast plavog teksta na crnom/`#1f1f1f` ≥ 4.5:1. Oba jezika.
+> Desktop + mobilni screenshot.
+
+---
+
+## T25 — Vinili: klik pušta miks u plejeru na dnu, hover „pali“ ploču
+
+**Prioritet:** 🟠 P1 · **Model:** Opus 5.5 · **Effort:** high · **Pitaj me:** ništa od fajlova (korisnik nema vremena da seče audio)
+
+**Kako radi sada:** aktivni (centralni) disk je `<a href={m.link} target="_blank">` i klik otvara miks na platformi
+(YouTube, MixCloud, Spotify) u novom tabu. Klik na bočni disk ga samo dovede u centar (`HomePage.astro`, ~red 846).
+Zvuka na sajtu nema.
+
+**Istraživanje (2026-10-01): šta je moguće.**
+1. **Autoplay pravilo browsera.** Zvuk sme da krene tek posle *korisničke aktivacije* stranice (klik, tap, taster).
+   **Hover nije aktivacija**, pa „zvuk na sam prelaz mišem“ na sveže otvorenoj stranici ne može da radi ni na
+   jednom sajtu. Radi tek posle prvog klika, i samo do kraja te posete.
+2. **Sopstveni kratki klipovi** (prvi predlog) bili bi najbrži, ali traže da neko iseče audio. Korisnik nema
+   vremena za to, pa otpada.
+3. **MixCloud ima zvanični widget sa JS API-jem** (`Mixcloud.PlayerWidget`): `load(key, startPlaying)`, `play()`,
+   `pause()`, `seek(sekunde)`, `getDuration()`, događaji `play`/`pause`/`progress`/`ended`. Jedan iframe može da
+   menja mikseve preko `load()`, bez fajlova i bez ručnog posla. Mini oblik (`mini=1&hide_cover=1`) je ~60 px visok.
+   MixCloud API (`api.mixcloud.com/zovumezippy/cloudcasts/`) javno daje sve mikseve, trajanje i opis.
+4. Skriven plejer nije dobar: YouTube traži vidljiv plejer (najmanje 200×200 px), a skriven MixCloud widget je u sivoj
+   zoni njihovih uslova (muzika je licencirana preko njihovog plejera). Zato plejer mora da se vidi.
+
+**Predlog (bez ijednog fajla):**
+- **Klik na centralni vinil pušta miks** u malom plejeru („dock“) koji se pojavi na dnu ekrana: MixCloud mini widget
+  za MixCloud mikseve, Spotify kompaktni embed (80 px) za plejlistu. Za YouTube-only miks: ako isti set postoji na
+  MixCloud-u (npr. Ray Bar), pušta se MixCloud verzija; ako ne, otvara se YouTube kao sada.
+- **Automatski početak bez intro-a:** posle `play` događaja `seek(getDuration() × 0.2)`, pa set kreće od
+  ~20 % (gde je obično već „ušao u groove“). Niko ne mora da bira minut. Dugme „od početka“ u dock-u.
+- **Hover je vizuelni, ne zvučni:** ploča ubrza kao kad se gramofon pali, oko etikete se upali tanak plavi prsten
+  (T24), natpis „▶ Pusti“. Klik na bočni disk ga dovede u centar (kao sada), drugi klik pušta.
+- **Dok svira:** centralni disk se vrti, plavi prsten pokazuje napredak (`progress` događaj), u dock-u naslov +
+  pauza + „Otvori na MixCloud-u“ + X. Samo jedan miks u isto vreme.
+- **Muzika ne staje pri prelasku na druge stranice** (cilj): sajt već koristi `<ViewTransitions />`, pa dock dobija
+  `transition:persist`. Proveriti: premeštanje iframe-a u DOM-u ga u nekim browserima ponovo učita; ako se to desi
+  u Astro 4.16, plejer radi samo na početnoj, pa to reći korisniku umesto da se krpi.
+- **Učitavanje:** widget skripta i iframe se učitavaju tek na prvi klik (ili hover kao nagoveštaj namere). Do tada
+  nula bajtova, pa Lighthouse ostaje isti.
+- **Telefon:** isto, tap na centralni disk pušta u dock-u; „Otvori na MixCloud-u“ je u dock-u.
+- **Pristupačnost:** dock je `role="region"` sa labelom, pauza i X dostupni tastaturom, Esc zatvara.
+
+**Alternativa ako korisnik ipak želi zvuk na hover:** isti MixCloud widget, ali tek posle prvog klika na stranici:
+hover na centralni disk posle ~300 ms učita miks i preskoči na 20 %. Mane: kašnjenje 1–3 s pre zvuka, plejer i dalje
+mora da bude vidljiv, i prvi hover na stranici je uvek nem. Ne preporučujem kao glavni način.
+
+**Prompt:**
+> Uradi Task T25 iz docs/TASKS.md (predlog sa dock plejerom, bez audio fajlova). Mapiranje miks → MixCloud ključ
+> uzmi iz `mixes.link` (MixCloud URL) ili iz MixCloud API-ja po naslovu; za YouTube miks koji ima MixCloud verziju
+> pitaj korisnika jednom za potvrdu para. Implementiraj u `HomePage.astro` + mali dock komponent u `Layout.astro`
+> (zbog `transition:persist`), bez novih npm paketa (widget skripta sa `widget.mixcloud.com` tek na klik). Testiraj:
+> klik na centralni i bočni disk, pauza/X/Esc, prelaz na /mixes i nazad (da li muzika ide dalje), mobilni 390 px,
+> reduced motion, tastatura. Lighthouse mobile `/` ≥ 95.
+
+---
+
+## T26 — Stranica za svaki miks (`/mixes/[slug]`) sa tracklistom
+
+**Prioritet:** 🟡 P2 · **Model:** Opus 5.5 · **Effort:** high · **Pitaj me:** tracklistovi
+
+**Zašto:** sada klik na vinil ili karticu izbacuje posetioca na YouTube/MixCloud. Sopstvena stranica miksa drži ga na
+sajtu i **dokazuje selekciju**: tracklist je najbolji dokaz za „selektor“. Usput dobija SEO stranicu po miksu
+(„House Music Therapy — Deep & Tech Grooves tracklist“). Tabela `mixes` već ima `slug` i `description`.
+
+**Provereno 2026-10-01:** MixCloud API (`api.mixcloud.com/zovumezippy/cloudcasts/`) daje 6 setova sa trajanjem,
+tagovima i opisom (npr. Ray Bar 2. rođendan, 30. 5. 2026), ali **tracklistovi su prazni** (`sections: []`). Pošto
+korisnik nema vremena za ručni rad: stranica miksa kreće sa opisom i tagovima povučenim iz MixCloud API-ja + plejer
+(T25 dock) + linkovi, a tracklist se dodaje kasnije samo ako ga korisnik upiše na MixCloud (onda ga API sam vrati).
+Usput: na MixCloud-u postoje i setovi kojih nema na sajtu („live from Singing Forest“, „Summer House & Dance Mix for
+ASFM“, „Live @ KCLAB“), proveriti sa korisnikom da li idu na /mixes.
+
+**Sadržaj stranice:** veliki vinil/cover, naslov, žanr, datum i mesto (ako je live), embed player platforme (vidljiv,
+po ToS), kratka beleška u njegovom glasu (2–3 rečenice: gde je sniman, kakvo je veče bilo), **tracklist** (izvođač –
+naslov, opciono vreme), dugmad „Slušaj na …“ za sve platforme, prethodni/sledeći miks, Book CTA. Schema
+`MusicRecording`/`MusicPlaylist` sa `track` listom.
+
+**Prompt:**
+> Uradi Task T26 iz docs/TASKS.md. Pitaj korisnika za tracklistove i beleške (može za početak 2–3 miksa). Dodaj
+> kolonu `tracklist` (JSON ili tekst red po red) migracijom (0009), polje u adminu, SSR rutu `/mixes/[slug]` i
+> `/sr/mixes/[slug]`, link sa kartica na /mixes i sa centralnog vinila (T25). Sitemap + hreflang. Bez tracklista
+> stranica se ne pravi (kartica i dalje vodi na platformu). Desktop + mobilni.
+
+---
+
+## T27 — Tekstovi: novi glas bez DJ klišea (en + sr)
+
+> **⏸ Odloženo 2026-10-01** (korisnik: „T27 ostavi za kasnije“). Ne raditi dok korisnik ne kaže.
+
+**Prioritet:** 🔴 P0 · **Model:** Opus 5.5 · **Effort:** high · **Pitaj me:** samo preostale ⚠ činjenice
+
+**Odluke korisnika (2026-10-01):** tekstovi ostaju u **trećem licu**. Ray Bar rezidencija: tačno. Go2 Travel:
+ukupno **tri** puta: Lefkada i Zakintos (Grčka) i **Ohrid (Severna Makedonija)**. **Kult Talents: više nije član**;
+bio je jedan period u njihovom kursu i community-ju i ostao u kontaktu. Svuda gde piše „member“ / „član“ to je sada
+netačno i mora da se ispravi (lista ispod tabele).
+
+**Pravila za novi glas:**
+- **Činjenice umesto prideva.** Godine, mesta, bine, imena. Nijedno „vibe“, „journey“, „frequencies“, „energy of
+  the dancefloor“, „take you on a journey“, „safe bet“, „proud member“.
+- **Kratko.** Rečenica do ~20 reči. Bez „In an era dominated by…“.
+- **Bez odbrane.** Ne objašnjavati šta nije („Not a producer“), nego šta radi.
+- **Lice:** sve u **trećem licu** (odluka korisnika). Zato srpski meni i breadcrumb „O meni“ postaju „O Zippyju“.
+  Footer bez „ja“: „Pošalji datum, grad i mesto.“ je imperativ i ostaje.
+- Tamo gde piše „DJ Zippy“ tri puta u pasusu, u telu teksta ostaje „Zippy“; puno ime samo u naslovima i meta.
+- Srpski: manje anglicizama (`vibe-u`, `event`, `svirke`). „Booking“ može da ostane jer je industrijski termin.
+
+**Prepravke (predlog; ⚠ = korisnik mora da potvrdi činjenicu):**
+
+| Ključ (`ui.ts`) | Sada | Predlog EN | Predlog SR |
+|---|---|---|---|
+| `about.lead` | curates frequencies from club nights to festival main stages, dedicated to the groove, the vibe, and the journey | Serbian house DJ. First public set in a Smederevo café in 2022, three Exit Festival stages by 2025, a Ray Bar residency in 2026. | Srpski house DJ. Prvi javni nastup u smederevskom kafiću 2022, tri bine Exit festivala do 2025, rezidencija u Ray Baru 2026. |
+| `about.subheading1–3` | Not a Producer. A Selector. | The records are other people's. The order is his. | Ploče su tuđe. Redosled je njegov. |
+| `about.bio1Html` | right groove can heal… strictly House… shifting into Techno | House Music Therapy started as a mix series and became the name of his nights: deep tech and minimal for the late hours, deep and French house to open, disco, funk and jazz running underneath. | House Music Therapy je počeo kao serijal mikseva, a postao ime njegovih večeri: deep tech i minimal za kasne sate, deep i french house za početak, a disco, funk i jazz provlače se ispod svega. |
+| `about.bio2Html` | In an era dominated by production credits… bridging the gap between the DJ booth and the dancefloor | He reads the room first and plays second. The set gets built during the night, not before it. ⚠ | Prvo čita publiku, pa tek onda pušta. Set se slaže tokom večeri, ne pre nje. ⚠ |
+| `about.bio3Html` | Reliability is key… Go2 Travel… safe and exciting bet for any promoter | Three summer trips with Go2 Travel: Capital in Lefkada (2024), Toucan in Zakynthos (2025) and Ohrid in North Macedonia (⚠ godina i mesto). | Tri leta sa Go2 Travel: Capital na Lefkadi (2024), Toucan na Zakintosu (2025) i Ohrid u Severnoj Makedoniji (⚠ godina i mesto). |
+| `about.memberOf` | Proud Member of: | Crews | Ekipe |
+| `about.kultTitle` | Kult Talents Member | Kult Talents alumni | Kult Talents alumni |
+| `about.kultDesc` | Platform for those who dare to experiment… define tomorrow's sound | Went through Club Kult's talent course and community in Belgrade; played Kult in 2025 and 2026. | Prošao kurs i community kluba Kult u Beogradu; nastupao u Kultu 2025. i 2026. |
+| `about.izuvanjeDesc` | Non-EDM party concept blending all kinds of genres and generations operating since 2022 | His open-format side: a non-EDM party running since 2022, where any decade can end up in the set. | Njegova open format strana: non-EDM žurka od 2022, gde u set može da upadne bilo koja decenija. |
+| `schema.orgDescription` | DJ brand curating frequencies, grooves, and the journey through house music | DJ Zippy's mix series and club nights: deep tech, minimal and deep house with disco and funk underneath. | Serijal mikseva i klupske večeri DJ Zippyja: deep tech, minimal i deep house, sa disco i funk podlogom. |
+| `footer.blurb` | bringing the House Music Therapy to your event | Clubs, festivals, private events. Send the date, the city and the venue. ⚠ (+ „I reply within 48 h“ ako je tačno) | Klubovi, festivali, privatne žurke. Pošalji datum, grad i mesto. ⚠ (+ „Odgovaram za 48 h“ ako je tačno) |
+| `home.featuredSub` | Listen to DJ Zippy's latest sets and mixes. | Live recordings and House Music Therapy sessions. (posle T25: Hover a record to hear it.) | Snimci sa nastupa i House Music Therapy sesije. (posle T25: Pređi mišem preko ploče da je čuješ.) |
+| `home.introChips` | Exit Festival 2024 & 2025 · 3 Exit Festival stages · … | 3 Exit stages · 2024–25 · Ray Bar resident · Serbia · Greece · North Macedonia | 3 bine Exita · 2024–25 · Rezident Ray Bara · Srbija · Grčka · S. Makedonija |
+| `home.venues` | … Ray Bar · Kult Talents | Izbaciti „Kult Talents“ (nije mesto). Dodati „Krivi Put · Smederevo“ (prvi nastup), „Ohrid“ (⚠ ime mesta) i/ili „Lazino Tele“. | isto |
+| `events.lead` | From intimate club nights to major festival stages. House Music Therapy live. | Where to hear it next. Blue means an open-format night. | Gde se sledeće čuje. Plavo znači open format veče. |
+| `gallery.lead` | Capturing the energy of the dancefloor. | Exit, Kult, Ray Bar — from behind the decks. | Exit, Kult, Ray Bar — iza pulta. |
+| `blog.description` | …production tips, event reviews… | Notes on house music, records and nights behind the decks. | Beleške o house muzici, pločama i noćima iza pulta. |
+| `blog.authorBio` | blend classic house selections with contemporary sounds | isti tekst kao `schema.personDescriptionShort` | isto |
+| `notFound.lead` | This page dropped off the playlist. Head back and keep the vibe going. | This one's not in the crate. | Ove ploče nema u gajbi. |
+
+**Kult Talents „član“ je sada netačno, ispraviti svuda:** `ui.ts` `home.introChips` (en „Kult Talents member“, sr
+„Član Kult Talents“), `about.kultTitle` (en + sr), `home.venues` (en + sr, nije mesto), schema `memberOf` u
+`HomePage.astro` (~red 104) i `AboutPage.astro` (~red 62): izbaciti Kult Talents (Izuvanje ostaje), `public/llms.txt`
+(„Affiliations: Kult Talents…“ → „Alumni: Kult Talents talent program“). Izvan sajta (T18): Instagram/RA bio ako
+negde piše da je član.
+
+**Go2 Travel / Ohrid:** dodati prošli nastup u Ohridu u D1 `events` (⚠ datum i ime mesta od korisnika; upis u prod
+D1 traži potvrdu), FAQ „Where is DJ Zippy from?“ dopuniti sa „…summer club nights in Greece and North Macedonia“.
+
+Ostalo što ostaje: „reads the room first and plays second“ (dobra rečenica, sada se koristi i na About),
+„The selector behind House Music Therapy“, „Let's Connect / Hajde da se čujemo“, „Track not found“.
+Naslovi i meta iz T9 („Serbian house DJ“, „house i tech house“) se ne diraju zbog SEO-a.
+
+**Prompt:**
+> Uradi Task T27 iz docs/TASKS.md. Lice (treće) i većina činjenica su već odlučeni (vidi „Odluke korisnika“). Jednim
+> AskUserQuestion pitaj samo preostale ⚠: godina i mesto u Ohridu, „set se slaže tokom večeri“, rok za odgovor na
+> upit. Ispravi Kult Talents svuda po listi. Zatim primeni tabelu u `src/i18n/ui.ts` (en + sr).
+> Neproverene ⚠ rečenice izostavi umesto da ih izmisliš. Uskladi `llms.txt` i schema opise (Person/Organization)
+> sa novim tekstom, bez promene naslova i meta iz T9. Proveri da nijedna stranica ne puca (tipovi `Dict`), build
+> jednom, screenshot About i početne na en i sr.
+
+---
+
+## T28 — About kao priča: put od 2022. do danas (rešava B9)
+
+**Prioritet:** 🟠 P1 · **Model:** Opus 5.5 · **Effort:** high · **Zavisi od:** T27 (tekstovi), B7 (FAQ harmonika, gotovo)
+
+**Koncept:** umesto bio → „Proud Member of“ kartice → FAQ, About priča njegov put kroz **prave nastupe iz baze**:
+1. Vrh: velika fotka (ista sa vanzemaljcem, ne menja se) + kratak lead iz T27, u trećem licu (odluka korisnika).
+2. **„Put“**: vertikalna vremenska linija sa godinama i mestima: 2022 Krivi Put, Smederevo (prvi javni nastup) →
+   2023 KC LAB, silent disco → 2024 Exit AS FM (prva festivalska bina), Capital Lefkada, Borisov Atelje → 2025 Exit
+   Dance Arena + Students Stage, Toucan Zakintos, Club Kult (posle Kult Talents kursa) → Ohrid (⚠ godina) → 2026
+   Ray Bar rezidencija, Zippy x Naya. Narandžaste tačke za house večeri, plave za open format (T24). Podaci iz
+   `events` (featured + ključni), ne hardkodovano.
+3. **Dve strane:** House Music Therapy (narandžasto) | Izuvanje / open format (plavo), po 2 rečenice.
+4. Umesto „Proud Member of“: Izuvanje (open format ekipa) i Kult Talents kao **alumni** (kurs i community, nije više
+   član), sa linkovima.
+5. FAQ harmonika (B7) + Book CTA.
+
+**Prompt:**
+> Uradi Task T28 iz docs/TASKS.md (zamenjuje „fazu 1“ iz B9: koncept je izabran). Tekst u trećem licu. Pitaj
+> korisnika samo da potvrdi godine/mesta na liniji (i Ohrid ako T27 to još nije rešio). Gradi iz `getEvents(db)`, sa fallback-om iz seed liste. Reveal kratak
+> (T12), reduced motion bez animacije, prave `<img>` sa alt-om, H1/H2 hijerarhija, oba jezika, 390 px.
+> Lighthouse ≥ 95.
+
+---
+
+## T29 — „U torbi“: ploče koje Zippy trenutno pušta
+
+**Prioritet:** 🟡 P2 · **Model:** Sonnet 5.5 · **Effort:** medium · **Pitaj me:** lista numera
+
+**Ideja:** selektor se dokazuje izborom. Mali blok „U torbi ovog meseca“ / „In the bag this month“: 6–8 numera
+(izvođač – naslov – label) sa linkom (Bandcamp/Beatport/Spotify), datum ažuriranja. Na početnoj ispod Upcoming ili
+na /mixes. Menja se jednom mesečno, pa je to i razlog da se ljudi vraćaju, i svež sadržaj za Google.
+
+**Prompt:**
+> Uradi Task T29 iz docs/TASKS.md. Pitaj korisnika za listu i gde je želi (početna ili /mixes). Za početak lista u
+> `ui.ts` (zajednička za en i sr) ili mala D1 tabela `crate` ako korisnik želi da je menja iz admina. Bez cover
+> slika (brzina). Oba jezika, mobilni.
+
+---
+
+## T30 — Potpisi identiteta: HMT kataloški brojevi, mono metapodaci, zrno
+
+> **Otkazano 2026-10-01** (korisnik: „T30 nećemo“). Ne raditi. Ostaje samo kao zapis ideje.
+
+**Prioritet:** 🟡 P2 · **Model:** Sonnet 5.5 · **Effort:** medium · **Pitaj me:** redosled HMT brojeva
+
+Sitni detalji koji zajedno daju osećaj izdavačke kuće (record label), a ne šablona:
+- **Kataloški brojevi:** svaka House Music Therapy sesija dobija broj `HMT 001`, `HMT 002`… (po datumu objave) na
+  kartici miksa, na vinilu i na stranici miksa.
+- **Mono font za metapodatke:** datumi, BPM, kataloški brojevi, „Novi Sad · 22:00“ u monospace (npr. JetBrains Mono
+  ili IBM Plex Mono, self-host latin + latin-ext, samo 1 težina) kao na omotima ploča. Unbounded ostaje za naslove,
+  Inter za tekst.
+- **Zrno** (isti SVG šum iz T23) blago preko fotki i tamnih sekcija, da sajt ne bude „plastično“ digitalan.
+- **Vanzemaljac** sa majice. Odgovor korisnika (2026-10-01): bio je slučajan, ali ljudi su ga zapamtili jer je ista
+  fotka dugo u upotrebi, i razmišlja da ga uvede u brend (npr. da na nastupima nosi samo majice sa vanzemaljcima).
+  Predlog: **fotku ne menjati**, to je već prepoznatljivo. Znak neka raste spolja: majice sa vanzemaljcem na nastupima i
+  fotkama nekoliko meseci. Na sajtu za sada samo 1–2 sitna „easter egg“ detalja: 404 „Ova stranica je oteta“ /
+  „This page got abducted“ sa malim SVG vanzemaljcem, eventualno glif kao separator u crnoj traci umesto ✦. Logo
+  „ZIPPY.“ i favicon „Z.“ se ne diraju dok znak ne zaživi van sajta.
+
+**Prompt:**
+> Uradi Task T30 iz docs/TASKS.md. Vanzemaljac: samo easter egg na 404 (i separator ako korisnik želi), fotka ostaje.
+> Pitaj da li HMT brojevi idu po datumu objave. Font samo jedna težina, preload ne treba. Lighthouse ≥ 95. Desktop + mobilni.
+
+---
+
+## T31 — Bug: `/mixes/` i `/events/` sa kosom crtom na kraju daju 404
+
+**Prioritet:** 🔴 P0 · **Model:** Sonnet 5.5 · **Effort:** low
+
+**Provereno 2026-10-01:** `/mixes/`, `/events/` i `/sr/mixes/` vraćaju **404**, a `/mixes` i `/events` 200.
+Prerenderovane stranice (`/about/`, `/links/`, `/gallery/`, `/blog/`) se preusmere bez kose crte. Uzrok:
+`trailingSlash: 'never'` u `astro.config.mjs`, a SSR stranice (`prerender = false`: `/`, `/mixes`, `/events`, `/sr/…`)
+sa kosom crtom ne odgovaraju ruti i padnu u `[...slug].astro` (404). Ko podeli link sa `/` na kraju (Instagram bio,
+neki bukeri, Google ako ga negde nađe) dobija 404.
+
+**Prompt:**
+> Uradi Task T31 iz docs/TASKS.md. U `src/middleware/index.ts`, pre admin provere, za svaki GET/HEAD zahtev čiji
+> `pathname` ima više od 1 znaka i završava se sa `/` vrati **301** na isti put bez kose crte (zadrži query string).
+> Ne diraj `/` i `/api/*`. Proveri na `wrangler dev` (ne `astro dev`): `/mixes/`, `/events/`, `/sr/mixes/`,
+> `/sr/events/`, `/mixes/?x=1` → 301, a `/mixes` 200. Build jednom.

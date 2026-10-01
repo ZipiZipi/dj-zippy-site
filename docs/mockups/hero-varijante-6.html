@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="sr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hero varijante 6</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=IBM+Plex+Mono:wght@500&family=Unbounded:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root { --o:#FF5500; --b:#38bdf8; --bt:#7dd3fc; --k:#050505; --beat:.484s; --bar:1.935s;
+          --hmt:url('https://thumbnailer.mixcloud.com/unsafe/640x640/profile/3/1/9/8/906b-aecb-4cac-8b5b-75f72bd1ebde');
+          --ray:url('https://i.ytimg.com/vi/nCtGqbvYe38/hqdefault.jpg');
+          --spot:url('https://mosaic.scdn.co/640/ab67616d00001e021627697c9b99172d7dcf2c74ab67616d00001e02b42ee5d45dd19e47aafad85dab67616d00001e02e56e1f3cf3bc9d79d248dde0ab67616d00001e02fc45f3f1aba371e0494d1b7e'); }
+  * { box-sizing:border-box; margin:0; }
+  body { background:#111; color:#fff; font-family:Inter, sans-serif; padding:24px 16px 48px; }
+  h1.page { font:700 20px Unbounded, sans-serif; max-width:1100px; margin:0 auto 6px; }
+  p.page { color:#aaa; font-size:14px; line-height:1.55; max-width:1100px; margin:0 auto 22px; }
+  .wrap { max-width:1100px; margin:0 auto 32px; }
+  .mono { font:500 11px 'IBM Plex Mono', ui-monospace, Consolas, monospace; letter-spacing:.08em; }
+
+  .hero { position:relative; height:680px; border-radius:14px; overflow:hidden; isolation:isolate; text-align:center; padding-top:52px;
+          background:
+            radial-gradient(ellipse 55% 48% at 50% 80%, rgba(255,85,0,.46), rgba(255,85,0,.12) 45%, transparent 72%),
+            radial-gradient(ellipse 38% 34% at 92% 4%, rgba(56,189,248,.18), transparent 70%),
+            #050505; }
+  .hero::after { content:''; position:absolute; inset:0; z-index:200; pointer-events:none; opacity:.09; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  .kicker { font:700 11px Unbounded; letter-spacing:.4em; padding-left:.4em; display:inline-flex; gap:.9em; align-items:center; color:rgba(255,255,255,.9); }
+  .kicker::before, .kicker::after { content:''; width:1.8em; height:2px; background:var(--o); }
+  .name { font:900 92px/1 Unbounded; margin-top:10px; letter-spacing:-.01em; }
+  .name i { font-style:normal; color:var(--o); }
+  .hmt { font:900 34px Unbounded; letter-spacing:-.01em; margin-top:4px; color:var(--o); }
+
+  /* ---------- coverflow (same maths as the live one) ---------- */
+  /* ring carousel: the three objects sit on a slowly turning lazy susan; JS sets x / y / scale every frame */
+  .cf { position:absolute; left:0; right:0; bottom:136px; height:280px; touch-action:pan-y; cursor:grab; user-select:none; -webkit-user-select:none; }
+  .cf.drag { cursor:grabbing; }
+  .item { position:absolute; left:50%; top:0; width:250px; height:250px; margin-left:-125px; display:flex; align-items:center; justify-content:center;
+          will-change:transform; -webkit-tap-highlight-color:transparent; }
+  .item img, .item * { -webkit-user-drag:none; }
+  .caption { position:absolute; left:0; right:0; bottom:98px; z-index:150; }
+  .caption .ttl { font:700 15px Unbounded; }
+  .caption .pl { color:rgba(255,255,255,.55); margin-top:4px; }
+  .caption .kind { display:inline-block; margin-bottom:6px; padding:2px 8px; border-radius:99px; font-size:9.5px; }
+  .kind.house { background:rgba(255,85,0,.16); color:#ff8a4d; } .kind.open { background:rgba(56,189,248,.14); color:var(--bt); } .kind.all { background:rgba(255,255,255,.08); color:#ddd; }
+
+  /* vinyl */
+  .disc { --s:200px; width:var(--s); height:var(--s); border-radius:50%; position:relative; flex:none;
+          background:radial-gradient(circle, transparent 0 31%, rgba(255,255,255,.07) 31.5%, transparent 33%), repeating-radial-gradient(circle, #0c0c0c 0 2px, #191919 2px 3px);
+          }
+  .disc::after { content:''; position:absolute; inset:31%; border-radius:50%; background:var(--lab) center/cover, var(--o); }
+  .disc::before { content:''; position:absolute; left:50%; top:50%; width:7px; height:7px; margin:-3.5px; border-radius:50%; background:#0a0a0a; z-index:2; }
+  .item.active .disc { animation:spin 1.8s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  /* record light from K — the sheen stays still while the record turns */
+  .light { position:absolute; inset:0; border-radius:50%; pointer-events:none; opacity:0; transition:opacity .6s; mix-blend-mode:screen;
+           background:conic-gradient(from -30deg, transparent 0 20deg, rgba(125,211,252,.55) 34deg, transparent 50deg 200deg, rgba(255,140,80,.35) 214deg, transparent 230deg);
+           -webkit-mask:radial-gradient(circle, transparent 0 32%, #000 34% 98%, transparent 99%); mask:radial-gradient(circle, transparent 0 32%, #000 34% 98%, transparent 99%); }
+  .item.active .light { opacity:1; }
+  .vwrap { position:relative; width:200px; height:200px; }
+
+  /* vinyl in sleeve: the record is tucked in, and slides out when it plays */
+  .sv { position:relative; width:190px; height:190px; transition:transform .7s cubic-bezier(.2,.7,.2,1); }
+  /* the shadow lives on the slot, which does not turn, so it stays put like the sleeve's */
+  .sv .slot { position:absolute; left:0; top:5px; width:180px; height:180px; border-radius:50%; box-shadow:0 18px 40px -8px rgba(0,0,0,.75); transition:transform .9s cubic-bezier(.2,.7,.2,1); }
+  .sv .slot .disc { --s:180px; }
+  .sv .sleeve { position:absolute; inset:0; border-radius:3px; background:var(--cov) center/cover, var(--o); box-shadow:0 20px 40px -10px rgba(0,0,0,.85); z-index:2; overflow:hidden; }
+  .sv .sleeve::before { content:''; position:absolute; inset:0; background:linear-gradient(135deg, rgba(255,255,255,.18), transparent 35%, rgba(0,0,0,.25)); }
+  .sv .sleeve .cat { position:absolute; left:8px; bottom:7px; font-size:9px; color:#fff; text-shadow:0 1px 4px rgba(0,0,0,.8); }
+  .sv .slot { transform:translateX(14%); }
+  .item.active .sv { transform:translateX(-26%); }
+  .item.active .sv .slot { transform:translateX(56%); }
+
+  /* cassette = EXIT 2024 live set */
+  .cas { width:236px; height:150px; position:relative; border-radius:10px; background:linear-gradient(180deg, #262626, #141414);
+         box-shadow:0 20px 34px -10px rgba(0,0,0,.85), inset 0 1px 0 rgba(255,255,255,.08); flex:none; }
+  .cas .lab { position:absolute; left:12px; right:12px; top:12px; height:86px; border-radius:5px; background:#efe8dc; overflow:hidden; text-align:left; }
+  .cas .lab .strip { position:absolute; left:0; right:0; top:0; height:20px; background:var(--o); color:#050505; font-size:10px; padding:4px 8px; font-weight:500; }
+  .cas .lab .hw { position:absolute; left:9px; bottom:6px; font:600 11px Inter; color:#2a2a2a; }
+  .cas .lab .side { position:absolute; right:9px; bottom:6px; font:900 13px Unbounded; color:#2a2a2a; }
+  .cas .win { position:absolute; left:52px; right:52px; top:38px; height:36px; border-radius:18px; background:#0b0b0b; display:flex; justify-content:space-between; align-items:center; padding:0 7px; }
+  .cas .reel { width:24px; height:24px; border-radius:50%; background:repeating-conic-gradient(#d8d0c4 0 20deg, #0b0b0b 20deg 60deg);
+               -webkit-mask:radial-gradient(circle, transparent 0 4.5px, #000 5px); mask:radial-gradient(circle, transparent 0 4.5px, #000 5px); }
+  .item.active .cas .reel { animation:spin 2.4s linear infinite; }
+  .cas .holes { position:absolute; left:62px; right:62px; bottom:12px; height:22px; border-radius:4px 4px 0 0; background:#0e0e0e; }
+  .cas .screw { position:absolute; width:6px; height:6px; border-radius:50%; background:#444; }
+
+  /* cassette leans left, USB right; both straighten a little when they come to the front */
+  .cas.tilt { transform:rotate(-9deg); transition:transform .7s cubic-bezier(.2,.7,.2,1); }
+  .usb.tilt { transform:rotate(11deg); transition:transform .7s cubic-bezier(.2,.7,.2,1); }
+  .item.active .cas.tilt { transform:rotate(-4deg); } .item.active .usb.tilt { transform:rotate(6deg); }
+
+  /* USB = all mixes */
+  .usb { display:flex; align-items:center; flex:none; }
+  .usb .body { width:168px; height:66px; border-radius:10px; background:linear-gradient(180deg, #ff6a1f, #dc4800); position:relative; color:#050505; text-align:left; padding:10px 14px;
+               box-shadow:0 16px 28px -8px rgba(0,0,0,.85), inset 0 1px 0 rgba(255,255,255,.28); }
+  .usb .body b { display:block; font:900 22px/1 Unbounded; letter-spacing:-.01em; }
+  .usb .body .mono { display:block; margin-top:6px; font-size:10px; }
+  .usb .led { position:absolute; right:11px; top:11px; width:7px; height:7px; border-radius:50%; background:var(--b); box-shadow:0 0 8px 2px rgba(56,189,248,.8); animation:blink var(--beat) steps(1) infinite alternate; }
+  .usb .plug { width:41px; height:40px; background:linear-gradient(180deg, #dedede, #8a8a8a); border-radius:0 4px 4px 0; position:relative; }
+  .usb .plug::before, .usb .plug::after { content:''; position:absolute; left:14px; width:10px; height:8px; background:#3a3a3a; }
+  .usb .plug::before { top:8px; } .usb .plug::after { bottom:8px; }
+  @keyframes blink { 50% { opacity:.25; } }
+
+  .nav { position:absolute; z-index:150; bottom:58px; left:0; right:0; display:flex; justify-content:center; align-items:center; gap:14px; }
+  .nav button { width:34px; height:34px; border-radius:50%; border:1px solid rgba(255,255,255,.2); background:rgba(0,0,0,.4); color:#fff; cursor:pointer; font-size:14px; }
+  .dots { display:flex; gap:7px; } .dots i { width:7px; height:7px; border-radius:50%; background:rgba(255,255,255,.25); cursor:pointer; }
+  .dots i.on { background:var(--o); }
+  /* next gig, from the same schedule as Upcoming Events (blue word = open format night) */
+  .nowline { position:absolute; z-index:150; left:0; right:0; bottom:18px; color:rgba(255,255,255,.6); }
+  .nowline a { color:inherit; text-decoration:none; }
+  .nowline b { color:var(--bt); font-weight:500; }
+  .nowline .dot { display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--o); margin-right:8px; vertical-align:1px; animation:blink var(--beat) steps(1) infinite alternate; }
+  .toast { position:absolute; z-index:180; left:50%; top:16px; transform:translate(-50%, -60px); background:#0d0d0f; border:1px solid rgba(255,255,255,.12); border-radius:8px; padding:8px 14px; transition:transform .4s; white-space:nowrap; }
+  .toast.show { transform:translate(-50%, 0); }
+
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation:none !important; transition:none !important; } }
+  @media (max-width:760px) {
+    .hero { height:600px; padding-top:40px; }
+    .name { font-size:54px; } .hmt { font-size:20px; } .kicker { font-size:9.5px; }
+    .hero { height:640px; } .cf { bottom:146px; } .nowline { font-size:9.5px; }
+    .caption .ttl { font-size:13px; }
+  }
+
+  .notes { max-width:1100px; margin:0 auto; background:#1a1a1a; border:1px solid #2a2a2a; border-radius:12px; padding:18px 20px; }
+  .notes h2 { font:700 15px Unbounded; margin-bottom:10px; }
+  .notes li { color:#ccc; font-size:14px; line-height:1.6; margin:0 0 6px 18px; }
+  .notes b { color:#fff; }
+</style>
+</head>
+<body>
+<h1 class="page">Hero, šesta runda: S, tri predmeta koja se vrte</h1>
+<p class="page">Tri predmeta stoje na „tanjiru“ koji se okreće. <b>Uhvati i zavrti</b> (mišem ili prstom): pusti i vrte se dalje, pa lagano stanu na najbližem. Kad ih ne diraš, sami pređu na sledeći na svaka 2 takta (124 BPM), a stoje dok je miš preko. Klikni na onaj spreda da vidiš šta radi, ili na zadnji da ga dovedeš napred.</p>
+
+<div class="wrap">
+  <section class="hero" id="hero">
+    <span class="kicker">SERBIAN HOUSE DJ</span><div class="name">ZIPPY<i>.</i></div><div class="hmt">HOUSE MUSIC THERAPY</div>
+    <div class="toast mono" id="toast"></div>
+
+    <div class="cf" id="cf">
+      <div class="item" data-kind="house" data-title="House Music Therapy / Deep &amp; Tech Grooves" data-pl="MixCloud · najnoviji HMT" data-act="▶ Pušta najnoviji House Music Therapy u plejeru na dnu">
+        <div class="sv"><div class="slot"><div class="disc" style="--lab:var(--hmt)"><span class="light"></span></div></div>
+          <div class="sleeve" style="--cov:var(--hmt)"><span class="mono cat">HMT · LATEST</span></div></div>
+      </div>
+      <div class="item" data-kind="all" data-title="Svi miksevi" data-pl="zippydj.com/mixes" data-act="→ Otvara stranicu Mixes">
+        <div class="usb tilt"><div class="body"><b>ZIPPY</b><span class="mono">ALL MIXES →</span><i class="led"></i></div><div class="plug"></div></div>
+      </div>
+      <div class="item" data-kind="house" data-title="EXIT 2024 · AS FM Stage Live" data-pl="YouTube · live set" data-act="▶ Pušta EXIT 2024 set odmah">
+        <div class="cas tilt"><div class="lab"><div class="strip mono">EXIT 2024 · LIVE</div><span class="hw">AS FM Stage · Novi Sad</span><span class="side">A</span></div>
+          <div class="win"><i class="reel"></i><i class="reel"></i></div><div class="holes"></div>
+          <i class="screw" style="left:7px;top:7px"></i><i class="screw" style="right:7px;top:7px"></i><i class="screw" style="left:7px;bottom:7px"></i><i class="screw" style="right:7px;bottom:7px"></i></div>
+      </div>
+    </div>
+
+    <div class="caption" id="cap"><span class="kind mono" id="capk"></span><div class="ttl" id="capt"></div><div class="pl mono" id="capp"></div></div>
+    <div class="nowline mono"><a href="#events"><span class="dot"></span>SLEDEĆE · SUB 17.10 · <b>IZUVANJE</b> · RAYBAR, NOVI SAD →</a></div>
+    <div class="nav"><button id="prev" aria-label="Prethodni">‹</button><div class="dots" id="dots"></div><button id="next" aria-label="Sledeći">›</button></div>
+  </section>
+</div>
+
+<div class="notes">
+  <h2>Kako bi radilo na sajtu</h2>
+  <ul>
+    <li><b>Vinil u omotu:</b> omot je cover miksa, uvek najnoviji HMT sa MixCloud-a, bez ručnog biranja. Klik pušta miks u plejeru na dnu (T25).</li>
+    <li><b>Kaseta:</b> klik odmah pušta EXIT 2024 set. Traka je narandžasta, jer je set house / tech house (plava ostaje za open format, T24).</li>
+    <li><b>Fleš:</b> vodi na /mixes; ispod ZIPPY piše „ALL MIXES →“ (na srpskom „SVI MIKSEVI →“), plava dioda trepće u taktu.</li>
+    <li><b>Najava na dnu:</b> sledeći nastup iz istog rasporeda kao „Upcoming Events“, sama se menja. Plava reč = open format veče (Izuvanje), house veče bi bilo narandžasto. Klik vodi na Events.</li>
+    <li>Plava je sada samo svetlo: kontra-svetlo u uglu, odsjaj na ploči i dioda na flešu.</li>
+  </ul>
+</div>
+
+<script>
+  // Lazy-susan carousel: drag or flick to spin, it coasts and settles on the nearest object;
+  // left alone it turns to the next one every 2 bars at 124 BPM.
+  (function () {
+    var hero = document.getElementById('hero'), cf = document.getElementById('cf');
+    var items = [].slice.call(cf.querySelectorAll('.item')), n = items.length, step = 2 * Math.PI / n;
+    var dots = document.getElementById('dots'), kinds = { house:'HOUSE', open:'OPEN FORMAT', all:'ARHIVA' };
+    var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var pos = 0, vel = 0, target = 0, drag = null, hover = false, last = performance.now(), idle = 0, front = -1;
+    items.forEach(function (_, i) { var d = document.createElement('i'); d.onclick = function () { goTo(i); }; dots.appendChild(d); });
+
+    function nearest(i) { var k = Math.round((pos - i) / n); return i + k * n; }   // closest way round to item i
+    function goTo(i) { vel = 0; target = nearest(i); idle = 0; if (reduce) pos = target; }
+
+    function render() {
+      var R = Math.min(200, cf.clientWidth * 0.26);
+      items.forEach(function (el, i) {
+        var a = (i - pos) * step, z = (Math.cos(a) + 1) / 2;               // z: 1 = front, 0 = back
+        var x = Math.sin(a) * R, y = -(1 - z) * 30, sc = 0.62 + 0.46 * z, br = 0.42 + 0.58 * z;
+        el.style.transform = 'translate3d(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px,0) scale(' + sc.toFixed(3) + ')';
+        el.style.filter = z > 0.98 ? 'none' : 'brightness(' + br.toFixed(2) + ') saturate(' + (0.7 + 0.3 * z).toFixed(2) + ')';
+        el.style.zIndex = Math.round(z * 100);
+      });
+      var f = ((Math.round(pos) % n) + n) % n;
+      if (f !== front) {
+        front = f;
+        items.forEach(function (el, i) { el.classList.toggle('active', i === f); });
+        [].forEach.call(dots.children, function (d, i) { d.classList.toggle('on', i === f); });
+        var it = items[f], k = it.dataset.kind, ck = document.getElementById('capk');
+        ck.className = 'kind mono ' + k; ck.textContent = kinds[k];
+        document.getElementById('capt').textContent = it.dataset.title; document.getElementById('capp').textContent = it.dataset.pl;
+      }
+    }
+
+    function tick(now) {
+      var dt = Math.min(48, now - last); last = now;
+      if (!drag) {
+        if (Math.abs(vel) > 0.00025) {                                     // coasting after a flick
+          pos += vel * dt; vel *= Math.pow(0.955, dt / 16);
+          if (Math.abs(vel) <= 0.00025) { vel = 0; target = Math.round(pos); }
+        } else {                                                           // ease into the resting object
+          pos += (target - pos) * (1 - Math.pow(0.9, dt / 16));
+          if (Math.abs(target - pos) < 0.0005) pos = target;
+          if (!hover && !reduce && pos === target && (idle += dt) > 3870) { idle = 0; target += 1; }
+        }
+      }
+      render(); requestAnimationFrame(tick);
+    }
+
+    cf.addEventListener('pointerdown', function (e) {
+      drag = { x: e.clientX, pos: pos, t: e.timeStamp, lx: e.clientX, moved: false }; vel = 0; idle = 0;
+      cf.setPointerCapture(e.pointerId); cf.classList.add('drag');
+    });
+    cf.addEventListener('pointermove', function (e) {
+      if (!drag) return;
+      var R = Math.min(200, cf.clientWidth * 0.26), dx = e.clientX - drag.x;
+      if (Math.abs(dx) > 5) drag.moved = true;
+      var np = drag.pos - dx / (R * step * 1.15), dt = Math.max(1, e.timeStamp - drag.t);
+      vel = vel * 0.6 + ((np - pos) / dt) * 0.4;                            // smoothed flick speed
+      pos = np; drag.t = e.timeStamp;
+    });
+    function release(e) {
+      if (!drag) return;
+      var wasClick = !drag.moved, el = document.elementFromPoint(e.clientX, e.clientY), hit = el && el.closest('.item');
+      cf.classList.remove('drag'); drag = null;
+      if (reduce) { vel = 0; target = pos = Math.round(pos); }
+      if (Math.abs(vel) < 0.0006) { vel = 0; target = Math.round(pos); }
+      vel = Math.max(-0.012, Math.min(0.012, vel));
+      if (wasClick && hit) {
+        var i = items.indexOf(hit);
+        if (i !== front) return goTo(i);
+        var t = document.getElementById('toast'); t.textContent = hit.dataset.act; t.classList.add('show');
+        setTimeout(function () { t.classList.remove('show'); }, 2200);
+      }
+    }
+    cf.addEventListener('pointerup', release);
+    cf.addEventListener('pointercancel', release);
+    document.getElementById('prev').onclick = function () { vel = 0; target = Math.round(pos) - 1; idle = 0; };
+    document.getElementById('next').onclick = function () { vel = 0; target = Math.round(pos) + 1; idle = 0; };
+    hero.addEventListener('mouseenter', function () { hover = true; });
+    hero.addEventListener('mouseleave', function () { hover = false; idle = 0; });
+    render(); requestAnimationFrame(tick);
+  })();
+</script>
+</body>
+</html>

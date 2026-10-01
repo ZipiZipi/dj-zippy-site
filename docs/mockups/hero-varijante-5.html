@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="sr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hero varijante 5</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=IBM+Plex+Mono:wght@500&family=Unbounded:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root { --photo:url('../../public/images/dj-zippy-house-music-dj.webp'); --o:#FF5500; --b:#38bdf8; --bt:#7dd3fc; --k:#050505;
+          --beat:.484s; --bar:1.935s; --loop:30.97s; }
+  * { box-sizing:border-box; margin:0; }
+  body { background:#111; color:#fff; font-family:Inter, sans-serif; padding:24px 16px 48px; }
+  h1.page { font:700 20px Unbounded, sans-serif; max-width:1100px; margin:0 auto 6px; }
+  p.page { color:#aaa; font-size:14px; line-height:1.55; max-width:1100px; margin:0 auto 26px; }
+  .wrap { max-width:1100px; margin:0 auto 40px; }
+  .cap { display:flex; gap:12px; align-items:baseline; margin-bottom:10px; flex-wrap:wrap; }
+  .cap b { font:700 15px Unbounded, sans-serif; }
+  .cap span { color:#bbb; font-size:13.5px; line-height:1.5; flex:1 1 420px; }
+  .tag { font:600 11px Inter; letter-spacing:.08em; padding:3px 8px; border-radius:99px; background:rgba(255,85,0,.15); color:#ff8a4d; flex:none !important; }
+
+  .hero { position:relative; height:560px; border-radius:14px; overflow:hidden; isolation:isolate;
+          display:flex; flex-direction:column; align-items:center; padding-top:56px; text-align:center;
+          background:
+            radial-gradient(ellipse 55% 48% at 50% 86%, rgba(255,85,0,.46), rgba(255,85,0,.12) 45%, transparent 72%),
+            radial-gradient(ellipse 38% 34% at 92% 4%, rgba(56,189,248,.18), transparent 70%),
+            #050505; }
+  .hero::after { content:''; position:absolute; inset:0; z-index:8; pointer-events:none; opacity:.09; mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  .t { position:relative; z-index:5; display:flex; flex-direction:column; align-items:center; }
+  .kicker { font:700 11px Unbounded; letter-spacing:.4em; padding-left:.4em; display:inline-flex; gap:.9em; align-items:center; color:rgba(255,255,255,.9); }
+  .kicker::before, .kicker::after { content:''; width:1.8em; height:2px; background:var(--o); }
+  .name { font:900 92px/1 Unbounded; margin-top:10px; letter-spacing:-.01em; }
+  .name i { font-style:normal; color:var(--o); }
+  .hmt { font:900 34px Unbounded; letter-spacing:-.01em; margin-top:4px; color:var(--o); }
+  .mono { font:500 11px 'IBM Plex Mono', ui-monospace, Consolas, monospace; letter-spacing:.08em; }
+
+  .row { position:absolute; z-index:5; left:0; right:0; bottom:48px; display:flex; justify-content:center; align-items:center; gap:22px; }
+  .dim { filter:brightness(.72); }
+
+  /* vinyl */
+  .v { --s:120px; width:var(--s); aspect-ratio:1; border-radius:50%; position:relative; flex:none; }
+  .v .rec, .v.side { background:radial-gradient(circle, transparent 0 31%, rgba(255,255,255,.07) 31.5%, transparent 33%),
+                     repeating-radial-gradient(circle, #0c0c0c 0 2px, #191919 2px 3px); border-radius:50%; }
+  .v.side { box-shadow:0 18px 40px -8px rgba(0,0,0,.7); }
+  .v.side::after, .v .rec::after { content:''; position:absolute; inset:31%; border-radius:50%; background:var(--lab, var(--o)) center/cover, var(--o); }
+  .v .rec { position:absolute; inset:0; animation:spin 1.8s linear infinite; box-shadow:0 18px 40px -8px rgba(0,0,0,.7); z-index:1; }
+  .v .rec::before { content:''; position:absolute; left:50%; top:50%; width:7px; height:7px; margin:-3.5px; border-radius:50%; background:#0a0a0a; z-index:2; }
+  .v.big { --s:200px; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .spec { position:absolute; inset:0; border-radius:50%; pointer-events:none; z-index:3; mix-blend-mode:screen;
+          background:conic-gradient(from -30deg, transparent 0 20deg, rgba(125,211,252,.55) 34deg, transparent 50deg 200deg, rgba(255,140,80,.35) 214deg, transparent 230deg);
+          -webkit-mask:radial-gradient(circle, transparent 0 32%, #000 34% 98%, transparent 99%); mask:radial-gradient(circle, transparent 0 32%, #000 34% 98%, transparent 99%); }
+  .rim { position:absolute; inset:-3px; border-radius:50%; z-index:2; pointer-events:none;
+         background:conic-gradient(from 300deg, transparent 0 10deg, rgba(56,189,248,.9) 40deg, transparent 80deg);
+         -webkit-mask:radial-gradient(circle, transparent 0 calc(50% - 2px), #000 calc(50% - 1.5px)); mask:radial-gradient(circle, transparent 0 calc(50% - 2px), #000 calc(50% - 1.5px)); }
+  .glow { position:absolute; inset:-30%; border-radius:50%; z-index:-1; background:radial-gradient(circle, rgba(255,85,0,.45), transparent 62%); animation:breathe var(--bar) ease-in-out infinite; }
+  @keyframes breathe { 50% { opacity:.35; } }
+
+  /* vinyl in its sleeve: the sleeve sits behind, the record slides out of it to the right */
+  .sleeve { position:absolute; z-index:0; top:0; left:0; width:var(--s); height:var(--s); transform:translateX(-46%); border-radius:3px;
+            background:linear-gradient(135deg, rgba(255,255,255,.08), transparent 40%), var(--o);
+            box-shadow:0 20px 40px -10px rgba(0,0,0,.8); text-align:left; color:#050505; overflow:hidden; }
+  .sleeve::before { content:''; position:absolute; inset:0; opacity:.22; mix-blend-mode:multiply;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  .sleeve .mono { position:absolute; left:10px; font-size:9px; } .sleeve .c1 { top:10px; } .sleeve .c2 { bottom:10px; }
+  .sleeve .big-t { position:absolute; left:10px; top:28px; font:900 22px/1 Unbounded; letter-spacing:-.01em; }
+  .v.out { margin-left:calc(var(--s) * .46); }
+  .v.out .rec { animation:spin 1.8s linear infinite, slide 1.2s cubic-bezier(.2,.7,.2,1) both; }
+  @keyframes slide { from { translate:-46% 0; } to { translate:0 0; } }
+  .sl-only { --s:120px; width:var(--s); height:var(--s); position:relative; flex:none; }
+  .sl-only .sleeve { transform:none; }
+
+  /* cassette */
+  .cas { width:150px; height:96px; flex:none; position:relative; border-radius:8px; background:linear-gradient(180deg, #232323, #141414);
+         box-shadow:0 18px 30px -10px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.08); }
+  .cas .lab { position:absolute; left:8px; right:8px; top:8px; height:54px; border-radius:4px; background:#eee6da; overflow:hidden; text-align:left; }
+  .cas .lab::before { content:''; position:absolute; left:0; right:0; top:0; height:12px; background:var(--labc, var(--o)); }
+  .cas .lab .mono { position:absolute; left:6px; top:1px; font-size:8px; color:#050505; }
+  .cas .lab .hw { position:absolute; left:6px; bottom:3px; font:600 9px Inter; color:#333; }
+  .cas .win { position:absolute; left:34px; right:34px; top:24px; height:24px; border-radius:12px; background:#0b0b0b; display:flex; justify-content:space-between; align-items:center; padding:0 5px; }
+  .cas .reel { width:16px; height:16px; border-radius:50%; background:repeating-conic-gradient(#d8d0c4 0 20deg, #0b0b0b 20deg 60deg);
+               -webkit-mask:radial-gradient(circle, transparent 0 3px, #000 3.5px); mask:radial-gradient(circle, transparent 0 3px, #000 3.5px); animation:spin 2.4s linear infinite; }
+  .cas .holes { position:absolute; left:40px; right:40px; bottom:8px; height:14px; border-radius:3px 3px 0 0; background:#0e0e0e; }
+
+  /* CD */
+  .cd { --s:120px; width:var(--s); height:var(--s); flex:none; border-radius:50%; position:relative; animation:spin 9s linear infinite;
+        background:radial-gradient(circle, transparent 0 13%, rgba(255,255,255,.5) 13.5% 15%, rgba(200,200,200,.25) 15.5% 30%, transparent 30.5%),
+                   conic-gradient(from 20deg, #cfd6dc, #ffb08a, #d9dde0, #8fd8fa, #cfd6dc, #ff9a66, #e3e6e8, #7dd3fc, #cfd6dc);
+        -webkit-mask:radial-gradient(circle, transparent 0 8%, #000 8.5%); mask:radial-gradient(circle, transparent 0 8%, #000 8.5%);
+        box-shadow:0 18px 30px -10px rgba(0,0,0,.8); }
+
+  /* USB stick */
+  .usb { width:118px; height:38px; flex:none; position:relative; display:flex; align-items:center; }
+  .usb .body { width:84px; height:38px; border-radius:7px; background:linear-gradient(180deg, #ff6a1f, #e04a00); position:relative;
+               box-shadow:0 14px 24px -8px rgba(0,0,0,.8), inset 0 1px 0 rgba(255,255,255,.25); color:#050505; display:flex; align-items:center; padding-left:10px; }
+  .usb .body .mono { font-size:10px; font-weight:500; }
+  .usb .led { position:absolute; right:8px; top:50%; width:6px; height:6px; margin-top:-3px; border-radius:50%; background:var(--b); box-shadow:0 0 8px 2px rgba(56,189,248,.8);
+              animation:blink var(--beat) steps(1) infinite alternate; }
+  .usb .plug { width:34px; height:24px; background:linear-gradient(180deg, #d6d6d6, #8a8a8a); border-radius:0 3px 3px 0; position:relative; }
+  .usb .plug::before, .usb .plug::after { content:''; position:absolute; left:10px; width:7px; height:5px; background:#3a3a3a; }
+  .usb .plug::before { top:5px; } .usb .plug::after { bottom:5px; }
+  @keyframes blink { 50% { opacity:.25; } }
+
+  /* waveform through the row (N) */
+  .lane { position:absolute; z-index:2; left:0; right:0; height:100px; bottom:98px; overflow:hidden;
+          -webkit-mask:linear-gradient(90deg, transparent, #000 18% 82%, transparent); mask:linear-gradient(90deg, transparent, #000 18% 82%, transparent); }
+  .track { position:absolute; top:0; bottom:0; left:50%; width:5120px; background-repeat:repeat-x; background-size:2560px 100%; animation:scroll var(--loop) linear infinite; }
+  @keyframes scroll { to { transform:translateX(-2560px); } }
+  .lane .played { position:absolute; inset:0 50% 0 0; background:rgba(5,5,5,.45); }
+
+  .nowline { position:absolute; z-index:5; left:0; right:0; bottom:16px; color:rgba(255,255,255,.6); }
+  .nowline b { color:var(--bt); font-weight:500; }
+  .nowline .dot { display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--o); margin-right:8px; vertical-align:1px; animation:blink var(--beat) steps(1) infinite alternate; }
+
+  /* S: booth table, objects scattered with a slight tilt */
+  .hS .row { gap:30px; bottom:58px; }
+  .hS .cas { transform:rotate(-8deg); } .hS .usb { transform:rotate(12deg) translateY(-14px); } .hS .cd { margin-top:40px; }
+  .hS .sl-only { transform:rotate(5deg); }
+
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation:none !important; } }
+  @media (max-width:760px) {
+    .hero { height:500px; padding-top:42px; }
+    .name { font-size:54px; } .hmt { font-size:20px; } .kicker { font-size:9.5px; }
+    .v { --s:72px; } .v.big { --s:130px; } .far { display:none !important; }
+    .row { gap:12px; }
+    .cas { width:96px; height:62px; } .cas .lab { height:34px; top:5px; left:5px; right:5px; } .cas .win { left:22px; right:22px; top:15px; height:16px; } .cas .reel { width:10px; height:10px; } .cas .holes { display:none; } .cas .lab .hw { display:none; }
+    .cd { --s:76px; } .usb { transform:scale(.7); margin:0 -16px; } .sl-only { --s:80px; }
+    .sleeve .big-t { font-size:14px; top:22px; } .sleeve .mono { font-size:7px; }
+    .lane { bottom:71px; height:76px; }
+    .hS .row { gap:14px; }
+    .nowline { font-size:9.5px; }
+  }
+
+  .notes { max-width:1100px; margin:0 auto; background:#1a1a1a; border:1px solid #2a2a2a; border-radius:12px; padding:18px 20px; }
+  .notes h2 { font:700 15px Unbounded; margin-bottom:10px; }
+  .notes li { color:#ccc; font-size:14px; line-height:1.6; margin:0 0 6px 18px; }
+  .notes b { color:#fff; }
+</style>
+</head>
+<body>
+<h1 class="page">Hero, peta runda: kaseta, CD, fleš i vinil u omotu</h1>
+<p class="page">Sve na osnovi N (waveform kroz red, svetlo ploče, najava). Pitanje je koliko formata, i da li svaki nešto znači ili su samo ukras.</p>
+
+<div class="wrap">
+  <div class="cap"><b>Q · Svi formati u redu</b><span>Kaseta, CD, vinil u omotu (svira, izlazi iz omota), fleš sa plavom diodom koja trepće u taktu, i još jedan vinil. Priča „od ploče do fleša“, ali red je šaren i gubi se fokus sa ploče.</span></div>
+  <section class="hero">
+    <div class="lane"><div class="track" data-wave="house"></div><div class="played"></div></div>
+    <div class="t"><span class="kicker">SERBIAN HOUSE DJ</span><div class="name">ZIPPY<i>.</i></div><div class="hmt">HOUSE MUSIC THERAPY</div></div>
+    <div class="row">
+      <div class="cas dim far"><div class="lab"><span class="mono">HMT · SIDE A</span><span class="hw">mix 2023</span></div><div class="win"><i class="reel"></i><i class="reel"></i></div><div class="holes"></div></div>
+      <div class="cd dim"></div>
+      <div class="v big out" style="--lab:var(--photo)"><div class="sleeve"><span class="mono c1">HMT 012</span><span class="big-t">HOUSE<br>MUSIC<br>THERAPY</span><span class="mono c2">33⅓ RPM</span></div><span class="glow"></span><i class="rec"></i><span class="spec"></span><span class="rim"></span></div>
+      <div class="usb dim"><div class="body"><span class="mono">ZIPPY</span><i class="led"></i></div><div class="plug"></div></div>
+      <div class="v side dim far"></div>
+    </div>
+    <div class="nowline mono"><span class="dot"></span>SLEDEĆE · PET 10.10 · <b>IZUVANJE</b> · BEOGRAD</div>
+  </section>
+</div>
+
+<div class="wrap">
+  <div class="cap"><b>R · Samo vinil u omotu</b><span class="tag">MOJA PREPORUKA</span><span>Formati ostaju vinili, ali ploča koja svira izlazi iz svog omota (na sajtu: omot = cover tog miksa, kad klikneš drugi miks, ploča se vrati u omot i izađe sledeća, veza sa T25). Bočno su ploče u omotima, kao u torbi. Čisto, a i dalje novo.</span></div>
+  <section class="hero">
+    <div class="lane"><div class="track" data-wave="house"></div><div class="played"></div></div>
+    <div class="t"><span class="kicker">SERBIAN HOUSE DJ</span><div class="name">ZIPPY<i>.</i></div><div class="hmt">HOUSE MUSIC THERAPY</div></div>
+    <div class="row">
+      <div class="sl-only dim far"><div class="sleeve" style="background:#1a1a1a;color:#ff8a4d"><span class="mono c1">HMT 010</span><span class="big-t" style="font-size:14px">HMT<br>010</span></div></div>
+      <div class="sl-only dim"><div class="sleeve" style="background:linear-gradient(135deg,#0f2a38,#050505);color:var(--bt)"><span class="mono c1">CORE</span><span class="big-t" style="font-size:14px">CORE<br>MEMO-<br>RIES</span></div></div>
+      <div class="v big out" style="--lab:var(--photo)"><div class="sleeve"><span class="mono c1">HMT 012</span><span class="big-t">HOUSE<br>MUSIC<br>THERAPY</span><span class="mono c2">33⅓ RPM</span></div><span class="glow"></span><i class="rec"></i><span class="spec"></span><span class="rim"></span></div>
+      <div class="sl-only dim"><div class="sleeve"><span class="mono c1">HMT 011</span><span class="big-t" style="font-size:14px">HMT<br>011</span></div></div>
+      <div class="sl-only dim far"><div class="sleeve" style="background:#eee6da"><span class="mono c1">HMT 009</span><span class="big-t" style="font-size:14px">HMT<br>009</span></div></div>
+    </div>
+    <div class="nowline mono"><span class="dot"></span>SLEDEĆE · PET 10.10 · <b>IZUVANJE</b> · BEOGRAD</div>
+  </section>
+</div>
+
+<div class="wrap">
+  <div class="cap"><b>S · Format = značenje, sto u kabini</b><span>Svaki predmet nešto znači: vinil u omotu = House Music Therapy, kaseta sa plavom nalepnicom = Core Memories (nostalgija, open format), fleš = ono što Zippy danas nosi na gig (CDJ). Leže malo nakrivo, kao na stolu u kabini. Bez waveforma, da ne bude previše.</span></div>
+  <section class="hero hS">
+    <div class="t"><span class="kicker">SERBIAN HOUSE DJ</span><div class="name">ZIPPY<i>.</i></div><div class="hmt">HOUSE MUSIC THERAPY</div></div>
+    <div class="row">
+      <div class="cas" style="--labc:var(--b)"><div class="lab"><span class="mono">CORE MEMORIES</span><span class="hw">open format · side B</span></div><div class="win"><i class="reel"></i><i class="reel"></i></div><div class="holes"></div></div>
+      <div class="v big out" style="--lab:var(--photo)"><div class="sleeve"><span class="mono c1">HMT 012</span><span class="big-t">HOUSE<br>MUSIC<br>THERAPY</span><span class="mono c2">33⅓ RPM</span></div><span class="glow"></span><i class="rec"></i><span class="spec"></span><span class="rim"></span></div>
+      <div class="usb"><div class="body"><span class="mono">ZIPPY</span><i class="led"></i></div><div class="plug"></div></div>
+    </div>
+    <div class="nowline mono"><span class="dot"></span>SLEDEĆE · PET 10.10 · <b>IZUVANJE</b> · BEOGRAD</div>
+  </section>
+</div>
+
+<div class="notes">
+  <h2>Moje mišljenje</h2>
+  <ul>
+    <li><b>Vinil u omotu: da.</b> Najjači dodatak. Omot može da bude pravi cover miksa sa MixCloud-a, a ploča koja izlazi iz omota je prirodan pokret za „sad svira“.</li>
+    <li><b>Fleš: može, ali kao detalj.</b> Iskren je (danas se pušta sa USB-a na CDJ), lepo se vezuje za waveform, i plava dioda u taktu je fin plavi akcenat.</li>
+    <li><b>Kaseta i CD: oprez.</b> Zippy počinje 2022, pa kaseta i CD nisu deo njegove priče. Kao „od ploče do fleša“ lako izgleda kao retro kolaž. Kaseta ima smisla samo ako znači nešto, npr. Core Memories (S).</li>
+    <li><b>Coverflow:</b> danas je svaka ploča jedan miks. Ako ubacimo druge formate, treba reći šta je koji (S), inače posetilac ne zna na šta da klikne.</li>
+  </ul>
+</div>
+
+<script>
+  // Draws a fake but house-shaped CDJ waveform once into a canvas and uses it as a sliding background.
+  // 64 beats × 40 px = 2560 px (one loop), 4/4 kick, offbeat bass, hats on the off-16ths, a 4-bar break.
+  (function () {
+    var PX = 40, BEATS = 64, W = PX * BEATS, DPR = 2;
+    function rng(seed) { return function () { seed |= 0; seed = seed + 0x6D2B79F5 | 0; var t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+    function draw(kind, H, grid) {
+      var c = document.createElement('canvas'); c.width = W * DPR; c.height = H * DPR;
+      var g = c.getContext('2d'); g.scale(DPR, DPR);
+      var r = rng(kind === 'open' ? 7 : 3), mid = H / 2;
+      var body = kind === 'open' ? '#38bdf8' : '#FF5500', core = kind === 'open' ? '#bae6fd' : '#ff9a5c', fringe = kind === 'open' ? '#ffffff' : '#7dd3fc';
+      if (grid) for (var b = 0; b < BEATS; b++) {
+        g.fillStyle = b % 4 === 0 ? 'rgba(255,255,255,.22)' : 'rgba(255,255,255,.07)';
+        g.fillRect(b * PX, 0, 1, H);
+      }
+      for (var x = 0; x < W; x++) {
+        var beat = x / PX, ph = beat % 1, bar = Math.floor(beat / 4);
+        var brk = bar >= 8 && bar < 12, build = bar === 11;
+        var swing = kind === 'open' ? 0.7 : 1;                       // the open-format deck is less four-to-the-floor
+        var kick = Math.exp(-ph * 7) * (brk ? 0.12 : 1) * swing;
+        var bass = ph > 0.5 ? Math.exp(-(ph - 0.5) * 5) * (brk ? 0.1 : 0.4) : 0;
+        var hat = ((ph * 4) % 1 > 0.45 && (ph * 4) % 1 < 0.6) ? 0.5 + r() * 0.3 : r() * 0.12;
+        var pad = brk ? 0.35 + 0.15 * Math.sin(x / 60) : 0.18;
+        var roll = build ? ((beat - 44) / 4) * (0.5 + 0.5 * ((ph * 8) % 1 < 0.5)) : 0;
+        var noise = r() * 0.12;
+        var low = Math.min(1, kick * 0.85 + bass);
+        var amp = Math.min(1, low * 0.75 + pad + noise + hat * 0.18 + roll * 0.5);
+        var h = amp * (mid - 2), hc = (low * 0.6 + pad * 0.4) * (mid - 2), hf = Math.max(1, hat * 3 * (brk ? 0.5 : 1));
+        g.fillStyle = body;  g.globalAlpha = 0.9; g.fillRect(x, mid - h, 1, h * 2);
+        g.fillStyle = core;  g.globalAlpha = 0.85; g.fillRect(x, mid - hc * 0.55, 1, hc * 1.1);
+        g.fillStyle = fringe; g.globalAlpha = 0.9; g.fillRect(x, mid - h - hf, 1, hf); g.fillRect(x, mid + h, 1, hf);
+      }
+      g.globalAlpha = 1;
+      return c.toDataURL();
+    }
+
+    var cache = {};
+    document.querySelectorAll('[data-wave]').forEach(function (el) {
+      var kind = el.getAttribute('data-wave');
+      if (kind === 'overview') { el.style.backgroundImage = 'url(' + (cache.ov || (cache.ov = draw('house', 18, false))) + ')'; return; }
+      var H = Math.round(el.parentNode.getBoundingClientRect().height) || 64, key = kind + H;
+      el.style.backgroundImage = 'url(' + (cache[key] || (cache[key] = draw(kind, H, true))) + ')';
+    });
+  })();
+</script>
+</body>
+</html>
