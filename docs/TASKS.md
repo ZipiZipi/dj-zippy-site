@@ -766,3 +766,177 @@ Pročitaj T22 u docs/TASKS.md.
 3. Napravi screenshot početne sa body tekstom u Inter-u i bez njega (samo lokalno), pa me pitaj koji ostaje.
 Na kraju štikliraj T22.
 ```
+
+---
+
+## Greške primećene posle deploy-a (2026-09-30)
+
+Samo zabeleženo, još ništa nije popravljano. Korisnik šalje screenshotove jednu po jednu.
+
+### B1 — Ružan prvi frame početne (flash pre nego što se vinili učitaju)
+- **Šta se vidi:** u prvoj sekundi posle učitavanja početne (desktop ~1920 px) prikazuje se hero sa velikim
+  „ZIPPY.“ i „HOUSE MUSIC THERAPY“, ali se **„Featured Mixes“ naslov + podnaslov već vide usred hero-a, ispod
+  glavnog naslova**, bez ikakvog razmaka. Ispod je prazan narandžasti prostor, pa tek jedan disk (vinil) i dugme
+  „Listen Now“; bočni diskovi nisu tu, strelice ←/→ već stoje. Ceo ekran izgleda nedovršeno i „sklepano“,
+  pa se posle <1 s složi u pravi raspored.
+- **Screenshot:** `C:\Users\Zippy\AppData\Local\Temp\claude\F--ZippySite-dj-zippy-site\0b489fb4-877d-4f76-93a6-c366f8f7b6e5\images\1.webp`
+- **Sumnja (neproverena):** vinili/coverflow u `HomePage.astro` se pozicioniraju JS-om tek posle hidratacije, a
+  do tada je raspored u CSS-u pogrešan (ili je sekcija „Featured Mixes“ vidljiva pre pozicioniranja). Izgleda kao
+  regresija iz T5 (coverflow) ili T12/T13 (brži reveal, odloženi skripti). Proveriti: početno stanje bez JS-a,
+  da li se sekcija krije do `is-ready` klase, i da li reveal animacija (0.45 s) ne otkriva nepripremljen sadržaj.
+- **Očekivano:** ili da se ništa ne prikaže dok layout nije spreman (opacity 0 → 1 kad je poravnat), ili da
+  statički/SSR raspored odmah bude isti kao konačni (rezervisana visina, centralni disk + susedi u CSS-u).
+
+### B2 — Spotify kartice na /mixes: slike su pomerene za jedno mesto
+- **Šta se vidi:** na tabu SPOTIFY prva kartica („House Music Therapy with DJ Zippy“, FEATURED) prikazuje
+  sliku koja pripada drugoj plejlisti (Guilty Trep), druga kartica („Guilty Trep Pleasures“) ima kolaž
+  (Duboko EP / Niške strasti) koji pripada trećoj, a treća („Chill Balkan RnB Vibes“) nema sliku, samo
+  Spotify logo kao placeholder. Dakle, slike su **pomerene za jedno mesto** (off-by-one): prvoj kartici fali
+  njena slika, a svaka sledeća ima sliku svog prethodnika/sledbenika.
+- **Screenshot:** `C:\Users\Zippy\AppData\Local\Temp\claude\F--ZippySite-dj-zippy-site\0b489fb4-877d-4f76-93a6-c366f8f7b6e5\images\2.png`
+- **Sumnja (neproverena):** ili su `cover_image` vrednosti u D1 (`mixes`, platform = 'spotify') upisane pomereno,
+  ili se u `MixesPage.astro` (T12 redizajn kartica) slika bira po indeksu iz drugog niza nego naslov/link
+  (npr. filtriran vs. nefiltriran niz, ili featured kartica preskače indeks). Proveriti prvo D1 redove
+  (id, title, cover_image, sort_order), pa tek onda šablon. Proveriti i da isto ne važi za ostale tabove
+  (YouTube, MixCloud, SoundCloud, Deezer) i za vinile na početnoj.
+
+### B3 — Links stranica na desktopu: pikselizovan pozadinski video
+- **Šta se vidi:** na /links u desktop browseru (~1900 px) pozadinski video je očigledno niske rezolucije
+  (vidljivi veliki pikseli, mutno), dok na telefonu izgleda lepo.
+- **Uzrok (verovatan, iz T13):** video je smanjen na 540×960 (vertikalni, 0.7 MB) i na širokom ekranu se
+  razvlači preko celog viewporta (`object-cover`), pa se uvećava ~3.5×. Na telefonu je skoro 1:1, zato tamo radi.
+- **Mogući pravci:** (a) na desktopu (`min-width: 768px`) umesto videa prikazati zamućenu/zatamnjenu statičnu
+  pozadinu ili poster, (b) dodati drugi, horizontalni izvor (npr. 1280×720) učitan samo na širokim ekranima
+  preko `<source media=...>`, (c) ograničiti video na širinu kolone i ostatak ispuniti gradijentom/blur-om.
+  Voditi računa da Lighthouse (98) i Save-Data/2G isključenje ostanu.
+- **Screenshot:** `C:\Users\Zippy\AppData\Local\Temp\claude\F--ZippySite-dj-zippy-site\0b489fb4-877d-4f76-93a6-c366f8f7b6e5\images\3.webp`
+
+### B4 — Links stranica: razdelna linija između sekcija izgleda kao fleka
+- **Šta se vidi:** između „Stream & Follow“ i „Also on“ je kratka svetla linija (~40 px, oko y=750 na screenshotu)
+  koja se na tamnom/video pozadini vidi kao mutna fleka, a ne kao namerni razdelnik.
+- **Očekivano:** ili čista tanka linija pune širine kolone (npr. `border-white/10`), ili ukloniti razdelnik
+  i osloniti se na razmak i naslov „ALSO ON“. Proveriti u `LinksPage.astro` (gradient/blur element između lista).
+- **Screenshot:** isti kao B3 (`images\3.webp`).
+
+### B5 — Vinili na početnoj: senka se okreće zajedno sa diskom i seče se na vrhu sekcije
+- **Šta se vidi:** oko centralnog (i bočnih) diskova senka/glow nije ravnomerna: sa gornje strane je odsečena
+  pravom horizontalnom ivicom (oko y≈30 na screenshotu, iznad centralnog diska), a na bočnim diskovima je
+  senka nesimetrična. Izgleda kao da se senka **obrće zajedno sa diskom** (box-shadow/drop-shadow je na
+  elementu koji rotira), pa se u toku rotacije menja oblik i ugao, a kontejner sekcije je `overflow: hidden`
+  pa je seče.
+- **Screenshot:** `C:\Users\Zippy\AppData\Local\Temp\claude\F--ZippySite-dj-zippy-site\0b489fb4-877d-4f76-93a6-c366f8f7b6e5\images\4.png`
+- **Sumnja (neproverena, korisnikova):** senka je na istom elementu koji ima `animation: spin`. Rešenje je da
+  senka ide na statični roditelj (ili poseban pseudo-element koji se ne rotira), a rotira se samo unutrašnji
+  disk; i da sekcija vinila dobije dovoljno gornjeg/donjeg padding-a ili `overflow: visible` (clip samo po
+  horizontali), da senka ne bude odsečena. Proveriti i filter zatamnjenja bočnih diskova iz T5.
+
+### B6 — Početna: narandžasti okvir oko fotke u uvodnoj sekciji izgleda čudno
+- **Šta se vidi:** u uvodnoj sekciji (T10, „The selector behind House Music Therapy“) fotka ima narandžasti
+  okvir samo sa **desne i donje strane** (+ zaobljeni uglovi gore-desno i dole-levo/desno), a sa leve i
+  gornje strane ga nema. Pošto je fotka na crnoj pozadini, okvir deluje kao odvojena linija koja „visi“ pored
+  slike: slika se stapa sa crnim (nema ivice), a okvir ne prati sliku, nego je pomeren/veći od nje.
+  Izgleda kao greška, ne kao namerni dekorativni okvir.
+- **Screenshot:** `C:\Users\Zippy\AppData\Local\Temp\claude\F--ZippySite-dj-zippy-site\0b489fb4-877d-4f76-93a6-c366f8f7b6e5\images\5.png`
+- **Sumnja (neproverena):** dekorativni offset okvir (pseudo-element ili pomereni `div` sa `border` i
+  `translate`) iz T10, koji je delimično van kadra ili odsečen `overflow: hidden`, pa se vide samo dve ivice.
+- **Mogući pravci:** ili okvir koji tačno prati sliku (`rounded` + `ring`/`border` narandžast 1–2 px oko same
+  fotke, ravnomerno sa sve četiri strane), ili ga ukloniti, ili fotku staviti na karticu sa blagim gradijentom
+  da se ivica slike vidi. Proveriti i mobilni prikaz.
+
+### B7 — About: FAQ je gola lista ispod bio-a, treba da bude harmonika (accordion) i lepša
+- **[x] 2026-10-01 urađeno:** FAQ je nativna `<details name="faq">` harmonika (bez JS-a): tamne kartice sa ivicom, prvo pitanje otvoreno, `+` koji postaje `−` i narandžast naslov kad je otvoreno, ceo red klikabilan (≥ 48 px), vidljiv fokus, kratko otvaranje isključeno za reduced-motion; H3 i FAQPage schema netaknuti.
+- **Šta se vidi:** „Frequently Asked Questions“ na /about (i /sr/about) je prikazan kao običan tekst: 6 pitanja
+  (H3) sa odgovorima uvek otvorenim, jedno ispod drugog, bez ikakvog okvira, razdelnika ili indikatora.
+  Deluje kao „nalepljeno“ ispod About sekcije.
+- **Zahtev korisnika:** pitanja sklopljena, klik otvara odgovor (accordion), i da ceo blok izgleda lepše.
+- **Screenshot:** `C:\Users\Zippy\AppData\Local\Temp\claude\F--ZippySite-dj-zippy-site\0b489fb4-877d-4f76-93a6-c366f8f7b6e5\images\6.png`
+- **Smernice za popravku:**
+  - Koristiti nativni `<details>/<summary>` (bez JS-a, kao „All past gigs“ u T12): tekst odgovora ostaje u HTML-u
+    pa SEO i FAQPage schema nisu ugroženi; schema u stranici se ne dira.
+  - Kartica po pitanju: tamna pozadina (`bg-white/5`), tanka ivica, zaobljenje, razmak između; `+` / `−` ili
+    chevron koji se okreće, narandžast na hover/open; `summary` cela zona klika (min. 48 px visine), vidljiv fokus.
+  - Samo jedno otvoreno odjednom nije obavezno (može `name="faq"` atribut za exclusive accordion).
+  - Užа kolona (max-w-3xl), razmak od bio sekcije i jasan H2 sa narandžastom rečju kao sada; animacija otvaranja
+    kratka i uz `prefers-reduced-motion`.
+  - Oba jezika iz `ui.ts`; proveriti desktop i mobilni. Proveriti da se FAQ ne prikazuje i na drugim
+    stranicama kao gola lista (npr. početna).
+
+### B8 — Traka (marquee) na početnoj: levi kraj izgleda odsečeno, pogrešna reč na srpskom, pogrešni žanrovi
+- **Screenshot:** `C:\Users\Zippy\AppData\Local\Temp\claude\F--ZippySite-dj-zippy-site\0b489fb4-877d-4f76-93a6-c366f8f7b6e5\images\7.png`
+- **(a) Levi kraj:** fiksna labela „SVIRAO NA“ je pravougaonik sa ravnom ivicom, a narandžasta traka je nagnuta
+  (−1.5°). Na spoju se vidi oštar stepenik: labela je tamna i uspravna, traka kosa, pa traka izgleda kao
+  da je odsečena (i labela se poklapa sa donjom crnom trakom). Treba da labela prati nagib trake (isti
+  rotate) ili da ima skošenu desnu ivicu (`clip-path`/skew) i da se spoji sa trakom, ili da ima blagi
+  fade (gradient mask) umesto tvrde ivice teksta koji „ulazi ispod“ labele.
+- **(b) Tekst labele (sr):** „Svirao na“ → treba **„Nastupao na“** (DJ nastupa, ne svira). Može i „Nastupi:“.
+  EN „Played at“ ostaje. Ključ u `src/i18n/ui.ts`; proveriti i druge mesta gde se koristi „svirao“.
+- **(c) Donja crna traka — žanrovi:** sada piše HOUSE MUSIC THERAPY ✦ SERBIAN HOUSE DJ ✦ House, Tech House,
+  Deep House, Organic House… Treba da pokazuje samo žanrove house muzike koje korisnik želi:
+  **Deep Tech, Minimal, Deep House, French House, Groove, Disco, Funk, Jazz** (korisnik je napisao
+  „Deep Tech Minimal (nije isto što i Deep), Deep, French, Groove, Disco, Funk, Jazz“). Napomena: Deep Tech/
+  Minimal i Deep House su različiti žanrovi, ne spajati ih. Preformulisati da lepše izgleda, npr. kao
+  „Deep Tech · Minimal · Deep House · French House · Groove House · Disco House · Funk · Jazzy House“;
+  ukloniti ostale žanrove (Tech House, Organic House) i „HOUSE MUSIC THERAPY / SERBIAN HOUSE DJ“ ako ne
+  treba. Oba jezika u `ui.ts`; isti tekst i u meta/schema opisima žanrova proveriti da li treba uskladiti
+  (npr. `genre` u schema, „What music genres does DJ Zippy play?“ u FAQ-u, `llms.txt`).
+
+### B9 — About stranica je zastarela: treba novi, lepši i kreativniji About
+- **Šta se vidi:** blok „Proud Member of:“ sa dve identične tamne kartice (KULT TALENTS, IZUVANJE) sa narandžastom
+  levom ivicom i suvim opisom. Izgleda generički i zastarelo, a cela About stranica (bio → „Proud Member of“ →
+  FAQ, vidi B7) je niz običnih blokova bez priče i vizuelnog ritma.
+- **Zahtev korisnika:** osmisliti bolji, lepši i kreativniji About page (ne samo popraviti ovaj blok).
+- **Screenshot:** `C:\Users\Zippy\AppData\Local\Temp\claude\F--ZippySite-dj-zippy-site\0b489fb4-877d-4f76-93a6-c366f8f7b6e5\images\8.png`
+- **Pre implementacije (faza 1, samo predlog):** pročitati trenutni `AboutPage.astro` i tekstove u `ui.ts`, pa
+  pokazati 2–3 koncepta (skica ili kratak opis) i pitati korisnika koji ide dalje. Ideje za koncepte:
+  - „Priča“ kao vertikalna vremenska linija (početak → klubovi → Exit 2024 → Exit 2025 → Grčka) sa
+    narandžastim tačkama i godinama, blago otkrivanje pri skrolu (kratak reveal iz T12).
+  - Krupni brojevi/statistika (Exit 2024 & 2025, 3 Exit bine, godine iskustva…) kao red „stat“ pločica.
+  - „Kolektivi i sceneˮ: umesto dve ravne kartice, logo/wordmark + rečenica + link (Kult Talents, Izuvanje),
+    u horizontalnom nizu ili kao „traka“ u stilu marquee-a iz T8; dodati i mesta gde je nastupao.
+  - Velika fotka (kadar sa nastupa) uz citat/manifest „House Music Therapy“; druga fotka u galeriji.
+  - Na kraju CTA „Book Zippy“ (+ FAQ kao harmonika iz B7).
+- **Ograničenja:** tekstovi u oba jezika (`ui.ts`, en + sr, latinica), „Serbian house DJ“ pozicioniranje iz T9,
+  H1/H2 hijerarhija, prave `<img>` sa alt-om, Lighthouse ≥ 95, mobilni 390 px. Ne izmišljati činjenice:
+  nove tvrdnje, brojeve i citate korisnik mora da potvrdi.
+- **Zavisnosti:** radi se zajedno ili posle B7 (FAQ harmonika), jer oba menjaju `AboutPage.astro`.
+
+### B10 — Events: kartice „Past highlights“ treba vizuelno da se razlikuju od „Upcoming“ (nije bug, UX)
+- **Šta je problem:** na /events su istaknuti prošli nastupi (T12, kartice u 2 kolone) stilizovani isto ili
+  vrlo slično kao predstojeći, pa nije odmah jasno šta je nadolazeće, a šta je prošlo/highlight.
+- **Zahtev korisnika:** jasna razlika između nadolazećih i prošlih (highlight) kartica.
+- **Smernice:**
+  - Upcoming: upadljivije, narandžasti akcenat (ivica/glow), oznaka „UPCOMING“ / „NADOLAZI“, datum krupno,
+    dugme (tickets/info) ako ima link.
+  - Past highlights: prigušeno (tamna kartica bez narandžaste ivice, blago desaturisana slika ili sivlji
+    tekst), oznaka „PAST · 2025“ / „PROŠLO · 2025“ ili „HIGHLIGHT“, bez CTA dugmeta.
+  - Razdvojiti sekcije jasnim H2 naslovima („Upcoming gigs“ / „Past highlights“) i razmakom.
+  - Proveriti i uvodne „Upcoming“ kartice na početnoj da koriste isti jezik oznaka.
+  - Labele u oba jezika u `ui.ts`; kontrast teksta ≥ 4.5:1 i na prigušenim karticama.
+- **Fajlovi:** `EventsPage.astro`, `HomePage.astro` (Upcoming), `ui.ts`.
+
+### B11 — Upcoming lista: desna kolona treba da prikazuje žanrove koje Zippy pušta, ne „House Music Therapy“
+- **Šta se vidi:** u „Upcoming Therapy“ listi (početna, verovatno i /events) svaki red ima levo klub + grad, a
+  desno naziv događaja. Za Raybar (17/10/2026) i Klub Kažite (30/10/2026) piše „House Music Therapy“, a za
+  Lazino Tele „Millenial Shuffle“ (31/10/2026), uz datum i vreme ispod.
+- **Zahtev korisnika:** u desnom redu ne treba „House Music Therapy“, nego **žanrovi koje pušta** na tom nastupu.
+- **Screenshot:** `C:\Users\Zippy\AppData\Local\Temp\claude\F--ZippySite-dj-zippy-site\0b489fb4-877d-4f76-93a6-c366f8f7b6e5\images\9.png`
+- **Otvorena pitanja (rešiti pre implementacije):**
+  - Odakle dolazi tekst: najverovatnije polje naslova/događaja u D1 tabeli `events` (proveriti kolone u
+    `types/database.ts` i `migrations/`). Ako je to polje `title`, žanrove treba dodati kao novo polje
+    (npr. `genres`) ili ih izvesti iz konstante; naziv događaja (npr. „Millenial Shuffle“) možda ipak treba
+    da ostane negde, npr. sitnije ispod ili uz datum. Pitati korisnika.
+  - Koje žanrove prikazati: ista lista kao u B8 (Deep Tech, Minimal, Deep House, French House, Groove, Disco,
+    Funk, Jazz) ili po nastupu različito (Raybar vs. Lazino Tele)? Predlog: po-nastupa polje `genres` sa
+    podrazumevanom vrednošću iz B8 liste.
+  - Format: kratko, odvojeno tačkom/✦, npr. „Deep Tech · Minimal · Disco · Funk“; jedan red, skraćeno na mobilnom.
+- **Povezano:** B8 (lista žanrova), B10 (izgled Upcoming kartica). Upis u produkcionu D1 traži potvrdu.
+
+**Dopuna B11 (od korisnika):** Lazino Tele (31/10/2026) nije „Millenial Shuffle“ nego **Core Memories**, i to je
+**open format** žurka (ne house). Zato tu desni red ne sme da prikaže house žanrove, nego treba da kaže
+„Open format“ / „Open format“ (sr: „Open format“) i da se to **istakne** — bojom (npr. druga boja akcenta ili
+narandžasta pilula/čip „OPEN FORMAT“ umesto sive liste žanrova) ili natpisom. Naziv događaja „Core Memories“
+ostaje vidljiv (ispravljen u D1, umesto „Millenial Shuffle“). Dakle, po redu:
+- Raybar, Klub Kažite → žanrovi (lista iz B8, ili polje `genres`).
+- Lazino Tele → „Core Memories“ + istaknut čip „Open format“.
+Znači da polje `genres` mora da podrži i posebnu vrednost/zastavicu `open_format` (ili `tag`) da šablon zna
+kad da prikaže čip umesto liste žanrova.
