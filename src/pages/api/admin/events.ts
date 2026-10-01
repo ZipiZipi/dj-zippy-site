@@ -48,7 +48,7 @@ export const GET: APIRoute = async ({ locals, url }) => {
 export const POST: APIRoute = async ({ request, locals }) => {
   try {
     const body = (await request.json()) as Partial<Event>;
-    const { title, location, date, status, time, subtitle, description, link, featured } = body;
+    const { title, location, date, status, time, subtitle, genres, description, link, featured } = body;
 
     // Validate required fields
     if (!title || !location || !date || !status) {
@@ -62,10 +62,10 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
     const result = await db
       .prepare(
-        `INSERT INTO events (title, location, date, status, time, subtitle, description, link, featured)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO events (title, location, date, status, time, subtitle, genres, description, link, featured)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       )
-      .bind(title, location, date, status, time || null, subtitle || null, description || null, link || null, featured ? 1 : 0)
+      .bind(title, location, date, status, time || null, subtitle || null, genres || null, description || null, link || null, featured ? 1 : 0)
       .run();
 
     return new Response(
@@ -91,7 +91,7 @@ export const PUT: APIRoute = async ({ request, locals, url }) => {
     if (!id) return new Response(JSON.stringify({ success: false, error: 'Missing id' }), { status: 400 });
 
     const body = (await request.json()) as Partial<Event>;
-    const { title, location, date, status, time, subtitle, description, link, featured } = body;
+    const { title, location, date, status, time, subtitle, genres, description, link, featured } = body;
 
     if (!title || !location || !date || !status) {
       return new Response(JSON.stringify({ success: false, error: 'Missing required fields' }), { status: 400 });
@@ -99,8 +99,8 @@ export const PUT: APIRoute = async ({ request, locals, url }) => {
 
     const db = locals.runtime.env.DB;
     await db.prepare(
-      `UPDATE events SET title=?, location=?, date=?, status=?, time=?, subtitle=?, description=?, link=?, featured=?, updated_at=CURRENT_TIMESTAMP WHERE id=?`
-    ).bind(title, location, date, status, time||null, subtitle||null, description||null, link||null, featured ? 1 : 0, id).run();
+      `UPDATE events SET title=?, location=?, date=?, status=?, time=?, subtitle=?, genres=?, description=?, link=?, featured=?, updated_at=CURRENT_TIMESTAMP WHERE id=?`
+    ).bind(title, location, date, status, time||null, subtitle||null, genres||null, description||null, link||null, featured ? 1 : 0, id).run();
 
     return new Response(JSON.stringify({ success: true, message: 'Event updated' }), { status: 200, headers: { 'Content-Type': 'application/json' } });
   } catch (error) {

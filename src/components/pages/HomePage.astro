@@ -2,7 +2,7 @@
 // Home page body. Rendered by /index.astro (en) and /sr/index.astro (sr) —
 // the only difference between them is the `lang` prop.
 import Layout from '../../layouts/Layout.astro';
-import { getEvents, getMixes, MIX_PLATFORMS, youtubeThumb } from '../../lib/content';
+import { getEvents, getMixes, MIX_PLATFORMS, youtubeThumb, eventSound } from '../../lib/content';
 import { useTranslations, localize, htmlLang, type Lang } from '../../i18n/utils';
 
 interface Props {
@@ -536,15 +536,21 @@ const homeSchema = {
         {homeUpcoming.length === 0 && <p class="text-gray-400 text-center">{t.home.noUpcoming}</p>}
         {homeUpcoming.map(e => {
           const displayDate = e.date.split('-').reverse().join('/') + (e.time ? ` | ${e.time}` : '');
+          const sound = eventSound(e);
           return (
             <div class="w-full">
-              <div class="flex flex-col md:flex-row items-center bg-brand-gray p-2 rounded-lg border-l-4 border-brand-orange hover:bg-white/5 transition-colors">
+              <div class={`flex flex-col md:flex-row items-center bg-brand-gray p-2 rounded-lg border-l-4 ${sound.openFormat ? 'border-sky-400' : 'border-brand-orange'} hover:bg-white/5 transition-colors`}>
                 <div class="md:w-2/5 text-center md:text-left mb-1 md:mb-0 flex-shrink-0">
                   <span class="block text-sm sm:text-base md:text-lg lg:text-xl font-display font-bold">{e.title.toUpperCase()}</span>
                   <span class="text-xs md:text-sm text-gray-400 uppercase tracking-widest">{e.location}</span>
                 </div>
                 <div class="md:w-3/5 text-center md:text-left mb-1 md:mb-0 px-2 flex-shrink-0">
-                  <span class="block text-sm md:text-base lg:text-lg font-bold text-white">{e.subtitle || e.title}</span>
+                  <span class="flex flex-wrap items-center justify-center md:justify-start gap-x-1.5 sm:gap-x-2 gap-y-1 text-[0.6875rem] sm:text-sm md:text-base font-bold text-white">
+                    {sound.name && <span>{sound.name}</span>}
+                    {sound.openFormat
+                      ? <span class="open-chip">{t.home.openFormat}</span>
+                      : sound.genres.map((g, i) => <span class="whitespace-nowrap">{i > 0 && <span class="text-brand-orange mr-1.5 sm:mr-2" aria-hidden="true">·</span>}{g}</span>)}
+                  </span>
                   <span class="text-gray-400 text-xs md:text-sm">{displayDate}</span>
                 </div>
               </div>

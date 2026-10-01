@@ -13,6 +13,11 @@
 
 /* === Component Layer === */
 @layer components {
+  /* OPEN FORMAT flag on upcoming gigs: blue so it never reads as a house night */
+  .open-chip {
+    @apply inline-flex items-center whitespace-nowrap rounded-full bg-sky-400/15 px-2.5 py-0.5 font-display text-[0.7rem] font-bold uppercase tracking-widest text-sky-300 ring-1 ring-inset ring-sky-400/40;
+  }
+
   /* Frosted glass card */
   .glass-panel {
     @apply bg-opacity-40 backdrop-blur-lg border border-brand-orange border-opacity-10;

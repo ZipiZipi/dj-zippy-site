@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS events (
   status TEXT NOT NULL CHECK(status IN ('upcoming', 'past')),
   link TEXT,
   subtitle TEXT,
+  genres TEXT, -- NULL = default house list, 'open_format', or comma-separated
   time TEXT,
   description TEXT,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,

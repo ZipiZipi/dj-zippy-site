@@ -1,6 +1,6 @@
 // Google Sheets → D1 sync for upcoming events.
 // POST /api/sync/events   Authorization: Bearer <SYNC_TOKEN>
-// Body: { events: [{ date: "YYYY-MM-DD", time?, title, subtitle? }] }
+// Body: { events: [{ date: "YYYY-MM-DD", time?, title, subtitle?, genres? }] }
 //
 // The Apps Script bound to the gig sheet sends every row above its
 // "PAST EVENTS" divider. This lives outside /api/admin because Cloudflare
@@ -22,6 +22,8 @@ interface SheetEvent {
   time?: string;
   title: string;
   subtitle?: string;
+  /** "open_format" or "" (house). Absent = older sheet script: leave the column alone. */
+  genres?: string;
 }
 
 const json = (body: unknown, status = 200) =>
@@ -80,6 +82,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       const title = e.title.trim();
       const time = (e.time ?? '').trim();
       const subtitle = (e.subtitle ?? '').trim();
+      const genres = typeof e.genres === 'string' ? e.genres.trim() : null;
       const status = e.date >= today ? 'upcoming' : 'past';
 
       const existing = await db
@@ -90,10 +93,14 @@ export const POST: APIRoute = async ({ request, locals }) => {
       if (existing) {
         await db
           .prepare(
-            `UPDATE events SET time = ?, subtitle = COALESCE(NULLIF(?, ''), subtitle), status = ?,
-               updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
+            // genres: a sheet row that stops being open format falls back to the
+            // default house list; genres typed in the admin are otherwise kept.
+            `UPDATE events SET time = ?1, subtitle = COALESCE(NULLIF(?2, ''), subtitle), status = ?3,
+               genres = CASE WHEN ?4 IS NULL THEN genres WHEN ?4 != '' THEN ?4
+                             WHEN genres = 'open_format' THEN NULL ELSE genres END,
+               updated_at = CURRENT_TIMESTAMP WHERE id = ?5`,
           )
-          .bind(time, subtitle, status, existing.id)
+          .bind(time, subtitle, status, genres, existing.id)
           .run();
         seen.add(existing.id);
         updated++;
@@ -111,13 +118,14 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
       const res = await db
         .prepare(
-          `INSERT INTO events (slug, title, subtitle, location, country, date, time, status, featured)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)`,
+          `INSERT INTO events (slug, title, subtitle, genres, location, country, date, time, status, featured)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0)`,
         )
         .bind(
           `sheet-${slugify(title)}-${e.date}`,
           title,
           subtitle || null,
+          genres || null,
           known?.location ?? 'Novi Sad',
           known?.country ?? 'RS',
           e.date,

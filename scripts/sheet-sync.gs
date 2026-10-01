@@ -12,9 +12,16 @@ const SHEET_NAME = 'Sheet1';
 const HEADER_ROW = 3;
 const DIVIDER = 'PAST EVENTS';
 
-// TIP ZURKE → subtitle shown on the site. First match wins; no match = no subtitle.
+// TIP ZURKE that makes a night open format (not house): blue card + OPEN FORMAT chip on the site.
+const OPEN_FORMAT = /y2k|90s|komerc|open/i;
+
+// Open-format nights only have a name of their own at some venues; elsewhere just the chip shows.
+const OPEN_FORMAT_NAMES = [
+  [/lazino/i, 'Core Memories'],
+];
+
+// TIP ZURKE → subtitle for house nights. First match wins; no match = no subtitle.
 const SUBTITLES = [
-  [/y2k|90s|komerc/i, 'Millenial Shuffle'],
   [/house|tech|groove/i, 'House Music Therapy'],
 ];
 
@@ -79,11 +86,15 @@ function sync_() {
     const date = toIsoDate_(row[cDate]);
     const title = String(row[cVenue]).trim();
     if (!date || !title) continue;
+    const type = String(row[cType]);
+    const openFormat = OPEN_FORMAT.test(type);
     events.push({
       date: date,
       title: title,
       time: String(row[cTime]).replace(/\s*-\s*/, ' - ').trim(),
-      subtitle: subtitleFor_(String(row[cType])),
+      subtitle: openFormat ? openFormatName_(title) : subtitleFor_(type),
+      // '' = house night (site shows the default genres), 'open_format' = blue OPEN FORMAT card
+      genres: openFormat ? 'open_format' : '',
     });
   }
 
@@ -121,5 +132,10 @@ function toIsoDate_(v) {
 
 function subtitleFor_(type) {
   for (const [re, label] of SUBTITLES) if (re.test(type)) return label;
+  return '';
+}
+
+function openFormatName_(venue) {
+  for (const [re, label] of OPEN_FORMAT_NAMES) if (re.test(venue)) return label;
   return '';
 }

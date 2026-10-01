@@ -124,6 +124,12 @@ if (db) {
           </div>
         </div>
         <div>
+          <label class="block text-sm font-bold text-white mb-2" for="f-genres">Genres</label>
+          <input type="text" id="f-genres" list="genre-presets" class="w-full bg-brand-gray border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand-orange" placeholder="Empty = Deep Tech, Minimal, Deep House, Disco, Funk" />
+          <datalist id="genre-presets"><option value="open_format">Open format (blue card)</option></datalist>
+          <p class="text-xs text-gray-500 mt-1">Comma-separated, or <code>open_format</code> for an open-format night.</p>
+        </div>
+        <div>
           <label class="block text-sm font-bold text-white mb-2">Description</label>
           <textarea id="f-description" rows="3" class="w-full bg-brand-gray border border-white/10 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-brand-orange resize-none" placeholder="Optional description..."></textarea>
         </div>
@@ -170,6 +176,7 @@ if (db) {
       (document.getElementById('f-time') as HTMLInputElement).value = data?.time ?? '';
       (document.getElementById('f-status') as HTMLSelectElement).value = data?.status ?? 'upcoming';
       (document.getElementById('f-subtitle') as HTMLInputElement).value = data?.subtitle ?? '';
+      (document.getElementById('f-genres') as HTMLInputElement).value = data?.genres ?? '';
       (document.getElementById('f-description') as HTMLTextAreaElement).value = data?.description ?? '';
       (document.getElementById('f-link') as HTMLInputElement).value = data?.link ?? '';
       (document.getElementById('f-featured') as HTMLInputElement).checked = !!data?.featured;
@@ -230,6 +237,7 @@ if (db) {
         time:        (document.getElementById('f-time') as HTMLInputElement).value || null,
         status:      (document.getElementById('f-status') as HTMLSelectElement).value,
         subtitle:    (document.getElementById('f-subtitle') as HTMLInputElement).value.trim() || null,
+        genres:      (document.getElementById('f-genres') as HTMLInputElement).value.trim() || null,
         description: (document.getElementById('f-description') as HTMLTextAreaElement).value.trim() || null,
         link:        (document.getElementById('f-link') as HTMLInputElement).value.trim() || null,
         featured:    (document.getElementById('f-featured') as HTMLInputElement).checked,

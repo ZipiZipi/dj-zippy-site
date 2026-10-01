@@ -1,6 +1,6 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { getEvents, eventInterval } from '../../lib/content';
+import { getEvents, eventInterval, eventSound } from '../../lib/content';
 import { useTranslations, localize, dateParts, htmlLang, type Lang } from '../../i18n/utils';
 
 interface Props {
@@ -24,7 +24,7 @@ const toMusicEvent = (e: typeof upcoming[number]) => {
   return {
     "@type": "MusicEvent",
     "@id": `${pageUrl}#${e.slug}`,
-    "name": `${e.title} — ${e.subtitle || 'House Music Therapy'}`,
+    "name": `${e.title} — ${e.subtitle || (eventSound(e).openFormat ? 'Open Format Night' : 'House Music Therapy')}`,
     "startDate": start,
     "endDate": end,
     "eventStatus": "https://schema.org/EventScheduled",
@@ -106,17 +106,23 @@ const musicEventSchema = {
         {upcoming.length === 0 && <p class="text-gray-400">{t.events.noUpcoming}</p>}
         {upcoming.map(e => {
           const { day, month, year } = dateParts(e.date, lang);
+          const sound = eventSound(e);
           return (
-            <article class="flex items-center gap-4 sm:gap-6 border-l-4 border-brand-orange bg-brand-gray rounded-r-lg p-4 hover:bg-white/5 transition-colors">
+            <article class={`flex items-center gap-4 sm:gap-6 border-l-4 ${sound.openFormat ? 'border-sky-400' : 'border-brand-orange'} bg-brand-gray rounded-r-lg p-4 hover:bg-white/5 transition-colors`}>
               <div class="flex-shrink-0 text-center min-w-[4rem]">
-                <span class="block font-display font-bold text-brand-orange text-xl leading-none">{day}</span>
+                <span class={`block font-display font-bold text-xl leading-none ${sound.openFormat ? 'text-sky-300' : 'text-brand-orange'}`}>{day}</span>
                 <span class="block text-xs text-gray-400 uppercase tracking-widest">{month}</span>
                 <span class="block text-xs text-gray-400">{year}</span>
               </div>
               <div class="w-px h-10 bg-white/10 flex-shrink-0"></div>
               <div class="flex-1 min-w-0">
-                <h4 class="font-display font-bold text-white text-base sm:text-lg leading-tight">{e.title}</h4>
+                <h4 class="font-display font-bold text-white text-base sm:text-lg leading-tight">{e.title}{sound.name && <span class="font-body font-normal text-gray-300 text-sm sm:text-base"> — {sound.name}</span>}</h4>
                 <p class="text-gray-400 text-sm"><i class="fa-solid fa-location-dot mr-1 text-brand-orange"></i>{e.location}{e.time ? ` · ${e.time}` : ''}</p>
+                <p class="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs sm:text-sm font-semibold text-gray-200">
+                  {sound.openFormat
+                    ? <span class="open-chip">{t.events.openFormat}</span>
+                    : sound.genres.map((g, i) => <span class="whitespace-nowrap">{i > 0 && <span class="text-brand-orange mr-2" aria-hidden="true">·</span>}{g}</span>)}
+                </p>
               </div>
             </article>
           );

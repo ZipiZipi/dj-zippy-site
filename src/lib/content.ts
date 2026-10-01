@@ -11,6 +11,7 @@ export interface UIEvent {
   time?: string;       // "20:00 - 01:00" or ""
   title: string;
   subtitle?: string;
+  genres?: string;     // see eventSound(); '' = default house list
   location: string;
   country?: string;    // ISO-2, used for schema
   status: 'upcoming' | 'past';
@@ -21,9 +22,9 @@ export interface UIEvent {
 export const EVENTS_FALLBACK: UIEvent[] = [
   { slug: "event-raybar-2026-05-23", date: "2026-05-23", time: "20:00 - 01:00", title: "RayBar", subtitle: "House Music Therapy", location: "Novi Sad", country: "RS", status: "upcoming", featured: false },
   { slug: "event-kc-lab-2026-05-09", date: "2026-05-09", time: "20:00 - 01:00", title: "KC Lab", subtitle: "House Music Therapy", location: "Novi Sad", country: "RS", status: "upcoming", featured: false },
-  { slug: "event-lazino-tele-2026-05-02", date: "2026-05-02", time: "22:00 - 03:00", title: "Lazino Tele", subtitle: "Millenial Shuffle", location: "Novi Sad", country: "RS", status: "upcoming", featured: false },
+  { slug: "event-lazino-tele-2026-05-02", date: "2026-05-02", time: "22:00 - 03:00", title: "Lazino Tele", subtitle: "Millenial Shuffle", genres: "open_format", location: "Novi Sad", country: "RS", status: "upcoming", featured: false },
   { slug: "event-raybar-2026-04-25", date: "2026-04-25", time: "20:00 - 01:00", title: "RayBar", subtitle: "House Music Therapy", location: "Novi Sad", country: "RS", status: "upcoming", featured: false },
-  { slug: "event-lazino-tele-2026", date: "2026-03-27", time: "22:00 - 03:00", title: "Lazino Tele", subtitle: "Millenial Shuffle", location: "Novi Sad", country: "RS", status: "past", featured: false },
+  { slug: "event-lazino-tele-2026", date: "2026-03-27", time: "22:00 - 03:00", title: "Lazino Tele", subtitle: "Millenial Shuffle", genres: "open_format", location: "Novi Sad", country: "RS", status: "past", featured: false },
   { slug: "event-krivi-put-2026", date: "2026-03-21", time: "20:00 - 01:00", title: "Krivi Put", subtitle: "House Music Therapy", location: "Smederevo", country: "RS", status: "past", featured: false },
   { slug: "event-club-kult-2026", date: "2026-03-18", time: "21:00 - 22:00", title: "Club Kult", subtitle: "House Music Therapy", location: "Beograd", country: "RS", status: "past", featured: true },
   { slug: "event-raybar-2026-mar", date: "2026-03-07", time: "20:00 - 01:00", title: "RayBar", subtitle: "House Music Therapy", location: "Novi Sad", country: "RS", status: "past", featured: false },
@@ -42,6 +43,26 @@ export const EVENTS_FALLBACK: UIEvent[] = [
 ];
 
 // Date display parts live in src/i18n/utils.ts — month labels differ per language.
+
+/** What a house night sounds like when the gig doesn't name its own genres. */
+export const DEFAULT_GENRES = ['Deep Tech', 'Minimal', 'Deep House', 'Disco', 'Funk'];
+export const OPEN_FORMAT = 'open_format';
+
+/** "House Music Therapy" is the brand, not an event name, so it is never shown as one. */
+const BRAND_SUBTITLE = 'house music therapy';
+
+/**
+ * What the upcoming lists show next to the venue: the event's own name (if it
+ * has one besides the brand) and either the genres or the open-format flag.
+ */
+export function eventSound(e: UIEvent): { name: string; openFormat: boolean; genres: string[] } {
+  const raw = (e.genres ?? '').trim();
+  const subtitle = (e.subtitle ?? '').trim();
+  const name = subtitle.toLowerCase() === BRAND_SUBTITLE ? '' : subtitle;
+  if (raw === OPEN_FORMAT) return { name, openFormat: true, genres: [] };
+  const genres = raw ? raw.split(',').map((g) => g.trim()).filter(Boolean) : DEFAULT_GENRES;
+  return { name, openFormat: false, genres };
+}
 
 function minutesOfDay(hhmm: string): number {
   const [h, m] = hhmm.split(':');
@@ -87,6 +108,7 @@ function mapRow(row: any): UIEvent {
     time: row.time ?? '',
     title: row.title,
     subtitle: row.subtitle ?? '',
+    genres: row.genres ?? '',
     location: row.location,
     country: row.country ?? 'RS',
     status: row.status,

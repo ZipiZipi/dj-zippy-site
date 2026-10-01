@@ -915,6 +915,7 @@ Samo zabeleženo, još ništa nije popravljano. Korisnik šalje screenshotove je
 - **Fajlovi:** `EventsPage.astro`, `HomePage.astro` (Upcoming), `ui.ts`.
 
 ### B11 — Upcoming lista: desna kolona treba da prikazuje žanrove koje Zippy pušta, ne „House Music Therapy“
+- **[x] 2026-10-01 urađeno:** nova kolona `events.genres` (migracija 0008, primenjena na prod i lokalnu D1): prazno = „Deep Tech · Minimal · Deep House · Disco · Funk“, `open_format` = plava kartica + čip OPEN FORMAT, ili sopstvena lista po nastupu (admin polje „Genres“). „House Music Therapy“ se više ne prikazuje kao naziv; Lazino Tele 31/10 = „Core Memories“ + open format. Isto na početnoj i /events. Sheet sync šalje `genres` (y2k/90s/komerc/open → open format, „Core Memories“ samo za Lazino Tele) — novi `scripts/sheet-sync.gs` treba ponovo nalepiti u Sheet.
 - **Šta se vidi:** u „Upcoming Therapy“ listi (početna, verovatno i /events) svaki red ima levo klub + grad, a
   desno naziv događaja. Za Raybar (17/10/2026) i Klub Kažite (30/10/2026) piše „House Music Therapy“, a za
   Lazino Tele „Millenial Shuffle“ (31/10/2026), uz datum i vreme ispod.

@@ -8,6 +8,7 @@ export interface Event {
   status: 'upcoming' | 'past';
   link?: string;
   subtitle?: string;
+  genres?: string; // NULL = default house list, 'open_format', or comma-separated
   time?: string; // HH:mm
   description?: string;
   featured?: boolean | number; // pin to top of Past Highlights
