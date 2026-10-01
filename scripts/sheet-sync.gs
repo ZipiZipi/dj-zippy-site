@@ -2,7 +2,7 @@
  * Google Apps Script for the "Odradjene zurke" sheet → zippydj.com upcoming events.
  * Paste into the sheet via Extensions → Apps Script, save, reload the sheet.
  *
- * Only DATUM, MESTO, VREME and TIP ZURKE from rows above the "PAST EVENTS"
+ * Only DATUM, MESTO, VREME, TIP ZURKE and NAZIV from rows above the "PAST EVENTS"
  * divider are sent. Profit, ticket price, attendance and comments never
  * leave the sheet.
  */
@@ -12,15 +12,12 @@ const SHEET_NAME = 'Sheet1';
 const HEADER_ROW = 3;
 const DIVIDER = 'PAST EVENTS';
 
-// TIP ZURKE that makes a night open format (not house): blue card + OPEN FORMAT chip on the site.
-const OPEN_FORMAT = /y2k|90s|komerc|open/i;
+// TIP ZURKE or NAZIV that makes a night open format (not house): blue card + Open format chip.
+// Izuvanje is an open-format party series, so naming a night Izuvanje is enough.
+const OPEN_FORMAT = /y2k|90s|komerc|open|pop|hip ?hop|izuvanje/i;
 
-// Open-format nights only have a name of their own at some venues; elsewhere just the chip shows.
-const OPEN_FORMAT_NAMES = [
-  [/lazino/i, 'Core Memories'],
-];
-
-// TIP ZURKE → subtitle for house nights. First match wins; no match = no subtitle.
+// TIP ZURKE → subtitle for house nights when NAZIV is empty. First match wins; no match = no subtitle.
+// (The site never shows "House Music Therapy" as a name; it only feeds the event schema.)
 const SUBTITLES = [
   [/house|tech|groove/i, 'House Music Therapy'],
 ];
@@ -78,6 +75,7 @@ function sync_() {
   const cVenue = col('MESTO');
   const cTime = col('VREME');
   const cType = col('TIP');
+  const cName = col('NAZIV'); // optional: the night's own name, e.g. Core Memories
 
   const events = [];
   for (let r = HEADER_ROW; r < values.length; r++) {
@@ -87,12 +85,13 @@ function sync_() {
     const title = String(row[cVenue]).trim();
     if (!date || !title) continue;
     const type = String(row[cType]);
-    const openFormat = OPEN_FORMAT.test(type);
+    const name = cName === -1 ? '' : String(row[cName]).trim();
+    const openFormat = OPEN_FORMAT.test(type + ' ' + name);
     events.push({
       date: date,
       title: title,
       time: String(row[cTime]).replace(/\s*-\s*/, ' - ').trim(),
-      subtitle: openFormat ? openFormatName_(title) : subtitleFor_(type),
+      subtitle: name || (openFormat ? '' : subtitleFor_(type)),
       // '' = house night (site shows the default genres), 'open_format' = blue OPEN FORMAT card
       genres: openFormat ? 'open_format' : '',
     });
@@ -132,10 +131,5 @@ function toIsoDate_(v) {
 
 function subtitleFor_(type) {
   for (const [re, label] of SUBTITLES) if (re.test(type)) return label;
-  return '';
-}
-
-function openFormatName_(venue) {
-  for (const [re, label] of OPEN_FORMAT_NAMES) if (re.test(venue)) return label;
   return '';
 }
