@@ -233,6 +233,42 @@ function mapMix(row: any): UIMix {
 }
 
 /**
+ * Titles typed into the admin drift once a video or upload is renamed, so the
+ * title shown is the one YouTube / MixCloud report now. Both lookups need no key,
+ * are cached at the edge for 6 h and give up after 1.5 s; whatever fails keeps
+ * the stored title.
+ */
+const TITLE_TTL = 6 * 60 * 60;
+
+async function liveTitle(m: UIMix): Promise<string | null> {
+  let url = '';
+  if (m.platform === 'youtube') {
+    url = `https://www.youtube.com/oembed?format=json&url=${encodeURIComponent(m.link)}`;
+  } else if (m.platform === 'mixcloud') {
+    const path = m.link.match(/^https?:\/\/(?:www\.)?mixcloud\.com(\/[^?#]+?\/?)$/)?.[1];
+    if (path) url = `https://api.mixcloud.com${path.endsWith('/') ? path : path + '/'}`;
+  }
+  if (!url) return null;
+  try {
+    const res = await fetch(url, {
+      signal: AbortSignal.timeout(1500),
+      cf: { cacheTtl: TITLE_TTL, cacheEverything: true },
+    } as RequestInit);
+    if (!res.ok) return null;
+    const data: any = await res.json();
+    const title = String((m.platform === 'youtube' ? data.title : data.name) ?? '').trim();
+    return title || null;
+  } catch {
+    return null;
+  }
+}
+
+async function withLiveTitles(mixes: UIMix[]): Promise<UIMix[]> {
+  const titles = await Promise.all(mixes.map(liveTitle));
+  return mixes.map((m, i) => (titles[i] ? { ...m, title: titles[i]! } : m));
+}
+
+/**
  * Returns published mixes plus the featured subset (home coverflow).
  * Reads from D1 when available and populated; otherwise uses the seed data.
  */
@@ -246,6 +282,7 @@ export async function getMixes(db: any): Promise<{ all: UIMix[]; featured: UIMix
     } catch { /* fall back to seed */ }
   }
   if (!all || !all.length) all = MIXES_FALLBACK.slice();
+  all = await withLiveTitles(all);
 
   let featured = all.filter(m => m.featured);
   if (featured.length === 0) featured = all.slice(0, 5);

@@ -192,7 +192,7 @@ const homeSchema = {
     /* The ring: vinyl in its sleeve, a tape and a USB stick on a turning plate.
        --ring-r / --ring-k must match ringRadius() / ringScale() in the script;
        until it runs, --sx/--y/--s from the server hold the resting layout. */
-    .ring {
+    .hring {
       --ring-r: min(200px, 26vw);
       --ring-k: 1;
       position: relative;
@@ -203,10 +203,10 @@ const homeSchema = {
       user-select: none;
       -webkit-user-select: none;
     }
-    @media (max-width: 1023px) { .ring { --ring-k: 0.86; height: 270px; } }
-    @media (max-width: 639px) { .ring { --ring-r: 31vw; --ring-k: 0.72; height: 230px; } }
-    .ring.is-dragging, .ring.is-dragging .ring-item { cursor: grabbing; }
-    .ring-item {
+    @media (max-width: 1023px) { .hring { --ring-k: 0.86; height: 270px; } }
+    @media (max-width: 639px) { .hring { --ring-r: 31vw; --ring-k: 0.72; height: 230px; } }
+    .hring.is-dragging, .hring.is-dragging .hring-item { cursor: grabbing; }
+    .hring-item {
       position: absolute;
       left: 50%;
       top: 50%;
@@ -224,9 +224,9 @@ const homeSchema = {
       -webkit-tap-highlight-color: transparent;
       -webkit-user-drag: none;
     }
-    .ring-item * { -webkit-user-drag: none; }
-    .ring-obj { position: relative; display: block; border-radius: 10px; }
-    .ring-item:focus-visible .ring-obj { outline: 3px solid #fff; outline-offset: 8px; }
+    .hring-item * { -webkit-user-drag: none; }
+    .hring-obj { position: relative; display: block; border-radius: 10px; }
+    .hring-item:focus-visible .hring-obj { outline: 3px solid #fff; outline-offset: 8px; }
 
     /* Vinyl in its sleeve: the record is tucked in and slides out when it comes to the front.
        The shadow sits on the slot, which never turns, so it stays put like the sleeve's. */
@@ -290,10 +290,10 @@ const homeSchema = {
     }
     .sv-sleeve-title { position: absolute; left: 12px; top: 30px; font-size: 24px; font-weight: 900; line-height: 1; }
     .sv-cat { position: absolute; left: 9px; bottom: 8px; font-size: 9px; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.8); }
-    .ring-item.active .sv { transform: translateX(-26%); }
-    .ring-item.active .sv-slot { transform: translateX(56%); }
-    .ring-item.active .sv-disc { animation: ring-spin 1.8s linear infinite; }
-    @keyframes ring-spin { to { transform: rotate(360deg); } }
+    .hring-item.active .sv { transform: translateX(-26%); }
+    .hring-item.active .sv-slot { transform: translateX(56%); }
+    .hring-item.active .sv-disc { animation: hring-spin 1.8s linear infinite; }
+    @keyframes hring-spin { to { transform: rotate(360deg); } }
 
     /* Tape: the EXIT set. Leans left, straightens a little at the front. */
     .tape-obj {
@@ -305,7 +305,7 @@ const homeSchema = {
       transform: rotate(-9deg);
       transition: transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
     }
-    .ring-item.active .tape-obj { transform: rotate(-4deg); }
+    .hring-item.active .tape-obj { transform: rotate(-4deg); }
     .tape-label { position: absolute; left: 12px; right: 12px; top: 12px; height: 86px; border-radius: 5px; background: #efe8dc; overflow: hidden; text-align: left; }
     .tape-strip { position: absolute; left: 0; right: 0; top: 0; height: 20px; padding: 4px 8px; background: #FF5500; color: #050505; font-size: 10px; line-height: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .tape-line { position: absolute; left: 9px; right: 28px; bottom: 6px; font-size: 11px; font-weight: 600; color: #2a2a2a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -319,13 +319,13 @@ const homeSchema = {
       -webkit-mask: radial-gradient(circle, transparent 0 4.5px, #000 5px);
       mask: radial-gradient(circle, transparent 0 4.5px, #000 5px);
     }
-    .ring-item.active .tape-reel { animation: ring-spin 2.4s linear infinite; }
+    .hring-item.active .tape-reel { animation: hring-spin 2.4s linear infinite; }
     .tape-teeth { position: absolute; left: 62px; right: 62px; bottom: 12px; height: 22px; border-radius: 4px 4px 0 0; background: #0e0e0e; }
     .tape-screw { position: absolute; width: 6px; height: 6px; border-radius: 50%; background: #444; }
 
     /* USB stick: all mixes. Leans right, straightens a little at the front. */
     .usb-obj { display: flex; align-items: center; border-radius: 10px; transform: rotate(11deg); transition: transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1); }
-    .ring-item.active .usb-obj { transform: rotate(6deg); }
+    .hring-item.active .usb-obj { transform: rotate(6deg); }
     .usb-body {
       position: relative;
       width: 168px;
@@ -348,19 +348,19 @@ const homeSchema = {
       border-radius: 50%;
       background: #38bdf8;
       box-shadow: 0 0 8px 2px rgba(56,189,248,0.8);
-      animation: ring-blink 0.484s steps(1) infinite alternate;   /* one beat at 124 BPM */
+      animation: hring-blink 0.484s steps(1) infinite alternate;   /* one beat at 124 BPM */
     }
-    @keyframes ring-blink { 50% { opacity: 0.25; } }
+    @keyframes hring-blink { 50% { opacity: 0.25; } }
     .usb-plug { position: relative; width: 41px; height: 40px; border-radius: 0 4px 4px 0; background: linear-gradient(180deg, #dedede, #8a8a8a); }
     .usb-plug::before, .usb-plug::after { content: ''; position: absolute; left: 14px; width: 10px; height: 8px; background: #3a3a3a; }
     .usb-plug::before { top: 8px; }
     .usb-plug::after { bottom: 8px; }
 
-    .ring-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace; letter-spacing: 0.08em; text-transform: uppercase; }
-    .ring-caption-title { font-size: 15px; font-weight: 700; line-height: 1.3; color: #fff; }
-    .ring-caption-platform { margin-top: 4px; font-size: 11px; color: rgba(255,255,255,0.65); }
-    .ring-caption-platform i { color: #FF5500; margin-right: 3px; }
-    .ring-nav {
+    .hring-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace; letter-spacing: 0.08em; text-transform: uppercase; }
+    .hring-caption-title { font-size: 15px; font-weight: 700; line-height: 1.3; color: #fff; }
+    .hring-caption-platform { margin-top: 4px; font-size: 11px; color: rgba(255,255,255,0.65); }
+    .hring-caption-platform i { color: #FF5500; margin-right: 3px; }
+    .hring-nav {
       width: 40px;
       height: 40px;
       display: flex;
@@ -373,23 +373,23 @@ const homeSchema = {
       transition: color 0.3s, border-color 0.3s;
       cursor: pointer;
     }
-    .ring-nav:hover { color: #FF5500; border-color: #FF5500; }
-    .ring-nav:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
-    .ring-dot { width: 24px; height: 24px; display: grid; place-items: center; padding: 0; border: 0; background: none; cursor: pointer; }
-    .ring-dot::before { content: ''; width: 8px; height: 8px; border-radius: 999px; background: rgba(255,255,255,0.28); transition: width 0.3s, background-color 0.3s; }
-    .ring-dot[aria-current="true"]::before { width: 20px; background: #FF5500; }
-    .ring-dot:focus-visible { outline: 2px solid #fff; outline-offset: 1px; border-radius: 6px; }
+    .hring-nav:hover { color: #FF5500; border-color: #FF5500; }
+    .hring-nav:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+    .hring-dot { width: 24px; height: 24px; display: grid; place-items: center; padding: 0; border: 0; background: none; cursor: pointer; }
+    .hring-dot::before { content: ''; width: 8px; height: 8px; border-radius: 999px; background: rgba(255,255,255,0.28); transition: width 0.3s, background-color 0.3s; }
+    .hring-dot[aria-current="true"]::before { width: 20px; background: #FF5500; }
+    .hring-dot:focus-visible { outline: 2px solid #fff; outline-offset: 1px; border-radius: 6px; }
 
     /* The next gig (or the newest set) under the ring; the dot blinks on the beat */
     .hero-next { color: rgba(255,255,255,0.7); font-size: 11px; transition: color 0.3s; }
     .hero-next:hover { color: #fff; }
     .hero-next b { font-weight: 600; color: #FF5500; }
     .hero-next b.is-open { color: #7dd3fc; }
-    .hero-next-dot { display: inline-block; width: 6px; height: 6px; margin-right: 8px; border-radius: 50%; background: #FF5500; vertical-align: 1px; animation: ring-blink 0.484s steps(1) infinite alternate; }
+    .hero-next-dot { display: inline-block; width: 6px; height: 6px; margin-right: 8px; border-radius: 50%; background: #FF5500; vertical-align: 1px; animation: hring-blink 0.484s steps(1) infinite alternate; }
 
     @media (prefers-reduced-motion: reduce) {
-      .sv, .sv-slot, .tape-obj, .usb-obj, .ring-dot::before { transition: none; }
-      .ring-item.active .sv-disc, .ring-item.active .tape-reel, .usb-led, .hero-next-dot { animation: none; }
+      .sv, .sv-slot, .tape-obj, .usb-obj, .hring-dot::before { transition: none; }
+      .hring-item.active .sv-disc, .hring-item.active .tape-reel, .usb-led, .hero-next-dot { animation: none; }
     }
 
     /* "SERBIAN HOUSE DJ" kicker over the name, framed by two short orange rules.
@@ -429,32 +429,32 @@ const homeSchema = {
       <div id="highlights" class="relative pt-1 sm:pt-2 pb-8 sm:pb-12 z-30">
         <h2 class="sr-only">{t.home.featured1}{t.home.featured2}</h2>
         <div id="ring-root" class="relative" role="region" aria-roledescription="carousel" aria-label={t.home.featured1 + t.home.featured2}>
-          <div class="ring" id="ring">
-            <a class="ring-item active" style="--sx:0;--y:0;--s:1.08;z-index:100" href={vinyl.link} target="_blank" rel="noopener" draggable="false"
+          <div class="hring" id="ring">
+            <a class="hring-item active" style="--sx:0;--y:0;--s:1.08;z-index:100" href={vinyl.link} target="_blank" rel="noopener" draggable="false"
                aria-label={vinyl.playLabel} data-play={vinyl.playLabel} data-show={vinyl.showLabel}
                data-title={vinyl.title} data-platform={vinyl.platformLabel} data-icon={vinyl.platformIcon}>
-              <span class="ring-obj sv">
+              <span class="hring-obj sv">
                 <span class="sv-slot"><span class="sv-disc"><span class="sv-label" style={vinyl.coverStyle}></span></span></span>
                 <span class="sv-sleeve" style={vinyl.coverStyle}>
                   {!vinyl.coverStyle && <span class="sv-sleeve-title font-display">HOUSE<br />MUSIC<br />THERAPY</span>}
-                  <span class="sv-cat ring-mono">HMT · {t.home.heroLatestTag}</span>
+                  <span class="sv-cat hring-mono">HMT · {t.home.heroLatestTag}</span>
                 </span>
               </span>
             </a>
-            <a class="ring-item" style="--sx:0.866;--y:-22.5;--s:0.735;--f:brightness(0.57) saturate(0.78);z-index:25" href={l('/mixes')} draggable="false"
+            <a class="hring-item" style="--sx:0.866;--y:-22.5;--s:0.735;--f:brightness(0.57) saturate(0.78);z-index:25" href={l('/mixes')} draggable="false"
                role="button" aria-label={t.home.showMix.replace('{title}', t.home.heroAllMixes)} data-play={t.home.heroAllMixes} data-show={t.home.showMix.replace('{title}', t.home.heroAllMixes)}
                data-title={t.home.heroAllMixes} data-platform="zippydj.com/mixes" data-icon="fa-solid fa-headphones">
-              <span class="ring-obj usb-obj">
-                <span class="usb-body"><span class="usb-name font-display">ZIPPY</span><span class="usb-sub ring-mono">{t.home.heroAllMixes} →</span><span class="usb-led"></span></span>
+              <span class="hring-obj usb-obj">
+                <span class="usb-body"><span class="usb-name font-display">ZIPPY</span><span class="usb-sub hring-mono">{t.home.heroAllMixes} →</span><span class="usb-led"></span></span>
                 <span class="usb-plug"></span>
               </span>
             </a>
-            <a class="ring-item" style="--sx:-0.866;--y:-22.5;--s:0.735;--f:brightness(0.57) saturate(0.78);z-index:25" href={tape.link} target="_blank" rel="noopener" draggable="false"
+            <a class="hring-item" style="--sx:-0.866;--y:-22.5;--s:0.735;--f:brightness(0.57) saturate(0.78);z-index:25" href={tape.link} target="_blank" rel="noopener" draggable="false"
                role="button" aria-label={tape.showLabel} data-play={tape.playLabel} data-show={tape.showLabel}
                data-title={tape.title} data-platform={tape.platformLabel} data-icon={tape.platformIcon}>
-              <span class="ring-obj tape-obj">
+              <span class="hring-obj tape-obj">
                 <span class="tape-label">
-                  <span class="tape-strip ring-mono">{tapeStrip}</span>
+                  <span class="tape-strip hring-mono">{tapeStrip}</span>
                   <span class="tape-line">{tapeLine}</span>
                   <span class="tape-side font-display">A</span>
                 </span>
@@ -466,22 +466,22 @@ const homeSchema = {
             </a>
           </div>
           <div class="mt-1" aria-hidden="true">
-            <div class="ring-caption-title" id="ring-title">{vinyl.title}</div>
-            <div class="ring-caption-platform ring-mono" id="ring-platform"><i class={vinyl.platformIcon}></i> {vinyl.platformLabel}</div>
+            <div class="hring-caption-title" id="ring-title">{vinyl.title}</div>
+            <div class="hring-caption-platform hring-mono" id="ring-platform"><i class={vinyl.platformIcon}></i> {vinyl.platformLabel}</div>
           </div>
           <div class="flex items-center justify-center gap-3 mt-4">
-            <button type="button" class="ring-nav prev" aria-label={t.home.prev}><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
+            <button type="button" class="hring-nav prev" aria-label={t.home.prev}><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
             <div class="flex">
               {[vinyl.showLabel, t.home.showMix.replace('{title}', t.home.heroAllMixes), tape.showLabel].map((label, i) => (
-                <button type="button" class="ring-dot" data-index={i} aria-label={label} aria-current={i === 0 ? 'true' : undefined}></button>
+                <button type="button" class="hring-dot" data-index={i} aria-label={label} aria-current={i === 0 ? 'true' : undefined}></button>
               ))}
             </div>
-            <button type="button" class="ring-nav next" aria-label={t.home.next}><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>
+            <button type="button" class="hring-nav next" aria-label={t.home.next}><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>
           </div>
           <p id="ring-status" class="sr-only" aria-live="polite"></p>
         </div>
         {heroLine && (
-          <a href={heroLine.href} class="hero-next ring-mono inline-block mt-6 sm:mt-8" {...(heroLine.external ? { target: '_blank', rel: 'noopener' } : {})}>
+          <a href={heroLine.href} class="hero-next hring-mono inline-block mt-6 sm:mt-8" {...(heroLine.external ? { target: '_blank', rel: 'noopener' } : {})}>
             <span class="hero-next-dot" aria-hidden="true"></span>{heroLine.label}{heroLine.when && <> · {heroLine.when}</>}{heroLine.name && <> · <b class={heroLine.openFormat ? 'is-open' : undefined}>{heroLine.name}</b></>}{heroLine.where && <> · {heroLine.where}</>} →
           </a>
         )}
@@ -609,10 +609,10 @@ const homeSchema = {
     if (!ring || ring.dataset.ringReady) return;
     ring.dataset.ringReady = '1';
     var root = document.getElementById('ring-root');
-    var items = ring.querySelectorAll('.ring-item');
+    var items = ring.querySelectorAll('.hring-item');
     var n = items.length;
     if (!n) return;
-    var dots = root.querySelectorAll('.ring-dot');
+    var dots = root.querySelectorAll('.hring-dot');
     var status = document.getElementById('ring-status');
     var title = document.getElementById('ring-title');
     var platform = document.getElementById('ring-platform');
@@ -817,15 +817,15 @@ const homeSchema = {
       });
     });
     dots.forEach(function(d, i) { d.addEventListener('click', function() { interact(); goTo(i); }); });
-    root.querySelector('.ring-nav.prev').addEventListener('click', function() { interact(); step(-1); });
-    root.querySelector('.ring-nav.next').addEventListener('click', function() { interact(); step(1); });
+    root.querySelector('.hring-nav.prev').addEventListener('click', function() { interact(); step(-1); });
+    root.querySelector('.hring-nav.next').addEventListener('click', function() { interact(); step(1); });
     root.addEventListener('keydown', function(e) {
       if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
       e.preventDefault();
       interact();
       var f = document.activeElement;
       // keep focus on the same kind of control, now pointing at the new object
-      refocus = f && f.classList.contains('ring-item') ? 'item' : f && f.classList.contains('ring-dot') ? 'dot' : null;
+      refocus = f && f.classList.contains('hring-item') ? 'item' : f && f.classList.contains('hring-dot') ? 'dot' : null;
       step(e.key === 'ArrowRight' ? 1 : -1);
     });
 
