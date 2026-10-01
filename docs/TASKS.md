@@ -771,9 +771,10 @@ Na kraju štikliraj T22.
 
 ## Greške primećene posle deploy-a (2026-09-30)
 
-Samo zabeleženo, još ništa nije popravljano. Korisnik šalje screenshotove jednu po jednu.
+Korisnik šalje screenshotove jednu po jednu. Urađene stavke imaju „[x] urađeno“ ispod naslova.
 
 ### B1 — Ružan prvi frame početne (flash pre nego što se vinili učitaju)
+- **[x] 2026-10-01 urađeno:** server sada sam računa početni raspored vinila (ista formula kao skripta, razmak kao CSS `--cf-gap` po širini ekrana) i prvi disk dobija `active` već u HTML-u, pa je prvi frame isti kao konačni na desktopu i mobilnom (provereno bez JS-a, iste koordinate).
 - **Šta se vidi:** u prvoj sekundi posle učitavanja početne (desktop ~1920 px) prikazuje se hero sa velikim
   „ZIPPY.“ i „HOUSE MUSIC THERAPY“, ali se **„Featured Mixes“ naslov + podnaslov već vide usred hero-a, ispod
   glavnog naslova**, bez ikakvog razmaka. Ispod je prazan narandžasti prostor, pa tek jedan disk (vinil) i dugme
@@ -788,6 +789,7 @@ Samo zabeleženo, još ništa nije popravljano. Korisnik šalje screenshotove je
   statički/SSR raspored odmah bude isti kao konačni (rezervisana visina, centralni disk + susedi u CSS-u).
 
 ### B2 — Spotify kartice na /mixes: slike su pomerene za jedno mesto
+- **[x] 2026-10-01 urađeno:** greška je bila u D1, ne u šablonu: `cover_image` za Spotify redove 10 i 11 ispravljen (Spotify oEmbed), a redu 9 („House Music Therapy“) slika skinuta jer njegov link vraća 404 na Spotify-u (plejlista obrisana ili privatna). Ostali tabovi nisu pomereni; SoundCloud kartice nemaju sliku, MixCloud koristi profilnu (T22).
 - **Šta se vidi:** na tabu SPOTIFY prva kartica („House Music Therapy with DJ Zippy“, FEATURED) prikazuje
   sliku koja pripada drugoj plejlisti (Guilty Trep), druga kartica („Guilty Trep Pleasures“) ima kolaž
   (Duboko EP / Niške strasti) koji pripada trećoj, a treća („Chill Balkan RnB Vibes“) nema sliku, samo
@@ -801,6 +803,7 @@ Samo zabeleženo, još ništa nije popravljano. Korisnik šalje screenshotove je
   (YouTube, MixCloud, SoundCloud, Deezer) i za vinile na početnoj.
 
 ### B3 — Links stranica na desktopu: pikselizovan pozadinski video
+- **[x] 2026-10-01 urađeno:** na ≥768 px video ide u svom obliku 9:16 kao kolona pune visine iza kartica (~1:1, oštar), sa mekim ivicama, a strane popunjava zamućen poster (8 KB, već keširan); telefon nepromenjen.
 - **Šta se vidi:** na /links u desktop browseru (~1900 px) pozadinski video je očigledno niske rezolucije
   (vidljivi veliki pikseli, mutno), dok na telefonu izgleda lepo.
 - **Uzrok (verovatan, iz T13):** video je smanjen na 540×960 (vertikalni, 0.7 MB) i na širokom ekranu se
@@ -812,6 +815,7 @@ Samo zabeleženo, još ništa nije popravljano. Korisnik šalje screenshotove je
 - **Screenshot:** `C:\Users\Zippy\AppData\Local\Temp\claude\F--ZippySite-dj-zippy-site\0b489fb4-877d-4f76-93a6-c366f8f7b6e5\images\3.webp`
 
 ### B4 — Links stranica: razdelna linija između sekcija izgleda kao fleka
+- **[x] 2026-10-01 urađeno:** razdelnik je sada tanka linija preko cele kolone kartica (bela 14 %, krajevi blede).
 - **Šta se vidi:** između „Stream & Follow“ i „Also on“ je kratka svetla linija (~40 px, oko y=750 na screenshotu)
   koja se na tamnom/video pozadini vidi kao mutna fleka, a ne kao namerni razdelnik.
 - **Očekivano:** ili čista tanka linija pune širine kolone (npr. `border-white/10`), ili ukloniti razdelnik
@@ -819,6 +823,7 @@ Samo zabeleženo, još ništa nije popravljano. Korisnik šalje screenshotove je
 - **Screenshot:** isti kao B3 (`images\3.webp`).
 
 ### B5 — Vinili na početnoj: senka se okreće zajedno sa diskom i seče se na vrhu sekcije
+- **[x] 2026-10-01 urađeno:** spoljna senka i narandžasti glow prebačeni sa `.cf-disc` (koji se vrti) na statični `.cf-vinyl`; na disku ostali samo centrirani ring i unutrašnja senka. Maska vinila dobila više mesta gore/dole (negativne margine, raspored se ne pomera).
 - **Šta se vidi:** oko centralnog (i bočnih) diskova senka/glow nije ravnomerna: sa gornje strane je odsečena
   pravom horizontalnom ivicom (oko y≈30 na screenshotu, iznad centralnog diska), a na bočnim diskovima je
   senka nesimetrična. Izgleda kao da se senka **obrće zajedno sa diskom** (box-shadow/drop-shadow je na
@@ -831,6 +836,7 @@ Samo zabeleženo, još ništa nije popravljano. Korisnik šalje screenshotove je
   horizontali), da senka ne bude odsečena. Proveriti i filter zatamnjenja bočnih diskova iz T5.
 
 ### B6 — Početna: narandžasti okvir oko fotke u uvodnoj sekciji izgleda čudno
+- **[x] 2026-10-01 urađeno:** pomereni okvir izbačen; fotka je u ramu od 2 px sa gradijentom (narandžasta gore levo → bleda bela) koji je prati sa sve četiri strane, uz blagi narandžasti sjaj ispod.
 - **Šta se vidi:** u uvodnoj sekciji (T10, „The selector behind House Music Therapy“) fotka ima narandžasti
   okvir samo sa **desne i donje strane** (+ zaobljeni uglovi gore-desno i dole-levo/desno), a sa leve i
   gornje strane ga nema. Pošto je fotka na crnoj pozadini, okvir deluje kao odvojena linija koja „visi“ pored
