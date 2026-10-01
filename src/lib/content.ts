@@ -234,13 +234,14 @@ function mapMix(row: any): UIMix {
 
 /**
  * Titles typed into the admin drift once a video or upload is renamed, so the
- * title shown is the one YouTube / MixCloud report now. Both lookups need no key,
+ * title shown is the one YouTube / MixCloud report now. A MixCloud upload with
+ * no cover stored also takes its cover from there. Both lookups need no key,
  * are cached at the edge for 6 h and give up after 1.5 s; whatever fails keeps
  * the stored title.
  */
 const TITLE_TTL = 6 * 60 * 60;
 
-async function liveTitle(m: UIMix): Promise<string | null> {
+async function liveMeta(m: UIMix): Promise<{ title: string; cover: string } | null> {
   let url = '';
   if (m.platform === 'youtube') {
     url = `https://www.youtube.com/oembed?format=json&url=${encodeURIComponent(m.link)}`;
@@ -257,15 +258,20 @@ async function liveTitle(m: UIMix): Promise<string | null> {
     if (!res.ok) return null;
     const data: any = await res.json();
     const title = String((m.platform === 'youtube' ? data.title : data.name) ?? '').trim();
-    return title || null;
+    const cover = m.platform === 'mixcloud' ? String(data.pictures?.extra_large ?? '') : '';
+    return title || cover ? { title, cover } : null;
   } catch {
     return null;
   }
 }
 
 async function withLiveTitles(mixes: UIMix[]): Promise<UIMix[]> {
-  const titles = await Promise.all(mixes.map(liveTitle));
-  return mixes.map((m, i) => (titles[i] ? { ...m, title: titles[i]! } : m));
+  const metas = await Promise.all(mixes.map(liveMeta));
+  return mixes.map((m, i) => {
+    const live = metas[i];
+    if (!live) return m;
+    return { ...m, title: live.title || m.title, thumbnail: m.thumbnail || live.cover };
+  });
 }
 
 /**

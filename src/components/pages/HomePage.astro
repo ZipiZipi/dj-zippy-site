@@ -22,7 +22,8 @@ const { all } = await getMixes(db);
 // Playlists are not sets, so they never land on the vinyl or the tape.
 const sets = all.filter(m => m.platform !== 'spotify' && m.platform !== 'deezer' && !/playlist/i.test(m.genre));
 const hmtSets = sets.filter(m => /house music therapy/i.test(m.title));
-const hmtMix = hmtSets[0] ?? sets[0] ?? all[0];
+// MixCloud first: its square covers suit the sleeve better than letterboxed video stills
+const hmtMix = hmtSets.find(m => m.platform === 'mixcloud') ?? hmtSets[0] ?? sets[0] ?? all[0];
 const exitSets = sets.filter(m => /\bexit\b/i.test(m.title));
 const tapeMix = exitSets.find(m => m.platform === 'youtube') ?? exitSets[0] ?? sets.find(m => m !== hmtMix) ?? hmtMix;
 
