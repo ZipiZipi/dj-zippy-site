@@ -862,6 +862,7 @@ Samo zabeleženo, još ništa nije popravljano. Korisnik šalje screenshotove je
     stranicama kao gola lista (npr. početna).
 
 ### B8 — Traka (marquee) na početnoj: levi kraj izgleda odsečeno, pogrešna reč na srpskom, pogrešni žanrovi
+- **[x] 2026-10-01 urađeno:** labela ima kosu desnu ivicu (clip-path) i narandžaste ivice gore/dole, pa se ne stapa sa crnom trakom; nazivi klubova izlaze ispod nje uz kratak fade (mask). SR labela „Nastupao na“, a u bio-u „Nastupao je na“. Crna traka: Deep Tech · Minimal · Deep House · French House · Groove · Disco · Funk · Jazz (bez HMT i „Serbian House DJ“). Ista lista je i u FAQ-u o žanrovima (en+sr), u schema `genre` (početna i About, plus „House“ kao krovni žanr) i u llms.txt. Naslovi i bio „house i tech house DJ“ nisu menjani.
 - **Screenshot:** `C:\Users\Zippy\AppData\Local\Temp\claude\F--ZippySite-dj-zippy-site\0b489fb4-877d-4f76-93a6-c366f8f7b6e5\images\7.png`
 - **(a) Levi kraj:** fiksna labela „SVIRAO NA“ je pravougaonik sa ravnom ivicom, a narandžasta traka je nagnuta
   (−1.5°). Na spoju se vidi oštar stepenik: labela je tamna i uspravna, traka kosa, pa traka izgleda kao

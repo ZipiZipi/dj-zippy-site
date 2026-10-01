@@ -126,7 +126,7 @@ const en = {
       'Ray Bar',
       'Kult Talents',
     ],
-    tapeWords: ['House Music Therapy', 'Serbian House DJ', 'House', 'Tech House', 'Deep House', 'Organic House'],
+    tapeWords: ['Deep Tech', 'Minimal', 'Deep House', 'French House', 'Groove', 'Disco', 'Funk', 'Jazz'],
     kicker: 'Serbian House DJ',
     introHeading1: 'The selector behind ',
     introHeading2: 'House Music Therapy',
@@ -178,9 +178,9 @@ const en = {
       {
         q: 'What music genres does DJ Zippy play?',
         aHtml:
-          'DJ Zippy specializes in House, Tech House, Deep House and Organic House, and shifts into Techno when the night calls for darker, driving rhythms.',
+          'DJ Zippy plays Deep Tech, Minimal, Deep House, French House and groove-led house, and works Disco, Funk and Jazz into his sets.',
         aText:
-          'DJ Zippy specializes in House, Tech House, Deep House and Organic House, and shifts into Techno when the night calls for darker, driving rhythms.',
+          'DJ Zippy plays Deep Tech, Minimal, Deep House, French House and groove-led house, and works Disco, Funk and Jazz into his sets.',
       },
       {
         q: 'Where is DJ Zippy from?',
@@ -416,7 +416,7 @@ const sr: Dict = {
     next: 'Sledeći',
     playOn: 'Pusti {title} na {platform}',
     showMix: 'Prikaži {title}',
-    playedAt: 'Svirao na',
+    playedAt: 'Nastupao na',
     venues: [
       'Exit festival · Dance Arena',
       'Exit festival · AS FM bina',
@@ -428,12 +428,12 @@ const sr: Dict = {
       'Ray Bar',
       'Kult Talents',
     ],
-    tapeWords: ['House Music Therapy', 'Srpski house DJ', 'House', 'Tech house', 'Deep house', 'Organic house'],
+    tapeWords: ['Deep Tech', 'Minimal', 'Deep House', 'French House', 'Groove', 'Disco', 'Funk', 'Jazz'],
     kicker: 'Srpski house DJ',
     introHeading1: 'Selektor iza ',
     introHeading2: 'House Music Therapy',
     introBody:
-      'DJ Zippy (Veljko Nedeljković) je srpski house i tech house DJ koji prvo čita publiku, pa tek onda pušta. Svirao je na tri bine Exit festivala, u klubu Kult u Beogradu i na letnjim klupskim večerima na Zakintosu i Lefkadi, a iz dubokog groove-a prelazi u jak tech house kad podijum to traži. Dostupan za klubove, festivale i privatne žurke u Srbiji i Evropi.',
+      'DJ Zippy (Veljko Nedeljković) je srpski house i tech house DJ koji prvo čita publiku, pa tek onda pušta. Nastupao je na tri bine Exit festivala, u klubu Kult u Beogradu i na letnjim klupskim večerima na Zakintosu i Lefkadi, a iz dubokog groove-a prelazi u jak tech house kad podijum to traži. Dostupan za klubove, festivale i privatne žurke u Srbiji i Evropi.',
     introChips: ['Exit festival 2024. i 2025.', '3 bine Exit festivala', 'Član Kult Talents', 'Srbija · Grčka'],
     introPhotoAlt: 'DJ Zippy, srpski house DJ, sa slušalicama',
     introBook: 'Rezerviši Zippyja',
@@ -480,9 +480,9 @@ const sr: Dict = {
       {
         q: 'Koje žanrove pušta DJ Zippy?',
         aHtml:
-          'DJ Zippy je specijalizovan za house, tech house, deep house i organic house, a prelazi u techno kada noć traži mračnije i jače ritmove.',
+          'DJ Zippy pušta deep tech, minimal, deep house, french house i groove house, a u setove upliće disco, funk i jazz.',
         aText:
-          'DJ Zippy je specijalizovan za house, tech house, deep house i organic house, a prelazi u techno kada noć traži mračnije i jače ritmove.',
+          'DJ Zippy pušta deep tech, minimal, deep house, french house i groove house, a u setove upliće disco, funk i jazz.',
       },
       {
         q: 'Odakle je DJ Zippy?',
