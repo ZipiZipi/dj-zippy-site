@@ -59,7 +59,7 @@ u isto vreme, jer se izmene sudaraju. Najsigurnije je raditi ih redom i commit-o
 | [ ] | T28 About kao priča: put od 2022. do danas (rešava B9) | 🟠 P1 | Opus 5.5 | high | `AboutPage.astro`, `ui.ts` |
 | [ ] | T29 „U torbi“: ploče koje Zippy trenutno pušta | 🟡 P2 | Sonnet 5.5 | medium | `HomePage.astro` ili `MixesPage.astro`, `ui.ts` ili D1 |
 | [–] otkazano 2026-10-01 | ~~T30 Potpisi identiteta: HMT kataloški brojevi, mono metapodaci, zrno~~ — korisnik: „nećemo“ | 🟡 P2 | Sonnet 5.5 | medium | `global.css`, `MixesPage.astro`, `HomePage.astro`, `fonts.css` |
-| [ ] | T31 Bug: `/mixes/` i `/events/` sa kosom crtom na kraju daju 404 | 🔴 P0 | Sonnet 5.5 | low | `src/middleware/index.ts` |
+| [x] 2026-10-04 | T31 Bug: `/mixes/` i `/events/` sa kosom crtom na kraju daju 404 — middleware vraća 301 na put bez kose crte (query ostaje) za sve GET/HEAD osim `/` i `/api/*`; pokriva i `/sr/` (srpska početna je takođe davala 404); vodeće `//` se sabijaju da ne bi bilo open redirect-a; provereno na `wrangler dev`. | 🔴 P0 | Sonnet 5.5 | low | `src/middleware/index.ts` |
 
 Preporučeni redosled: **T1 → T2 → T6 → T7 → T9 → T8 → T5 → T10 → T3 → T4 → T11 → T13 → T12 → T14**.
 Posle toga: **T18 → T21 → T15 → T16 → T17 → T20 → T19 → T22**. T18 i T21 su skoro bez koda, a daju najviše za pozicioniranje i konverzije.
@@ -1328,6 +1328,8 @@ Sitni detalji koji zajedno daju osećaj izdavačke kuće (record label), a ne š
 ---
 
 ## T31 — Bug: `/mixes/` i `/events/` sa kosom crtom na kraju daju 404
+
+> **Urađeno 2026-10-04.** Prerenderovane stranice (`/about/`, `/links/`…) i dalje preusmerava Cloudflare assets sloj sa 307, ne 301; to nije u workeru i za SEO je dovoljno, jer canonical i sitemap već vode na URL bez kose crte.
 
 **Prioritet:** 🔴 P0 · **Model:** Sonnet 5.5 · **Effort:** low
 

@@ -11,6 +11,25 @@ import { defineMiddleware } from 'astro:middleware';
 
 export const onRequest = defineMiddleware(async (context, next) => {
   const pathname = context.url.pathname;
+  const method = context.request.method;
+
+  // trailingSlash is 'never', so SSR pages (/mixes, /events, /sr…) don't match
+  // with a trailing slash and fall through to the 404 catch-all. Prerendered
+  // pages are redirected by the assets layer before reaching the worker.
+  // The Location is absolute on our own origin and leading slashes are
+  // collapsed, so "//evil.com/" can't become a protocol-relative redirect.
+  if (
+    (method === 'GET' || method === 'HEAD') &&
+    pathname.length > 1 &&
+    pathname.endsWith('/') &&
+    !pathname.startsWith('/api/')
+  ) {
+    const clean = '/' + pathname.replace(/^\/+|\/+$/g, '');
+    return new Response(null, {
+      status: 301,
+      headers: { Location: context.url.origin + clean + context.url.search },
+    });
+  }
 
   const isAdmin = pathname.startsWith('/admin') || pathname.startsWith('/api/admin');
   if (!isAdmin) return next();
