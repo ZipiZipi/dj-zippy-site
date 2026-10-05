@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="sr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Event kartice runda 5</title>
+<style>
+  @font-face { font-family:'Unbounded'; font-weight:400 900; src:url('../../public/fonts/unbounded/unbounded-latin.woff2') format('woff2'); }
+  @font-face { font-family:'Unbounded'; font-weight:400 900; src:url('../../public/fonts/unbounded/unbounded-latin-ext.woff2') format('woff2'); unicode-range:U+0100-02BA; }
+  @font-face { font-family:'Inter'; font-weight:300 600; src:url('../../public/fonts/inter/inter-latin.woff2') format('woff2'); }
+  @font-face { font-family:'Inter'; font-weight:300 600; src:url('../../public/fonts/inter/inter-latin-ext.woff2') format('woff2'); unicode-range:U+0100-02BA; }
+
+  :root { --o:#FF5500; --b:#38bdf8; --k:#050505; --card:#141414; --card2:#1b1b1b; --line:#2a2a2a; --mut:#9ca3af; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:#000; color:#fff; font-family:Inter, sans-serif; padding:28px 16px 64px; overflow-x:hidden; }
+  a { color:inherit; text-decoration:none; }
+  h1.page { font:700 20px Unbounded, sans-serif; max-width:960px; margin:0 auto 6px; }
+  p.page { color:#aaa; font-size:14px; line-height:1.5; max-width:960px; margin:0 auto 32px; }
+  .wrap { max-width:960px; margin:0 auto 72px; }
+  .cap { display:flex; gap:12px; align-items:baseline; margin-bottom:18px; flex-wrap:wrap; border-top:1px solid #222; padding-top:18px; }
+  .cap b { font:700 15px Unbounded, sans-serif; }
+  .cap span { color:#bbb; font-size:13.5px; line-height:1.5; flex:1 1 420px; }
+  .tag { flex:0 0 auto !important; font:600 11px Inter; letter-spacing:.08em; padding:3px 8px; border-radius:99px; background:rgba(255,85,0,.15); color:#ff8a4d !important; }
+  .h2 { font:700 34px Unbounded, sans-serif; text-align:center; margin-bottom:24px; }
+  .h2 i { font-style:normal; color:var(--o); }
+  .list { display:flex; flex-direction:column; gap:10px; max-width:560px; margin:0 auto; }
+  .num { font-variant-numeric:tabular-nums; }
+
+  /* ---------- shared ticket: notches cut at the perforation (--px from the left) ---------- */
+  .t { --c:var(--o); --r:9px; position:relative; display:grid; background:var(--card); color:#fff; border-radius:12px;
+    -webkit-mask:radial-gradient(circle var(--r) at var(--px) 0, #0000 97%, #000) top / 100% 51% no-repeat,
+                 radial-gradient(circle var(--r) at var(--px) 100%, #0000 97%, #000) bottom / 100% 51% no-repeat;
+            mask:radial-gradient(circle var(--r) at var(--px) 0, #0000 97%, #000) top / 100% 51% no-repeat,
+                 radial-gradient(circle var(--r) at var(--px) 100%, #0000 97%, #000) bottom / 100% 51% no-repeat;
+    transition:transform .2s, background .2s; }
+  .t.open { --c:var(--b); }
+  .t:hover { transform:translateY(-2px); background:var(--card2); }
+  .t.next { background:var(--c); color:var(--k); }
+  .perf { border-left:1.5px dashed #333; }
+  .next .perf { border-color:rgba(5,5,5,.35); }
+  .lbl { font:600 10.5px Inter; letter-spacing:.16em; text-transform:uppercase; color:var(--mut); }
+  .next .lbl { color:rgba(5,5,5,.7); }
+  .venue { font:800 20px/1.1 Unbounded; letter-spacing:-.01em; }
+  .sound { font:500 13px Inter; color:#d4d4d4; margin-top:6px; }
+  .next .sound { color:var(--k); }
+  .pill { display:inline-block; font:700 9.5px Unbounded; letter-spacing:.14em; background:var(--k); color:var(--c); padding:4px 8px; border-radius:99px; }
+  .acc { color:var(--c); }
+  .next .acc { color:var(--k); }
+
+  /* ---------- M1 · Wallet karta ---------- */
+  .M1 .t { --sw:132px; --px:calc(100% - var(--sw)); grid-template-columns:1fr var(--sw); }
+  .M1 .body { padding:16px 20px; min-width:0; }
+  .M1 .top { display:flex; gap:10px; align-items:center; margin-bottom:6px; }
+  .M1 .stub { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:12px 8px; text-align:center; }
+  .M1 .day { font:800 36px/1 Unbounded; }
+  .M1 .mon { font:700 11px Unbounded; letter-spacing:.2em; margin-top:3px; white-space:nowrap; }
+  .M1 .time { font:500 12px Inter; margin-top:8px; color:var(--mut); }
+  .M1 .next .time { color:rgba(5,5,5,.75); }
+
+  /* CTA 1 · ticket-shaped button */
+  .cta1 { --c:var(--o); --sw:64px; --px:calc(100% - var(--sw)); max-width:360px; margin:22px auto 0; grid-template-columns:1fr var(--sw); background:#0f0f0f; box-shadow:none; }
+  .cta1 .body { padding:14px 18px; }
+  .cta1 .body b { display:block; font:700 13px Unbounded; }
+  .cta1 .body small { display:block; font:500 12px Inter; color:var(--mut); margin-top:3px; }
+  .cta1 .stub { display:flex; align-items:center; justify-content:center; font:700 24px Inter; color:var(--o); transition:background .2s, color .2s; }
+  .cta1:hover { background:#161616; }
+  .cta1:hover .stub { background:var(--o); color:#000; }
+
+  /* ---------- M2 · Datum levo + strelica ---------- */
+  .M2 .t { --sw:88px; --px:var(--sw); grid-template-columns:var(--sw) 1fr 56px; align-items:center; }
+  .M2 .stub { align-self:stretch; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:12px 6px; text-align:center; border-right:1.5px dashed #333; }
+  .M2 .next .stub { border-color:rgba(5,5,5,.35); }
+  .M2 .dow { font:600 10px Inter; letter-spacing:.18em; color:var(--mut); }
+  .M2 .next .dow { color:rgba(5,5,5,.7); }
+  .M2 .day { font:800 30px/1.05 Unbounded; }
+  .M2 .mon { font:700 10px Unbounded; letter-spacing:.2em; }
+  .M2 .body { padding:14px 18px; min-width:0; }
+  .M2 .meta { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:7px; }
+  .M2 .chip { font:600 11px Inter; padding:3px 9px; border-radius:99px; border:1px solid #333; color:#d4d4d4; white-space:nowrap; }
+  .M2 .chip.c { border-color:color-mix(in srgb, var(--c) 55%, transparent); color:var(--c); }
+  .M2 .next .chip { border-color:rgba(5,5,5,.3); color:var(--k); }
+  .M2 .time { font:500 12px Inter; color:var(--mut); }
+  .M2 .next .time { color:rgba(5,5,5,.75); }
+  .M2 .go { width:34px; height:34px; border-radius:50%; border:1px solid #333; display:flex; align-items:center; justify-content:center; font:600 15px Inter; color:var(--c); transition:background .2s, color .2s; }
+  .M2 .next .go { border-color:rgba(5,5,5,.35); color:var(--k); }
+  .M2 .t:hover .go { background:var(--c); color:var(--k); border-color:transparent; }
+  .M2 .t.next:hover .go { background:var(--k); color:var(--c); }
+
+  /* CTA 2 · ghost ticket at the end of the list */
+  .cta2 { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:16px 20px; border:1.5px dashed #333; border-radius:12px; color:var(--mut); transition:border-color .2s, color .2s; }
+  .cta2 b { font:700 13px Unbounded; color:#fff; }
+  .cta2 small { display:block; font:500 12px Inter; margin-top:3px; }
+  .cta2 .arr { font:600 15px Inter; color:var(--o); }
+  .cta2:hover { border-color:var(--o); color:#d4d4d4; }
+
+  /* ---------- M3 · Tanka lista ---------- */
+  .M3 .list { gap:8px; }
+  .M3 .t { --r:7px; --sw:118px; --px:calc(100% - var(--sw)); grid-template-columns:1fr var(--sw); border-radius:10px; }
+  .M3 .body { padding:12px 18px; display:flex; align-items:center; gap:4px 14px; flex-wrap:wrap; min-width:0; }
+  .M3 .venue { font-size:16px; }
+  .M3 .sound { margin-top:0; font-size:12.5px; color:var(--mut); }
+  .M3 .next .sound { color:rgba(5,5,5,.8); }
+  .M3 .pill { align-self:center; }
+  .M3 .stub { display:flex; flex-direction:column; justify-content:center; padding:10px 16px; }
+  .M3 .date { font:800 15px Unbounded; white-space:nowrap; }
+  .M3 .time { white-space:nowrap; font:500 11.5px Inter; color:var(--mut); margin-top:2px; }
+  .M3 .next .time { color:rgba(5,5,5,.75); }
+
+  /* CTA 3 · pill button */
+  .cta3w { text-align:center; margin-top:26px; }
+  .cta3 { display:inline-flex; align-items:center; gap:12px; padding:6px 6px 6px 20px; border:1px solid #333; border-radius:99px; font:600 14px Inter; color:#e5e5e5; transition:border-color .2s, background .2s; }
+  .cta3 .arr { width:32px; height:32px; border-radius:50%; background:var(--o); color:#000; display:flex; align-items:center; justify-content:center; font-weight:700; transition:transform .2s; }
+  .cta3:hover { border-color:var(--o); background:rgba(255,85,0,.08); }
+  .cta3:hover .arr { transform:translateX(3px); }
+
+  @media (max-width:640px) {
+    .h2 { font-size:26px; }
+    .M1 .t { --sw:92px; } .M1 .body { padding:14px 14px; } .M1 .venue { font-size:16px; } .M1 .day { font-size:28px; } .M1 .time { font-size:11px; }
+    .M1 .sound { font-size:12px; } .M1 .mon { font-size:9px; letter-spacing:.08em; }
+    .M2 .city { display:none; } .M2 .lbl { white-space:nowrap; }
+    .M2 .t { --sw:70px; grid-template-columns:var(--sw) 1fr 44px; } .M2 .body { padding:12px 12px; } .M2 .venue { font-size:16px; } .M2 .day { font-size:24px; }
+    .M2 .go { width:30px; height:30px; }
+    .M3 .t { --sw:106px; } .M3 .time { font-size:10.5px; } .M3 .body { padding:10px 12px; } .M3 .stub { padding:8px 10px; } .M3 .date { font-size:13px; }
+    .M3 .sound { flex-basis:100%; }
+  }
+</style>
+</head>
+<body>
+<h1 class="page">Upcoming Events — runda 5: modernija H3</h1>
+<p class="page">Logika iz H3 ostaje: sledeći nastup je cela karta u boji sa oznakom NEXT, ostali su tamni sa datumom u boji. Izbačeni su retro ukrasi (dupli okvir, ADMIT ONE, serijski broj, zrno papira). Karta ostaje karta zbog zareza i perforacije. Uz svaku varijantu je drugačiji format za „View All Events“.</p>
+
+<div class="wrap M1" id="M1"></div>
+<div class="wrap M2" id="M2"></div>
+<div class="wrap M3" id="M3"></div>
+
+<script>
+  var EV = [
+    { open:true,  venue:"RAYBAR",      city:"Novi Sad", name:"Izuvanje",      genres:["Open format"], dow:"SAT", day:"17", mon:"OCT", time:"21:00 – 01:00" },
+    { open:false, venue:"KLUB KAŽ'TE", city:"Novi Sad", name:"",              genres:["Deep Tech","Minimal","Deep House","Disco","Funk"], dow:"FRI", day:"30", mon:"OCT", time:"21:00 – 03:00" },
+    { open:true,  venue:"LAZINO TELE", city:"Novi Sad", name:"Core Memories", genres:["Open format"], dow:"SAT", day:"31", mon:"OCT", time:"22:00 – 03:00" }
+  ];
+  var CAP = {
+    M1: ['M1 · Wallet karta', 'MOJA PREPORUKA', 'Kao karta u Apple Wallet-u: zaobljeni uglovi, dva zareza i perforacija, desno kupon sa velikim datumom i vremenom. Bez ukrasa, samo tipografija. Dugme „View all events“ je mala tamna karta istog oblika, a strelica se na hover pali narandžasto.'],
+    M2: ['M2 · Datum levo + strelica', '', 'Kupon sa datumom je levo, kao kod aplikacija za događaje. Žanrovi su u malim pilulama, a desno je krug sa strelicom. „View all events“ je prazna karta sa isprekidanom ivicom na kraju liste, kao mesto za sledeći nastup.'],
+    M3: ['M3 · Tanka lista', '', 'Najkompaktnije: jedan red po nastupu, ime i zvuk u istoj liniji, datum u kupon desno. Liči na Resident Advisor listu. „View all events“ je pilula sa narandžastim krugom i strelicom.']
+  };
+  function sound(e, sep) {
+    return (e.name ? e.name + sep : '') + e.genres.join(' · ');
+  }
+  function M1(e, i) {
+    return '<a href="#" class="t' + (e.open ? ' open' : '') + (i === 0 ? ' next' : '') + '"><div class="body"><div class="top">' +
+      (i === 0 ? '<span class="pill">NEXT</span>' : '') + '<span class="lbl">' + e.city + '</span></div>' +
+      '<div class="venue">' + e.venue + '</div><div class="sound">' + sound(e, ' · ') + '</div></div>' +
+      '<div class="stub perf"><div class="day num acc">' + e.day + '</div><div class="mon acc">' + e.mon + ' · ' + e.dow + '</div><div class="time num">' + e.time + '</div></div></a>';
+  }
+  function M2(e, i) {
+    var chips = (e.name ? '<span class="chip">' + e.name + '</span>' : '') +
+      e.genres.map(function (g) { return '<span class="chip' + (e.open ? ' c' : '') + '">' + g + '</span>'; }).join('');
+    return '<a href="#" class="t' + (e.open ? ' open' : '') + (i === 0 ? ' next' : '') + '">' +
+      '<div class="stub"><div class="dow">' + e.dow + '</div><div class="day num acc">' + e.day + '</div><div class="mon acc">' + e.mon + '</div></div>' +
+      '<div class="body"><div class="lbl">' + (i === 0 ? '<span class="pill" style="margin-right:8px">NEXT</span>' : '') + '<span class="city">' + e.city + ' · </span><span class="num">' + e.time + '</span></div>' +
+      '<div class="venue" style="margin-top:6px">' + e.venue + '</div><div class="meta">' + chips + '</div></div>' +
+      '<div><span class="go">→</span></div></a>';
+  }
+  function M3(e, i) {
+    return '<a href="#" class="t' + (e.open ? ' open' : '') + (i === 0 ? ' next' : '') + '"><div class="body">' +
+      (i === 0 ? '<span class="pill">NEXT</span>' : '') + '<span class="venue">' + e.venue + '</span><span class="sound">' + sound(e, ' · ') + '</span></div>' +
+      '<div class="stub perf"><div class="date num acc">' + e.dow + ' ' + e.day + '.10.</div><div class="time num">' + e.time + '</div></div></a>';
+  }
+  var CTA = {
+    M1: '<a href="#" class="t cta1"><div class="body"><b>View all events</b><small>Past highlights &amp; full archive</small></div><div class="stub perf">→</div></a>',
+    M2: '<a href="#" class="cta2"><div><b>View all events</b><small>Past highlights &amp; full archive</small></div><span class="arr">→</span></a>',
+    M3: '<div class="cta3w"><a href="#" class="cta3">View all events &amp; past highlights <span class="arr">→</span></a></div>'
+  };
+  var R = { M1:M1, M2:M2, M3:M3 };
+  Object.keys(CAP).forEach(function (v) {
+    var c = CAP[v], inList = v === 'M2';
+    document.getElementById(v).innerHTML =
+      '<div class="cap"><b>' + c[0] + '</b>' + (c[1] ? '<span class="tag">' + c[1] + '</span>' : '') + '<span>' + c[2] + '</span></div>' +
+      '<h2 class="h2">Upcoming <i>Events</i></h2><div class="list">' + EV.map(R[v]).join('') + (inList ? CTA[v] : '') + '</div>' +
+      (inList ? '' : CTA[v]);
+  });
+</script>
+</body>
+</html>
