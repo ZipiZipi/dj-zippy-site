@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="sr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Event kartice varijante</title>
+<style>
+  @font-face { font-family:'Unbounded'; font-weight:400 900; src:url('../../public/fonts/unbounded/unbounded-latin.woff2') format('woff2'); }
+  @font-face { font-family:'Unbounded'; font-weight:400 900; src:url('../../public/fonts/unbounded/unbounded-latin-ext.woff2') format('woff2'); unicode-range:U+0100-02BA; }
+  @font-face { font-family:'Inter'; font-weight:300 600; src:url('../../public/fonts/inter/inter-latin.woff2') format('woff2'); }
+  @font-face { font-family:'Inter'; font-weight:300 600; src:url('../../public/fonts/inter/inter-latin-ext.woff2') format('woff2'); unicode-range:U+0100-02BA; }
+
+  :root { --o:#FF5500; --b:#38bdf8; --k:#050505; --g:#1f1f1f;
+    --noise:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:#000; color:#fff; font-family:Inter, sans-serif; padding:28px 16px 64px; }
+  h1.page { font:700 20px Unbounded, sans-serif; max-width:960px; margin:0 auto 6px; }
+  p.page { color:#aaa; font-size:14px; line-height:1.5; max-width:960px; margin:0 auto 32px; }
+  .wrap { max-width:960px; margin:0 auto 56px; }
+  .cap { display:flex; gap:12px; align-items:baseline; margin-bottom:18px; flex-wrap:wrap; border-top:1px solid #222; padding-top:18px; }
+  .cap b { font:700 15px Unbounded, sans-serif; }
+  .cap span { color:#bbb; font-size:13.5px; line-height:1.5; flex:1 1 420px; }
+  .tag { flex:0 0 auto !important; font:600 11px Inter; letter-spacing:.08em; padding:3px 8px; border-radius:99px; background:rgba(255,85,0,.15); color:#ff8a4d !important; }
+  .h2 { font:700 34px Unbounded, sans-serif; text-align:center; margin-bottom:28px; }
+  .h2 i { font-style:normal; color:var(--o); }
+  .mono { font-family:ui-monospace, 'IBM Plex Mono', Consolas, monospace; font-weight:500; letter-spacing:.06em; }
+  .disp { font-family:Unbounded, sans-serif; }
+  .list { max-width:768px; margin:0 auto; }
+
+  /* ---------- A · Klasična bioskopska karta ---------- */
+  .A .t { --c:var(--o); position:relative; display:grid; grid-template-columns:1fr 168px; background:var(--c); color:var(--k);
+    border-radius:6px; margin-bottom:14px; transition:transform .2s; }
+  .A .t.open { --c:var(--b); }
+  .A .t:hover { transform:translateY(-2px) rotate(-.4deg); }
+  .A .t::before { content:''; position:absolute; inset:0; border-radius:6px; opacity:.18; mix-blend-mode:multiply; background-image:var(--noise); pointer-events:none; }
+  .A .main { padding:16px 22px 14px; position:relative; }
+  .A .admit { font-size:10px; display:flex; justify-content:space-between; opacity:.75; margin-bottom:6px; }
+  .A .venue { font:800 26px/1.05 Unbounded; letter-spacing:-.01em; }
+  .A .city { font:600 11px Inter; letter-spacing:.22em; text-transform:uppercase; margin-top:4px; }
+  .A .sound { font:600 13px Inter; margin-top:10px; display:flex; flex-wrap:wrap; gap:2px 8px; }
+  .A .sound b { font-weight:700; }
+  .A .sound .d { opacity:.5; }
+  .A .stub { position:relative; border-left:2px dashed rgba(5,5,5,.45); padding:14px 16px; display:flex; flex-direction:column; justify-content:center; text-align:center; }
+  .A .stub::before, .A .stub::after { content:''; position:absolute; left:-12px; width:22px; height:22px; border-radius:50%; background:#000; }
+  .A .stub::before { top:-11px; } .A .stub::after { bottom:-11px; }
+  .A .dow { font-size:11px; }
+  .A .day { font:900 40px/1 Unbounded; }
+  .A .mon { font:700 14px Unbounded; letter-spacing:.12em; }
+  .A .time { font-size:11px; margin-top:6px; }
+  .A .no { position:absolute; left:22px; top:-1px; display:none; font-size:9px; opacity:.6; }
+
+  /* ---------- B · Crni kupon, narandžasti odsečak ---------- */
+  .B .t { --c:var(--o); position:relative; display:grid; grid-template-columns:118px 1fr; background:var(--g); border-radius:8px; margin-bottom:10px; overflow:visible; }
+  .B .t.open { --c:var(--b); }
+  .B .stub { background:var(--c); color:var(--k); border-radius:8px 0 0 8px; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:10px 6px; position:relative; }
+  .B .stub::before { content:''; position:absolute; inset:0; opacity:.18; mix-blend-mode:multiply; background-image:var(--noise); border-radius:inherit; }
+  .B .main { position:relative; padding:14px 22px; border-left:2px dashed #000; display:grid; grid-template-columns:1.1fr 1fr; gap:6px 20px; align-items:center; }
+  .B .main::before, .B .main::after { content:''; position:absolute; left:-11px; width:20px; height:20px; border-radius:50%; background:#000; }
+  .B .main::before { top:-10px; } .B .main::after { bottom:-10px; }
+  .B .dow { font-size:10px; }
+  .B .day { font:900 34px/1 Unbounded; }
+  .B .mon { font:700 12px Unbounded; letter-spacing:.14em; }
+  .B .venue { font:800 20px/1.1 Unbounded; }
+  .B .city { font:500 12px Inter; color:#9ca3af; letter-spacing:.2em; text-transform:uppercase; margin-top:3px; }
+  .B .sound { font:700 14px Inter; display:flex; flex-wrap:wrap; gap:2px 8px; }
+  .B .sound .d { color:var(--o); }
+  .B .chip { font:600 11.5px Inter; color:var(--b); border:1px solid rgba(56,189,248,.45); background:rgba(56,189,248,.1); padding:1px 8px; border-radius:99px; }
+  .B .time { font-size:12px; color:#9ca3af; margin-top:4px; }
+  .B .t:hover { background:#262626; }
+
+  /* ---------- C · Rolna karata ---------- */
+  .C .row { display:grid; grid-template-columns:repeat(3, 1fr); gap:18px; max-width:860px; margin:0 auto; }
+  .C .t { --c:var(--o); --r:7px; position:relative; background:var(--c); color:var(--k); padding:18px 26px 16px; text-align:center;
+    -webkit-mask:radial-gradient(var(--r) at left, #0000 97%, #000) left / 51% 18px repeat-y, radial-gradient(var(--r) at right, #0000 97%, #000) right / 51% 18px repeat-y;
+            mask:radial-gradient(var(--r) at left, #0000 97%, #000) left / 51% 18px repeat-y, radial-gradient(var(--r) at right, #0000 97%, #000) right / 51% 18px repeat-y;
+    transition:transform .2s; }
+  .C .t.open { --c:var(--b); }
+  .C .t:nth-child(1) { transform:rotate(-1.2deg); } .C .t:nth-child(3) { transform:rotate(1deg); }
+  .C .t:hover { transform:translateY(-4px) rotate(0); }
+  .C .t::before { content:''; position:absolute; inset:0; opacity:.18; mix-blend-mode:multiply; background-image:var(--noise); }
+  .C .admit { font:800 12px Unbounded; letter-spacing:.3em; border-bottom:2px solid var(--k); border-top:2px solid var(--k); padding:5px 0; }
+  .C .day { font:900 64px/1 Unbounded; margin-top:12px; }
+  .C .mon { font:700 13px Unbounded; letter-spacing:.2em; }
+  .C .perf { border-top:2px dashed rgba(5,5,5,.45); margin:14px -26px 12px; }
+  .C .venue { font:800 18px/1.1 Unbounded; }
+  .C .city { font:600 10.5px Inter; letter-spacing:.22em; text-transform:uppercase; margin-top:3px; }
+  .C .sound { font:600 12px Inter; margin-top:8px; line-height:1.45; }
+  .C .no { font-size:10px; margin-top:10px; opacity:.7; display:flex; justify-content:space-between; }
+
+  /* ---------- D · Karte na stolu ---------- */
+  .D .list { display:flex; flex-direction:column; align-items:center; }
+  .D .t { --c:var(--o); position:relative; width:100%; max-width:720px; background:var(--c); color:var(--k); padding:8px; border-radius:3px;
+    box-shadow:0 18px 30px -14px rgba(0,0,0,.9); transition:transform .2s; }
+  .D .t + .t { margin-top:6px; }
+  .D .t.open { --c:var(--b); }
+  .D .t:nth-child(1) { transform:rotate(-1.4deg) translateX(-14px); z-index:3; }
+  .D .t:nth-child(2) { transform:rotate(.9deg) translateX(12px); z-index:2; }
+  .D .t:nth-child(3) { transform:rotate(-.6deg) translateX(-4px); z-index:1; }
+  .D .t:hover { transform:rotate(0) scale(1.015); z-index:5; }
+  .D .t::before { content:''; position:absolute; inset:0; opacity:.2; mix-blend-mode:multiply; background-image:var(--noise); }
+  .D .in { border:2px solid var(--k); outline:1px solid var(--k); outline-offset:-6px; display:grid; grid-template-columns:34px 1fr auto; }
+  .D .side { writing-mode:vertical-rl; transform:rotate(180deg); font:800 10px Unbounded; letter-spacing:.3em; text-align:center; border-left:2px solid var(--k); padding:6px 0; }
+  .D .mid { padding:14px 18px 12px; }
+  .D .kick { font-size:10px; display:flex; gap:14px; opacity:.75; }
+  .D .venue { font:900 30px/1 Unbounded; margin-top:6px; letter-spacing:-.01em; }
+  .D .sound { font:700 12px Inter; margin-top:8px; text-transform:uppercase; letter-spacing:.08em; }
+  .D .fields { display:grid; grid-template-columns:repeat(3, auto); border-left:2px dashed rgba(5,5,5,.5); }
+  .D .f { padding:12px 14px; display:flex; flex-direction:column; justify-content:center; border-left:1px solid rgba(5,5,5,.25); }
+  .D .f:first-child { border-left:0; }
+  .D .f small { font-size:9px; opacity:.7; }
+  .D .f strong { font:800 17px Unbounded; margin-top:2px; white-space:nowrap; }
+
+  .more { text-align:center; margin-top:30px; color:#9ca3af; font-size:15px; }
+
+  @media (max-width:640px) {
+    .h2 { font-size:26px; }
+    .A .t { grid-template-columns:1fr 104px; }
+    .A .main { padding:14px 14px 12px; } .A .venue { font-size:18px; } .A .sound { font-size:12px; }
+    .A .day { font-size:30px; } .A .stub { padding:10px 8px; } .A .admit span:last-child { display:none; }
+    .B .t { grid-template-columns:84px 1fr; } .B .main { grid-template-columns:1fr; padding:12px 14px; } .B .venue { font-size:16px; } .B .day { font-size:28px; }
+    .C .row { grid-template-columns:1fr; max-width:320px; }
+    .D .t:nth-child(n) { transform:rotate(0); }
+    .D .t:nth-child(1) { transform:rotate(-1deg); } .D .t:nth-child(2) { transform:rotate(.8deg); }
+    .D .in { grid-template-columns:26px 1fr; } .D .venue { font-size:20px; }
+    .D .fields { grid-column:2; border-left:0; border-top:2px dashed rgba(5,5,5,.5); }
+    .D .f { padding:8px 12px; } .D .f strong { font-size:13px; }
+  }
+</style>
+</head>
+<body>
+<h1 class="page">Upcoming Events — 4 predloga u stilu stare bioskopske karte</h1>
+<p class="page">Pravi podaci sa sajta (3 nastupa). Pravilo boja iz T24 ostaje: narandžasta karta = house veče, plava karta = open format. Narandžasta je puna pozadina sa crnim tekstom i zrnom papira, kao na „G · Omot u kabini“ predlogu za hero. Pređite mišem preko karata. Suzite prozor za izgled na telefonu.</p>
+
+<!-- A -->
+<div class="wrap A">
+  <div class="cap"><b>A · Klasična karta</b><span class="tag">MOJA PREPORUKA</span><span>Puna narandžasta karta u jednom redu: levo klub, grad i zvuk, desno otcepljivi kupon sa velikim datumom, isprekidana perforacija i polukružni zarezi. Gore „ADMIT ONE“ i serijski broj u mono fontu. Najčitljivije, liči na pravu kartu, a raspored ostaje isti kao sada (lista od 1–4 reda).</span></div>
+  <h2 class="h2">Upcoming <i>Events</i></h2>
+  <div class="list">
+    <div class="t open"><div class="main"><div class="admit mono"><span>ADMIT ONE · ULAZ</span><span>DJ ZIPPY LIVE · Nº 261017</span></div><div class="venue">RAYBAR</div><div class="city">Novi Sad</div><div class="sound"><b>Izuvanje</b><span class="d">/</span><span>Open format</span></div></div>
+      <div class="stub"><div class="dow mono">SAT</div><div class="day">17</div><div class="mon">OCT</div><div class="time mono">21:00 – 01:00</div></div></div>
+    <div class="t"><div class="main"><div class="admit mono"><span>ADMIT ONE · ULAZ</span><span>DJ ZIPPY LIVE · Nº 261030</span></div><div class="venue">KLUB KAŽ'TE</div><div class="city">Novi Sad</div><div class="sound"><span>Deep Tech</span><span class="d">·</span><span>Minimal</span><span class="d">·</span><span>Deep House</span><span class="d">·</span><span>Disco</span><span class="d">·</span><span>Funk</span></div></div>
+      <div class="stub"><div class="dow mono">FRI</div><div class="day">30</div><div class="mon">OCT</div><div class="time mono">21:00 – 03:00</div></div></div>
+    <div class="t open"><div class="main"><div class="admit mono"><span>ADMIT ONE · ULAZ</span><span>DJ ZIPPY LIVE · Nº 261031</span></div><div class="venue">LAZINO TELE</div><div class="city">Novi Sad</div><div class="sound"><b>Core Memories</b><span class="d">/</span><span>Open format</span></div></div>
+      <div class="stub"><div class="dow mono">SAT</div><div class="day">31</div><div class="mon">OCT</div><div class="time mono">22:00 – 03:00</div></div></div>
+  </div>
+  <div class="more">View All Events &amp; Past Highlights</div>
+</div>
+
+<!-- B -->
+<div class="wrap B">
+  <div class="cap"><b>B · Crni kupon, narandžasti odsečak</b><span>Najbliže sadašnjem: kartica ostaje tamna, samo je levi odsečak sa datumom pun narandžast (ili plav), odvojen perforacijom sa zarezima. Datum postaje prvo što se vidi. Najmirnije, ali „karta“ se oseća samo na odsečku.</span></div>
+  <h2 class="h2">Upcoming <i>Events</i></h2>
+  <div class="list">
+    <div class="t open"><div class="stub"><div class="dow mono">SAT</div><div class="day">17</div><div class="mon">OCT</div></div>
+      <div class="main"><div><div class="venue">RAYBAR</div><div class="city">Novi Sad</div></div><div><div class="sound"><span>Izuvanje</span><span class="chip">Open format</span></div><div class="time mono">21:00 – 01:00</div></div></div></div>
+    <div class="t"><div class="stub"><div class="dow mono">FRI</div><div class="day">30</div><div class="mon">OCT</div></div>
+      <div class="main"><div><div class="venue">KLUB KAŽ'TE</div><div class="city">Novi Sad</div></div><div><div class="sound"><span>Deep Tech</span><span class="d">·</span><span>Minimal</span><span class="d">·</span><span>Deep House</span><span class="d">·</span><span>Disco</span><span class="d">·</span><span>Funk</span></div><div class="time mono">21:00 – 03:00</div></div></div></div>
+    <div class="t open"><div class="stub"><div class="dow mono">SAT</div><div class="day">31</div><div class="mon">OCT</div></div>
+      <div class="main"><div><div class="venue">LAZINO TELE</div><div class="city">Novi Sad</div></div><div><div class="sound"><span>Core Memories</span><span class="chip">Open format</span></div><div class="time mono">22:00 – 03:00</div></div></div></div>
+  </div>
+  <div class="more">View All Events &amp; Past Highlights</div>
+</div>
+
+<!-- C -->
+<div class="wrap C">
+  <div class="cap"><b>C · Rolna karata</b><span>Uspravne karte sa nazubljenim ivicama, kao otcepljene sa rolne na blagajni. Tri u redu, blago nakrivljene; na telefonu jedna ispod druge. Najviše „retro“, ali menja raspored u mrežu i bolje radi sa tačno 3 nastupa nego sa 1 ili 4.</span></div>
+  <h2 class="h2">Upcoming <i>Events</i></h2>
+  <div class="row">
+    <div class="t open"><div class="admit">ADMIT ONE</div><div class="day">17</div><div class="mon">OCT · SAT</div><div class="perf"></div><div class="venue">RAYBAR</div><div class="city">Novi Sad</div><div class="sound"><b>Izuvanje</b><br>Open format</div><div class="no mono"><span>21:00–01:00</span><span>Nº 261017</span></div></div>
+    <div class="t"><div class="admit">ADMIT ONE</div><div class="day">30</div><div class="mon">OCT · FRI</div><div class="perf"></div><div class="venue">KLUB KAŽ'TE</div><div class="city">Novi Sad</div><div class="sound">Deep Tech · Minimal · Deep House · Disco · Funk</div><div class="no mono"><span>21:00–03:00</span><span>Nº 261030</span></div></div>
+    <div class="t open"><div class="admit">ADMIT ONE</div><div class="day">31</div><div class="mon">OCT · SAT</div><div class="perf"></div><div class="venue">LAZINO TELE</div><div class="city">Novi Sad</div><div class="sound"><b>Core Memories</b><br>Open format</div><div class="no mono"><span>22:00–03:00</span><span>Nº 261031</span></div></div>
+  </div>
+  <div class="more">View All Events &amp; Past Highlights</div>
+</div>
+
+<!-- D -->
+<div class="wrap D">
+  <div class="cap"><b>D · Karte na stolu</b><span>Štampana karta sa duplim okvirom, uspravnim „ADMIT ONE“ na ivici i rubrikama kao „red / sedište“, samo što su ovde DAN / DATUM / VREME. Karte su malo nakrivljene i preklapaju se kao da su bačene na sto; na hover se poravnaju. Najviše karaktera, ali i najviše „buke“ na stranici.</span></div>
+  <h2 class="h2">Upcoming <i>Events</i></h2>
+  <div class="list">
+    <div class="t open"><div class="in"><div class="side">ADMIT ONE</div><div class="mid"><div class="kick mono"><span>DJ ZIPPY</span><span>NOVI SAD</span><span>Nº 261017</span></div><div class="venue">RAYBAR</div><div class="sound">Izuvanje · Open format</div></div>
+      <div class="fields"><div class="f"><small class="mono">DAN</small><strong>SAT</strong></div><div class="f"><small class="mono">DATUM</small><strong>17.10.</strong></div><div class="f"><small class="mono">VREME</small><strong>21–01</strong></div></div></div></div>
+    <div class="t"><div class="in"><div class="side">ADMIT ONE</div><div class="mid"><div class="kick mono"><span>DJ ZIPPY</span><span>NOVI SAD</span><span>Nº 261030</span></div><div class="venue">KLUB KAŽ'TE</div><div class="sound">Deep Tech · Minimal · Deep House · Disco · Funk</div></div>
+      <div class="fields"><div class="f"><small class="mono">DAN</small><strong>FRI</strong></div><div class="f"><small class="mono">DATUM</small><strong>30.10.</strong></div><div class="f"><small class="mono">VREME</small><strong>21–03</strong></div></div></div></div>
+    <div class="t open"><div class="in"><div class="side">ADMIT ONE</div><div class="mid"><div class="kick mono"><span>DJ ZIPPY</span><span>NOVI SAD</span><span>Nº 261031</span></div><div class="venue">LAZINO TELE</div><div class="sound">Core Memories · Open format</div></div>
+      <div class="fields"><div class="f"><small class="mono">DAN</small><strong>SAT</strong></div><div class="f"><small class="mono">DATUM</small><strong>31.10.</strong></div><div class="f"><small class="mono">VREME</small><strong>22–03</strong></div></div></div></div>
+  </div>
+  <div class="more">View All Events &amp; Past Highlights</div>
+</div>
+</body>
+</html>
