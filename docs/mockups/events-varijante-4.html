@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="sr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Event kartice runda 4</title>
+<style>
+  @font-face { font-family:'Unbounded'; font-weight:400 900; src:url('../../public/fonts/unbounded/unbounded-latin.woff2') format('woff2'); }
+  @font-face { font-family:'Unbounded'; font-weight:400 900; src:url('../../public/fonts/unbounded/unbounded-latin-ext.woff2') format('woff2'); unicode-range:U+0100-02BA; }
+  @font-face { font-family:'Inter'; font-weight:300 600; src:url('../../public/fonts/inter/inter-latin.woff2') format('woff2'); }
+  @font-face { font-family:'Inter'; font-weight:300 600; src:url('../../public/fonts/inter/inter-latin-ext.woff2') format('woff2'); unicode-range:U+0100-02BA; }
+
+  :root { --o:#FF5500; --b:#38bdf8; --k:#050505;
+    --noise:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:#000; color:#fff; font-family:Inter, sans-serif; padding:28px 16px 64px; overflow-x:hidden; }
+  h1.page { font:700 20px Unbounded, sans-serif; max-width:960px; margin:0 auto 6px; }
+  p.page { color:#aaa; font-size:14px; line-height:1.5; max-width:960px; margin:0 auto 32px; }
+  .wrap { max-width:960px; margin:0 auto 64px; }
+  .cap { display:flex; gap:12px; align-items:baseline; margin-bottom:18px; flex-wrap:wrap; border-top:1px solid #222; padding-top:18px; }
+  .cap b { font:700 15px Unbounded, sans-serif; }
+  .cap span { color:#bbb; font-size:13.5px; line-height:1.5; flex:1 1 420px; }
+  .tag { flex:0 0 auto !important; font:600 11px Inter; letter-spacing:.08em; padding:3px 8px; border-radius:99px; background:rgba(255,85,0,.15); color:#ff8a4d !important; }
+  .h2 { font:700 34px Unbounded, sans-serif; text-align:center; margin-bottom:24px; }
+  .h2 i { font-style:normal; color:var(--o); }
+  .mono { font-family:ui-monospace, 'IBM Plex Mono', Consolas, monospace; font-weight:500; letter-spacing:.06em; }
+  .more { text-align:center; margin-top:26px; color:#9ca3af; font-size:15px; }
+
+  /* ---------- small D ticket ---------- */
+  .list { display:flex; flex-direction:column; align-items:center; }
+  .t { --c:var(--o); --ink:var(--k); --paper:var(--c); position:relative; width:100%; max-width:520px; background:var(--paper); color:var(--ink);
+    padding:5px; border-radius:2px; box-shadow:0 12px 22px -12px rgba(0,0,0,.9); transition:transform .2s, background .2s; }
+  .t + .t { margin-top:8px; }
+  .t.open { --c:var(--b); }
+  .tilt .t:nth-child(1) { transform:rotate(-.9deg) translateX(-8px); }
+  .tilt .t:nth-child(2) { transform:rotate(.6deg) translateX(8px); }
+  .tilt .t:nth-child(3) { transform:rotate(-.4deg) translateX(-3px); }
+  .t:hover { transform:rotate(0) scale(1.02) !important; z-index:5; }
+  .t::before { content:''; position:absolute; inset:0; opacity:.2; mix-blend-mode:multiply; background-image:var(--noise); pointer-events:none; z-index:2; }
+  .in { position:relative; border:1.5px solid var(--frame, var(--ink)); outline:1px solid var(--frame, var(--ink)); outline-offset:-4px; display:grid; grid-template-columns:26px 1fr auto; }
+  .side { writing-mode:vertical-rl; transform:rotate(180deg); font:800 8.5px Unbounded; letter-spacing:.26em; text-align:center; border-left:1.5px solid var(--frame, var(--ink)); padding:4px 0; color:var(--sideink, var(--ink)); }
+  .mid { padding:9px 12px 8px; min-width:0; }
+  .kick { font-size:10px; display:flex; gap:10px; opacity:.7; flex-wrap:wrap; color:var(--kink, inherit); }
+  .venue { font:900 18px/1 Unbounded; margin-top:4px; color:var(--vink, inherit); }
+  .sound { font:700 10.5px Inter; margin-top:5px; text-transform:uppercase; letter-spacing:.08em; color:var(--sink, inherit); }
+  .fields { position:relative; display:grid; grid-template-columns:repeat(3, auto); border-left:1.5px dashed color-mix(in srgb, var(--frame, var(--ink)) 55%, transparent); background:var(--stub, transparent); color:var(--stubink, inherit); }
+  .f { padding:7px 9px; display:flex; flex-direction:column; justify-content:center; border-left:1px solid color-mix(in srgb, currentColor 22%, transparent); }
+  .f:first-child { border-left:0; }
+  .f small { font-size:9px; opacity:.7; }
+  .f strong { font:800 12px Unbounded; margin-top:2px; white-space:nowrap; }
+
+  /* dark card, colored stub (S2) */
+  .dark { --paper:#121212; --ink:#e5e5e5; --frame:#3a3a3a; --sideink:#8a8a8a; --kink:#9ca3af; --sink:#d4d4d4; --stub:var(--c); --stubink:var(--k); }
+  .dark::before { mix-blend-mode:screen !important; opacity:.05 !important; }
+  .dark .fields { border-left:0; }
+  /* dark card, stub only outlined: colored text, no fill */
+  .dark.quiet { --stub:transparent; --stubink:var(--c); }
+  .dark.quiet .fields { border-left:1.5px dashed #3a3a3a; }
+  /* next gig with a colored frame on the dark card */
+  .dark.glow { --frame:var(--c); --sideink:var(--c); box-shadow:0 0 0 1px color-mix(in srgb, var(--c) 35%, transparent), 0 14px 34px -14px color-mix(in srgb, var(--c) 55%, transparent); }
+  .next { position:absolute; z-index:3; top:-9px; right:14px; background:var(--c); color:#000; font:800 8.5px Unbounded; letter-spacing:.2em; padding:3px 7px; border-radius:2px; }
+  .t:not(.dark) .next { background:#000; color:#fff; }
+
+  @media (max-width:640px) {
+    .h2 { font-size:26px; }
+    .tilt .t:nth-child(n) { transform:rotate(0); }
+    .tilt .t:nth-child(1) { transform:rotate(-.7deg); } .tilt .t:nth-child(2) { transform:rotate(.5deg); }
+    .in { grid-template-columns:24px 1fr; } .dark.quiet .fields { border-left:0; border-top:1.5px dashed #3a3a3a; }
+    .fields { grid-column:2; border-left:0; border-top:1.5px dashed color-mix(in srgb, var(--frame, var(--ink)) 55%, transparent); }
+  }
+</style>
+</head>
+<body>
+<h1 class="page">Upcoming Events — runda 4: S4 + tamna karta iz S2</h1>
+<p class="page">Sledeći nastup je istaknut (oznaka NEXT), ostali su tamne karte iz S2. Tri nivoa koliko boje ima. Sitna slova su podignuta na 9–10.5 px. Narandžasta = house, plava = open format.</p>
+
+<div class="wrap tilt" id="H1"></div>
+<div class="wrap tilt" id="H2"></div>
+<div class="wrap tilt" id="H3"></div>
+
+<script>
+  var EV = [
+    { open:true,  venue:"RAYBAR",      city:"NOVI SAD", sound:"Izuvanje · Open format", dow:"SAT", date:"17.10.", time:"21–01", no:"261017" },
+    { open:false, venue:"KLUB KAŽ'TE", city:"NOVI SAD", sound:"Deep Tech · Minimal · Deep House · Disco · Funk", dow:"FRI", date:"30.10.", time:"21–03", no:"261030" },
+    { open:true,  venue:"LAZINO TELE", city:"NOVI SAD", sound:"Core Memories · Open format", dow:"SAT", date:"31.10.", time:"22–03", no:"261031" }
+  ];
+  var CAP = {
+    H1: ['H1 · Puna karta + tamne sa kuponom', '', 'Sledeći nastup je cela karta u boji (kao S4), ostali su tamne karte sa kuponom u boji (kao S2). Najjači akcenat na prvom, ali i dalje tri obojene površine.'],
+    H2: ['H2 · Sve tamne, sledeći sa kuponom u boji', 'MOJA PREPORUKA', 'Sve karte su tamne. Sledeći nastup ima kupon u punoj boji, okvir u boji i oznaku NEXT. Ostali imaju samo datum ispisan u boji, bez pozadine. Jedan akcenat, a pravilo boja se i dalje vidi na svakoj karti.'],
+    H3: ['H3 · Puna karta + sasvim tamne', '', 'Sledeći nastup je cela karta u boji, a ostali su tamni sa datumom u boji, bez ikakve pozadine. Najveći kontrast između sledećeg i ostalih.']
+  };
+  var MODE = {
+    H1: function (i) { return i === 0 ? '' : ' dark'; },
+    H2: function (i) { return i === 0 ? ' dark glow' : ' dark quiet'; },
+    H3: function (i) { return i === 0 ? '' : ' dark quiet'; }
+  };
+  function fields(e) {
+    return '<div class="fields"><div class="f"><small class="mono">DAN</small><strong>' + e.dow + '</strong></div><div class="f"><small class="mono">DATUM</small><strong>' + e.date + '</strong></div><div class="f"><small class="mono">VREME</small><strong>' + e.time + '</strong></div></div>';
+  }
+  function ticket(v, e, i) {
+    var next = i === 0 ? '<span class="next">NEXT</span>' : '';
+    return '<div class="t' + (e.open ? ' open' : '') + MODE[v](i) + '">' + next + '<div class="in"><div class="side">ADMIT ONE</div>' +
+      '<div class="mid"><div class="kick mono"><span>DJ ZIPPY</span><span>' + e.city + '</span><span>Nº ' + e.no + '</span></div><div class="venue">' + e.venue + '</div><div class="sound">' + e.sound + '</div></div>' +
+      fields(e) + '</div></div>';
+  }
+  Object.keys(CAP).forEach(function (v) {
+    var c = CAP[v];
+    document.getElementById(v).innerHTML =
+      '<div class="cap"><b>' + c[0] + '</b>' + (c[1] ? '<span class="tag">' + c[1] + '</span>' : '') + '<span>' + c[2] + '</span></div>' +
+      '<h2 class="h2">Upcoming <i>Events</i></h2><div class="list">' + EV.map(function (e, i) { return ticket(v, e, i); }).join('') + '</div>' +
+      '<div class="more">View All Events &amp; Past Highlights</div>';
+  });
+</script>
+</body>
+</html>
