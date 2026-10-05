@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="sr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Event kartice runda 2</title>
+<style>
+  @font-face { font-family:'Unbounded'; font-weight:400 900; src:url('../../public/fonts/unbounded/unbounded-latin.woff2') format('woff2'); }
+  @font-face { font-family:'Unbounded'; font-weight:400 900; src:url('../../public/fonts/unbounded/unbounded-latin-ext.woff2') format('woff2'); unicode-range:U+0100-02BA; }
+  @font-face { font-family:'Inter'; font-weight:300 600; src:url('../../public/fonts/inter/inter-latin.woff2') format('woff2'); }
+  @font-face { font-family:'Inter'; font-weight:300 600; src:url('../../public/fonts/inter/inter-latin-ext.woff2') format('woff2'); unicode-range:U+0100-02BA; }
+
+  :root { --o:#FF5500; --b:#38bdf8; --k:#050505;
+    --noise:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:#000; color:#fff; font-family:Inter, sans-serif; padding:28px 16px 64px; overflow-x:hidden; }
+  h1.page { font:700 20px Unbounded, sans-serif; max-width:960px; margin:0 auto 6px; }
+  p.page { color:#aaa; font-size:14px; line-height:1.5; max-width:960px; margin:0 auto 32px; }
+  .wrap { max-width:960px; margin:0 auto 64px; }
+  .cap { display:flex; gap:12px; align-items:baseline; margin-bottom:18px; flex-wrap:wrap; border-top:1px solid #222; padding-top:18px; }
+  .cap b { font:700 15px Unbounded, sans-serif; }
+  .cap span { color:#bbb; font-size:13.5px; line-height:1.5; flex:1 1 420px; }
+  .tag { flex:0 0 auto !important; font:600 11px Inter; letter-spacing:.08em; padding:3px 8px; border-radius:99px; background:rgba(255,85,0,.15); color:#ff8a4d !important; }
+  .h2 { font:700 34px Unbounded, sans-serif; text-align:center; margin-bottom:28px; }
+  .h2 i { font-style:normal; color:var(--o); }
+  .mono { font-family:ui-monospace, 'IBM Plex Mono', Consolas, monospace; font-weight:500; letter-spacing:.06em; }
+  .more { text-align:center; margin-top:30px; color:#9ca3af; font-size:15px; }
+
+  /* ---------- shared D ticket ---------- */
+  .list { display:flex; flex-direction:column; align-items:center; }
+  .t { --c:var(--o); --ink:var(--k); position:relative; width:100%; max-width:720px; background:var(--c); color:var(--ink); padding:8px; border-radius:3px;
+    box-shadow:0 18px 30px -14px rgba(0,0,0,.9); transition:transform .2s; }
+  .t + .t { margin-top:6px; }
+  .t.open { --c:var(--b); }
+  .tilt .t:nth-child(1) { transform:rotate(-1.4deg) translateX(-14px); z-index:3; }
+  .tilt .t:nth-child(2) { transform:rotate(.9deg) translateX(12px); z-index:2; }
+  .tilt .t:nth-child(3) { transform:rotate(-.6deg) translateX(-4px); z-index:1; }
+  .t:hover { transform:rotate(0) scale(1.015) !important; z-index:5; }
+  .t::before { content:''; position:absolute; inset:0; opacity:.2; mix-blend-mode:multiply; background-image:var(--noise); pointer-events:none; z-index:2; }
+  .in { position:relative; border:2px solid var(--ink); outline:1px solid var(--ink); outline-offset:-6px; display:grid; grid-template-columns:34px 1fr auto; }
+  .side { writing-mode:vertical-rl; transform:rotate(180deg); font:800 10px Unbounded; letter-spacing:.3em; text-align:center; border-left:2px solid var(--ink); padding:6px 0; }
+  .mid { padding:14px 18px 12px; min-width:0; }
+  .kick { font-size:10px; display:flex; gap:14px; opacity:.75; flex-wrap:wrap; }
+  .venue { font:900 30px/1 Unbounded; margin-top:6px; letter-spacing:-.01em; }
+  .sound { font:700 12px Inter; margin-top:8px; text-transform:uppercase; letter-spacing:.08em; }
+  .fields { display:grid; grid-template-columns:repeat(3, auto); border-left:2px dashed color-mix(in srgb, var(--ink) 50%, transparent); }
+  .f { padding:12px 14px; display:flex; flex-direction:column; justify-content:center; border-left:1px solid color-mix(in srgb, var(--ink) 25%, transparent); }
+  .f:first-child { border-left:0; }
+  .f small { font-size:9px; opacity:.7; }
+  .f strong { font:800 17px Unbounded; margin-top:2px; white-space:nowrap; }
+
+  /* ---------- D1 · Otcepljen kupon ---------- */
+  .D1 .t { display:grid; grid-template-columns:1fr auto; padding:0; background:none; box-shadow:none; }
+  .D1 .t::before { display:none; }
+  .D1 .body, .D1 .stub { position:relative; background:var(--c); padding:8px; box-shadow:0 18px 30px -14px rgba(0,0,0,.9); }
+  .D1 .body::after, .D1 .stub::after { content:''; position:absolute; inset:0; opacity:.2; mix-blend-mode:multiply; background-image:var(--noise); pointer-events:none; }
+  .D1 .body { padding-right:0; } .D1 .body .in { grid-template-columns:34px 1fr; border-right:0; }
+  .D1 .stub { padding-left:0; transform:translate(10px, 5px) rotate(2.2deg); transform-origin:left top; transition:transform .25s; }
+  .D1 .t:hover .stub { transform:none; }
+  .D1 .stub .in { display:block; border-left:0; height:100%; }
+  .D1 .stub .fields { border-left:0; height:100%; }
+
+  /* ---------- D2 · Kontrolni kupon sa barkodom ---------- */
+  .D2 .t { padding:14px 8px; }
+  .D2 .t::after { content:''; position:absolute; left:10px; right:10px; top:3px; bottom:3px; pointer-events:none;
+    background:radial-gradient(circle, #000 2.6px, transparent 3.2px) 0 0/14px 8px repeat-x, radial-gradient(circle, #000 2.6px, transparent 3.2px) 0 100%/14px 8px repeat-x; }
+  .D2 .in { grid-template-columns:34px 1fr auto 56px; }
+  .D2 .bar { border-left:2px dashed color-mix(in srgb, var(--ink) 50%, transparent); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; padding:8px 0; }
+  .D2 .code { width:30px; height:64px; }
+  .D2 .bar .mono { writing-mode:vertical-rl; font-size:8.5px; }
+
+  /* ---------- D3 · Pečat ---------- */
+  .D3 .stamp { position:absolute; z-index:3; right:10px; top:8px; width:80px; height:80px; border-radius:50%;
+    border:3px solid rgba(5,5,5,.72); outline:1.5px solid rgba(5,5,5,.72); outline-offset:-9px; color:rgba(5,5,5,.78);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; transform:rotate(-14deg);
+    font:900 11px/1.15 Unbounded; letter-spacing:.06em; mix-blend-mode:multiply; pointer-events:none;
+    -webkit-mask:var(--noise) 0 0/120px, linear-gradient(#000 0 0); -webkit-mask-composite:source-over; }
+  .D3 .stamp small { font:600 8px ui-monospace, monospace; letter-spacing:.12em; margin-top:3px; }
+  .D3 .mid { position:relative; padding-right:100px; }
+  .D3 .t:nth-child(2) .stamp { transform:rotate(9deg); right:4px; }
+  .D3 .t:nth-child(3) .stamp { transform:rotate(-4deg); right:16px; }
+
+  /* ---------- D4 · Uredan špil ---------- */
+  .D4 .t { box-shadow:none; border-radius:2px; }
+  .D4 .t + .t { margin-top:10px; }
+  .D4 .in { grid-template-columns:34px 1fr auto 34px; }
+  .D4 .side.r { transform:none; border-left:2px dashed color-mix(in srgb, var(--ink) 50%, transparent); }
+  .D4 .t:hover { transform:translateX(6px) !important; }
+
+  /* ---------- D5 · Negativ ---------- */
+  .D5 .t { --ink:var(--o); background:#0b0b0b; box-shadow:0 0 0 1px #1a1a1a, 0 18px 30px -14px rgba(0,0,0,.9); }
+  .D5 .t.open { --ink:var(--b); }
+  .D5 .t::before { mix-blend-mode:screen; opacity:.06; }
+  .D5 .venue { color:#fff; }
+  .D5 .sound, .D5 .f strong { color:#fff; }
+  .D5 .t:hover { background:#141414; }
+
+  @media (max-width:640px) {
+    .h2 { font-size:26px; }
+    .tilt .t:nth-child(n) { transform:rotate(0); }
+    .tilt .t:nth-child(1) { transform:rotate(-1deg); } .tilt .t:nth-child(2) { transform:rotate(.8deg); }
+    .in { grid-template-columns:26px 1fr; } .venue { font-size:20px; }
+    .fields { grid-column:2; border-left:0; border-top:2px dashed color-mix(in srgb, var(--ink) 50%, transparent); }
+    .f { padding:8px 12px; } .f strong { font-size:13px; }
+    .D1 .t { grid-template-columns:1fr; }
+    .D1 .body { padding:8px 8px 0; } .D1 .body .in { border-right:2px solid var(--ink); border-bottom:0; }
+    .D1 .stub { padding:0 8px 8px; transform:translate(4px, 6px) rotate(-1.6deg); transform-origin:left top; }
+    .D1 .stub .in { border-top:0; border-left:2px solid var(--ink); } .D1 .stub .fields { border-top:0; }
+    .D2 .in { grid-template-columns:26px 1fr; } .D2 .bar { display:none; }
+    .D3 .stamp { right:4px; top:6px; width:70px; height:70px; font-size:8.5px; } .D3 .mid { padding-right:12px; }
+    .D3 .t:nth-child(n) .stamp { right:4px; }
+    .D4 .in { grid-template-columns:26px 1fr; } .D4 .side.r { display:none; }
+  }
+</style>
+</head>
+<body>
+<h1 class="page">Upcoming Events — runda 2: varijacije na „D · Karte na stolu“</h1>
+<p class="page">Sve varijante zadržavaju dupli okvir, uspravno „ADMIT ONE“ i rubrike DAN / DATUM / VREME. Razlikuju se po jednom detalju. Narandžasta = house, plava = open format (T24). Pređite mišem preko karata, suzite prozor za telefon.</p>
+
+<div class="wrap tilt" id="D"></div>
+<div class="wrap tilt D1" id="D1"></div>
+<div class="wrap D2" id="D2"></div>
+<div class="wrap tilt D3" id="D3"></div>
+<div class="wrap D4" id="D4"></div>
+<div class="wrap tilt D5" id="D5"></div>
+
+<script>
+  var EV = [
+    { open:true,  venue:"RAYBAR",      city:"NOVI SAD", sound:"Izuvanje · Open format", dow:"SAT", date:"17.10.", time:"21–01", no:"261017" },
+    { open:false, venue:"KLUB KAŽ'TE", city:"NOVI SAD", sound:"Deep Tech · Minimal · Deep House · Disco · Funk", dow:"FRI", date:"30.10.", time:"21–03", no:"261030" },
+    { open:true,  venue:"LAZINO TELE", city:"NOVI SAD", sound:"Core Memories · Open format", dow:"SAT", date:"31.10.", time:"22–03", no:"261031" }
+  ];
+  var CAP = {
+    D:  ['D · Karte na stolu (iz prve runde)', '', 'Polazna tačka, za poređenje.'],
+    D1: ['D1 · Otcepljen kupon', 'MOJA PREPORUKA', 'Deo sa datumom i vremenom je već otcepljen i stoji malo pomeren i nakrivljen pored karte, kao da je kontrolor upravo pocepao kartu. Na hover se vrati na mesto. Najviše „bioskopa“ sa malo dodatnog sadržaja.'],
+    D2: ['D2 · Kontrolni kupon sa barkodom', '', 'Karte stoje ravno. Gore i dole niz rupica kao na karti sa rolne, a na kraju uspravan barkod sa serijskim brojem. Više „štampano“ nego „bačeno na sto“. Barkod se na telefonu skriva.'],
+    D3: ['D3 · Pečat', '', 'Kao D, ali preko svake karte je udaren gumeni pečat (HOUSE NIGHT ili OPEN FORMAT, sa datumom), svaki pod drugim uglom. Pečat ponavlja boju i daje joj reč, pa je pravilo boja jasno i bez legende.'],
+    D4: ['D4 · Uredan špil', '', 'Najmirnija verzija: bez nagiba i senki, „ADMIT ONE“ sa obe strane, karte ravno jedna ispod druge. Na hover karta klizne udesno. Najbolje za stranicu Events, gde ih može biti mnogo.'],
+    D5: ['D5 · Negativ', '', 'Crna karta, okvir i sitna slova u narandžastoj ili plavoj, ime kluba belo. Kao karta štampana obojenom bojom na crnom kartonu. Uklapa se u tamni sajt i ne „viče“, ali gubi punu narandžastu pozadinu.']
+  };
+
+  function code(seed) {
+    var s = '', y = 0, x = +seed;
+    while (y < 64) { x = (x * 9301 + 49297) % 233280; var h = 1 + Math.floor(x / 233280 * 4); if ((y / 2 | 0) % 2 === 0 || h > 2) s += '<rect x="0" y="' + y + '" width="30" height="' + h + '"/>'; y += h + 1 + (x % 2); }
+    return '<svg class="code" viewBox="0 0 30 64" fill="currentColor" aria-hidden="true">' + s + '</svg>';
+  }
+  function fields(e) {
+    return '<div class="fields"><div class="f"><small class="mono">DAN</small><strong>' + e.dow + '</strong></div><div class="f"><small class="mono">DATUM</small><strong>' + e.date + '</strong></div><div class="f"><small class="mono">VREME</small><strong>' + e.time + '</strong></div></div>';
+  }
+  function mid(e) {
+    return '<div class="mid"><div class="kick mono"><span>DJ ZIPPY</span><span>' + e.city + '</span><span>Nº ' + e.no + '</span></div><div class="venue">' + e.venue + '</div><div class="sound">' + e.sound + '</div></div>';
+  }
+  function ticket(v, e) {
+    var cls = 't' + (e.open ? ' open' : '');
+    var side = '<div class="side">ADMIT ONE</div>';
+    if (v === 'D1') return '<div class="' + cls + '"><div class="body"><div class="in">' + side + mid(e) + '</div></div><div class="stub"><div class="in">' + fields(e) + '</div></div></div>';
+    var extra = '';
+    if (v === 'D2') extra = '<div class="bar">' + code(e.no) + '<span class="mono">' + e.no + '</span></div>';
+    if (v === 'D4') extra = '<div class="side r">ADMIT ONE</div>';
+    var stamp = v === 'D3' ? '<div class="stamp">' + (e.open ? 'OPEN<br>FORMAT' : 'HOUSE<br>NIGHT') + '<small>' + e.date + '26</small></div>' : '';
+    var m = mid(e); if (stamp) m = m.replace(/<\/div>$/, stamp + '</div>');
+    return '<div class="' + cls + '"><div class="in">' + side + m + fields(e) + extra + '</div></div>';
+  }
+  Object.keys(CAP).forEach(function (v) {
+    var c = CAP[v];
+    document.getElementById(v).innerHTML =
+      '<div class="cap"><b>' + c[0] + '</b>' + (c[1] ? '<span class="tag">' + c[1] + '</span>' : '') + '<span>' + c[2] + '</span></div>' +
+      '<h2 class="h2">Upcoming <i>Events</i></h2><div class="list">' + EV.map(function (e) { return ticket(v, e); }).join('') + '</div>' +
+      '<div class="more">View All Events &amp; Past Highlights</div>';
+  });
+</script>
+</body>
+</html>
