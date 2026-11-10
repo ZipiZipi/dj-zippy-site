@@ -520,3 +520,21 @@ html[data-side-pick="B"] [data-side-item="A"] { display: none !important; }
 .side-flip[aria-pressed="false"] span[data-face="B"] { background: var(--side-b); color: #050505; }
 .side-flip[aria-pressed="true"] span[data-face="A"] { background: var(--side-a); color: #050505; }
 .side-flip:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+/* Archive totals */
+.archive-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; margin-bottom: 1rem; }
+@media (min-width: 640px) { .archive-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.archive-stat {
+  display: flex;
+  flex-direction: column-reverse;   /* the number reads first, its label sits under it */
+  gap: 0.6rem;
+  padding: 1.1rem 1.25rem;
+  border-radius: 1.25rem;
+  border: 1px solid rgba(255,255,255,0.09);
+  background: linear-gradient(180deg, #131313, #0c0c0c);
+}
+/* per-year numbers in the left column of a year panel */
+.year-facts { display: flex; gap: 1.25rem; flex-basis: 100%; }
+.year-facts > div { display: flex; flex-direction: column-reverse; gap: 0.3rem; }
+.year-panel__head { flex-wrap: wrap; }
+@media (min-width: 768px) { .year-facts { margin-top: 1.25rem; gap: 1rem; } }

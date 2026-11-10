@@ -65,6 +65,9 @@ const xDefault = alternates.find((a) => a.lang === 'en')!.href;
       *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
       :root {
+        /* This page is standalone: it does not load global.css, so the accent
+           the rest of the site reads from there is defined here as well. */
+        --accent-rgb: 255 85 0;
         --orange: rgb(var(--accent-rgb));
         --orange-fill: #cc4400;
       }
@@ -279,7 +282,7 @@ const xDefault = alternates.find((a) => a.lang === 'en')!.href;
       a.link-secondary i { width: 20px; flex-shrink: 0; text-align: center; color: #cfcfd6; transition: color 0.3s; }
 
       /* Orange fill on hover/focus/tap. #cc4400 keeps white text at 4.7:1
-         (plain rgb(var(--accent-rgb)) is only 3.2:1); the brighter rgb(var(--accent-rgb)) lives in the border and glow. */
+         (plain #ff5500 is only 3.2:1); the brighter #ff5500 lives in the border and glow. */
       a.link-primary,
       a.link-secondary,
       a.link-site { -webkit-tap-highlight-color: transparent; }

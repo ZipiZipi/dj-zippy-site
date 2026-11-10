@@ -443,6 +443,26 @@ const homeSchema = {
     .hero-kicker--a::before, .hero-kicker--a::after { background: var(--side-a); }
     .hero-side-a { color: var(--side-a); }
     .hero-side-b { color: var(--side-b); }
+    /* "B side · Underground" / "A side · Open format" under the title. It is a
+       plain line outside the headings: the H1 and H2 read exactly as before. */
+    .hero-side-tag { margin: 0.45rem 0 0; font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.24em; padding-left: 0.24em; }
+    @media (min-width: 768px) { .hero-side-tag { font-size: 0.75rem; } }
+
+    /* "Reads the room" panel in the intro */
+    .room { padding: 1.1rem 1.25rem 1.25rem; border-radius: 1.25rem; border: 1px solid rgba(255,255,255,0.09); background: linear-gradient(180deg, #131313, #0c0c0c); }
+    .room__fader { -webkit-appearance: none; appearance: none; display: block; width: 100%; height: 1.5rem; background: transparent; cursor: ew-resize; }
+    .room__fader::-webkit-slider-runnable-track { height: 4px; border-radius: 4px; background: linear-gradient(to right, var(--side) var(--fill, 35%), rgba(255,255,255,0.14) var(--fill, 35%)); }
+    .room__fader::-moz-range-track { height: 4px; border-radius: 4px; background: rgba(255,255,255,0.14); }
+    .room__fader::-moz-range-progress { height: 4px; border-radius: 4px; background: var(--side); }
+    .room__fader::-webkit-slider-thumb { -webkit-appearance: none; width: 1.25rem; height: 1.25rem; margin-top: -0.5rem; border-radius: 50%; border: 3px solid var(--side); background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.6); }
+    .room__fader::-moz-range-thumb { width: 0.875rem; height: 0.875rem; border-radius: 50%; border: 3px solid var(--side); background: #fff; }
+    .room__fader:focus-visible { outline: 2px solid #fff; outline-offset: 4px; border-radius: 999px; }
+    .room__genres { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.75rem; }
+    .room__genres[hidden] { display: none; }
+    .room__genres li { padding: 0.3rem 0.75rem; border-radius: 999px; border: 1px solid rgba(255,255,255,0.1); font-size: 0.75rem; font-weight: 600; color: rgba(255,255,255,0.4); transition: color 0.25s, background-color 0.25s, border-color 0.25s; }
+    .room__genres li.on { border-color: var(--side); background: var(--side); color: #050505; }
+    .room__line { min-height: 2.75rem; margin-top: 0.9rem; font-size: 0.9375rem; line-height: 1.45; color: #fff; }
+    @media (prefers-reduced-motion: reduce) { .room__genres li { transition: none; } }
     /* Half a turn of the colour wheel swaps the two lights. Each one is turned
        the way that passes through purple: orange goes backwards to blue, blue
        goes forwards to orange. Turned the other way they would cross green. */
@@ -473,15 +493,17 @@ const homeSchema = {
               <span class="hero-kicker mb-2 sm:mb-3 text-[11px] sm:text-xs md:text-sm font-bold uppercase text-white/90" style="text-shadow:0 1px 10px rgba(0,0,0,0.6);">{t.home.kicker}</span>
             </h1>
             <h2 class="hero-sub font-display text-2xl md:text-4xl lg:text-6xl font-black mb-0 hero-side-b tracking-tight">HOUSE MUSIC THERAPY</h2>
+            <p class="hero-side-tag mono-caps hero-side-b">{t.sides.b} · {t.sides.bLabel}</p>
           </div>
           <!-- The other side of the record. Decorative: the same facts are in the
                dates and the side switch, so it is hidden from screen readers. -->
           <div class="hero-flip__face hero-flip__face--a" aria-hidden="true">
             <div class="font-display flex flex-col-reverse items-center">
               <span class="hero-name block text-5xl md:text-7xl lg:text-9xl font-black leading-none" style="text-shadow:0 2px 34px rgba(0,0,0,0.55), 0 1px 2px rgba(0,0,0,0.6);">ZIPPY<span class="hero-side-a">.</span></span>
-              <span class="hero-kicker hero-kicker--a mb-2 sm:mb-3 text-[11px] sm:text-xs md:text-sm font-bold uppercase text-white/90" style="text-shadow:0 1px 10px rgba(0,0,0,0.6);">{t.sides.a} · {t.sides.aLabel}</span>
+              <span class="hero-kicker hero-kicker--a mb-2 sm:mb-3 text-[11px] sm:text-xs md:text-sm font-bold uppercase text-white/90" style="text-shadow:0 1px 10px rgba(0,0,0,0.6);">{t.home.kickerA}</span>
             </div>
             <div class="hero-sub font-display text-2xl md:text-4xl lg:text-6xl font-black hero-side-a tracking-tight">CORE MEMORIES</div>
+            <p class="hero-side-tag mono-caps hero-side-a">{t.sides.a} · {t.sides.aLabel}</p>
           </div>
         </div>
       </div>
@@ -619,15 +641,28 @@ const homeSchema = {
         <div class="text-center md:text-left">
           <h2 class="font-display text-3xl md:text-4xl font-bold leading-tight mb-5">{t.home.introHeading1}<span class="text-brand-orange">{t.home.introHeading2}</span></h2>
           <p class="text-gray-300 text-base md:text-lg leading-relaxed mb-6">{t.home.introBody}</p>
-          <ul class="flex flex-wrap justify-center md:justify-start gap-2 mb-8">
-            {t.home.introChips.map((c, i) => (
-              <li class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-xs sm:text-sm font-semibold text-gray-200">
-                <i class={`${['fa-solid fa-star', 'fa-solid fa-music', 'fa-solid fa-compact-disc', 'fa-solid fa-location-dot'][i] ?? 'fa-solid fa-star'} text-brand-orange`} aria-hidden="true"></i>{c}
-              </li>
+          {/* What "reads the room first" means in practice: slide from warm-up to
+              peak time and the genres he would reach for light up, on either side.
+              Every genre is in the markup, so it all reads without JS too. */}
+          <div class="room mb-8 text-left" id="room" data-side="B" data-room={JSON.stringify({ A: t.room.A.lines, B: t.room.B.lines })}>
+            <div class="flex items-center justify-between gap-3 mb-4">
+              <p class="mono-caps text-[0.6875rem] text-gray-400">{t.room.title}</p>
+              <div class="side-seg" role="group" aria-label={t.sides.filterLabel}>
+                <button type="button" data-room-side="B" data-side-value="B" aria-pressed="true" title={t.sides.bLabel}>{t.sides.b}</button>
+                <button type="button" data-room-side="A" data-side-value="A" aria-pressed="false" title={t.sides.aLabel}>{t.sides.a}</button>
+              </div>
+            </div>
+            <div class="flex items-center justify-between mono-caps text-[0.6875rem] text-gray-400 mb-1"><span>{t.room.warmup}</span><span>{t.room.peak}</span></div>
+            <input type="range" class="room__fader" min="0" max="100" step="1" value="35" aria-label={t.room.faderLabel} data-room-fader />
+            {(['B', 'A'] as const).map((side) => (
+              <ul class="room__genres" data-room-genres={side} hidden={side !== 'B'} aria-label={side === 'A' ? t.sides.aLabel : t.sides.bLabel}>
+                {t.room[side].genres.map((g) => <li>{g}</li>)}
+              </ul>
             ))}
-          </ul>
+            <p class="room__line" data-room-line aria-live="polite">{t.room.B.lines[1]}</p>
+          </div>
           <div class="flex flex-wrap justify-center md:justify-start gap-3">
-            <a href={`${l('/')}#contact`} class="inline-flex items-center gap-2 rounded-full bg-brand-orange px-6 py-3 text-sm font-bold text-brand-black hover:bg-white transition-colors">
+            <a href={`${l('/')}#contact`} data-room-book class="inline-flex items-center gap-2 rounded-full bg-brand-orange px-6 py-3 text-sm font-bold text-brand-black hover:bg-white transition-colors">
               <i class="fa-solid fa-envelope" aria-hidden="true"></i> {t.home.introBook}
             </a>
             <a href={l('/about')} class="inline-flex items-center gap-2 rounded-full border border-white/20 px-6 py-3 text-sm font-bold text-white hover:border-brand-orange hover:text-brand-orange transition-colors">
@@ -906,6 +941,54 @@ const homeSchema = {
     render();
     requestAnimationFrame(function() { requestAnimationFrame(function() { flip.classList.remove('no-turn'); }); });
   }
+  // The room fader in the intro. Its own B/A switch only changes the panel, but
+  // it follows the site-wide side when that changes, and "Book Zippy" carries
+  // the side it is showing into the booking form.
+  function initRoom() {
+    var room = document.getElementById('room');
+    if (!room || room.dataset.roomReady) return;
+    room.dataset.roomReady = '1';
+    var lines = JSON.parse(room.getAttribute('data-room') || '{}');
+    var fader = room.querySelector('[data-room-fader]');
+    var line = room.querySelector('[data-room-line]');
+    var btns = room.querySelectorAll('[data-room-side]');
+    var lists = room.querySelectorAll('[data-room-genres]');
+    var REACH = 22;   // how far either side of the fader a genre still lights up
+    var side = document.documentElement.getAttribute('data-side-pick') === 'A' ? 'A' : 'B';
+    function render() {
+      var v = Number(fader.value);
+      fader.style.setProperty('--fill', v + '%');
+      room.setAttribute('data-side', side);
+      btns.forEach(function(b) { b.setAttribute('aria-pressed', b.getAttribute('data-room-side') === side ? 'true' : 'false'); });
+      lists.forEach(function(ul) {
+        var mine = ul.getAttribute('data-room-genres') === side;
+        ul.hidden = !mine;
+        if (!mine) return;
+        var n = ul.children.length;
+        for (var i = 0; i < n; i++) {
+          ul.children[i].classList.toggle('on', Math.abs(v - (n > 1 ? (i / (n - 1)) * 100 : 50)) <= REACH);
+        }
+      });
+      var mine = lines[side] || [];
+      if (mine.length) line.textContent = mine[Math.min(mine.length - 1, Math.floor((v / 100) * mine.length))];
+    }
+    fader.addEventListener('input', render);
+    btns.forEach(function(b) {
+      b.addEventListener('click', function() { side = b.getAttribute('data-room-side'); render(); });
+    });
+    document.addEventListener('side:change', function(e) {
+      if (!room.isConnected) return;
+      side = e.detail === 'A' ? 'A' : 'B';
+      render();
+    });
+    var book = document.querySelector('[data-room-book]');
+    if (book) book.addEventListener('click', function() {
+      var choice = document.querySelector('#contact-form input[name="side"][data-side-choice="' + side + '"]');
+      if (choice) choice.checked = true;
+    });
+    render();
+  }
+  document.addEventListener('astro:page-load', initRoom);
   document.addEventListener('astro:page-load', initHeroRing);
   document.addEventListener('astro:page-load', initHeroFlip);
   </script>

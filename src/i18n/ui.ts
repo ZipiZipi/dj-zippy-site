@@ -129,6 +129,33 @@ const en = {
     soundOff: 'Sound off',
   },
 
+  // "Reads the room": the fader in the home intro. Genres run from what suits a
+  // warm-up to what suits peak time; `lines` are read out in that order too.
+  room: {
+    title: 'The room',
+    warmup: 'Warm-up',
+    peak: 'Peak time',
+    faderLabel: 'Part of the night, from warm-up to peak time',
+    B: {
+      genres: ['Jazz', 'Funk', 'Disco', 'Deep House', 'French House', 'Groove', 'Minimal', 'Deep Tech'],
+      lines: [
+        'Jazz, funk and disco while people are still walking in.',
+        'Deep house and disco edges while the floor fills up.',
+        'Groove and French house once the room is moving.',
+        'Driving deep tech and minimal when the floor asks for it.',
+      ],
+    },
+    A: {
+      genres: ['R&B', 'Disco', 'Funk', '2000s', 'Pop', 'Hip-hop', 'Balkan', 'Trap'],
+      lines: [
+        'R&B, disco and funk while people are still arriving.',
+        '2000s and pop once the first ones start singing along.',
+        'Hip-hop and the hits everyone knows by heart.',
+        'Balkan and trap when the whole place is up.',
+      ],
+    },
+  },
+
   home: {
     title: 'DJ Zippy – Serbian House DJ | House Music Therapy',
     description:
@@ -166,6 +193,8 @@ const en = {
     ],
     tapeWords: ['Deep Tech', 'Minimal', 'Deep House', 'French House', 'Groove', 'Disco', 'Funk', 'Jazz'],
     kicker: 'Serbian House DJ',
+    // the same line on the other side of the hero title
+    kickerA: 'Serbian Open Format DJ',
     introHeading1: 'The selector behind ',
     introHeading2: 'House Music Therapy',
     introBody:
@@ -289,6 +318,10 @@ const en = {
     showAllPast: 'All past gigs',
     showAllYear: 'Show all {n}',
     yearSummary: '{n} gigs: {a} open format, {b} underground',
+    statGigs: 'Gigs',
+    statVenues: 'Venues',
+    statCities: 'Cities',
+    statCountries: 'Countries',
     backHome: 'Back to Homepage',
   },
 
@@ -469,6 +502,31 @@ const sr: Dict = {
     soundOff: 'Zvuk isključen',
   },
 
+  room: {
+    title: 'Publika',
+    warmup: 'Zagrevanje',
+    peak: 'Vrhunac večeri',
+    faderLabel: 'Deo večeri, od zagrevanja do vrhunca',
+    B: {
+      genres: ['Jazz', 'Funk', 'Disco', 'Deep House', 'French House', 'Groove', 'Minimal', 'Deep Tech'],
+      lines: [
+        'Jazz, funk i disco dok ljudi tek ulaze.',
+        'Deep house i disco prizvuk dok se podijum puni.',
+        'Groove i French house kad se ekipa razmrda.',
+        'Jak deep tech i minimal kad podijum to traži.',
+      ],
+    },
+    A: {
+      genres: ['R&B', 'Disco', 'Funk', '2000-te', 'Pop', 'Hip-hop', 'Balkan', 'Trep'],
+      lines: [
+        'R&B, disco i funk dok ljudi tek stižu.',
+        'Dvehiljadite i pop kad prvi krenu da pevaju.',
+        'Hip-hop i hitovi koje svi znaju napamet.',
+        'Balkan i trep kad je cela ekipa na nogama.',
+      ],
+    },
+  },
+
   home: {
     title: 'DJ Zippy – srpski house DJ | House Music Therapy',
     description:
@@ -506,6 +564,7 @@ const sr: Dict = {
     ],
     tapeWords: ['Deep Tech', 'Minimal', 'Deep House', 'French House', 'Groove', 'Disco', 'Funk', 'Jazz'],
     kicker: 'Srpski house DJ',
+    kickerA: 'Srpski open format DJ',
     introHeading1: 'Selektor iza ',
     introHeading2: 'House Music Therapy',
     introBody:
@@ -629,6 +688,10 @@ const sr: Dict = {
     showAllPast: 'Svi prošli nastupi',
     showAllYear: 'Prikaži svih {n}',
     yearSummary: 'Nastupa: {n}. Open format: {a}, underground: {b}',
+    statGigs: 'Nastupi',
+    statVenues: 'Lokacije',
+    statCities: 'Gradovi',
+    statCountries: 'Države',
     backHome: 'Nazad na početnu',
   },
 

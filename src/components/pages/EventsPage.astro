@@ -21,6 +21,16 @@ const { upcoming, past } = await getEvents(db);
 // highlights plus its most recent nights (YEAR_ROWS lines at most) and folds
 // the rest away.
 const YEAR_ROWS = 5;
+
+// Archive numbers. Venues and cities are counted by name; the data spells
+// Belgrade two ways, which must still count once.
+const CITY_ALIASES: Record<string, string> = { beograd: 'belgrade' };
+const venueKey = (e: UIEvent) => e.title.trim().toLowerCase();
+const cityKey = (e: UIEvent) => {
+  const k = e.location.trim().toLowerCase();
+  return CITY_ALIASES[k] ?? k;
+};
+const distinct = (list: UIEvent[], key: (e: UIEvent) => string) => new Set(list.map(key)).size;
 const newestFirst = (a: UIEvent, b: UIEvent) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0);
 const years = [...new Set(past.map(e => e.date.slice(0, 4)))].sort().reverse().map(year => {
   const gigs = past.filter(e => e.date.startsWith(year)).sort(newestFirst);
@@ -28,8 +38,17 @@ const years = [...new Set(past.map(e => e.date.slice(0, 4)))].sort().reverse().m
   const recent = gigs.filter(e => !e.featured).slice(0, Math.max(0, YEAR_ROWS - featured.length));
   const top = gigs.filter(e => featured.includes(e) || recent.includes(e));
   const a = gigs.filter(e => eventSide(e) === 'A').length;
-  return { year, total: gigs.length, top, rest: gigs.filter(e => !top.includes(e)), a, b: gigs.length - a };
+  return {
+    year, total: gigs.length, top, rest: gigs.filter(e => !top.includes(e)), a, b: gigs.length - a,
+    venues: distinct(gigs, venueKey), cities: distinct(gigs, cityKey),
+  };
 });
+const totals = [
+  { n: past.length, label: t.events.statGigs },
+  { n: distinct(past, venueKey), label: t.events.statVenues },
+  { n: distinct(past, cityKey), label: t.events.statCities },
+  { n: distinct(past, e => e.country ?? 'RS'), label: t.events.statCountries },
+];
 
 const pageUrl = `https://zippydj.com${l('/events')}`;
 
@@ -159,6 +178,15 @@ const musicEventSchema = {
       </div>
       {/* One panel per year: the year in large type, how its nights split between
           the two sides, then its highlights and most recent gigs. */}
+      {/* The whole archive in numbers */}
+      <dl class="archive-stats" data-reveal>
+        {totals.map(s => (
+          <div class="archive-stat">
+            <dt class="mono-caps text-[0.6875rem] text-gray-400">{s.label}</dt>
+            <dd class="font-display font-bold leading-none text-3xl sm:text-4xl">{s.n}</dd>
+          </div>
+        ))}
+      </dl>
       <div class="space-y-4">
         {years.map(y => (
           <section class="year-panel" data-reveal aria-label={y.year}>
@@ -172,6 +200,14 @@ const musicEventSchema = {
                 <p class="mono-caps mt-2 text-[0.6875rem] text-gray-400" aria-hidden="true">{y.a} A · {y.b} B</p>
                 <p class="sr-only">{t.events.yearSummary.replace('{n}', String(y.total)).replace('{a}', String(y.a)).replace('{b}', String(y.b))}</p>
               </div>
+              <dl class="year-facts">
+                {[[y.total, t.events.statGigs], [y.venues, t.events.statVenues], [y.cities, t.events.statCities]].map(([n, label]) => (
+                  <div>
+                    <dt class="mono-caps text-[0.6875rem] text-gray-400">{label}</dt>
+                    <dd class="font-display font-bold text-lg leading-none text-white">{n}</dd>
+                  </div>
+                ))}
+              </dl>
             </div>
             <div class="min-w-0" data-side-list>
               <ol>

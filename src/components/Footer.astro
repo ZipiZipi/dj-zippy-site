@@ -94,7 +94,7 @@ const t = useTranslations(lang);
               { value: 'Not sure yet', side: undefined, label: t.footer.sideAny },
             ].map((o) => (
               <label class="side-radio" data-side={o.side}>
-                <input type="radio" name="side" value={o.value} class="sr-only" checked={!o.side} />
+                <input type="radio" name="side" value={o.value} data-side-choice={o.side} class="sr-only" checked={!o.side} />
                 <span>{o.label}</span>
               </label>
             ))}
