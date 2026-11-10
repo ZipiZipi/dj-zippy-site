@@ -1,9 +1,22 @@
 ---
-// Meta Pixel + Google Tag Manager + Google Ads, without blocking the first
-// paint. The inline stubs below define fbq / gtag / dataLayer right away, so
-// PageView, config and any early event are queued; the ~400 KB of third-party
-// scripts load on the first interaction, or once the page has been loaded for
-// a few seconds and the main thread is idle — whichever comes first.
+// Consent, Google Tag Manager and the Meta Pixel, without blocking the first paint.
+//
+// Consent comes first. Google Consent Mode v2 starts with everything that sets
+// advertising or analytics cookies denied; a stored choice (the zippy_consent
+// cookie, written by the cookie banner) is applied before any tag can run.
+//   - Google (GA4 G-WVP8PY00Q1 and Google Ads AW-17997341905) is configured in
+//     GTM (GTM-KLGKHMGM), not here. GTM always loads: with consent denied the
+//     Google tags only send cookieless pings ("advanced" consent mode).
+//   - The Meta Pixel script is not even downloaded until marketing is allowed.
+//     Until then fbq is a stub, and events that need marketing consent are not
+//     queued at all.
+// The ~400 KB of third-party scripts load on the first interaction, or once the
+// page has been loaded for a few seconds and the main thread is idle.
+//
+// window.zippyConsent is the small API the banner and the event tracking use:
+//   get() -> { analytics, marketing } | null (null = the visitor hasn't chosen)
+//   set({ analytics, marketing }) -> stores the choice and applies it
+//   open() -> asks the banner to show its settings (see CookieConsent.astro)
 //
 // Used by Layout.astro and by the standalone links page.
 ---
@@ -13,13 +26,57 @@
     if (w.__zippyAnalytics) return;
     w.__zippyAnalytics = true;
 
+    var GTM_ID = 'GTM-KLGKHMGM';
+    var PIXEL_ID = '3891455414321405';
+    var COOKIE = 'zippy_consent';
+    var VERSION = '1';
+    var MAX_AGE = 60 * 60 * 24 * 180; // ask again after six months
+
     // gtag.js only understands the `arguments` object, not a plain array.
     w.dataLayer = w.dataLayer || [];
-    w.gtag = function () { w.dataLayer.push(arguments); };
-    w.gtag('js', new Date());
-    w.gtag('config', 'AW-975400552');
+    function gtag() { w.dataLayer.push(arguments); }
+    w.gtag = w.gtag || gtag;
+
+    function read() {
+      var m = d.cookie.match(/(?:^|;\s*)zippy_consent=([^;]*)/);
+      if (!m) return null;
+      var p = {};
+      decodeURIComponent(m[1]).split('&').forEach(function (kv) {
+        var i = kv.indexOf('=');
+        if (i > 0) p[kv.slice(0, i)] = kv.slice(i + 1);
+      });
+      if (p.v !== VERSION) return null;
+      return { analytics: p.a === '1', marketing: p.m === '1' };
+    }
+
+    function googleState(c) {
+      var ads = c && c.marketing ? 'granted' : 'denied';
+      return {
+        analytics_storage: c && c.analytics ? 'granted' : 'denied',
+        ad_storage: ads,
+        ad_user_data: ads,
+        ad_personalization: ads,
+      };
+    }
+
+    gtag('consent', 'default', {
+      analytics_storage: 'denied',
+      ad_storage: 'denied',
+      ad_user_data: 'denied',
+      ad_personalization: 'denied',
+      functionality_storage: 'granted',
+      security_storage: 'granted',
+      wait_for_update: 500,
+    });
+    // Without ad cookies, ad click IDs are redacted and passed along in links instead.
+    gtag('set', 'ads_data_redaction', true);
+    gtag('set', 'url_passthrough', true);
+
+    var consent = read();
+    if (consent) gtag('consent', 'update', googleState(consent));
     w.dataLayer.push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
 
+    // Meta Pixel stub: calls queue until fbevents.js arrives (only with consent).
     var fbq = (w.fbq = function () {
       fbq.callMethod ? fbq.callMethod.apply(fbq, arguments) : fbq.queue.push(arguments);
     });
@@ -28,46 +85,94 @@
     fbq.loaded = true;
     fbq.version = '2.0';
     fbq.queue = [];
-    fbq('init', '3891455414321405');
-    fbq('track', 'PageView');
+    fbq('init', PIXEL_ID);
+    if (consent && consent.marketing) fbq('track', 'PageView');
 
-    var loaded = false;
-    function load() {
-      if (loaded) return;
-      loaded = true;
-      [
-        'https://connect.facebook.net/en_US/fbevents.js',
-        'https://www.googletagmanager.com/gtm.js?id=GTM-KLGKHMGM',
-        'https://www.googletagmanager.com/gtag/js?id=AW-975400552',
-      ].forEach(function (src) {
-        var s = d.createElement('script');
-        s.async = true;
-        s.src = src;
-        d.head.appendChild(s);
-      });
+    // Only the real site reports anything: the dev server, previews and local
+    // builds would otherwise fill GA4 and the ad audiences with test visits.
+    // ?tags=on forces the tags anywhere, for checking a setup.
+    var LIVE = /(^|\.)zippydj\.com$/.test(location.hostname) || /[?&]tags=on\b/.test(location.search);
+
+    var ready = false;   // the page is ready for third-party scripts
+    var gtmIn = false;
+    var metaIn = false;
+    function inject(src) {
+      var s = d.createElement('script');
+      s.async = true;
+      s.src = src;
+      d.head.appendChild(s);
     }
+    function loadTags() {
+      if (!ready || !LIVE) return;
+      if (!gtmIn) { gtmIn = true; inject('https://www.googletagmanager.com/gtm.js?id=' + GTM_ID); }
+      if (!metaIn && consent && consent.marketing) {
+        metaIn = true;
+        inject('https://connect.facebook.net/en_US/fbevents.js');
+      }
+    }
+    function goNow() { ready = true; loadTags(); }
     ['pointerdown', 'keydown', 'touchstart', 'scroll'].forEach(function (type) {
-      w.addEventListener(type, load, { once: true, passive: true });
+      w.addEventListener(type, goNow, { once: true, passive: true });
     });
     function later() {
       setTimeout(function () {
-        if ('requestIdleCallback' in w) w.requestIdleCallback(load, { timeout: 1500 });
-        else load();
+        if ('requestIdleCallback' in w) w.requestIdleCallback(goNow, { timeout: 1500 });
+        else goNow();
       }, 3000);
     }
     if (d.readyState === 'complete') later();
     else w.addEventListener('load', later, { once: true });
 
+    // Forget the cookies of a category that was switched off.
+    function clearCookies(re) {
+      var host = location.hostname;
+      var bare = host.replace(/^www\./, '');
+      d.cookie.split(';').forEach(function (c) {
+        var name = c.split('=')[0].trim();
+        if (!re.test(name)) return;
+        ['', '; domain=' + host, '; domain=.' + bare].forEach(function (dom) {
+          d.cookie = name + '=; Max-Age=0; path=/' + dom;
+        });
+      });
+    }
+
+    w.zippyConsent = {
+      get: function () { return consent; },
+      set: function (choice) {
+        var prev = consent;
+        consent = { analytics: !!choice.analytics, marketing: !!choice.marketing };
+        var value = 'v=' + VERSION + '&a=' + (consent.analytics ? 1 : 0) + '&m=' + (consent.marketing ? 1 : 0) + '&t=' + Math.round(Date.now() / 1000);
+        d.cookie = COOKIE + '=' + encodeURIComponent(value) + '; Max-Age=' + MAX_AGE + '; path=/; SameSite=Lax' + (location.protocol === 'https:' ? '; Secure' : '');
+        gtag('consent', 'update', googleState(consent));
+        w.dataLayer.push({
+          event: 'consent_update',
+          consent_analytics: consent.analytics ? 'granted' : 'denied',
+          consent_marketing: consent.marketing ? 'granted' : 'denied',
+        });
+        if (consent.marketing) {
+          fbq('consent', 'grant');
+          if (!prev || !prev.marketing) fbq('track', 'PageView');
+        } else {
+          fbq('consent', 'revoke');
+          if (prev && prev.marketing) clearCookies(/^(_fbp|_fbc|_gcl_.*)$/);
+        }
+        if (!consent.analytics && prev && prev.analytics) clearCookies(/^(_ga|_ga_.*|_gid)$/);
+        loadTags();
+        d.dispatchEvent(new CustomEvent('zippy:consent', { detail: consent }));
+      },
+      open: function () { d.dispatchEvent(new CustomEvent('zippy:consent-open')); },
+    };
+
     // View Transitions swap pages without a reload, so later navigations are
-    // reported by hand (the first page is covered by the PageView above).
+    // reported by hand (the first page is covered above). GA4 counts them itself
+    // (enhanced measurement: page changes based on browser history).
     var first = true;
     d.addEventListener('astro:page-load', function () {
       if (first) { first = false; return; }
       try {
-        fbq('track', 'PageView');
+        if (consent && consent.marketing) fbq('track', 'PageView');
         w.dataLayer.push({ event: 'virtual_pageview', page_path: location.pathname, page_title: d.title });
       } catch (e) { /* analytics must never break navigation */ }
     });
   })(window, document);
 </script>
-<noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=3891455414321405&ev=PageView&noscript=1" alt="" /></noscript>

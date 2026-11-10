@@ -1,0 +1,318 @@
+---
+// The cookie banner. It only asks; the decision is applied by Analytics.astro
+// (window.zippyConsent), which also has to run on pages that never show this.
+//
+// Hidden in the HTML, so a returning visitor who has already chosen never sees
+// it flash. On a first visit it appears once the page has loaded. "Accept all"
+// and "Reject" are the same size and weight: refusing is as easy as agreeing.
+// Any element with [data-consent-open] (the footer's "Cookie settings") brings
+// it back with the categories open.
+//
+// Styles are self-contained (the standalone links page doesn't load
+// global.css); colours fall back to the B side when the site variables are absent.
+import { localize, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props as Props;
+
+const COPY = {
+  en: {
+    label: 'Cookie consent',
+    title: 'Cookies',
+    body: 'The site uses cookies to learn which mixes and dates people care about and to show DJ Zippy’s nights to the right crowd. Analytics and marketing cookies only run if you allow them.',
+    policy: 'Privacy & cookies',
+    accept: 'Accept all',
+    reject: 'Reject',
+    settings: 'Choose',
+    save: 'Save choices',
+    alwaysOn: 'Always on',
+    necessary: ['Necessary', 'Remembers this choice. No tracking.'],
+    analytics: ['Analytics', 'Google Analytics: which pages, mixes and dates get played, so the site keeps getting better.'],
+    marketing: ['Marketing', 'Meta Pixel and Google Ads: measure ads and show upcoming gigs to people who already know the site.'],
+  },
+  sr: {
+    label: 'Saglasnost za kolačiće',
+    title: 'Kolačići',
+    body: 'Sajt koristi kolačiće da vidi koji miksevi i datumi zanimaju ljude i da Zippyjeve večeri pokaže pravoj publici. Analitički i marketinški kolačići rade samo ako ih dozvoliš.',
+    policy: 'Privatnost i kolačići',
+    accept: 'Prihvati sve',
+    reject: 'Odbij',
+    settings: 'Izaberi',
+    save: 'Sačuvaj izbor',
+    alwaysOn: 'Uvek uključeno',
+    necessary: ['Neophodni', 'Pamte ovaj izbor. Bez praćenja.'],
+    analytics: ['Analitika', 'Google Analytics: koje strane, miksevi i datumi se gledaju, da bi sajt bio sve bolji.'],
+    marketing: ['Marketing', 'Meta Pixel i Google Ads: mere oglase i prikazuju nastupe ljudima koji već znaju za sajt.'],
+  },
+} as const;
+
+const c = COPY[lang];
+---
+
+<section class="cc" data-consent hidden role="dialog" aria-modal="false" aria-label={c.label} aria-describedby="cc-body">
+  <div class="cc__card">
+    <p class="cc__kicker"><span class="cc__dot" aria-hidden="true"></span>{c.title}</p>
+    <p class="cc__body" id="cc-body">
+      {c.body} <a class="cc__link" href={localize('/privacy', lang)}>{c.policy}</a>
+    </p>
+
+    <div class="cc__prefs" data-consent-prefs hidden>
+      <div class="cc__row">
+        <span class="cc__row-text"><span class="cc__row-title">{c.necessary[0]}</span><span class="cc__row-body">{c.necessary[1]}</span></span>
+        <span class="cc__always">{c.alwaysOn}</span>
+      </div>
+      <label class="cc__row">
+        <span class="cc__row-text"><span class="cc__row-title">{c.analytics[0]}</span><span class="cc__row-body">{c.analytics[1]}</span></span>
+        <input class="cc__switch" type="checkbox" role="switch" data-consent-cat="analytics" />
+      </label>
+      <label class="cc__row">
+        <span class="cc__row-text"><span class="cc__row-title">{c.marketing[0]}</span><span class="cc__row-body">{c.marketing[1]}</span></span>
+        <input class="cc__switch" type="checkbox" role="switch" data-consent-cat="marketing" />
+      </label>
+    </div>
+
+    <div class="cc__actions">
+      <button type="button" class="cc__btn cc__btn--text" data-consent-settings aria-expanded="false">{c.settings}</button>
+      <button type="button" class="cc__btn cc__btn--text" data-consent-save hidden>{c.save}</button>
+      <span class="cc__spacer" aria-hidden="true"></span>
+      <button type="button" class="cc__btn cc__btn--quiet" data-consent-reject>{c.reject}</button>
+      <button type="button" class="cc__btn cc__btn--solid" data-consent-accept>{c.accept}</button>
+    </div>
+  </div>
+</section>
+
+<script>
+  type Choice = { analytics: boolean; marketing: boolean };
+  type Api = { get(): Choice | null; set(c: Choice): void; open(): void };
+  const api = (): Api | undefined => (window as unknown as { zippyConsent?: Api }).zippyConsent;
+
+  function parts(root: HTMLElement) {
+    return {
+      prefs: root.querySelector<HTMLElement>('[data-consent-prefs]')!,
+      settings: root.querySelector<HTMLButtonElement>('[data-consent-settings]')!,
+      save: root.querySelector<HTMLButtonElement>('[data-consent-save]')!,
+      boxes: Array.from(root.querySelectorAll<HTMLInputElement>('[data-consent-cat]')),
+    };
+  }
+
+  function show(root: HTMLElement, withPrefs: boolean) {
+    const p = parts(root);
+    const now = api()?.get();
+    p.boxes.forEach((b) => { b.checked = !!(now && now[b.dataset.consentCat as keyof Choice]); });
+    p.prefs.hidden = !withPrefs;
+    p.settings.hidden = withPrefs;
+    p.save.hidden = !withPrefs;
+    p.settings.setAttribute('aria-expanded', String(withPrefs));
+    root.hidden = false;
+    reserveSpace(root);
+    if (withPrefs) {
+      returnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+      p.boxes[0]?.focus();
+    }
+  }
+
+  let returnFocus: HTMLElement | null = null;
+
+  function reserveSpace(root: HTMLElement) {
+    const card = root.querySelector<HTMLElement>('.cc__card');
+    document.documentElement.style.scrollPaddingBottom = root.hidden || !card ? '' : `${card.offsetHeight + 24}px`;
+  }
+
+  function choose(root: HTMLElement, choice: Choice) {
+    api()?.set(choice);
+    const hadFocus = root.contains(document.activeElement);
+    root.hidden = true;
+    reserveSpace(root);
+    if (hadFocus) {
+      const back = returnFocus && document.contains(returnFocus) ? returnFocus : document.querySelector<HTMLElement>('#main');
+      if (back && !back.hasAttribute('tabindex') && back.id === 'main') back.setAttribute('tabindex', '-1');
+      back?.focus({ preventScroll: true });
+    }
+    returnFocus = null;
+  }
+
+  function init() {
+    const root = document.querySelector<HTMLElement>('[data-consent]');
+    if (!root || root.dataset.bound) return;
+    root.dataset.bound = '1';
+    const p = parts(root);
+    root.querySelector('[data-consent-accept]')?.addEventListener('click', () => choose(root, { analytics: true, marketing: true }));
+    root.querySelector('[data-consent-reject]')?.addEventListener('click', () => choose(root, { analytics: false, marketing: false }));
+    p.settings.addEventListener('click', () => show(root, true));
+    p.save.addEventListener('click', () => {
+      const pick = (cat: string) => !!p.boxes.find((b) => b.dataset.consentCat === cat)?.checked;
+      choose(root, { analytics: pick('analytics'), marketing: pick('marketing') });
+    });
+    if (api() && !api()!.get()) show(root, false);
+  }
+
+  // "Cookie settings" anywhere on the page
+  document.addEventListener('click', (e) => {
+    const opener = (e.target as Element | null)?.closest?.('[data-consent-open]');
+    if (!opener) return;
+    e.preventDefault();
+    api()?.open();
+  });
+  document.addEventListener('zippy:consent-open', () => {
+    const root = document.querySelector<HTMLElement>('[data-consent]');
+    if (root) show(root, true);
+  });
+
+  // The links page has no view transitions, so astro:page-load may never come.
+  init();
+  document.addEventListener('astro:page-load', init);
+</script>
+
+<style>
+  .cc {
+    --cc-accent: rgb(var(--accent-rgb, 255 85 0));
+    --cc-alt: rgb(var(--alt-rgb, 56 189 248));
+    position: fixed;
+    z-index: 90;
+    left: 1rem;
+    right: 1rem;
+    bottom: 1rem;
+    display: flex;
+    justify-content: flex-start;
+    pointer-events: none;
+    font-family: inherit;
+  }
+  .cc[hidden] { display: none; }
+  .cc__card {
+    pointer-events: auto;
+    width: 100%;
+    max-width: 27rem;
+    max-height: calc(100dvh - 2rem);
+    overflow-y: auto;
+    padding: 1.1rem 1.15rem 1rem;
+    border-radius: 1.25rem;
+    background: rgb(12 12 12 / 0.96);
+    border: 1px solid rgb(255 255 255 / 0.1);
+    box-shadow: 0 24px 60px -18px rgb(0 0 0 / 0.85), 0 0 0 1px rgb(0 0 0 / 0.6);
+    color: #e5e5e5;
+    animation: cc-in 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  @supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+    .cc__card { background: rgb(12 12 12 / 0.86); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
+  }
+  @keyframes cc-in { from { opacity: 0; transform: translateY(12px); } }
+  .cc__kicker {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0 0 0.45rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.6875rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--cc-accent);
+  }
+  .cc__dot { width: 0.4rem; height: 0.4rem; border-radius: 999px; background: var(--cc-alt); box-shadow: 0 0 10px var(--cc-alt); }
+  .cc__body { margin: 0; font-size: 0.875rem; line-height: 1.55; color: #c8c8c8; }
+  .cc__link { color: #fff; text-decoration: underline; text-decoration-color: var(--cc-accent); text-underline-offset: 3px; white-space: nowrap; }
+  .cc__link:hover { color: var(--cc-accent); }
+
+  .cc__prefs { margin-top: 0.85rem; display: grid; gap: 0.4rem; }
+  .cc__prefs[hidden] { display: none; }
+  .cc__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.65rem 0.8rem;
+    border-radius: 0.85rem;
+    background: rgb(255 255 255 / 0.04);
+    border: 1px solid rgb(255 255 255 / 0.06);
+    cursor: default;
+  }
+  label.cc__row { cursor: pointer; }
+  .cc__row-text { display: grid; gap: 0.15rem; min-width: 0; }
+  .cc__row-title { font-size: 0.8125rem; font-weight: 700; color: #fff; }
+  .cc__row-body { font-size: 0.75rem; line-height: 1.45; color: #9a9a9a; }
+  .cc__always { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.625rem; letter-spacing: 0.12em; text-transform: uppercase; color: #8a8a8a; white-space: nowrap; }
+
+  /* A channel button rather than a phone toggle */
+  .cc__switch {
+    appearance: none;
+    flex: none;
+    width: 2.6rem;
+    height: 1.5rem;
+    margin: 0;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.12);
+    border: 1px solid rgb(255 255 255 / 0.12);
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+  }
+  .cc__switch::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0.2rem;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 999px;
+    background: #d4d4d4;
+    transform: translateY(-50%);
+    transition: transform 0.2s ease, background-color 0.2s ease;
+  }
+  .cc__switch:checked { background: color-mix(in srgb, var(--cc-accent) 30%, transparent); border-color: var(--cc-accent); }
+  .cc__switch:checked::after { transform: translate(1.05rem, -50%); background: var(--cc-accent); }
+  .cc__switch:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+  .cc__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin-top: 0.95rem; }
+  .cc__spacer { flex: 1 1 auto; }
+  .cc__btn {
+    appearance: none;
+    border: 0;
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    line-height: 1;
+    border-radius: 999px;
+    padding: 0.75rem 1.1rem;
+    min-height: 2.6rem;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+  .cc__btn[hidden] { display: none; }
+  .cc__btn--text { background: transparent; color: #bdbdbd; padding-left: 0.2rem; padding-right: 0.2rem; text-decoration: underline; text-underline-offset: 4px; text-decoration-color: rgb(255 255 255 / 0.25); }
+  .cc__btn--text:hover { color: #fff; text-decoration-color: var(--cc-accent); }
+  .cc__btn--quiet { background: rgb(255 255 255 / 0.1); color: #fff; }
+  .cc__btn--quiet:hover { background: rgb(255 255 255 / 0.18); }
+  .cc__btn--solid { background: var(--cc-accent); color: #050505; }
+  .cc__btn--solid:hover { background: #fff; }
+  .cc__btn:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+  @media (min-width: 640px) {
+    .cc { left: 1.5rem; right: auto; bottom: 1.5rem; }
+  }
+  /* Phones: a lower card, so more of the page stays visible behind it */
+  @media (max-width: 639px) {
+    .cc { left: 0.75rem; right: 0.75rem; bottom: 0.75rem; }
+    .cc__card { padding: 0.9rem 0.95rem 0.85rem; border-radius: 1.1rem; }
+    .cc__body { font-size: 0.8125rem; line-height: 1.5; }
+    .cc__actions { margin-top: 0.75rem; }
+    .cc__btn { min-height: 2.5rem; padding: 0.65rem 1rem; }
+  }
+  /* Short landscape phones: the text sits next to the buttons */
+  @media (max-height: 480px) and (orientation: landscape) {
+    .cc__card { max-width: 34rem; }
+    .cc__body { font-size: 0.78rem; }
+  }
+  @media (max-width: 400px) {
+    .cc__spacer { display: none; }
+    .cc__btn--text { order: 3; flex-basis: 100%; text-align: left; min-height: 2.2rem; }
+    .cc__btn--quiet, .cc__btn--solid { flex: 1 1 0; }
+  }
+  /* The phone menu makes the rest of the page inert; the banner waits until it closes. */
+  :global(html.menu-open) .cc { display: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .cc__card { animation: none; }
+    .cc__switch, .cc__switch::after, .cc__btn { transition: none; }
+  }
+</style>

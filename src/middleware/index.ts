@@ -9,9 +9,37 @@
 
 import { defineMiddleware } from 'astro:middleware';
 
+// Addresses from the old static site that Google still has on file (Search
+// Console lists them as 404). Each one goes to the page that replaced it, so
+// the links people saved keep working and search engines move the ranking over.
+const LEGACY: Record<string, string> = {
+  '/index': '/',
+  '/index.html': '/',
+  '/home': '/',
+  '/zippy': '/',
+  '/events.html': '/events',
+  '/mixes.html': '/mixes',
+  '/about.html': '/about',
+  '/gallery.html': '/gallery',
+  '/links.html': '/links',
+  '/contact': '/#contact',
+  '/contact.html': '/#contact',
+  '/booking': '/#contact',
+};
+
 export const onRequest = defineMiddleware(async (context, next) => {
   const pathname = context.url.pathname;
   const method = context.request.method;
+
+  if (method === 'GET' || method === 'HEAD') {
+    const target = LEGACY[pathname.toLowerCase().replace(/\/+$/, '')];
+    if (target) {
+      return new Response(null, {
+        status: 301,
+        headers: { Location: context.url.origin + target.replace(/#.*$/, '') + context.url.search + (target.match(/#.*$/)?.[0] ?? '') },
+      });
+    }
+  }
 
   // trailingSlash is 'never', so SSR pages (/mixes, /events, /sr…) don't match
   // with a trailing slash and fall through to the 404 catch-all. Prerendered

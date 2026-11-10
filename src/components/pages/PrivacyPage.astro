@@ -1,0 +1,248 @@
+---
+// Privacy & cookies. The banner (CookieConsent.astro) links here, and the
+// "Cookie settings" button on this page reopens it. Kept out of search
+// results (noindex): it is there for visitors, not for ranking.
+import Layout from '../../layouts/Layout.astro';
+import { localize, type Lang } from '../../i18n/utils';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props as Props;
+const l = (path: string) => localize(path, lang);
+
+const EMAIL = 'veljkoned@gmail.com';
+
+const CONTENT = {
+  en: {
+    title: 'Privacy & Cookies – DJ Zippy',
+    description: 'How zippydj.com handles booking requests, analytics and cookies, and how to change your cookie choice.',
+    kicker: 'The fine print',
+    crumbLabel: 'Breadcrumb',
+    crumbHome: 'Home',
+    crumbHere: 'Privacy',
+    h1a: 'Privacy & ',
+    h1b: 'cookies',
+    lead: 'zippydj.com is DJ Zippy’s own site. This page says what it collects, why, and how to change your mind at any time.',
+    updated: 'Last updated 10 November 2026',
+    settings: 'Cookie settings',
+    sections: [
+      {
+        h: 'Who is responsible',
+        p: [`DJ Zippy (Veljko Nedeljković), Belgrade, Serbia. Questions about your data: <a href="mailto:${EMAIL}">${EMAIL}</a>.`],
+      },
+      {
+        h: 'Booking requests',
+        p: [
+          'When you send the booking form, your name, venue, email, message and the set you are asking about (side, part of the night, genres) reach DJ Zippy by email, through Web3Forms, the form service the site uses.',
+          'The form also adds how you found the site, for example “instagram / social” and the first page you opened, so the reply can make sense of the request. It is used only to answer and plan the booking and is kept for as long as that conversation needs it.',
+        ],
+      },
+      {
+        h: 'Cookies',
+        p: [
+          'Necessary storage only remembers your cookie choice. Analytics and marketing cookies are off until you allow them, and you can change the choice at any time with the button on this page or “Cookie settings” at the bottom of every page.',
+        ],
+      },
+      {
+        h: 'Analytics and advertising',
+        p: [
+          'With your consent, Google Analytics 4 and Google Ads (loaded through Google Tag Manager) and the Meta Pixel measure visits and ad results, and let DJ Zippy show upcoming gigs to people who have visited the site.',
+          'Without consent, Google receives only cookieless signals that do not identify you (Google Consent Mode), and the Meta Pixel is not loaded at all. Google and Meta may process data in the United States under their standard contractual clauses.',
+        ],
+      },
+      {
+        h: 'Hosting and security',
+        p: [
+          'The site runs on Cloudflare, which processes technical data such as IP addresses to deliver pages and keep bots out. Links to Mixcloud, YouTube, Spotify, Instagram and other platforms open those platforms, where their own privacy policies apply.',
+        ],
+      },
+      {
+        h: 'Your rights',
+        p: [
+          `You can ask to see, correct or delete your data, object to its use, or withdraw consent, by writing to <a href="mailto:${EMAIL}">${EMAIL}</a>. You can also complain to the Serbian Commissioner for Information of Public Importance and Personal Data Protection (<a href="https://www.poverenik.rs" target="_blank" rel="noopener noreferrer">poverenik.rs</a>) or to the data protection authority where you live.`,
+        ],
+      },
+    ],
+    tableTitle: 'What is stored on your device',
+    cols: ['Name', 'Set by', 'Purpose', 'Kept for'],
+    groups: [
+      { name: 'Necessary', rows: [
+        ['zippy_consent', 'zippydj.com', 'Your cookie choice', '6 months'],
+        ['__cf_bm', 'Cloudflare', 'Bot protection, only when it kicks in', '30 minutes'],
+        ['zippy-preview-muted (session storage)', 'zippydj.com', 'Remembers if you muted the track previews', 'Until the tab closes'],
+      ] },
+      { name: 'Analytics', rows: [
+        ['_ga, _ga_WVP8PY00Q1', 'Google Analytics', 'Counts visits and how the site is used', 'Up to 2 years'],
+        ['zippy_ft (local storage)', 'zippydj.com', 'The first source of your visit, for booking requests', '90 days'],
+      ] },
+      { name: 'Marketing', rows: [
+        ['_gcl_au, _gcl_aw', 'Google Ads', 'Ad clicks and conversions', '90 days'],
+        ['_fbp, _fbc', 'Meta', 'Meta ad results and audiences of site visitors', '90 days'],
+      ] },
+    ],
+  },
+  sr: {
+    title: 'Privatnost i kolačići – DJ Zippy',
+    description: 'Kako zippydj.com postupa sa upitima za booking, analitikom i kolačićima, i kako da promeniš izbor za kolačiće.',
+    kicker: 'Sitna slova',
+    crumbLabel: 'Putanja',
+    crumbHome: 'Početna',
+    crumbHere: 'Privatnost',
+    h1a: 'Privatnost i ',
+    h1b: 'kolačići',
+    lead: 'zippydj.com je sajt DJ Zippyja. Ovde piše šta se prikuplja, zašto i kako u svakom trenutku možeš da se predomisliš.',
+    updated: 'Poslednja izmena 10. novembra 2026.',
+    settings: 'Podešavanja kolačića',
+    sections: [
+      {
+        h: 'Ko je odgovoran',
+        p: [`DJ Zippy (Veljko Nedeljković), Beograd, Srbija. Pitanja o tvojim podacima: <a href="mailto:${EMAIL}">${EMAIL}</a>.`],
+      },
+      {
+        h: 'Upiti za booking',
+        p: [
+          'Kad pošalješ formular za booking, tvoje ime, mesto, email, poruka i set za koji pitaš (strana, deo večeri, žanrovi) stižu DJ Zippyju na email, preko servisa Web3Forms koji sajt koristi za formulare.',
+          'Formular dodaje i kako si našao sajt, na primer „instagram / social” i prvu stranu koju si otvorio, da bi odgovor imao smisla. To se koristi samo da se odgovori i dogovori nastup, i čuva se dok god je ta prepiska potrebna.',
+        ],
+      },
+      {
+        h: 'Kolačići',
+        p: [
+          'Neophodni podaci pamte samo tvoj izbor za kolačiće. Analitički i marketinški kolačići su isključeni dok ih ne dozvoliš, a izbor možeš da promeniš kad god hoćeš, dugmetom na ovoj strani ili linkom „Podešavanja kolačića” na dnu svake strane.',
+        ],
+      },
+      {
+        h: 'Analitika i oglasi',
+        p: [
+          'Uz tvoju saglasnost, Google Analytics 4 i Google Ads (preko Google Tag Manager-a) i Meta Pixel mere posete i rezultate oglasa, i omogućavaju da DJ Zippy prikaže predstojeće nastupe ljudima koji su već bili na sajtu.',
+          'Bez saglasnosti Google dobija samo signale bez kolačića koji te ne identifikuju (Google Consent Mode), a Meta Pixel se uopšte ne učitava. Google i Meta mogu da obrađuju podatke u SAD, prema svojim standardnim ugovornim klauzulama.',
+        ],
+      },
+      {
+        h: 'Hosting i bezbednost',
+        p: [
+          'Sajt radi na Cloudflare-u, koji obrađuje tehničke podatke poput IP adrese da bi isporučio strane i zaustavio botove. Linkovi ka Mixcloud-u, YouTube-u, Spotify-ju, Instagramu i drugim platformama otvaraju te platforme, gde važe njihova pravila o privatnosti.',
+        ],
+      },
+      {
+        h: 'Tvoja prava',
+        p: [
+          `Možeš da tražiš uvid, ispravku ili brisanje svojih podataka, da se usprotiviš njihovoj upotrebi ili da povučeš saglasnost, pisanjem na <a href="mailto:${EMAIL}">${EMAIL}</a>. Možeš i da podneseš pritužbu Povereniku za informacije od javnog značaja i zaštitu podataka o ličnosti (<a href="https://www.poverenik.rs" target="_blank" rel="noopener noreferrer">poverenik.rs</a>) ili nadležnom organu u zemlji u kojoj živiš.`,
+        ],
+      },
+    ],
+    tableTitle: 'Šta se čuva na tvom uređaju',
+    cols: ['Naziv', 'Postavlja', 'Svrha', 'Traje'],
+    groups: [
+      { name: 'Neophodni', rows: [
+        ['zippy_consent', 'zippydj.com', 'Tvoj izbor za kolačiće', '6 meseci'],
+        ['__cf_bm', 'Cloudflare', 'Zaštita od botova, samo kad se aktivira', '30 minuta'],
+        ['zippy-preview-muted (session storage)', 'zippydj.com', 'Pamti da li si utišao preslušavanje pesama', 'Dok se tab ne zatvori'],
+      ] },
+      { name: 'Analitika', rows: [
+        ['_ga, _ga_WVP8PY00Q1', 'Google Analytics', 'Broji posete i način korišćenja sajta', 'Do 2 godine'],
+        ['zippy_ft (local storage)', 'zippydj.com', 'Prvi izvor tvoje posete, za upite za booking', '90 dana'],
+      ] },
+      { name: 'Marketing', rows: [
+        ['_gcl_au, _gcl_aw', 'Google Ads', 'Klikovi na oglase i konverzije', '90 dana'],
+        ['_fbp, _fbc', 'Meta', 'Rezultati Meta oglasa i publike posetilaca sajta', '90 dana'],
+      ] },
+    ],
+  },
+} as const;
+
+const c = CONTENT[lang];
+---
+
+<Layout lang={lang} title={c.title} description={c.description} noindex={true}>
+  <section class="isolate relative bg-brand-black pt-28 sm:pt-32 pb-20 sm:pb-24">
+    <div class="container mx-auto px-6 sm:px-8 lg:px-12">
+      <div class="max-w-3xl mx-auto">
+        <nav aria-label={c.crumbLabel} class="mb-6">
+          <ol class="flex items-center space-x-2 text-sm text-gray-400">
+            <li><a href={l('/')} class="inline-block py-2.5 -my-2.5 hover:text-brand-orange transition-colors">{c.crumbHome}</a></li>
+            <li class="text-white" aria-current="page"><span class="ml-2 mr-4 text-gray-400" aria-hidden="true">/</span>{c.crumbHere}</li>
+          </ol>
+        </nav>
+        <p class="eyebrow">{c.kicker}</p>
+        <h1 class="font-display text-4xl sm:text-5xl font-bold leading-tight mb-5">{c.h1a}<span class="text-brand-orange">{c.h1b}</span></h1>
+        <p class="text-gray-300 text-base sm:text-lg leading-relaxed mb-3">{c.lead}</p>
+        <p class="mono-caps text-[0.6875rem] text-gray-400 mb-8">{c.updated}</p>
+        <button type="button" data-consent-open class="btn btn--primary">
+          {c.settings}
+        </button>
+
+        <div class="privacy mt-14 space-y-10">
+          {c.sections.map((s) => (
+            <section>
+              <h2 class="font-display text-xl sm:text-2xl font-bold mb-3">{s.h}</h2>
+              {s.p.map((para) => <p class="text-gray-300 leading-relaxed mb-3" set:html={para} />)}
+            </section>
+          ))}
+
+          <section>
+            <h2 class="font-display text-xl sm:text-2xl font-bold mb-5">{c.tableTitle}</h2>
+            <div class="space-y-6">
+              {c.groups.map((g) => (
+                <div>
+                  <p class="mono-caps text-[0.6875rem] text-brand-orange mb-2">{g.name}</p>
+                  <div class="rounded-2xl border border-white/10 overflow-hidden">
+                    <div class="privacy-row privacy-row--head" aria-hidden="true">
+                      {c.cols.map((col) => <span>{col}</span>)}
+                    </div>
+                    {g.rows.map((r) => (
+                      <dl class="privacy-row">
+                        {r.map((cell, i) => (
+                          <div><dt class="sm:sr-only">{c.cols[i]}</dt><dd class={i === 0 ? 'font-mono text-white' : ''}>{cell}</dd></div>
+                        ))}
+                      </dl>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        </div>
+
+        <p class="mt-14 text-sm text-gray-400">
+          <a href={l('/')} class="hover:text-brand-orange transition-colors">&larr; zippydj.com</a>
+        </p>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .privacy :global(a) { color: #fff; text-decoration: underline; text-decoration-color: rgb(var(--accent-rgb)); text-underline-offset: 3px; }
+  .privacy :global(a:hover) { color: rgb(var(--accent-rgb)); }
+  .privacy-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.35rem;
+    padding: 0.85rem 1rem;
+    margin: 0;
+    font-size: 0.875rem;
+    color: #c8c8c8;
+    border-top: 1px solid rgb(255 255 255 / 0.06);
+  }
+  .privacy-row > div { display: grid; grid-template-columns: 6.5rem 1fr; gap: 0.75rem; }
+  .privacy-row dt { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.625rem; letter-spacing: 0.12em; text-transform: uppercase; color: #777; padding-top: 0.2rem; }
+  .privacy-row dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+  .privacy-row--head { display: none; }
+  @media (min-width: 640px) {
+    .privacy-row { grid-template-columns: 1.3fr 1fr 1.6fr 0.8fr; gap: 1rem; }
+    .privacy-row > div { display: block; }
+    .privacy-row--head {
+      display: grid;
+      border-top: 0;
+      background: rgb(255 255 255 / 0.03);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.625rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #8a8a8a;
+    }
+  }
+</style>
