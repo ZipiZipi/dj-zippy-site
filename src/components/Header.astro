@@ -28,10 +28,12 @@ const l = (path: string) => localize(path, lang);
       <a href={l('/events')} class={`nav-link hover:text-white transition-colors ${activePage === 'events' ? 'text-brand-orange' : ''}`}>{t.nav.events}</a>
       <a href={l('/links')} class={`nav-link hover:text-white transition-colors ${activePage === 'links' ? 'text-brand-orange' : ''}`}>{t.nav.links}</a>
       <a href={`${l('/')}#contact`} data-magnetic class="inline-block text-brand-orange hover:text-white transition-colors">{t.nav.book}</a>
+      <button type="button" class="side-flip" data-side-flip aria-pressed="false" aria-label={`${t.sides.a} · ${t.sides.aLabel}`} title={`${t.sides.a} / ${t.sides.b}`}><span data-face="A" aria-hidden="true">A</span><span data-face="B" aria-hidden="true">B</span></button>
       <LanguageSwitcher lang={lang} />
     </div>
 
     <div class="md:hidden flex items-center gap-3">
+      <button type="button" class="side-flip" data-side-flip aria-pressed="false" aria-label={`${t.sides.a} · ${t.sides.aLabel}`} title={`${t.sides.a} / ${t.sides.b}`}><span data-face="A" aria-hidden="true">A</span><span data-face="B" aria-hidden="true">B</span></button>
       <LanguageSwitcher lang={lang} />
       <button id="mobile-menu-btn" class="text-white focus:outline-none" aria-label={t.nav.openMenu} aria-expanded="false" aria-controls="mobile-menu">
         <i class="fa-solid fa-bars text-xl"></i>

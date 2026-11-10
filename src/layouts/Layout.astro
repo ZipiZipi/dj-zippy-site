@@ -117,6 +117,10 @@ const xDefault = alternates.find((a) => a.lang === 'en')!.href;
 
     <!-- Site animations: scroll-reveal, magnetic buttons -->
     <script>
+      import '../scripts/sides';
+      import '../scripts/rail';
+      import '../scripts/cal-menu';
+
       function setupAnimations() {
         const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 

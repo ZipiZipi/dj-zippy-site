@@ -64,6 +64,29 @@ export function eventSound(e: UIEvent): { name: string; openFormat: boolean; gen
   return { name, openFormat: false, genres };
 }
 
+/**
+ * The two sides of Zippy, named after the sides of a record. A is the open
+ * format night (blue on the site), B is the underground house night (orange).
+ * Nothing is tagged by hand: an event is A exactly when it is flagged open
+ * format, and a mix is A when its genre says so.
+ */
+export type Side = 'A' | 'B';
+
+/**
+ * Parties that are open format by nature. Older gigs were stored before the
+ * open-format flag existed, so their venue or night name decides instead.
+ */
+const OPEN_FORMAT_NIGHTS = /la[zž]ino\s+tele|izuvanje|[sš]uma\s+peva|millenial\s+shuffle/i;
+
+export function eventSide(e: UIEvent): Side {
+  if ((e.genres ?? '').trim() === OPEN_FORMAT) return 'A';
+  return OPEN_FORMAT_NIGHTS.test(`${e.title} ${e.subtitle ?? ''}`) ? 'A' : 'B';
+}
+
+export function mixSide(m: UIMix): Side {
+  return /open[\s_-]?format/i.test(m.genre) ? 'A' : 'B';
+}
+
 function minutesOfDay(hhmm: string): number {
   const [h, m] = hhmm.split(':');
   return (parseInt(h, 10) || 0) * 60 + (parseInt(m, 10) || 0);

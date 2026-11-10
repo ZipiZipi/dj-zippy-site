@@ -5,7 +5,8 @@ export default {
     extend: {
       colors: {
         brand: {
-          orange: '#FF5500',
+          // the accent: orange on the B side, blue once the A side is picked (see global.css)
+          orange: 'rgb(var(--accent-rgb) / <alpha-value>)',
           black: '#000000',
           dark: '#111111',
           gray: '#1f1f1f',

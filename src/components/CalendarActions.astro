@@ -1,0 +1,49 @@
+---
+// Two calendar controls for one gig:
+//   "Check my calendar" opens the visitor's own Google Calendar on that day,
+//   "Save the date" offers Google Calendar, an .ics file and the feed of all dates.
+// `compact` drops the labels to icons, for use inside a list row.
+import type { UIEvent } from '../lib/content';
+import { googleDayUrl, googleSaveUrl, icsPath, ICS_FEED_PATH } from '../lib/calendar';
+import { useTranslations, localize, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+  event: UIEvent;
+  compact?: boolean;
+  class?: string;
+}
+
+const { lang, event, compact = false, class: className = '' } = Astro.props as Props;
+const t = useTranslations(lang);
+const pageUrl = `https://zippydj.com${localize('/events', lang)}`;
+const host = (Astro.site ?? Astro.url).host;
+const what = `${event.title}, ${event.date.split('-').reverse().join('.')}`;
+---
+
+<div class={`cal-actions flex items-center gap-2 ${compact ? 'cal-actions--compact' : ''} ${className}`}>
+  <a class="cal-btn" href={googleDayUrl(event)} target="_blank" rel="noopener noreferrer" aria-label={`${t.deck.checkCalendar}: ${what}`} title={compact ? t.deck.checkCalendar : undefined}>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /><circle cx="11.5" cy="15.5" r="2.3" /><path d="m15 19-1.8-1.8" /></svg>
+    <span>{t.deck.checkCalendar}</span>
+  </a>
+  <details class="cal-save">
+    <summary class="cal-btn" aria-label={`${t.deck.saveDate}: ${what}`} title={compact ? t.deck.saveDate : undefined}>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18M12 13v6M9 16h6" /></svg>
+      <span>{t.deck.saveDate}</span>
+    </summary>
+    <div class="cal-menu">
+      <a href={googleSaveUrl(event, pageUrl)} target="_blank" rel="noopener noreferrer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18M12 13v6M9 16h6" /></svg>
+        {t.deck.calGoogle}
+      </a>
+      <a href={icsPath(event)} download={`dj-zippy-${event.slug}.ics`} data-astro-reload>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14" /></svg>
+        {t.deck.calIcs}
+      </a>
+      <a class="cal-menu__all" href={`webcal://${host}${ICS_FEED_PATH}`}>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16" /><circle cx="5" cy="19" r="1" /></svg>
+        {t.deck.calSubscribe}
+      </a>
+    </div>
+  </details>
+</div>

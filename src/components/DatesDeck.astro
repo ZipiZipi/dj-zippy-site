@@ -1,0 +1,245 @@
+---
+// The dates deck: upcoming gigs shown the way a deck shows a track. A display
+// with a countdown, a waveform timeline with one numbered cue per gig, a track
+// preview strip and a pad per gig. Behaviour is in src/scripts/deck.ts.
+//
+// Everything a visitor needs is in the markup (each pad carries the gig's name,
+// date, place and side), so the list still reads without JS.
+import { eventSound, eventSide, type UIEvent } from '../lib/content';
+import { eventTimes } from '../lib/calendar';
+import { previewsFor, PREVIEW_SECONDS } from '../lib/previews';
+import CalendarActions from './CalendarActions.astro';
+import { useTranslations, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+  /** Upcoming gigs, soonest first. One cue each, so keep it to a handful. */
+  events: UIEvent[];
+}
+
+const { lang, events } = Astro.props as Props;
+const t = useTranslations(lang);
+
+const gigs = events.map((e, i) => {
+  const [y, mo, d] = e.date.split('-');
+  const sound = eventSound(e);
+  const side = eventSide(e);
+  const weekday = t.home.weekdays[new Date(Date.UTC(+y, +mo - 1, +d)).getUTCDay()];
+  const from = (e.time ?? '').split(' - ')[0].trim();
+  const sideShort = side === 'A' ? t.sides.a : t.sides.b;
+  return {
+    event: e,
+    n: i + 1,
+    side,
+    sideShort,
+    sideText: `${sideShort} · ${side === 'A' ? t.sides.aLabel : t.sides.bLabel}`,
+    title: e.title,
+    name: sound.name,
+    location: e.location,
+    short: `${d}.${mo}`,
+    meta: [`${weekday} ${d}.${mo}`, from, e.location].filter(Boolean).join(' · '),
+    sound: sound.openFormat ? t.sides.aLabel : sound.genres.join(' · '),
+    ...eventTimes(e),
+    tracks: previewsFor(e).map((tr) => ({
+      title: tr.title, artist: tr.artist, src: tr.src, start: tr.start ?? 0, length: tr.length ?? PREVIEW_SECONDS,
+    })),
+  };
+});
+const first = gigs[0];
+
+// The preview strip stays off the live site until there is something to play;
+// in local dev it is always there so the empty state can be seen.
+const showPreview = import.meta.env.DEV || gigs.some((g) => g.tracks.length > 0);
+
+const clientGigs = gigs.map(({ event, location, short, ...rest }) => rest);
+const strings = {
+  cue: t.deck.cue, onNow: t.deck.onNow, played: t.deck.played, today: t.deck.today,
+  preview: t.deck.preview, previewEmpty: t.deck.previewEmpty, soundOn: t.deck.soundOn, soundOff: t.deck.soundOff,
+};
+---
+
+<style is:global>
+  /* --side comes from data-side on the deck, which follows the selected gig */
+  .deck {
+    position: relative;
+    padding: 1.25rem;
+    border-radius: 1.5rem;
+    border: 1px solid rgba(255,255,255,0.09);
+    background: linear-gradient(180deg, #141414, #0b0b0b);
+    box-shadow: 0 40px 70px -40px rgba(0,0,0,0.95), inset 0 1px 0 rgba(255,255,255,0.06);
+  }
+  /* a wash of the selected gig's colour from the top left, like a lit display */
+  .deck::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: radial-gradient(ellipse 70% 55% at 12% 0%, var(--side), transparent 70%);
+    opacity: 0.1;
+  }
+  .deck > * { position: relative; }
+  @media (min-width: 640px) { .deck { padding: 1.75rem; } }
+
+  .deck__top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; font-size: 0.6875rem; }
+  .deck__cue { color: rgba(255,255,255,0.65); }
+  .deck__led {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    margin-right: 0.5rem;
+    border-radius: 50%;
+    background: var(--side);
+    box-shadow: 0 0 8px 1px var(--side);
+    vertical-align: 1px;
+    animation: deck-blink 0.484s steps(1) infinite alternate;   /* one beat at 124 BPM */
+  }
+  @keyframes deck-blink { 50% { opacity: 0.25; } }
+  .deck__count { color: var(--side); font-size: 0.8125rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+  .deck__main { display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem; }
+  @media (min-width: 768px) { .deck__main { flex-direction: row; align-items: flex-end; justify-content: space-between; } }
+  .deck__title { font-size: 1.5rem; line-height: 1.15; }
+  @media (min-width: 640px) { .deck__title { font-size: 2rem; } }
+  .deck__name { font-family: inherit; font-weight: 400; font-size: 0.6em; color: rgba(255,255,255,0.7); }
+
+  /* Waveform timeline. Cue markers sit in the strip above the bars. */
+  .deck__wave {
+    position: relative;
+    height: 5.75rem;
+    margin: 1.5rem 0 2rem;
+    padding-top: 1.75rem;
+    cursor: ew-resize;
+    touch-action: pan-y;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .deck__bars { display: flex; align-items: center; gap: 2px; height: 100%; }
+  .deck__bars i { flex: 1; min-width: 1px; height: var(--h, 30%); border-radius: 2px; background: rgba(255,255,255,0.14); transition: background-color 0.25s; }
+  .deck__bars i.on { background: var(--side); }
+  .deck__wave.is-scrubbing .deck__bars i { transition: none; }
+  .deck__mark { position: absolute; top: 0; z-index: 2; transform: translateX(-50%); transition: opacity 0.2s; }
+  .deck__mark::after { content: ''; position: absolute; left: 50%; top: 1.375rem; width: 1px; height: 4.375rem; background: var(--side); opacity: 0.6; }
+  .deck__mark .side-key { position: relative; z-index: 1; transition: transform 0.2s; }
+  .deck__mark:hover .side-key, .deck__mark[aria-current="true"] .side-key { transform: scale(1.18); }
+  .deck__mark[aria-current="true"] .side-key { box-shadow: 0 0 0 2px #0b0b0b, 0 0 0 4px var(--side); }
+  .deck__mark:focus-visible { outline: none; }
+  .deck__mark:focus-visible .side-key { outline: 2px solid #fff; outline-offset: 2px; }
+  .deck__mark.is-off { opacity: 0.22; pointer-events: none; }
+  .deck__ph { position: absolute; top: 1.5rem; bottom: -0.25rem; left: 0; z-index: 3; width: 2px; margin-left: -1px; border-radius: 2px; background: #fff; outline: none; }
+  .deck__ph::after { content: ''; position: absolute; left: 50%; bottom: -5px; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%; background: #fff; }
+  .deck__ph:focus-visible::after { box-shadow: 0 0 0 3px #0b0b0b, 0 0 0 5px #fff; }
+  .deck__ph span { position: absolute; top: calc(100% + 0.6rem); left: 50%; transform: translateX(-50%); font-size: 0.6875rem; color: #fff; white-space: nowrap; }
+  .deck__ph[data-edge="start"] span { left: -4px; transform: none; }
+  .deck__ph[data-edge="end"] span { left: auto; right: -4px; transform: none; }
+
+  .deck__preview { display: flex; align-items: center; gap: 0.875rem; padding: 0.75rem 1rem; border-radius: 1rem; border: 1px solid rgba(255,255,255,0.09); background: rgba(255,255,255,0.03); }
+  .deck__eq { display: flex; align-items: flex-end; gap: 3px; height: 1.25rem; flex-shrink: 0; }
+  .deck__eq i { width: 4px; height: 100%; border-radius: 2px; background: var(--side); transform-origin: bottom; transform: scaleY(0.25); }
+  .deck__preview.is-playing .deck__eq i { animation: deck-eq 0.484s ease-in-out infinite alternate; }
+  .deck__preview.is-playing .deck__eq i:nth-child(2) { animation-delay: -0.2s; }
+  .deck__preview.is-playing .deck__eq i:nth-child(3) { animation-delay: -0.35s; }
+  @keyframes deck-eq { from { transform: scaleY(0.25); } to { transform: scaleY(1); } }
+  .deck__preview.is-empty .deck__eq i { background: rgba(255,255,255,0.25); }
+  .deck__pvbar { height: 3px; margin-top: 0.5rem; border-radius: 3px; background: rgba(255,255,255,0.1); overflow: hidden; }
+  .deck__pvbar i { display: block; width: 0; height: 100%; border-radius: 3px; background: var(--side); }
+  .deck__mute svg { width: 1rem; height: 1rem; }
+  .deck__mute .is-on { display: block; }
+  .deck__mute .is-muted { display: none; }
+  .deck__mute[aria-pressed="true"] .is-on { display: none; }
+  .deck__mute[aria-pressed="true"] .is-muted { display: block; }
+  .deck__mute[aria-pressed="true"] { color: rgba(255,255,255,0.55); }
+
+  .deck__pads { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.625rem; margin-top: 0.875rem; }
+  @media (min-width: 768px) { .deck__pads { grid-template-columns: repeat(var(--pads, 4), minmax(0, 1fr)); } }
+  .deck__pad {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    padding: 0.8rem;
+    border-radius: 1rem;
+    border: 1px solid rgba(255,255,255,0.09);
+    background: rgba(255,255,255,0.035);
+    text-align: left;
+    transition: border-color 0.2s, background-color 0.2s, opacity 0.2s;
+  }
+  .deck__pad:hover { border-color: rgba(255,255,255,0.28); background: rgba(255,255,255,0.06); }
+  .deck__pad[aria-pressed="true"] { border-color: var(--side); background: rgba(255,255,255,0.07); }
+  .deck__pad:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+  .deck__pad.is-off { opacity: 0.3; cursor: default; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .deck__led, .deck__preview.is-playing .deck__eq i { animation: none; }
+    .deck__bars i, .deck__mark .side-key { transition: none; }
+  }
+</style>
+
+<div class="deck" id="deck" data-side={first.side} data-lang={lang} data-gigs={JSON.stringify(clientGigs)} data-strings={JSON.stringify(strings)}>
+  <div class="deck__top mono-caps">
+    <span class="deck__cue"><span class="deck__led" aria-hidden="true"></span><span data-deck="cue">{t.deck.cue} {first.n} · {first.sideText}</span></span>
+    <span class="deck__count" data-deck="count" role="timer" aria-live="off"></span>
+  </div>
+
+  <div class="deck__main">
+    <div class="min-w-0">
+      <h3 class="deck__title font-display font-bold"><span data-deck="title">{first.title}</span><span class="deck__name" data-deck="name">{first.name ? ` — ${first.name}` : ''}</span></h3>
+      <p class="mt-2 text-sm sm:text-base text-white" data-deck="meta">{first.meta}</p>
+      <p class="mt-1 text-sm text-gray-400" data-deck="sound">{first.sound}</p>
+    </div>
+    {gigs.map((g, i) => (
+      <div data-deck-cal={i} data-side={g.side} hidden={i !== 0}>
+        <CalendarActions lang={lang} event={g.event} class="flex-wrap" />
+      </div>
+    ))}
+  </div>
+
+  <div class="deck__wave" data-deck="wave">
+    <div class="deck__bars" data-deck="bars" aria-hidden="true"></div>
+    {gigs.map((g, i) => (
+      <button type="button" class="deck__mark" data-deck-mark={i} data-side={g.side} style={`left:${((i + 1) / (gigs.length + 1)) * 100}%`}
+        aria-label={t.deck.cueLabel.replace('{n}', String(g.n)).replace('{title}', g.title).replace('{date}', g.short)}>
+        <span class="side-key">{g.n}</span>
+      </button>
+    ))}
+    <div class="deck__ph" data-deck="ph" role="slider" tabindex="0" aria-label={t.deck.scrub} aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+      <span class="mono-caps" data-deck="phlabel">{t.deck.today}</span>
+    </div>
+  </div>
+
+  {showPreview && (
+    <div class="deck__preview is-empty" data-deck="preview">
+      <div class="deck__eq" aria-hidden="true"><i></i><i></i><i></i></div>
+      <div class="flex-1 min-w-0">
+        <div class="mono-caps text-[0.6875rem] text-gray-400" data-deck="pvlabel">{t.deck.preview} · {first.sideShort}</div>
+        <div class="mt-0.5 text-[0.8125rem] text-white truncate" data-deck="pvtrack">{t.deck.previewEmpty}</div>
+        <div class="deck__pvbar"><i data-deck="pvfill"></i></div>
+      </div>
+      <button type="button" class="deck__mute cal-btn" data-deck="mute" aria-pressed="false">
+        <svg class="is-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z" /><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9.5 9.5 0 0 1 0 13" /></svg>
+        <svg class="is-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z" /><path d="m22 9-6 6M16 9l6 6" /></svg>
+        <span class="hidden sm:inline" data-deck="mutetext">{t.deck.soundOn}</span>
+      </button>
+    </div>
+  )}
+
+  <ol class="deck__pads" style={`--pads:${Math.min(4, gigs.length)}`}>
+    {gigs.map((g, i) => (
+      <li>
+        <button type="button" class="deck__pad" data-deck-pad={i} data-side={g.side} aria-pressed={i === 0 ? 'true' : 'false'}>
+          <span class="flex items-center justify-between gap-2">
+            <span class="side-key">{g.n}</span>
+            <span class="mono-caps text-[0.6875rem] text-gray-400">{g.short}</span>
+          </span>
+          <span class="mt-2.5 text-sm font-semibold text-white leading-snug">{g.title}</span>
+          <span class="text-xs text-gray-400">{g.location}</span>
+          <span class="mono-caps mt-1.5 text-[0.6875rem]" style="color:var(--side)">{g.sideText}</span>
+        </button>
+      </li>
+    ))}
+  </ol>
+</div>
+
+<script>
+  import '../scripts/deck';
+</script>

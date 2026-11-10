@@ -15,7 +15,7 @@
 @layer components {
   /* Open format flag on upcoming gigs: blue so it never reads as a house night, but quiet */
   .open-chip {
-    @apply inline-flex items-center whitespace-nowrap rounded-full bg-sky-400/10 px-2 py-px text-xs font-medium text-sky-300 ring-1 ring-inset ring-sky-400/25;
+    @apply inline-flex items-center whitespace-nowrap rounded-full bg-sky-400/10 px-2 py-px text-xs font-medium text-sky-400 ring-1 ring-inset ring-sky-400/25;
   }
 
   /* Frosted glass card */
@@ -37,7 +37,7 @@
     height: 2px;
     bottom: -4px;
     left: 0;
-    background-color: #FF5500;
+    background-color: rgb(var(--accent-rgb));
     transition: width 0.3s;
   }
 
@@ -85,7 +85,7 @@ html.anim-ready [data-reveal]:not(.in-view) {
 .tape--main {
   z-index: 2;
   transform: rotate(-1.5deg);
-  background: #FF5500;
+  background: rgb(var(--accent-rgb));
   color: #050505;
   box-shadow: 0 10px 30px rgba(0,0,0,0.45);
 }
@@ -113,7 +113,7 @@ html.anim-ready [data-reveal]:not(.in-view) {
   /* Slanted right edge, so the label reads as a cut into the tape, not a box laid on it */
   clip-path: polygon(0 0, 100% 0, calc(100% - 14px) 100%, 0 100%);
   /* Orange edges keep it part of the tape instead of merging with the black strip below */
-  box-shadow: inset 0 2px 0 #FF5500, inset 0 -2px 0 #FF5500;
+  box-shadow: inset 0 2px 0 rgb(var(--accent-rgb)), inset 0 -2px 0 rgb(var(--accent-rgb));
   position: relative;
   z-index: 1;
 }
@@ -128,7 +128,7 @@ html.anim-ready [data-reveal]:not(.in-view) {
   width: 0.5em;
   height: 0.5em;
   border-radius: 50%;
-  background: #FF5500;
+  background: rgb(var(--accent-rgb));
 }
 .tape__viewport { flex: 1; min-width: 0; overflow: hidden; }
 .tape__track {
@@ -144,7 +144,7 @@ html.anim-ready [data-reveal]:not(.in-view) {
 .tape__list li::after { content: '\2726'; margin: 0 0.9em; font-size: 0.7em; opacity: 0.55; }
 .tape--main .tape__list li { padding: 0.55rem 0; font-size: 1.05rem; font-weight: 900; letter-spacing: 0.02em; }
 .tape--sub .tape__list li { padding: 0.5rem 0; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.22em; }
-.tape--sub .tape__list li::after { color: #FF5500; opacity: 1; }
+.tape--sub .tape__list li::after { color: rgb(var(--accent-rgb)); opacity: 1; }
 @media (min-width: 640px) {
   .tapes { padding: 44px 0 52px; }
   .tape--sub { margin-top: -14px; }
@@ -164,7 +164,7 @@ html.anim-ready [data-reveal]:not(.in-view) {
 /* Aurora — slow "breathing" glow behind the hero */
 .aurora {
   background:
-    radial-gradient(40% 50% at 30% 35%, rgba(255,85,0,0.22), transparent 70%),
+    radial-gradient(40% 50% at 30% 35%, rgb(var(--accent-rgb)/0.22), transparent 70%),
     radial-gradient(45% 55% at 72% 60%, rgba(255,120,40,0.14), transparent 70%),
     radial-gradient(35% 45% at 50% 80%, rgba(0,229,255,0.06), transparent 70%);
   filter: blur(60px);
@@ -190,3 +190,333 @@ html.anim-ready [data-reveal]:not(.in-view) {
   .aurora { animation: none; }
   [data-magnetic] { transition: none; }
 }
+
+/* === Sides ===
+   A = open format (blue), B = underground (orange). Anything inside an element
+   carrying data-side picks its colour up through --side, and keeps that colour
+   whichever side is picked.
+
+   The accent is a separate thing: it is the colour of everything that is not
+   about one side in particular (headings, links, buttons, rules). It is orange
+   until the A side is picked, then the two colours trade places: blue becomes
+   the accent and orange is left as the highlight. Backgrounds never change.
+   Tailwind's brand-orange and every accent in this file read --accent-rgb. */
+:root {
+  --side-a: #38bdf8;
+  --side-a-rgb: 56 189 248;
+  --side-b: #FF5500;
+  --side-b-rgb: 255 85 0;
+  --accent-rgb: var(--side-b-rgb);
+  --alt-rgb: var(--side-a-rgb);   /* the other colour, for small highlights */
+}
+html[data-side-pick="A"] {
+  --accent-rgb: var(--side-a-rgb);
+  --alt-rgb: var(--side-b-rgb);
+}
+[data-side="A"] { --side: var(--side-a); }
+[data-side="B"] { --side: var(--side-b); }
+
+.mono-caps {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* The small square that names a side (A / B) or a cue (1–8) */
+.side-key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1.375rem;
+  height: 1.375rem;
+  border-radius: 0.45rem;
+  background: var(--side, rgb(var(--accent-rgb)));
+  color: #050505;
+  font-family: 'Unbounded', sans-serif;
+  font-size: 0.6875rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+/* Both / A side / B side switch (src/scripts/sides.ts) */
+.side-seg {
+  display: inline-flex;
+  padding: 4px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.04);
+}
+.side-seg button {
+  padding: 0.4rem 0.95rem;
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.62);
+  transition: color 0.2s, background-color 0.2s;
+}
+.side-seg button:hover { color: #fff; }
+.side-seg button[aria-pressed="true"] { background: #fff; color: #050505; }
+.side-seg button[data-side-value="A"][aria-pressed="true"] { background: var(--side-a); }
+.side-seg button[data-side-value="B"][aria-pressed="true"] { background: var(--side-b); }
+.side-seg button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+html[data-side-pick="A"] [data-side-item="B"],
+html[data-side-pick="B"] [data-side-item="A"] { display: none !important; }
+
+/* === Drag rail (src/scripts/rail.ts) ===
+   Without JS the viewport is a plain sideways-scrolling box. */
+.rail__viewport { overflow-x: auto; scrollbar-width: none; padding-block: 2px; }
+.rail__viewport::-webkit-scrollbar { display: none; }
+.rail--js .rail__viewport {
+  overflow: hidden;
+  touch-action: pan-y;   /* sideways drags move the rail, vertical swipes still scroll the page */
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.rail--js.is-dragging .rail__viewport { cursor: grabbing; }
+.rail--js.is-dragging .rail__track > * { pointer-events: none; }
+.rail__track { position: relative; display: flex; gap: 1rem; }
+.rail--js .rail__track { will-change: transform; }
+.rail__nav {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.18);
+  color: #fff;
+  transition: color 0.3s, border-color 0.3s, opacity 0.3s;
+}
+/* on phones the row is swiped, and the arrows would push the tabs onto two lines */
+@media (max-width: 639px) { .rail .rail__nav { display: none; } }
+.rail__nav:hover:not(:disabled) { color: rgb(var(--accent-rgb)); border-color: rgb(var(--accent-rgb)); }
+.rail__nav:disabled { opacity: 0.3; cursor: default; }
+.rail__nav:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+.rail__bar { position: relative; height: 3px; margin-top: 1.25rem; border-radius: 3px; background: rgba(255,255,255,0.1); }
+.rail__bar > * { position: absolute; top: 0; left: 0; height: 100%; border-radius: 3px; background: rgb(var(--accent-rgb)); }
+.rail:not(.rail--js) .rail__nav,
+.rail:not(.rail--js) .rail__bar,
+.rail[data-rail-fits] .rail__nav,
+.rail[data-rail-fits] .rail__bar { display: none; }
+
+/* === Calendar buttons (CalendarActions.astro) === */
+.cal-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.18);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: #fff;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+.cal-btn:hover, .cal-save[open] > .cal-btn { color: var(--side, rgb(var(--accent-rgb))); border-color: var(--side, rgb(var(--accent-rgb))); }
+.cal-btn:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+.cal-btn svg, .cal-menu svg { width: 1rem; height: 1rem; flex-shrink: 0; }
+.cal-actions--compact .cal-btn { padding: 0.55rem; }
+.cal-actions--compact .cal-btn span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
+.cal-save { position: relative; }
+.cal-save > summary { list-style: none; }
+.cal-save > summary::-webkit-details-marker { display: none; }
+.cal-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.5rem);
+  z-index: 40;
+  min-width: 15.5rem;
+  padding: 0.375rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: #141414;
+  box-shadow: 0 24px 48px -12px rgba(0,0,0,0.85);
+}
+.cal-menu a {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: 0.7rem;
+  font-size: 0.875rem;
+  color: #fff;
+}
+.cal-menu a:hover, .cal-menu a:focus-visible { background: rgba(255,255,255,0.07); outline: none; }
+.cal-menu a + a.cal-menu__all { margin-top: 0.25rem; border-top: 1px solid rgba(255,255,255,0.08); border-radius: 0 0 0.7rem 0.7rem; }
+.cal-menu svg { color: var(--side, rgb(var(--accent-rgb))); }
+
+/* === /events === */
+.upcoming-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(255,255,255,0.09);
+  background: rgba(255,255,255,0.035);
+  transition: border-color 0.2s, background-color 0.2s;
+}
+.upcoming-row:hover { border-color: var(--side); background: rgba(255,255,255,0.055); }
+@media (min-width: 640px) { .upcoming-row { gap: 1.5rem; padding: 1.1rem 1.25rem; } }
+
+/* Archive: one panel per year */
+.year-panel {
+  display: grid;
+  gap: 1.25rem;
+  padding: 1.25rem;
+  border-radius: 1.5rem;
+  border: 1px solid rgba(255,255,255,0.09);
+  background: linear-gradient(180deg, #131313, #0c0c0c);
+}
+.year-panel__head { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; }
+.year-split { display: flex; gap: 3px; width: 9rem; height: 6px; }
+.year-split i { min-width: 6px; border-radius: 6px; }
+@media (min-width: 768px) {
+  .year-panel { grid-template-columns: 12.5rem minmax(0, 1fr); gap: 2rem; padding: 1.75rem; }
+  .year-panel__head { display: block; }
+  .year-split { width: auto; max-width: 10.5rem; margin-top: 1rem; }
+}
+.past-row {
+  display: grid;
+  grid-template-columns: 1.375rem 3.25rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 0.9rem;
+  border: 1px solid transparent;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+.past-row:hover { background: rgba(255,255,255,0.05); }
+.past-row--hi { margin-bottom: 0.375rem; padding: 0.9rem 0.75rem; border-color: rgba(255,255,255,0.09); background: rgba(255,255,255,0.035); }
+.past-row--hi:hover { border-color: var(--side); background: rgba(255,255,255,0.035); }
+.year-more > summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.5rem 0 0 0.75rem;
+  padding: 0.25rem 0;
+  list-style: none;
+  cursor: pointer;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.65);
+  transition: color 0.2s;
+}
+.year-more > summary::-webkit-details-marker { display: none; }
+[data-side-none] > .year-more { display: none; }
+/* a year with nothing on the picked side drops out of the archive */
+.year-panel:has([data-side-none]) { display: none; }
+.year-more > summary:hover { color: rgb(var(--accent-rgb)); }
+.year-more__chevron { font-size: 0.625rem; transition: transform 0.2s; }
+.year-more[open] .year-more__chevron { transform: rotate(90deg); }
+.year-more[open] > summary { margin-bottom: 0.25rem; }
+
+/* === /mixes ===
+   A card is the cover and nothing else. The details come up over it on hover
+   or keyboard focus; on touch screens, where there is no hover, they sit along
+   the bottom edge all the time. */
+.mix-card {
+  position: relative;
+  display: block;
+  flex: 0 0 auto;
+  overflow: hidden;
+  border-radius: 0.9rem;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: #000;
+  transition: border-color 0.3s;
+}
+.mix-card.hidden { display: none; }   /* the platform tabs hide cards with Tailwind's .hidden */
+.mix-card--wide { width: 84%; aspect-ratio: 16 / 9; }
+.mix-card--square { width: 66%; aspect-ratio: 1; }
+@media (min-width: 640px) {
+  .mix-card--wide { width: calc((100% - 1rem) / 2.2); }
+  .mix-card--square { width: calc((100% - 2rem) / 3.2); }
+}
+@media (min-width: 1024px) {
+  .mix-card--wide { width: calc((100% - 3rem) / 3.25); }
+  .mix-card--square { width: calc((100% - 4rem) / 4.25); }
+}
+.mix-card:hover, .mix-card:focus-visible { border-color: var(--side, rgb(var(--accent-rgb))); outline: none; }
+.mix-card__art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1); }
+.mix-card:hover .mix-card__art { transform: scale(1.05); }
+.mix-card__info {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: rgba(5,5,5,0.86);
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+.mix-card:hover .mix-card__info, .mix-card:focus-visible .mix-card__info { opacity: 1; }
+.mix-card__genre { display: flex; align-items: center; gap: 0.5rem; font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--side, rgb(var(--accent-rgb))); }
+.mix-card__title { font-family: 'Unbounded', sans-serif; font-size: 0.875rem; font-weight: 700; line-height: 1.35; color: #fff; }
+.mix-card__listen { display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 0.625rem; font-size: 0.8125rem; font-weight: 700; color: var(--side, rgb(var(--accent-rgb))); }
+.mix-card__badge { position: absolute; top: 0.625rem; right: 0.625rem; z-index: 1; padding: 0.2rem 0.5rem; border-radius: 0.4rem; background: rgb(var(--accent-rgb)); color: #050505; font-size: 0.625rem; font-weight: 800; letter-spacing: 0.04em; transition: opacity 0.25s; }
+.mix-card:hover .mix-card__badge { opacity: 0; }
+/* No cover image: nothing to keep clean, so the details show all the time */
+.mix-card--bare .mix-card__info { opacity: 1; background: none; }
+@media (hover: none) {
+  .mix-card__info {
+    opacity: 1;
+    justify-content: flex-end;
+    background: linear-gradient(to top, rgba(5,5,5,0.94) 0%, rgba(5,5,5,0.6) 42%, rgba(5,5,5,0) 72%);
+  }
+  .mix-card__listen { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mix-card__art, .mix-card__info { transition: none; }
+  .mix-card:hover .mix-card__art { transform: none; }
+}
+
+/* Booking form: which side of Zippy the request is for */
+.side-radio span {
+  display: inline-flex;
+  padding: 0.4rem 0.95rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.15);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.7);
+  cursor: pointer;
+  transition: color 0.2s, background-color 0.2s, border-color 0.2s;
+}
+.side-radio span:hover { border-color: var(--side, #fff); color: #fff; }
+.side-radio input:checked + span { background: var(--side, #fff); border-color: var(--side, #fff); color: #050505; }
+.side-radio input:focus-visible + span { outline: 2px solid #fff; outline-offset: 2px; }
+
+/* A / B flip in the header: one press turns the whole site to the other side */
+.side-flip {
+  display: inline-flex;
+  flex-shrink: 0;
+  padding: 3px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.04);
+  font-family: 'Unbounded', sans-serif;
+  font-size: 0.6875rem;
+  font-weight: 800;
+  line-height: 1;
+}
+.side-flip span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 999px;
+  color: rgba(255,255,255,0.5);
+  transition: color 0.2s, background-color 0.2s;
+}
+.side-flip:hover span { color: #fff; }
+.side-flip[aria-pressed="false"] span[data-face="B"] { background: var(--side-b); color: #050505; }
+.side-flip[aria-pressed="true"] span[data-face="A"] { background: var(--side-a); color: #050505; }
+.side-flip:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }

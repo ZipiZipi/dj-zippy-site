@@ -2,7 +2,9 @@
 // Home page body. Rendered by /index.astro (en) and /sr/index.astro (sr) —
 // the only difference between them is the `lang` prop.
 import Layout from '../../layouts/Layout.astro';
-import { getEvents, getMixes, MIX_PLATFORMS, youtubeThumb, eventSound, type UIMix } from '../../lib/content';
+import DatesDeck from '../DatesDeck.astro';
+import SideFilter from '../SideFilter.astro';
+import { getEvents, getMixes, MIX_PLATFORMS, youtubeThumb, eventSound, eventSide, type UIMix } from '../../lib/content';
 import { useTranslations, localize, htmlLang, type Lang } from '../../i18n/utils';
 
 interface Props {
@@ -62,12 +64,13 @@ const heroLine = nextGig
         when: `${t.home.weekdays[new Date(Date.UTC(+y, +mo - 1, +d)).getUTCDay()]} ${d}.${mo}`,
         name: sound.name,
         openFormat: sound.openFormat,
+        side: eventSide(nextGig),
         where: `${nextGig.title}, ${nextGig.location}`,
         href: l('/events'),
         external: false,
       };
     })()
-  : sets[0] && { label: t.home.heroLatest, when: '', name: sets[0].title, openFormat: false, where: '', href: sets[0].link, external: true };
+  : sets[0] && { label: t.home.heroLatest, when: '', name: sets[0].title, openFormat: false, side: null, where: '', href: sets[0].link, external: true };
 
 const pageUrl = `https://zippydj.com${l('/')}`;
 
@@ -176,11 +179,9 @@ const homeSchema = {
   <style is:global>
     /* Hero scene: a dark booth, a warm key light from the decks below the ring and a
        cool rim light in the top right corner, under a fine film grain. */
-    .hero-light {
-      background:
-        radial-gradient(ellipse 58% 40% at 50% 74%, rgba(255,85,0,0.42), rgba(255,85,0,0.12) 45%, transparent 72%),
-        radial-gradient(ellipse 38% 30% at 92% 3%, rgba(56,189,248,0.18), transparent 70%);
-    }
+    .hero-light__key, .hero-light__rim { position: absolute; inset: 0; transition: filter 0.75s; }
+    .hero-light__key { background: radial-gradient(ellipse 58% 40% at 50% 74%, rgba(255,85,0,0.42), rgba(255,85,0,0.12) 45%, transparent 72%); }
+    .hero-light__rim { background: radial-gradient(ellipse 38% 30% at 92% 3%, rgba(56,189,248,0.18), transparent 70%); }
     .hero-light::after {
       content: '';
       position: absolute;
@@ -262,7 +263,7 @@ const homeSchema = {
       position: absolute;
       inset: 31%;
       border-radius: 50%;
-      background-color: #FF5500;
+      background-color: rgb(var(--accent-rgb));
       background-size: cover;
       background-position: center;
     }
@@ -283,7 +284,7 @@ const homeSchema = {
       z-index: 2;
       overflow: hidden;
       border-radius: 3px;
-      background-color: #FF5500;
+      background-color: rgb(var(--accent-rgb));
       background-size: cover;
       background-position: center;
       box-shadow: 0 20px 40px -10px rgba(0,0,0,0.85);
@@ -315,7 +316,7 @@ const homeSchema = {
     }
     .hring-item.active .tape-obj { transform: rotate(-4deg); }
     .tape-label { position: absolute; left: 12px; right: 12px; top: 12px; height: 86px; border-radius: 5px; background: #efe8dc; overflow: hidden; text-align: left; }
-    .tape-strip { position: absolute; left: 0; right: 0; top: 0; height: 20px; padding: 4px 8px; background: #FF5500; color: #050505; font-size: 10px; line-height: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .tape-strip { position: absolute; left: 0; right: 0; top: 0; height: 20px; padding: 4px 8px; background: rgb(var(--accent-rgb)); color: #050505; font-size: 10px; line-height: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .tape-line { position: absolute; left: 9px; right: 28px; bottom: 6px; font-size: 11px; font-weight: 600; color: #2a2a2a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .tape-side { position: absolute; right: 9px; bottom: 5px; font-size: 13px; font-weight: 900; color: #2a2a2a; }
     .tape-window { position: absolute; left: 52px; right: 52px; top: 38px; height: 36px; border-radius: 18px; background: #0b0b0b; display: flex; justify-content: space-between; align-items: center; padding: 0 7px; }
@@ -354,8 +355,8 @@ const homeSchema = {
       width: 7px;
       height: 7px;
       border-radius: 50%;
-      background: #38bdf8;
-      box-shadow: 0 0 8px 2px rgba(56,189,248,0.8);
+      background: rgb(var(--alt-rgb));
+      box-shadow: 0 0 8px 2px rgb(var(--alt-rgb)/0.8);
       animation: hring-blink 0.484s steps(1) infinite alternate;   /* one beat at 124 BPM */
     }
     @keyframes hring-blink { 50% { opacity: 0.25; } }
@@ -367,7 +368,7 @@ const homeSchema = {
     .hring-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace; letter-spacing: 0.08em; text-transform: uppercase; }
     .hring-caption-title { font-size: 15px; font-weight: 700; line-height: 1.3; color: #fff; }
     .hring-caption-platform { margin-top: 4px; font-size: 11px; color: rgba(255,255,255,0.65); }
-    .hring-caption-platform i { color: #FF5500; margin-right: 3px; }
+    .hring-caption-platform i { color: rgb(var(--accent-rgb)); margin-right: 3px; }
     .hring-nav {
       width: 40px;
       height: 40px;
@@ -381,19 +382,19 @@ const homeSchema = {
       transition: color 0.3s, border-color 0.3s;
       cursor: pointer;
     }
-    .hring-nav:hover { color: #FF5500; border-color: #FF5500; }
+    .hring-nav:hover { color: rgb(var(--accent-rgb)); border-color: rgb(var(--accent-rgb)); }
     .hring-nav:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
     .hring-dot { width: 24px; height: 24px; display: grid; place-items: center; padding: 0; border: 0; background: none; cursor: pointer; }
     .hring-dot::before { content: ''; width: 8px; height: 8px; border-radius: 999px; background: rgba(255,255,255,0.28); transition: width 0.3s, background-color 0.3s; }
-    .hring-dot[aria-current="true"]::before { width: 20px; background: #FF5500; }
+    .hring-dot[aria-current="true"]::before { width: 20px; background: rgb(var(--accent-rgb)); }
     .hring-dot:focus-visible { outline: 2px solid #fff; outline-offset: 1px; border-radius: 6px; }
 
     /* The next gig (or the newest set) under the ring; the dot blinks on the beat */
     .hero-next { color: rgba(255,255,255,0.7); font-size: 11px; transition: color 0.3s; }
     .hero-next:hover { color: #fff; }
-    .hero-next b { font-weight: 600; color: #FF5500; }
-    .hero-next b.is-open { color: #7dd3fc; }
-    .hero-next-dot { display: inline-block; width: 6px; height: 6px; margin-right: 8px; border-radius: 50%; background: #FF5500; vertical-align: 1px; animation: hring-blink 0.484s steps(1) infinite alternate; }
+    .hero-next b { font-weight: 600; color: var(--side-b); }
+    .hero-next b.is-open { color: var(--side-a); }
+    .hero-next-dot { display: inline-block; width: 6px; height: 6px; margin-right: 8px; border-radius: 50%; background: rgb(var(--accent-rgb)); vertical-align: 1px; animation: hring-blink 0.484s steps(1) infinite alternate; }
 
     @media (prefers-reduced-motion: reduce) {
       .sv, .sv-slot, .tape-obj, .usb-obj, .hring-dot::before { transition: none; }
@@ -402,13 +403,13 @@ const homeSchema = {
 
     /* Title and spacing never grow past the Tailwind sizes, but give way on short screens */
     @media (min-width: 768px) {
-      h1 .hero-name { font-size: min(4.5rem, 15vh); }
-      h2.hero-sub { font-size: min(2.25rem, 7vh); }
+      .hero-flip .hero-name { font-size: min(4.5rem, 15vh); }
+      .hero-flip .hero-sub { font-size: min(2.25rem, 7vh); }
     }
     @media (min-width: 1024px) {
       section.hero-top { padding-top: clamp(5.5rem, 14vh, 8rem); }
-      h1 .hero-name { font-size: min(8rem, 15vh); }
-      h2.hero-sub { font-size: min(3.75rem, 7vh); }
+      .hero-flip .hero-name { font-size: min(8rem, 15vh); }
+      .hero-flip .hero-sub { font-size: min(3.75rem, 7vh); }
       #highlights.hero-stage { padding-bottom: min(3rem, 5.2vh); }
       #highlights .hero-next { margin-top: min(2rem, 3.5vh); }
     }
@@ -427,25 +428,63 @@ const homeSchema = {
       content: '';
       width: 1.8em;
       height: 2px;
-      background: #FF5500;
+      background: var(--side-b);
+    }
+
+    /* The title is a record with two sides. At rest it shows the B side (House
+       Music Therapy, orange); pointing at it turns it over to the A side (open
+       format, blue), and the booth lights change colour with it. */
+    .hero-flip { display: inline-block; perspective: 1400px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+    .hero-flip__inner { position: relative; transform-style: preserve-3d; transition: transform 0.75s cubic-bezier(0.2, 0.7, 0.2, 1); }
+    .hero-flip.is-a .hero-flip__inner { transform: rotateX(180deg); }
+    .hero-flip.no-turn .hero-flip__inner { transition: none; }
+    .hero-flip__face { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+    .hero-flip__face--a { position: absolute; inset: 0; transform: rotateX(180deg); }
+    .hero-kicker--a::before, .hero-kicker--a::after { background: var(--side-a); }
+    .hero-side-a { color: var(--side-a); }
+    .hero-side-b { color: var(--side-b); }
+    /* Half a turn of the colour wheel swaps the two lights. Each one is turned
+       the way that passes through purple: orange goes backwards to blue, blue
+       goes forwards to orange. Turned the other way they would cross green. */
+    .hero-top.is-a .hero-light__key { filter: hue-rotate(-180deg); }
+    .hero-top.is-a .hero-light__rim { filter: hue-rotate(180deg); }
+    @media (prefers-reduced-motion: reduce) {
+      .hero-flip__inner, .hero-light__key, .hero-light__rim { transition: none; }
     }
   </style>
 
   <!-- overflow-x-clip: the objects at the back of the ring must not widen the page -->
   <section class="isolate relative flex flex-col items-center justify-center overflow-x-clip bg-brand-black pt-28 sm:pt-32 hero-top">
     <div class="hero-light absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+      <div class="hero-light__key"></div>
+      <div class="hero-light__rim"></div>
       <!-- legibility scrim: darker at the top, behind the title -->
       <div class="absolute inset-0" style="background:linear-gradient(to bottom, rgba(5,5,7,0.5) 0%, rgba(5,5,7,0.12) 26%, rgba(5,5,7,0) 46%);"></div>
     </div>
     <div class="container mx-auto px-6 sm:px-8 lg:px-12 text-center z-30">
-      <!-- One H1 that reads "ZIPPY. — Serbian House DJ"; flex-col-reverse lifts
-           the kicker above the name without changing the reading order. -->
-      <h1 class="font-display flex flex-col-reverse items-center mb-0">
-        <span class="hero-name block text-5xl md:text-7xl lg:text-9xl font-black leading-none" style="text-shadow:0 2px 34px rgba(0,0,0,0.55), 0 1px 2px rgba(0,0,0,0.6);">ZIPPY<span class="text-brand-orange">.</span></span>
-        <span class="sr-only"> — </span>
-        <span class="hero-kicker mb-2 sm:mb-3 text-[11px] sm:text-xs md:text-sm font-bold uppercase text-white/90" style="text-shadow:0 1px 10px rgba(0,0,0,0.6);">{t.home.kicker}</span>
-      </h1>
-      <h2 class="hero-sub font-display text-2xl md:text-4xl lg:text-6xl font-black mb-0 text-brand-orange tracking-tight">HOUSE MUSIC THERAPY</h2>
+      <div class="hero-flip" id="hero-flip">
+        <div class="hero-flip__inner">
+          <div class="hero-flip__face">
+            <!-- One H1 that reads "ZIPPY. — Serbian House DJ"; flex-col-reverse lifts
+                 the kicker above the name without changing the reading order. -->
+            <h1 class="font-display flex flex-col-reverse items-center mb-0">
+              <span class="hero-name block text-5xl md:text-7xl lg:text-9xl font-black leading-none" style="text-shadow:0 2px 34px rgba(0,0,0,0.55), 0 1px 2px rgba(0,0,0,0.6);">ZIPPY<span class="hero-side-b">.</span></span>
+              <span class="sr-only"> — </span>
+              <span class="hero-kicker mb-2 sm:mb-3 text-[11px] sm:text-xs md:text-sm font-bold uppercase text-white/90" style="text-shadow:0 1px 10px rgba(0,0,0,0.6);">{t.home.kicker}</span>
+            </h1>
+            <h2 class="hero-sub font-display text-2xl md:text-4xl lg:text-6xl font-black mb-0 hero-side-b tracking-tight">HOUSE MUSIC THERAPY</h2>
+          </div>
+          <!-- The other side of the record. Decorative: the same facts are in the
+               dates and the side switch, so it is hidden from screen readers. -->
+          <div class="hero-flip__face hero-flip__face--a" aria-hidden="true">
+            <div class="font-display flex flex-col-reverse items-center">
+              <span class="hero-name block text-5xl md:text-7xl lg:text-9xl font-black leading-none" style="text-shadow:0 2px 34px rgba(0,0,0,0.55), 0 1px 2px rgba(0,0,0,0.6);">ZIPPY<span class="hero-side-a">.</span></span>
+              <span class="hero-kicker hero-kicker--a mb-2 sm:mb-3 text-[11px] sm:text-xs md:text-sm font-bold uppercase text-white/90" style="text-shadow:0 1px 10px rgba(0,0,0,0.6);">{t.sides.a} · {t.sides.aLabel}</span>
+            </div>
+            <div class="hero-sub font-display text-2xl md:text-4xl lg:text-6xl font-black hero-side-a tracking-tight">CORE MEMORIES</div>
+          </div>
+        </div>
+      </div>
 
       <div id="highlights" class="hero-stage relative pt-1 sm:pt-2 pb-8 sm:pb-12 z-30">
         <h2 class="sr-only">{t.home.featured1}{t.home.featured2}</h2>
@@ -503,7 +542,7 @@ const homeSchema = {
         </div>
         {heroLine && (
           <a href={heroLine.href} class="hero-next hring-mono inline-block mt-6 sm:mt-8" {...(heroLine.external ? { target: '_blank', rel: 'noopener' } : {})}>
-            <span class="hero-next-dot" aria-hidden="true"></span>{heroLine.label}{heroLine.when && <> · {heroLine.when}</>}{heroLine.name && <> · <b class={heroLine.openFormat ? 'is-open' : undefined}>{heroLine.name}</b></>}{heroLine.where && <> · {heroLine.where}</>} →
+            <span class="hero-next-dot" aria-hidden="true"></span>{heroLine.label}{heroLine.side && <> · {heroLine.side === 'A' ? t.sides.a : t.sides.b}</>}{heroLine.when && <> · {heroLine.when}</>}{heroLine.name && <> · <b class={heroLine.openFormat ? 'is-open' : undefined}>{heroLine.name}</b></>}{heroLine.where && <> · {heroLine.where}</>} →
           </a>
         )}
       </div>
@@ -539,39 +578,22 @@ const homeSchema = {
     </div>
   </section>
 
-  <section id="dates" class="isolate relative py-8 sm:py-16 bg-brand-black">
+  <!-- Upcoming dates as a deck: one cue per gig on a waveform timeline -->
+  <section id="dates" class="isolate relative py-10 sm:py-16 bg-brand-black">
     <div class="container mx-auto px-6 sm:px-8 lg:px-12">
-      <h2 class="font-display text-3xl md:text-4xl font-bold mb-8 text-center">{t.home.upcoming1}<span class="text-brand-orange">{t.home.upcoming2}</span></h2>
-      <div class="space-y-1 flex flex-col items-center max-w-3xl mx-auto" data-reveal>
-        {homeUpcoming.length === 0 && <p class="text-gray-400 text-center">{t.home.noUpcoming}</p>}
-        {homeUpcoming.map(e => {
-          const displayDate = e.date.split('-').reverse().join('/') + (e.time ? ` | ${e.time}` : '');
-          const sound = eventSound(e);
-          return (
-            <div class="w-full">
-              <div class={`flex flex-col md:flex-row items-center bg-brand-gray p-2 rounded-lg border-l-4 ${sound.openFormat ? 'border-sky-400' : 'border-brand-orange'} hover:bg-white/5 transition-colors`}>
-                <div class="md:w-2/5 text-center md:text-left mb-1 md:mb-0 flex-shrink-0">
-                  <span class="block text-sm sm:text-base md:text-lg lg:text-xl font-display font-bold">{e.title.toUpperCase()}</span>
-                  <span class="text-xs md:text-sm text-gray-400 uppercase tracking-widest">{e.location}</span>
-                </div>
-                <div class="md:w-3/5 text-center md:text-left mb-1 md:mb-0 px-2 flex-shrink-0">
-                  <span class="flex flex-wrap items-center justify-center md:justify-start gap-x-1.5 sm:gap-x-2 gap-y-1 text-[0.6875rem] sm:text-sm md:text-base font-bold text-white">
-                    {sound.name && <span>{sound.name}</span>}
-                    {sound.openFormat
-                      ? <span class="open-chip">{t.home.openFormat}</span>
-                      : sound.genres.map((g, i) => <span class="whitespace-nowrap">{i > 0 && <span class="text-brand-orange mr-1.5 sm:mr-2" aria-hidden="true">·</span>}{g}</span>)}
-                  </span>
-                  <span class="text-gray-400 text-xs md:text-sm">{displayDate}</span>
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-      <div class="mt-8 text-center">
-        <a href={l('/events')} class="inline-flex items-center gap-2 text-gray-400 hover:text-brand-orange transition-colors">
-          <i class="fa-solid fa-calendar"></i> {t.home.viewAllEvents}
-        </a>
+      <div class="max-w-4xl mx-auto">
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6 sm:mb-8">
+          <h2 class="font-display text-3xl md:text-4xl font-bold text-center sm:text-left">{t.home.upcoming1}<span class="text-brand-orange">{t.home.upcoming2}</span></h2>
+          {homeUpcoming.length > 0 && <SideFilter lang={lang} />}
+        </div>
+        {homeUpcoming.length === 0
+          ? <p class="text-gray-400 text-center">{t.home.noUpcoming}</p>
+          : <div data-reveal><DatesDeck lang={lang} events={homeUpcoming} /></div>}
+        <div class="mt-8 text-center">
+          <a href={l('/events')} class="inline-flex items-center gap-2 text-gray-400 hover:text-brand-orange transition-colors">
+            <i class="fa-solid fa-calendar"></i> {t.home.viewAllEvents}
+          </a>
+        </div>
       </div>
     </div>
   </section>
@@ -583,7 +605,7 @@ const homeSchema = {
       <div class="grid md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] gap-10 md:gap-14 lg:gap-20 items-center max-w-5xl mx-auto" data-reveal>
         <!-- The photo's own background is black, so a 2px gradient rim (orange top-left
              fading to a faint white) marks its edge evenly on all four sides. -->
-        <div class="relative w-full max-w-[320px] sm:max-w-[360px] md:max-w-none mx-auto rounded-2xl p-[2px] bg-gradient-to-br from-brand-orange via-brand-orange/25 to-white/15 shadow-[0_24px_60px_-20px_rgba(255,85,0,0.35)]">
+        <div class="relative w-full max-w-[320px] sm:max-w-[360px] md:max-w-none mx-auto rounded-2xl p-[2px] bg-gradient-to-br from-brand-orange via-brand-orange/25 to-white/15 shadow-[0_24px_60px_-20px_rgb(var(--accent-rgb)/0.35)]">
           <img
             src="/images/dj-zippy-house-music-dj.webp"
             alt={t.home.introPhotoAlt}
@@ -853,6 +875,38 @@ const homeSchema = {
     window.addEventListener('resize', render);
     render();
   }
+  // The hero title turns over to the other side while the mouse is on it. A
+  // click or tap picks that side for the whole site (src/scripts/sides.ts),
+  // which is also what decides the face it rests on.
+  function initHeroFlip() {
+    var flip = document.getElementById('hero-flip');
+    if (!flip || flip.dataset.flipReady) return;
+    flip.dataset.flipReady = '1';
+    var hero = flip.closest('section');
+    var restOnA = document.documentElement.getAttribute('data-side-pick') === 'A';
+    var hovered = false;
+    function render() {
+      var a = hovered ? !restOnA : restOnA;
+      flip.classList.toggle('is-a', a);
+      if (hero) hero.classList.toggle('is-a', a);
+    }
+    flip.addEventListener('pointerenter', function(e) { if (e.pointerType === 'mouse') { hovered = true; render(); } });
+    flip.addEventListener('pointerleave', function() { hovered = false; render(); });
+    flip.addEventListener('click', function() {
+      hovered = false;   // show the side just picked until the pointer leaves and comes back
+      document.dispatchEvent(new CustomEvent('side:set', { detail: restOnA ? 'all' : 'A' }));
+    });
+    document.addEventListener('side:change', function(e) {
+      if (!flip.isConnected) return;
+      restOnA = e.detail === 'A';
+      render();
+    });
+    // a visitor who arrives with the A side already picked sees it at once, not a turn on load
+    flip.classList.add('no-turn');
+    render();
+    requestAnimationFrame(function() { requestAnimationFrame(function() { flip.classList.remove('no-turn'); }); });
+  }
   document.addEventListener('astro:page-load', initHeroRing);
+  document.addEventListener('astro:page-load', initHeroFlip);
   </script>
 </Layout>

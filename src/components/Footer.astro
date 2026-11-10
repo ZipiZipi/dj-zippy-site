@@ -85,6 +85,22 @@ const t = useTranslations(lang);
             class="w-full bg-transparent border-b border-white/15 pb-2 text-sm text-white focus:border-brand-orange focus:outline-none" />
         </div>
 
+        <fieldset>
+          <legend class="block mb-2 text-[11px] font-semibold uppercase tracking-widest text-gray-400">{t.footer.sideLabel}</legend>
+          <div class="flex flex-wrap gap-2">
+            {[
+              { value: 'B side (underground)', side: 'B', label: `${t.sides.b} · ${t.sides.bLabel}` },
+              { value: 'A side (open format)', side: 'A', label: `${t.sides.a} · ${t.sides.aLabel}` },
+              { value: 'Not sure yet', side: undefined, label: t.footer.sideAny },
+            ].map((o) => (
+              <label class="side-radio" data-side={o.side}>
+                <input type="radio" name="side" value={o.value} class="sr-only" checked={!o.side} />
+                <span>{o.label}</span>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+
         <div>
           <label for="cf-message" class="block mb-1 text-[11px] font-semibold uppercase tracking-widest text-gray-400">{t.footer.messageLabel}</label>
           <textarea id="cf-message" name="message" rows="3" placeholder={t.footer.message} required

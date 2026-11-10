@@ -95,6 +95,38 @@ const en = {
     subject: 'DJ Zippy — Booking Request',
     copyright: (year: number) => `© ${year} DJ Zippy. All Rights Reserved. House Music Therapy.`,
     allLinks: 'All Links',
+    sideLabel: 'Which side?',
+    sideAny: 'Not sure yet',
+  },
+
+  // The two sides of Zippy: A = open format, B = underground. See eventSide().
+  sides: {
+    filterLabel: 'Filter by side',
+    both: 'Both',
+    a: 'A side',
+    b: 'B side',
+    aLabel: 'Open format',
+    bLabel: 'Underground',
+    empty: 'Nothing on this side right now.',
+  },
+
+  // The dates deck on the home page, and the calendar buttons it shares with /events.
+  deck: {
+    cue: 'Cue',
+    onNow: 'On now',
+    played: 'Played',
+    checkCalendar: 'Check my calendar',
+    saveDate: 'Save the date',
+    calGoogle: 'Google Calendar',
+    calIcs: 'Apple or Outlook',
+    calSubscribe: 'Subscribe to all dates',
+    today: 'Today',
+    scrub: 'Timeline of upcoming dates',
+    cueLabel: 'Cue {n}: {title}, {date}',
+    preview: 'Preview',
+    previewEmpty: 'Tracks coming soon',
+    soundOn: 'Sound on',
+    soundOff: 'Sound off',
   },
 
   home: {
@@ -255,6 +287,8 @@ const en = {
     past2: 'Highlights',
     highlightBadge: 'Highlight',
     showAllPast: 'All past gigs',
+    showAllYear: 'Show all {n}',
+    yearSummary: '{n} gigs: {a} open format, {b} underground',
     backHome: 'Back to Homepage',
   },
 
@@ -403,6 +437,36 @@ const sr: Dict = {
     subject: 'DJ Zippy — Upit za nastup',
     copyright: (year: number) => `© ${year} DJ Zippy. Sva prava zadržana. House Music Therapy.`,
     allLinks: 'Svi linkovi',
+    sideLabel: 'Koja strana?',
+    sideAny: 'Još ne znam',
+  },
+
+  sides: {
+    filterLabel: 'Filtriraj po strani',
+    both: 'Obe',
+    a: 'A strana',
+    b: 'B strana',
+    aLabel: 'Open format',
+    bLabel: 'Underground',
+    empty: 'Trenutno nema ničega na ovoj strani.',
+  },
+
+  deck: {
+    cue: 'Cue',
+    onNow: 'Upravo traje',
+    played: 'Odsvirano',
+    checkCalendar: 'Proveri kalendar',
+    saveDate: 'Sačuvaj datum',
+    calGoogle: 'Google kalendar',
+    calIcs: 'Apple ili Outlook',
+    calSubscribe: 'Prati sve nastupe',
+    today: 'Danas',
+    scrub: 'Vremenska linija narednih nastupa',
+    cueLabel: 'Cue {n}: {title}, {date}',
+    preview: 'Preview',
+    previewEmpty: 'Pesme stižu uskoro',
+    soundOn: 'Zvuk uključen',
+    soundOff: 'Zvuk isključen',
   },
 
   home: {
@@ -563,6 +627,8 @@ const sr: Dict = {
     past2: 'arhive',
     highlightBadge: 'Izdvojeno',
     showAllPast: 'Svi prošli nastupi',
+    showAllYear: 'Prikaži svih {n}',
+    yearSummary: 'Nastupa: {n}. Open format: {a}, underground: {b}',
     backHome: 'Nazad na početnu',
   },
 

@@ -1,6 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { getMixes, MIX_PLATFORMS, mixIcon, mixFallbackIcon } from '../../lib/content';
+import SideFilter from '../SideFilter.astro';
+import { getMixes, MIX_PLATFORMS, mixIcon, mixFallbackIcon, mixSide } from '../../lib/content';
 import { useTranslations, localize, htmlLang, type Lang } from '../../i18n/utils';
 
 interface Props {
@@ -15,6 +16,8 @@ const db = (Astro.locals as any).runtime?.env?.DB;
 const { all: mixes } = await getMixes(db);
 
 const initialPlatform = 'youtube';
+// The side switch only earns its place once there is something on both sides.
+const bothSides = new Set(mixes.map(mixSide)).size > 1;
 
 function ytId(link: string): string | null {
   const m = link.match(/(?:v=|youtu\.be\/|embed\/)([\w-]{11})/);
@@ -88,44 +91,67 @@ const mixSchema = {
 
   <section id="all-mixes" class="isolate relative py-16 sm:py-20 bg-brand-dark border-t border-white/5">
     <div class="container mx-auto px-6 sm:px-8 lg:px-12">
-      <div class="flex flex-wrap gap-2 sm:gap-4 mb-10" id="mixes-tabs" role="tablist" aria-label={t.mixes.filterLabel}>
-        {MIX_PLATFORMS.map(p => {
-          const active = p.id === initialPlatform;
-          return (
-            <button id={`mixes-tab-${p.id}`} role="tab" aria-selected={active ? 'true' : 'false'} data-platform={p.id}
-              class={`flex items-center gap-2 px-5 py-2.5 text-sm font-bold uppercase border-b-2 transition-colors ${active ? 'border-brand-orange text-white' : 'border-transparent text-gray-500 hover:text-white'}`}>
-              <i class={p.icon}></i> {p.label}
-            </button>
-          );
-        })}
-      </div>
-      <div id="mixes-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" data-reveal>
-        {/* The thumbnail stays clean — no gradient over it, since many YouTube
-            covers carry their own title text — and the copy sits underneath on
-            the card itself. */}
-        {mixes.map(m => (
-          <article
-            class={`mix-card group flex flex-col overflow-hidden rounded-xl border border-white/10 bg-brand-black hover:border-brand-orange transition-colors duration-300 cursor-pointer ${m.platform === initialPlatform ? '' : 'hidden'}`}
-            data-platform={m.platform}
-            data-link={m.link}
-          >
-            {/* YouTube thumbnails are 16:9; Spotify, MixCloud, SoundCloud and Deezer covers are square */}
-            <div class={`relative ${m.platform === 'youtube' ? 'aspect-video' : 'aspect-square'} overflow-hidden bg-brand-gray`}>
-              {m.thumbnail
-                ? <img src={m.thumbnail} alt={m.alt} loading="lazy" decoding="async" width={m.platform === 'youtube' ? 1280 : 640} height={m.platform === 'youtube' ? 720 : 640} class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                : <div class="absolute inset-0 bg-gradient-to-br from-brand-gray to-brand-black flex items-center justify-center"><i class={`${mixFallbackIcon(m.platform)} text-6xl text-white/10`}></i></div>
-              }
-              {m.featured && <div class="absolute top-3 right-3 bg-brand-orange text-brand-black text-xs font-bold px-2 py-1 rounded">{t.mixes.featuredBadge}</div>}
-            </div>
-            <div class="flex flex-1 flex-col p-5">
-              <div class="text-xs text-brand-orange font-bold uppercase tracking-wide mb-1.5">{m.genre}</div>
-              <h3 class="font-display text-base font-bold text-white leading-snug mb-4">{m.title}</h3>
-              <a href={m.link} target="_blank" rel="noopener noreferrer" class="mt-auto inline-flex items-center gap-2 self-start text-sm font-bold text-white hover:text-brand-orange group-hover:text-brand-orange transition-colors">
-                <i class={mixIcon(m.platform)} aria-hidden="true"></i> {t.mixes.listenNow}
-              </a>
-            </div>
-          </article>
-        ))}
+      {/* One row per platform. Past the third card the row slides sideways (drag,
+          flick, arrows, arrow keys) instead of wrapping onto a new line. */}
+      <div class="rail" data-rail id="mixes-rail">
+        <div class="flex flex-wrap items-center justify-between gap-x-3 gap-y-4 mb-8">
+          <div class="flex flex-nowrap gap-1 sm:gap-2 lg:gap-4" id="mixes-tabs" role="tablist" aria-label={t.mixes.filterLabel}>
+            {MIX_PLATFORMS.map(p => {
+              const active = p.id === initialPlatform;
+              return (
+                <button id={`mixes-tab-${p.id}`} role="tab" aria-selected={active ? 'true' : 'false'} data-platform={p.id} title={p.label}
+                  class={`flex items-center gap-2 px-3 sm:px-4 lg:px-5 py-2.5 text-sm font-bold uppercase whitespace-nowrap border-b-2 transition-colors ${active ? 'border-brand-orange text-white' : 'border-transparent text-gray-500 hover:text-white'}`}>
+                  {/* the logos are familiar enough to stand alone on narrow screens */}
+                  <i class={`${p.icon} text-lg lg:text-sm`} aria-hidden="true"></i> <span class="sr-only lg:not-sr-only">{p.label}</span>
+                </button>
+              );
+            })}
+          </div>
+          <div class="flex items-center gap-3 ml-auto">
+            {bothSides && <SideFilter lang={lang} />}
+            <button type="button" class="rail__nav" data-rail-prev aria-label={t.home.prev}><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
+            <button type="button" class="rail__nav" data-rail-next aria-label={t.home.next}><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>
+          </div>
+        </div>
+        <div class="rail__viewport" data-rail-viewport data-reveal>
+          <div class="rail__track" data-rail-track id="mixes-grid">
+            {mixes.map(m => {
+              const side = mixSide(m);
+              // YouTube thumbnails are 16:9; Spotify, MixCloud, SoundCloud and Deezer covers are square
+              const wide = m.platform === 'youtube';
+              return (
+                <a
+                  href={m.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  draggable="false"
+                  class={`mix-card ${wide ? 'mix-card--wide' : 'mix-card--square'} ${m.thumbnail ? '' : 'mix-card--bare'} ${m.platform === initialPlatform ? '' : 'hidden'}`}
+                  data-platform={m.platform}
+                  data-side={side}
+                  data-side-item={bothSides ? side : undefined}
+                >
+                  {m.thumbnail
+                    ? <img src={m.thumbnail} alt={m.alt} loading="lazy" decoding="async" draggable="false" width={wide ? 1280 : 640} height={wide ? 720 : 640} class="mix-card__art" />
+                    : <div class="absolute inset-0 bg-gradient-to-br from-brand-gray to-brand-black flex items-center justify-center"><i class={`${mixFallbackIcon(m.platform)} text-6xl text-white/10`}></i></div>
+                  }
+                  {m.featured && <span class="mix-card__badge">{t.mixes.featuredBadge}</span>}
+                  <div class="mix-card__info">
+                    <div class="mix-card__genre">
+                      <span class="side-key" aria-hidden="true">{side}</span>
+                      <span class="sr-only">{side === 'A' ? t.sides.a : t.sides.b}:</span>
+                      {m.genre}
+                    </div>
+                    <div>
+                      <h3 class="mix-card__title">{m.title}</h3>
+                      <span class="mix-card__listen"><i class={mixIcon(m.platform)} aria-hidden="true"></i> {t.mixes.listenNow}</span>
+                    </div>
+                  </div>
+                </a>
+              );
+            })}
+          </div>
+        </div>
+        <div class="rail__bar" data-rail-bar aria-hidden="true"><span></span></div>
       </div>
       <p id="mixes-empty" class="hidden text-gray-400 text-center py-12">{t.mixes.empty}</p>
     </div>
@@ -139,24 +165,20 @@ const mixSchema = {
     var cards = Array.prototype.slice.call(document.querySelectorAll('.mix-card'));
     var tabs = Array.prototype.slice.call(document.querySelectorAll('#mixes-tabs button'));
     var emptyMsg = document.getElementById('mixes-empty');
+    var current = 'youtube';
     if (!cards.length && !tabs.length) return;
-
-    // Card click opens the link (ignore clicks on the inner anchor).
-    cards.forEach(function(card) {
-      card.addEventListener('click', function(e) {
-        if (e.target.closest('a')) return;
-        var link = card.getAttribute('data-link');
-        if (link) window.open(link, '_blank', 'noopener,noreferrer');
-      });
-    });
 
     function setFilter(platform) {
       var shown = 0;
       cards.forEach(function(card) {
         var match = card.getAttribute('data-platform') === platform;
         card.classList.toggle('hidden', !match);
-        if (match) shown++;
+        // a card can also be hidden by the A side / B side switch
+        if (match && getComputedStyle(card).display !== 'none') shown++;
       });
+      current = platform;
+      var rail = document.getElementById('mixes-rail');
+      if (rail) rail.dispatchEvent(new CustomEvent('rail:refresh'));
       if (emptyMsg) emptyMsg.classList.toggle('hidden', shown !== 0);
       tabs.forEach(function(tab) {
         var match = tab.getAttribute('data-platform') === platform;
@@ -171,6 +193,8 @@ const mixSchema = {
     tabs.forEach(function(tab) {
       tab.addEventListener('click', function() { setFilter(tab.getAttribute('data-platform')); });
     });
+    // the A side / B side switch can empty a tab, so the "no mixes" line is re-checked
+    document.addEventListener('side:change', function() { if (grid.isConnected) setFilter(current); });
   }
   document.addEventListener('astro:page-load', initMixesTabs);
   </script>

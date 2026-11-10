@@ -1,0 +1,32 @@
+---
+// One line of the past-gigs archive on /events. A highlight (featured) gets a
+// larger title and its own surface; everything else is a single quiet line.
+import { eventSide, type UIEvent } from '../lib/content';
+import { useTranslations, dateParts, type Lang } from '../i18n/utils';
+
+interface Props {
+  lang: Lang;
+  event: UIEvent;
+}
+
+const { lang, event: e } = Astro.props as Props;
+const t = useTranslations(lang);
+const { day, month } = dateParts(e.date, lang);
+const side = eventSide(e);
+const sideText = side === 'A' ? `${t.sides.a} · ${t.sides.aLabel}` : `${t.sides.b} · ${t.sides.bLabel}`;
+const where = [e.location, e.subtitle].filter(Boolean).join(' · ');
+---
+
+<li class={`past-row ${e.featured ? 'past-row--hi' : ''}`} data-side-item={side} data-side={side}>
+  <span class="side-key" aria-hidden="true">{side}</span>
+  <span class="mono-caps text-[0.6875rem] text-gray-400 whitespace-nowrap">{day} {month}</span>
+  {e.featured ? (
+    <div class="min-w-0">
+      <h4 class="font-display font-bold text-white text-base sm:text-lg leading-tight">{e.title}</h4>
+      <p class="mt-1 text-sm text-gray-400">{where}</p>
+    </div>
+  ) : (
+    <h4 class="min-w-0 text-sm sm:text-[0.9375rem] font-normal text-white">{e.title}<span class="text-gray-400"> · {where}</span></h4>
+  )}
+  <span class="sr-only">{sideText}</span>
+</li>
