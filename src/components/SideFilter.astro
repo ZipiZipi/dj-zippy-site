@@ -1,6 +1,7 @@
 ---
-// Both / A side / B side switch. The behaviour lives in src/scripts/sides.ts;
-// the choice is shared by every switch on the site.
+// Both / B side / A side switch. The behaviour lives in src/scripts/sides.ts;
+// the choice is shared by every switch on the site. B (underground) comes
+// first: it is the side the site leads with.
 import { useTranslations, type Lang } from '../i18n/utils';
 
 interface Props {
@@ -14,6 +15,6 @@ const t = useTranslations(lang);
 
 <div class={`side-seg ${className}`} role="group" aria-label={t.sides.filterLabel} data-side-filter>
   <button type="button" data-side-value="all" aria-pressed="true">{t.sides.both}</button>
-  <button type="button" data-side-value="A" aria-pressed="false" title={t.sides.aLabel}>{t.sides.a}</button>
   <button type="button" data-side-value="B" aria-pressed="false" title={t.sides.bLabel}>{t.sides.b}</button>
+  <button type="button" data-side-value="A" aria-pressed="false" title={t.sides.aLabel}>{t.sides.a}</button>
 </div>

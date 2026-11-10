@@ -2,6 +2,7 @@
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import Analytics from '../components/Analytics.astro';
+import CookieConsent from '../components/CookieConsent.astro';
 import '../styles/fonts.css';
 import { ViewTransitions } from 'astro:transitions';
 import '../styles/global.css';
@@ -16,6 +17,8 @@ interface Props {
   lang?: Lang;
   /** An image that is above the fold on this page (e.g. the About portrait). */
   preloadImage?: string;
+  /** og:type; a blog post is an `article`. */
+  ogType?: 'website' | 'article' | 'profile';
 }
 
 // The URL is authoritative for language; the prop only exists so a page can be
@@ -30,32 +33,38 @@ const {
   ogImage = 'https://zippydj.com/images/og-dj-zippy.jpg',
   noindex = false,
   preloadImage,
+  ogType = 'website',
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
 // hreflang: every localised page points at all of its siblings plus x-default,
-// which is the English URL.
+// which is the English URL. A noindex page (404, gallery, blog for now) gets
+// neither a canonical nor hreflang: pointing search engines at a page they are
+// told not to index, or at the "other language" of a missing URL, only sends
+// mixed signals.
 const alternates = alternateLinks(Astro.url, Astro.site);
 const xDefault = alternates.find((a) => a.lang === 'en')!.href;
 ---
 
 <!doctype html>
-<html lang={htmlLang[lang]} class="scroll-smooth">
+<html lang={htmlLang[lang]} class="motion-safe:scroll-smooth">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="facebook-domain-verification" content="1y96dxupl676x6rktfb8erhhpbmy9o" />
     <meta name="robots" content={noindex ? 'noindex, follow' : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1'} />
-    <meta name="theme-color" content="#ff5500" />
+    <!-- The browser bar takes the page's own black on both sides -->
+    <meta name="theme-color" content="#050505" />
+    <meta name="color-scheme" content="dark" />
 
     <title>{title}</title>
     <meta name="description" content={description} />
-    <link rel="canonical" href={canonicalURL} />
+    {!noindex && <link rel="canonical" href={canonicalURL} />}
 
     <!-- hreflang — English at /, Serbian under /sr -->
-    {alternates.map((a) => <link rel="alternate" hreflang={htmlLang[a.lang]} href={a.href} />)}
-    <link rel="alternate" hreflang="x-default" href={xDefault} />
+    {!noindex && alternates.map((a) => <link rel="alternate" hreflang={htmlLang[a.lang]} href={a.href} />)}
+    {!noindex && <link rel="alternate" hreflang="x-default" href={xDefault} />}
 
     <!-- Open Graph -->
     <meta property="og:title" content={title} />
@@ -66,15 +75,15 @@ const xDefault = alternates.find((a) => a.lang === 'en')!.href;
     <meta property="og:image:type" content="image/jpeg" />
     <meta property="og:image:alt" content={t.schema.ogImageAlt} />
     <meta property="og:url" content={canonicalURL} />
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
     <meta property="og:site_name" content="DJ Zippy" />
     <meta property="og:locale" content={ogLocale[lang]} />
     {alternates.filter((a) => a.lang !== lang).map((a) => <meta property="og:locale:alternate" content={ogLocale[a.lang]} />)}
 
-    <!-- Twitter Card -->
+    {/* Twitter / X Card. No twitter:site or twitter:creator: there is no
+        official X profile (none on the Links page or in the sameAs lists), so
+        the card is not attributed to a handle. Add both back if one is made. */}
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@zovumezippy" />
-    <meta name="twitter:creator" content="@zovumezippy" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
@@ -84,8 +93,9 @@ const xDefault = alternates.find((a) => a.lang === 'en')!.href;
     {preloadImage && <link rel="preload" as="image" href={preloadImage} fetchpriority="high" />}
 
     <!-- Fonts: self-hosted (src/styles/fonts.css). Only Unbounded is preloaded:
-         it sets every heading. Body text here uses the system sans stack, so
-         Inter is declared but never downloaded on these pages. -->
+         it sets every heading and the hero title, the usual LCP element. Inter
+         (body text) follows as soon as the CSS asks for it; until then a
+         metric-matched Arial holds the lines in place (font-display: swap). -->
     <link rel="preload" as="font" type="font/woff2" href="/fonts/unbounded/unbounded-latin.woff2" crossorigin />
 
     <!-- Meta Pixel + GTM + Google Ads (deferred, see Analytics.astro) -->
@@ -105,14 +115,35 @@ const xDefault = alternates.find((a) => a.lang === 'en')!.href;
     <slot name="head" />
 
     <ViewTransitions />
-    <script is:inline>document.documentElement.classList.add('anim-ready');</script>
+    {/* JS is on: scroll-reveal may hide what it is about to show, and the
+        header may go see-through at the top. A client-side page change swaps
+        <html>'s attributes for the new page's, so the flag is put back.
+        A link that names a side (?side=a / ?side=b, docs/tracking/README.md)
+        gets that side's colours from the first paint. attribution.ts makes the
+        pick official through sides.ts once the page has loaded; without this
+        the page would show orange until then and flip to blue. */}
+    <script is:inline>
+      (function (d) {
+        d.documentElement.classList.add('anim-ready');
+        try {
+          var side = (new URLSearchParams(location.search).get('side') || '').trim().toUpperCase();
+          if (side === 'A' || side === 'B') d.documentElement.setAttribute('data-side-pick', side);
+        } catch (e) {}
+        if (window.__zippyAnimFlag) return;
+        window.__zippyAnimFlag = true;
+        d.addEventListener('astro:after-swap', function () { d.documentElement.classList.add('anim-ready'); });
+      })(document);
+    </script>
   </head>
-  <body class="overflow-x-hidden selection:bg-brand-orange selection:text-white">
-    <!-- GTM noscript -->
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KLGKHMGM" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <body class="overflow-x-hidden">
+    <!-- First in the page, so a keyboard reaches the cookie choice before
+         anything else; it is fixed to a corner, so it looks the same -->
+    <CookieConsent lang={lang} />
 
     <Header activePage={activePage} lang={lang} />
-    <slot />
+    <main id="main">
+      <slot />
+    </main>
     <Footer lang={lang} />
 
     <!-- Site animations: scroll-reveal, magnetic buttons -->
@@ -120,6 +151,8 @@ const xDefault = alternates.find((a) => a.lang === 'en')!.href;
       import '../scripts/sides';
       import '../scripts/rail';
       import '../scripts/cal-menu';
+      import '../scripts/attribution';
+      import '../scripts/track';
 
       function setupAnimations() {
         const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;

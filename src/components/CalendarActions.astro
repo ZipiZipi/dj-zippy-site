@@ -2,7 +2,10 @@
 // Two calendar controls for one gig:
 //   "Check my calendar" opens the visitor's own Google Calendar on that day,
 //   "Save the date" offers Google Calendar, an .ics file and the feed of all dates.
-// `compact` drops the labels to icons, for use inside a list row.
+// `compact` is the list-row version (/events): icons only on tablets, labels from
+// 1024px up, and on phones a single button whose menu also holds "Check my
+// calendar", so the row keeps its width for the gig itself.
+// The menu's behaviour (placement, keys, closing) is in src/scripts/cal-menu.ts.
 import type { UIEvent } from '../lib/content';
 import { googleDayUrl, googleSaveUrl, icsPath, ICS_FEED_PATH } from '../lib/calendar';
 import { useTranslations, localize, type Lang } from '../i18n/utils';
@@ -19,10 +22,11 @@ const t = useTranslations(lang);
 const pageUrl = `https://zippydj.com${localize('/events', lang)}`;
 const host = (Astro.site ?? Astro.url).host;
 const what = `${event.title}, ${event.date.split('-').reverse().join('.')}`;
+const dayUrl = googleDayUrl(event);
 ---
 
 <div class={`cal-actions flex items-center gap-2 ${compact ? 'cal-actions--compact' : ''} ${className}`}>
-  <a class="cal-btn" href={googleDayUrl(event)} target="_blank" rel="noopener noreferrer" aria-label={`${t.deck.checkCalendar}: ${what}`} title={compact ? t.deck.checkCalendar : undefined}>
+  <a class="cal-btn cal-check" href={dayUrl} target="_blank" rel="noopener noreferrer" aria-label={`${t.deck.checkCalendar}: ${what}`} title={compact ? t.deck.checkCalendar : undefined}>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /><circle cx="11.5" cy="15.5" r="2.3" /><path d="m15 19-1.8-1.8" /></svg>
     <span>{t.deck.checkCalendar}</span>
   </a>
@@ -32,6 +36,12 @@ const what = `${event.title}, ${event.date.split('-').reverse().join('.')}`;
       <span>{t.deck.saveDate}</span>
     </summary>
     <div class="cal-menu">
+      {compact && (
+        <a class="cal-menu__check" href={dayUrl} target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /><circle cx="11.5" cy="15.5" r="2.3" /><path d="m15 19-1.8-1.8" /></svg>
+          {t.deck.checkCalendar}
+        </a>
+      )}
       <a href={googleSaveUrl(event, pageUrl)} target="_blank" rel="noopener noreferrer">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18M12 13v6M9 16h6" /></svg>
         {t.deck.calGoogle}

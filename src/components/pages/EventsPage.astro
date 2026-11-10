@@ -4,6 +4,8 @@ import SideFilter from '../SideFilter.astro';
 import CalendarActions from '../CalendarActions.astro';
 import PastGigRow from '../PastGigRow.astro';
 import { getEvents, eventInterval, eventSound, eventSide, type UIEvent } from '../../lib/content';
+import { eventTimes, ICS_FEED_PATH } from '../../lib/calendar';
+import { placeName, placeKey, venueName, subtitleText, eventName } from '../../lib/places';
 import { useTranslations, localize, dateParts, htmlLang, type Lang } from '../../i18n/utils';
 
 interface Props {
@@ -15,60 +17,106 @@ const t = useTranslations(lang);
 const l = (path: string) => localize(path, lang);
 
 const db = (Astro.locals as any).runtime?.env?.DB;
-const { upcoming, past } = await getEvents(db);
+const listed = await getEvents(db);
+
+const host = (Astro.site ?? Astro.url).host;
+const feedUrl = `webcal://${host}${ICS_FEED_PATH}`;
+
+// getEvents() keeps last night's gig as upcoming until the next day is out (the
+// home deck shows it as played); here a gig moves to the archive once it is over.
+const now = Date.now();
+const upcoming = listed.upcoming.filter((e) => eventTimes(e).endMs > now);
+// Highlights are the gigs flagged in the admin (the owner keeps the Club Kult
+// nights among them).
+const past = [...listed.upcoming.filter((e) => !upcoming.includes(e)), ...listed.past]
+  .sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+// The soonest gig gets the "Next up" light ("On now" while it is playing, as on
+// the home deck).
+const nextSlug = upcoming[0]?.slug;
+const nextLabel = upcoming[0] && eventTimes(upcoming[0]).startMs <= now ? t.deck.onNow : t.events.nextUp;
 
 // The archive: past gigs grouped by year, newest first. Each year shows its
 // highlights plus its most recent nights (YEAR_ROWS lines at most) and folds
 // the rest away.
 const YEAR_ROWS = 5;
 
-// Archive numbers. Venues and cities are counted by name; the data spells
-// Belgrade two ways, which must still count once.
-const CITY_ALIASES: Record<string, string> = { beograd: 'belgrade' };
-const venueKey = (e: UIEvent) => e.title.trim().toLowerCase();
-const cityKey = (e: UIEvent) => {
-  const k = e.location.trim().toLowerCase();
-  return CITY_ALIASES[k] ?? k;
-};
+// Archive numbers, for both sides together and for each side on its own (the
+// numbers follow the A side / B side switch). Venues and cities are counted by
+// name; the data spells Belgrade (and Ray Bar) two ways, which still counts once.
+const venueKey = (e: UIEvent) => venueName(e.title).toLowerCase();
+const cityKey = (e: UIEvent) => placeKey(e.location);
 const distinct = (list: UIEvent[], key: (e: UIEvent) => string) => new Set(list.map(key)).size;
-const newestFirst = (a: UIEvent, b: UIEvent) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0);
-const years = [...new Set(past.map(e => e.date.slice(0, 4)))].sort().reverse().map(year => {
-  const gigs = past.filter(e => e.date.startsWith(year)).sort(newestFirst);
-  const featured = gigs.filter(e => e.featured);
-  const recent = gigs.filter(e => !e.featured).slice(0, Math.max(0, YEAR_ROWS - featured.length));
-  const top = gigs.filter(e => featured.includes(e) || recent.includes(e));
-  const a = gigs.filter(e => eventSide(e) === 'A').length;
-  return {
-    year, total: gigs.length, top, rest: gigs.filter(e => !top.includes(e)), a, b: gigs.length - a,
-    venues: distinct(gigs, venueKey), cities: distinct(gigs, cityKey),
-  };
+type Counts = { gigs: number; venues: number; cities: number; countries: number };
+const count = (list: UIEvent[]): Counts => ({
+  gigs: list.length,
+  venues: distinct(list, venueKey),
+  cities: distinct(list, cityKey),
+  countries: distinct(list, (e) => e.country ?? 'RS'),
 });
-const totals = [
-  { n: past.length, label: t.events.statGigs },
-  { n: distinct(past, venueKey), label: t.events.statVenues },
-  { n: distinct(past, cityKey), label: t.events.statCities },
-  { n: distinct(past, e => e.country ?? 'RS'), label: t.events.statCountries },
+const bySide = (list: UIEvent[]) => ({
+  all: count(list),
+  A: count(list.filter((e) => eventSide(e) === 'A')),
+  B: count(list.filter((e) => eventSide(e) === 'B')),
+});
+
+const newestFirst = (a: UIEvent, b: UIEvent) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0);
+const years = [...new Set(past.map((e) => e.date.slice(0, 4)))].sort().reverse().map((year) => {
+  const gigs = past.filter((e) => e.date.startsWith(year)).sort(newestFirst);
+  const featured = gigs.filter((e) => e.featured);
+  const recent = gigs.filter((e) => !e.featured).slice(0, Math.max(0, YEAR_ROWS - featured.length));
+  const top = gigs.filter((e) => featured.includes(e) || recent.includes(e));
+  const a = gigs.filter((e) => eventSide(e) === 'A').length;
+  return { year, total: gigs.length, top, rest: gigs.filter((e) => !top.includes(e)), a, b: gigs.length - a, counts: bySide(gigs) };
+});
+const totals = bySide(past);
+const archiveStats: [keyof Counts, string][] = [
+  ['gigs', t.events.statGigs],
+  ['venues', t.events.statVenues],
+  ['cities', t.events.statCities],
+  ['countries', t.events.statCountries],
 ];
+const yearFacts: [keyof Counts, string][] = [
+  ['gigs', t.events.statGigs],
+  ['venues', t.events.statVenues],
+  ['cities', t.events.statCities],
+];
+// "2022–2026": the years the archive covers, for each side too
+const yearSpan = (list: UIEvent[]) => {
+  const ys = list.map((e) => e.date.slice(0, 4)).sort();
+  return !ys.length ? '' : ys[0] === ys[ys.length - 1] ? ys[0] : `${ys[0]}–${ys[ys.length - 1]}`;
+};
+const span = {
+  all: yearSpan(past),
+  A: yearSpan(past.filter((e) => eventSide(e) === 'A')),
+  B: yearSpan(past.filter((e) => eventSide(e) === 'B')),
+};
 
 const pageUrl = `https://zippydj.com${l('/events')}`;
 
-const toMusicEvent = (e: typeof upcoming[number]) => {
+// The events as the page shows them: venue, the night's own name if it has one
+// (never the House Music Therapy brand, see eventSound()), place and times. No
+// organiser or ticket price is claimed; an offer is listed only for a coming gig
+// that has a ticket / event link in the admin.
+const toMusicEvent = (e: UIEvent, coming: boolean) => {
   const { start, end } = eventInterval(e);
+  const place = placeName(e.location, lang);
+  const venue = venueName(e.title);
+  const link = coming && /^https?:\/\//i.test(e.link ?? '') ? e.link : '';
   return {
     "@type": "MusicEvent",
     "@id": `${pageUrl}#${e.slug}`,
-    "name": `${e.title} — ${e.subtitle || (eventSound(e).openFormat ? 'Open Format Night' : 'House Music Therapy')}`,
+    "name": eventName(e, lang),
     "startDate": start,
-    "endDate": end,
+    ...(end ? { "endDate": end } : {}),
     "eventStatus": "https://schema.org/EventScheduled",
     "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
     "inLanguage": htmlLang[lang],
     "location": {
       "@type": "Place",
-      "name": e.title,
+      "name": venue,
       "address": {
         "@type": "PostalAddress",
-        "addressLocality": e.location,
+        "addressLocality": place,
         "addressCountry": e.country
       }
     },
@@ -78,23 +126,10 @@ const toMusicEvent = (e: typeof upcoming[number]) => {
       "name": "DJ Zippy",
       "alternateName": "Zippy"
     },
-    "organizer": {
-      "@type": "Organization",
-      "@id": "https://zippydj.com/#organization",
-      "name": "DJ Zippy",
-      "url": "https://zippydj.com"
-    },
-    "offers": {
-      "@type": "Offer",
-      "url": pageUrl,
-      "availability": "https://schema.org/InStock",
-      "price": "0",
-      "priceCurrency": "EUR",
-      "validFrom": `${e.date}T00:00:00`
-    },
+    ...(link ? { "offers": { "@type": "Offer", "url": link } } : {}),
     "url": pageUrl,
     "image": "https://zippydj.com/images/dj-zippy-house-music-dj.webp",
-    "description": t.schema.eventDescription(e.title, e.location)
+    "description": t.schema.eventDescription(venue, place, eventSide(e))
   };
 };
 
@@ -109,8 +144,8 @@ const musicEventSchema = {
         { "@type": "ListItem", "position": 2, "name": t.breadcrumb.events, "item": pageUrl }
       ]
     },
-    ...upcoming.map(toMusicEvent),
-    ...past.map(toMusicEvent)
+    ...upcoming.map((e) => toMusicEvent(e, true)),
+    ...past.map((e) => toMusicEvent(e, false))
   ]
 };
 ---
@@ -118,120 +153,415 @@ const musicEventSchema = {
 <Layout lang={lang} title={t.events.title} description={t.events.description} activePage="events">
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(musicEventSchema)} />
 
-  <section id="upcoming" class="isolate relative bg-brand-black pt-24 sm:pt-28 pb-16 overflow-hidden">
-    <div class="aurora absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] rounded-full pointer-events-none"></div>
-    <div class="container mx-auto px-6 sm:px-8 lg:px-12 z-30 relative">
-      <nav aria-label={t.breadcrumb.label} class="mb-6">
-        <ol class="flex items-center space-x-2 text-sm text-gray-400">
-          <li><a href={l('/')} class="hover:text-brand-orange transition-colors">{t.breadcrumb.home}</a></li>
-          <li><span class="mx-2">/</span></li>
-          <li class="text-white">{t.breadcrumb.events}</li>
-        </ol>
-      </nav>
-      <h1 class="font-display text-4xl md:text-5xl lg:text-6xl font-black leading-tight mb-2">{t.events.heading}</h1>
-      <h2 class="font-display text-xl md:text-2xl lg:text-3xl font-bold leading-tight mb-4 text-brand-orange">{t.events.subheading}</h2>
-      <p class="text-gray-400 text-lg md:text-xl max-w-2xl mb-6">{t.events.lead}</p>
-      <SideFilter lang={lang} class="mb-10" />
-      <div class="flex items-center gap-4 mb-6">
-        <div class="w-2 h-8 bg-brand-orange"></div>
-        <h3 class="font-display text-2xl md:text-3xl font-bold">{t.events.upcoming1}<span class="text-brand-orange">{t.events.upcoming2}</span></h3>
-      </div>
-      <div class="space-y-3" data-reveal data-side-list>
-        {upcoming.length === 0 && <p class="text-gray-400">{t.events.noUpcoming}</p>}
-        {upcoming.map(e => {
-          const { day, month, year } = dateParts(e.date, lang);
-          const sound = eventSound(e);
-          const side = eventSide(e);
-          return (
-            <article class="upcoming-row" data-side-item={side} data-side={side}>
-              <div class="flex-shrink-0 text-center min-w-[3.5rem] sm:min-w-[4rem]">
-                <span class="block font-display font-bold text-xl leading-none" style="color:var(--side)">{day}</span>
-                <span class="block text-xs text-gray-400 uppercase tracking-widest">{month}</span>
-                <span class="block text-xs text-gray-400">{year}</span>
+  <style is:global>
+    /* === /events === Upcoming rows, the archive and its numbers. PastGigRow
+       renders only on this page, so its rules live here too. */
+
+    /* Section heads: the site's eyebrow and title (global.css), and on the right
+       a short mono-caps link */
+    .ev-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 0.5rem 1.5rem; margin-bottom: 1.5rem; }
+    a.ev-note { display: inline-flex; align-items: center; gap: 0.5rem; min-height: 2.5rem; font-size: 0.6875rem; color: rgba(255,255,255,0.72); transition: color 0.2s; }
+    a.ev-note:hover { color: #fff; }
+    a.ev-note:focus-visible { outline: 2px solid #fff; outline-offset: 3px; border-radius: 4px; }
+    .ev-note svg { width: 0.875rem; height: 0.875rem; flex-shrink: 0; color: rgb(var(--alt-rgb)); }
+    .ev-empty { padding: 0.875rem 1.125rem; border-radius: 1rem; border: 1px dashed rgba(255,255,255,0.14); font-size: 0.875rem; color: rgba(255,255,255,0.6); }
+
+    /* Numbers that follow the side switch: one figure per side in the markup,
+       the one for the picked side shows */
+    .side-n > [data-n="A"], .side-n > [data-n="B"] { display: none; }
+    html[data-side-pick="A"] .side-n > [data-n="all"], html[data-side-pick="B"] .side-n > [data-n="all"] { display: none; }
+    html[data-side-pick="A"] .side-n > [data-n="A"], html[data-side-pick="B"] .side-n > [data-n="B"] { display: inline; }
+
+    /* --- Upcoming: one row per gig. Phones: date, then the title with the
+       calendar button beside it, the rest of the details under both. From
+       640px the calendar buttons get a column of their own. --- */
+    .upcoming-row {
+      position: relative;
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      grid-template-areas: "date head cal" "date body body";
+      column-gap: 0.875rem;
+      padding: 0.875rem;
+      border-radius: 1rem;
+      border: 1px solid rgba(255,255,255,0.09);
+      background-color: rgba(255,255,255,0.035);
+      transition: border-color 0.2s, background-color 0.2s;
+    }
+    .upcoming-row:hover { border-color: var(--side); background-color: rgba(255,255,255,0.055); }
+    .upcoming-row[data-side="A"] { --row-rgb: var(--side-a-rgb); }
+    .upcoming-row[data-side="B"] { --row-rgb: var(--side-b-rgb); }
+    /* the next gig is lit from the top left in its side's colour, like the home deck */
+    .upcoming-row.is-next { background-image: radial-gradient(ellipse 60% 140% at 0% 0%, rgb(var(--row-rgb) / 0.13), transparent 70%); }
+    .upcoming-row__date {
+      grid-area: date;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-width: 3rem;
+      padding-right: 0.875rem;
+      border-right: 1px solid rgba(255,255,255,0.1);
+      line-height: 1;
+      text-align: center;
+    }
+    .upcoming-row__wd { font-size: 0.625rem; color: rgba(255,255,255,0.55); }
+    .upcoming-row__day { margin: 0.3rem 0 0.35rem; font-family: 'Unbounded', sans-serif; font-size: 1.625rem; font-weight: 700; color: var(--side); }
+    .upcoming-row__mo { font-size: 0.6875rem; color: rgba(255,255,255,0.85); }
+    .upcoming-row__yr { margin-top: 0.25rem; font-size: 0.625rem; color: rgba(255,255,255,0.55); }
+    .upcoming-row__head { grid-area: head; align-self: center; min-width: 0; }
+    .upcoming-row__body { grid-area: body; min-width: 0; margin-top: 0.375rem; }
+    .upcoming-row__cal { grid-area: cal; align-self: start; }
+    .upcoming-row__title { font-size: 1rem; line-height: 1.25; }
+    /* the night's own name: a line of its own on phones, after a dash from 640px */
+    .upcoming-row__name { display: block; margin-top: 0.2rem; line-height: 1.3; }
+    .upcoming-row__dash { display: none; }
+    .upcoming-row__next { display: flex; align-items: center; gap: 0.45rem; margin-bottom: 0.4rem; font-size: 0.625rem; color: rgb(var(--alt-rgb)); }
+    .upcoming-row__led { width: 6px; height: 6px; flex-shrink: 0; border-radius: 50%; background: currentColor; box-shadow: 0 0 8px 1px currentColor; animation: ev-blink 0.484s steps(1) infinite alternate; }   /* one beat at 124 BPM */
+    @keyframes ev-blink { 50% { opacity: 0.25; } }
+    .upcoming-row__sound { display: flex; align-items: flex-start; gap: 0.5rem; margin-top: 0.5rem; line-height: 1.375rem; }
+    /* the smallest phones: a slimmer date column leaves the venue more room */
+    @media (max-width: 359px) {
+      .upcoming-row { column-gap: 0.75rem; padding: 0.75rem; }
+      .upcoming-row__date { min-width: 2.75rem; padding-right: 0.75rem; }
+      .upcoming-row__title { font-size: 0.9375rem; }
+    }
+    @media (min-width: 640px) {
+      .upcoming-row { grid-template-areas: "date head cal" "date body cal"; column-gap: 1.25rem; padding: 1.1rem 1.25rem; }
+      .upcoming-row__date { min-width: 3.5rem; padding-right: 1.25rem; }
+      .upcoming-row__day { font-size: 2rem; }
+      .upcoming-row__head { align-self: end; }
+      .upcoming-row__body { align-self: start; }
+      .upcoming-row__cal { align-self: center; }
+      .upcoming-row__title { font-size: 1.125rem; }
+      .upcoming-row__name { display: inline; margin: 0; }
+      .upcoming-row__dash { display: inline; }
+    }
+    @media (min-width: 1024px) { .upcoming-row { column-gap: 1.75rem; padding: 1.25rem 1.5rem; } }
+
+    /* Genres separated by dots. The list is pulled one dot-width to the left
+       and clipped, so a line never starts with a dot when it wraps. */
+    .sep-list { min-width: 0; overflow: hidden; }
+    .sep-list > ul { display: flex; flex-wrap: wrap; margin-left: -1.1em; }
+    .sep-list li { white-space: nowrap; }
+    .sep-list li::before { content: '\00B7'; display: inline-block; width: 1.1em; text-align: center; color: rgba(255,255,255,0.35); }
+
+    /* Nothing booked: the panel of the resting deck on the home page */
+    .upcoming-empty {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      padding: 1.25rem;
+      border-radius: 1.5rem;
+      border: 1px solid rgba(255,255,255,0.09);
+      background:
+        radial-gradient(ellipse 70% 55% at 12% 0%, rgb(var(--accent-rgb) / 0.09), transparent 70%),
+        linear-gradient(180deg, #141414, #0b0b0b);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+    }
+    @media (min-width: 640px) { .upcoming-empty { padding: 1.75rem; } }
+    @media (min-width: 1024px) { .upcoming-empty { flex-direction: row; align-items: flex-end; justify-content: space-between; gap: 2rem; } }
+    .upcoming-empty__title { font-size: 1.25rem; font-weight: 700; line-height: 1.25; color: #fff; text-wrap: balance; }
+    @media (min-width: 640px) { .upcoming-empty__title { font-size: 1.5rem; } }
+    .upcoming-empty__hint { margin-top: 0.5rem; max-width: 34rem; font-size: 0.9375rem; line-height: 1.6; color: rgba(255,255,255,0.62); text-wrap: pretty; }
+    .upcoming-empty__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem 1.5rem; flex-shrink: 0; }
+
+    /* --- Archive totals: one strip, hairlines between the numbers --- */
+    .archive-stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1px;
+      margin-bottom: 1rem;
+      overflow: hidden;
+      border-radius: 1.25rem;
+      border: 1px solid rgba(255,255,255,0.09);
+      background: rgba(255,255,255,0.07);
+    }
+    @media (min-width: 640px) { .archive-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+    .archive-stat {
+      display: flex;
+      flex-direction: column-reverse;   /* the number reads first, its label sits under it */
+      justify-content: flex-end;
+      gap: 0.6rem;
+      padding: 1.1rem 1.25rem 1.2rem;
+      background: linear-gradient(180deg, #131313, #0d0d0d);
+    }
+    .archive-stat dt { font-size: 0.6875rem; color: rgb(var(--alt-rgb)); }
+    .archive-stat dd { font-size: 1.875rem; color: #fff; transition: color 0.3s; }
+    /* a side picked: the numbers are that side's, in its colour */
+    html[data-side-pick] .archive-stat dd { color: rgb(var(--accent-rgb)); }
+    @media (min-width: 640px) { .archive-stat dd { font-size: 2.25rem; } }
+
+    /* --- Archive: one panel per year --- */
+    .year-panel {
+      display: grid;
+      gap: 1.25rem;
+      padding: 1.125rem;
+      border-radius: 1.5rem;
+      border: 1px solid rgba(255,255,255,0.09);
+      background: linear-gradient(180deg, #131313, #0c0c0c);
+    }
+    .year-panel__head { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 0.875rem 1rem; }
+    .year-panel__year { font-size: 3rem; letter-spacing: -0.01em; }
+    .year-panel__split { flex: 0 0 100%; max-width: 10.5rem; }
+    .year-split { display: flex; gap: 3px; height: 6px; }
+    .year-split i { min-width: 6px; border-radius: 6px; }
+    .year-split__label { margin-top: 0.5rem; font-size: 0.6875rem; color: rgba(255,255,255,0.45); }
+    .year-split__label .is-a { color: var(--side-a); }
+    .year-split__label .is-b { color: var(--side-b); }
+    .year-facts { display: flex; flex-basis: 100%; gap: 1.25rem; }
+    .year-facts > div { display: flex; flex-direction: column-reverse; gap: 0.3rem; }
+    .year-facts dt { font-size: 0.6875rem; color: rgba(255,255,255,0.5); }
+    .year-facts dd { font-family: 'Unbounded', sans-serif; font-size: 1.125rem; font-weight: 700; line-height: 1; color: #fff; }
+    @media (min-width: 640px) { .year-panel { padding: 1.5rem; } }
+    @media (min-width: 768px) {
+      .year-panel { grid-template-columns: 12.5rem minmax(0, 1fr); gap: 2rem; padding: 1.75rem; }
+      /* the year stays in view while a long year scrolls past */
+      .year-panel__head { display: block; align-self: start; position: sticky; top: 5.5rem; }
+      .year-panel__split { max-width: 10.5rem; margin-top: 1rem; }
+      .year-facts { margin-top: 1.25rem; gap: 1rem; }
+    }
+    @media (min-width: 1024px) { .year-panel__year { font-size: 3.5rem; } }
+
+    /* One gig: side key, date, venue and the rest on one line. Highlights get
+       a larger title and their own surface. Narrow phones put the date on a
+       line of its own, so the venue keeps the width. */
+    .year-list { display: grid; gap: 0.125rem; }
+    .past-row {
+      display: grid;
+      grid-template-columns: 1.375rem 3rem minmax(0, 1fr);
+      grid-template-areas: "key date title";
+      align-items: center;
+      column-gap: 0.75rem;
+      row-gap: 0.25rem;
+      padding: 0.6rem 0.625rem;
+      border-radius: 0.9rem;
+      border: 1px solid transparent;
+      transition: background-color 0.2s, border-color 0.2s;
+    }
+    .past-row > .side-key { grid-area: key; }
+    .past-row__date { grid-area: date; font-size: 0.6875rem; color: rgba(255,255,255,0.5); white-space: nowrap; }
+    .past-row__title { grid-area: title; min-width: 0; }
+    .past-row:hover { background-color: rgba(255,255,255,0.05); }
+    .past-row--hi { margin: 0.25rem 0; padding: 0.875rem 0.625rem; background-color: rgba(255,255,255,0.035); }
+    .past-row--hi:hover { border-color: var(--side); background-color: rgba(255,255,255,0.05); }
+    @media (max-width: 359px) {
+      .past-row { grid-template-columns: 1.375rem minmax(0, 1fr); grid-template-areas: "key date" ". title"; }
+    }
+    @media (min-width: 640px) {
+      .past-row { grid-template-columns: 1.375rem 3.5rem minmax(0, 1fr); column-gap: 0.875rem; padding-inline: 0.75rem; }
+    }
+
+    .year-more > summary {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin: 0.125rem 0 0 0.625rem;
+      padding: 0.625rem 0;
+      list-style: none;
+      cursor: pointer;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.7);
+      transition: color 0.2s;
+    }
+    .year-more > summary::-webkit-details-marker { display: none; }
+    .year-more > summary:hover { color: #fff; }
+    .year-more > summary:focus-visible { outline: 2px solid #fff; outline-offset: 2px; border-radius: 6px; }
+    .year-more__chevron { font-size: 0.625rem; color: rgb(var(--alt-rgb)); transition: transform 0.2s; }
+    .year-more[open] .year-more__chevron { transform: rotate(90deg); }
+    .year-more[open] > ol { animation: ev-in 0.35s cubic-bezier(0.22, 1, 0.36, 1); }
+    @keyframes ev-in { from { opacity: 0; transform: translateY(-6px); } }
+    /* With a side picked every night of that side is shown (the script below
+       opens the fold), so "Show all" has nothing left to do. */
+    html[data-side-pick] .year-more > summary { display: none; }
+    [data-side-none] > .year-more { display: none; }
+    /* a year with nothing on the picked side drops out of the archive */
+    .year-panel:has([data-side-none]) { display: none; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .upcoming-row__led, .year-more[open] > ol { animation: none; }
+    }
+  </style>
+
+  <section id="upcoming" class="isolate relative z-[1] bg-brand-black pt-24 sm:pt-28 pb-14 sm:pb-16">
+    {/* The glow is clipped by its own box, not by the section: the calendar
+        menus of the last rows have to be able to hang over the next section. */}
+    <div class="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+      <div class="aurora absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] rounded-full"></div>
+    </div>
+    <div class="container mx-auto px-6 sm:px-8 lg:px-12 relative z-10">
+      <div class="max-w-6xl mx-auto">
+        <nav aria-label={t.breadcrumb.label} class="mb-6">
+          <ol class="flex items-center space-x-2 text-sm text-gray-400">
+            <li><a href={l('/')} class="inline-block py-2.5 -my-2.5 hover:text-brand-orange transition-colors">{t.breadcrumb.home}</a></li>
+            <li class="text-white" aria-current="page"><span class="ml-2 mr-4 text-gray-400" aria-hidden="true">/</span>{t.breadcrumb.events}</li>
+          </ol>
+        </nav>
+        <h1 class="font-display text-4xl md:text-5xl lg:text-6xl font-black leading-tight mb-2">{t.events.heading}</h1>
+        <h2 class="font-display text-xl md:text-2xl lg:text-3xl font-bold leading-tight mb-4 text-brand-orange">{t.events.subheading}</h2>
+        <p class="text-gray-400 text-base sm:text-lg md:text-xl max-w-2xl mb-6">{t.events.lead}</p>
+        <SideFilter lang={lang} />
+
+        <div class="ev-head mt-12 sm:mt-14">
+          <div>
+            <p class="eyebrow">{t.home.datesKicker}</p>
+            <h2 class="section-title mt-3">{t.events.upcoming1}<span class="text-brand-orange">{t.events.upcoming2}</span></h2>
+          </div>
+          {upcoming.length > 0 && (
+            <a class="ev-note mono-caps" href={feedUrl}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16" /><circle cx="5" cy="19" r="1" /></svg>
+              {t.deck.calSubscribe}
+            </a>
+          )}
+        </div>
+        <div class="space-y-3" data-reveal data-side-list>
+          {/* Nothing booked: the line, and the two things to do meanwhile (the
+              same panel as the resting deck on the home page) */}
+          {upcoming.length === 0 && (
+            <div class="upcoming-empty">
+              <div class="min-w-0">
+                <p class="upcoming-empty__title font-display">{t.events.noUpcoming}</p>
+                <p class="upcoming-empty__hint">{t.events.noUpcomingHint}</p>
               </div>
-              <div class="w-px self-stretch bg-white/10 flex-shrink-0"></div>
-              <div class="flex-1 min-w-0">
-                <h4 class="font-display font-bold text-white text-base sm:text-lg leading-tight">{e.title}{sound.name && <span class="font-body font-normal text-gray-300 text-sm sm:text-base"> — {sound.name}</span>}</h4>
-                <p class="text-gray-400 text-sm">{e.location}{e.time ? ` · ${e.time}` : ''}</p>
-                <p class="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs sm:text-sm font-semibold text-gray-200">
-                  <span class="side-key" aria-hidden="true">{side}</span>
-                  <span class="sr-only">{side === 'A' ? t.sides.a : t.sides.b}:</span>
-                  {sound.openFormat
-                    ? <span style="color:var(--side-a)">{t.events.openFormat}</span>
-                    : sound.genres.map((g, i) => <span class="whitespace-nowrap">{i > 0 && <span class="text-brand-orange mr-2" aria-hidden="true">·</span>}{g}</span>)}
-                </p>
+              <div class="upcoming-empty__actions">
+                <a class="btn btn--primary btn--sm" href="#contact">{t.events.bookCta} <span aria-hidden="true">→</span></a>
+                <a class="ev-note mono-caps" href={feedUrl}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16" /><circle cx="5" cy="19" r="1" /></svg>
+                  {t.deck.calSubscribe}
+                </a>
               </div>
-              <CalendarActions lang={lang} event={e} compact class="flex-shrink-0 self-center flex-col sm:flex-row" />
-            </article>
-          );
-        })}
-        <p class="text-gray-400" data-side-empty hidden>{t.sides.empty}</p>
+            </div>
+          )}
+          {upcoming.map((e) => {
+            const { day, month, year } = dateParts(e.date, lang);
+            const [y, mo, d] = e.date.split('-').map(Number);
+            const weekday = t.home.weekdays[new Date(Date.UTC(y, mo - 1, d)).getUTCDay()];
+            const sound = eventSound(e);
+            const night = subtitleText(sound.name, lang);
+            const side = eventSide(e);
+            const time = (e.time ?? '').replace(/\s*-\s*/, '–');
+            const isNext = e.slug === nextSlug;
+            return (
+              <article class={`upcoming-row ${isNext ? 'is-next' : ''}`} data-side-item={side} data-side={side}>
+                <time class="upcoming-row__date" datetime={e.date}>
+                  <span class="upcoming-row__wd mono-caps">{weekday}</span>
+                  <span class="upcoming-row__day">{day}</span>
+                  <span class="upcoming-row__mo mono-caps">{month}</span>
+                  <span class="upcoming-row__yr mono-caps">{year}</span>
+                </time>
+                <div class="upcoming-row__head">
+                  {isNext && <p class="upcoming-row__next mono-caps"><span class="upcoming-row__led" aria-hidden="true"></span>{nextLabel}</p>}
+                  <h3 class="upcoming-row__title font-display font-bold text-white">{venueName(e.title)}{night && <span class="upcoming-row__name font-body font-normal text-gray-300 text-sm sm:text-base"><span class="upcoming-row__dash"> — </span>{night}</span>}</h3>
+                </div>
+                <div class="upcoming-row__body">
+                  <p class="text-sm text-gray-400">{[placeName(e.location, lang), time].filter(Boolean).join(' · ')}</p>
+                  <div class="upcoming-row__sound text-xs sm:text-sm font-semibold text-gray-200">
+                    <span class="side-key" aria-hidden="true">{side}</span>
+                    <span class="sr-only">{side === 'A' ? t.sides.a : t.sides.b}:</span>
+                    {sound.openFormat
+                      ? <span style="color:var(--side-a)">{t.events.openFormat}</span>
+                      : <div class="sep-list"><ul>{sound.genres.map((g) => <li>{g}</li>)}</ul></div>}
+                  </div>
+                </div>
+                <CalendarActions lang={lang} event={e} compact class="upcoming-row__cal" />
+              </article>
+            );
+          })}
+          <p class="ev-empty" data-side-empty hidden>{t.sides.empty}</p>
+        </div>
       </div>
     </div>
   </section>
 
   <section id="past" class="isolate relative py-16 sm:py-20 bg-brand-black border-t border-white/5">
     <div class="container mx-auto px-6 sm:px-8 lg:px-12">
-      <div class="flex items-center gap-4 mb-10">
-        <div class="w-2 h-8 bg-white/30"></div>
-        <h2 class="font-display text-3xl md:text-4xl font-bold">{t.events.past1}<span class="text-gray-400">{t.events.past2}</span></h2>
-      </div>
-      {/* One panel per year: the year in large type, how its nights split between
-          the two sides, then its highlights and most recent gigs. */}
-      {/* The whole archive in numbers */}
-      <dl class="archive-stats" data-reveal>
-        {totals.map(s => (
-          <div class="archive-stat">
-            <dt class="mono-caps text-[0.6875rem] text-gray-400">{s.label}</dt>
-            <dd class="font-display font-bold leading-none text-3xl sm:text-4xl">{s.n}</dd>
+      <div class="max-w-6xl mx-auto">
+        <div class="ev-head">
+          <div>
+            {/* the years the archive covers (the picked side's years once one is picked) */}
+            {span.all && <p class="eyebrow side-n"><span data-n="all">{span.all}</span><span data-n="A">{span.A}</span><span data-n="B">{span.B}</span></p>}
+            <h2 class="section-title mt-3">{t.events.past1}<span class="text-gray-400">{t.events.past2}</span></h2>
           </div>
-        ))}
-      </dl>
-      <div class="space-y-4">
-        {years.map(y => (
-          <section class="year-panel" data-reveal aria-label={y.year}>
-            <div class="year-panel__head">
-              <h3 class="font-display font-bold leading-none text-5xl lg:text-[3.5rem]">{y.year}</h3>
-              <div>
-                <div class="year-split" aria-hidden="true">
-                  {y.a > 0 && <i style={`flex:${y.a};background:var(--side-a)`}></i>}
-                  {y.b > 0 && <i style={`flex:${y.b};background:var(--side-b)`}></i>}
-                </div>
-                <p class="mono-caps mt-2 text-[0.6875rem] text-gray-400" aria-hidden="true">{y.a} A · {y.b} B</p>
-                <p class="sr-only">{t.events.yearSummary.replace('{n}', String(y.total)).replace('{a}', String(y.a)).replace('{b}', String(y.b))}</p>
+        </div>
+        {/* The whole archive in numbers; with a side picked, that side's numbers */}
+        {past.length > 0 && (
+          <dl class="archive-stats" data-reveal>
+            {archiveStats.map(([key, label]) => (
+              <div class="archive-stat">
+                <dt class="mono-caps">{label}</dt>
+                <dd class="side-n font-display font-bold leading-none"><span data-n="all">{totals.all[key]}</span><span data-n="A">{totals.A[key]}</span><span data-n="B">{totals.B[key]}</span></dd>
               </div>
-              <dl class="year-facts">
-                {[[y.total, t.events.statGigs], [y.venues, t.events.statVenues], [y.cities, t.events.statCities]].map(([n, label]) => (
-                  <div>
-                    <dt class="mono-caps text-[0.6875rem] text-gray-400">{label}</dt>
-                    <dd class="font-display font-bold text-lg leading-none text-white">{n}</dd>
+            ))}
+          </dl>
+        )}
+        {/* One panel per year: the year in large type, how its nights split between
+            the two sides, then its highlights and most recent gigs. */}
+        <div class="space-y-4">
+          {years.map((y) => (
+            <section class="year-panel" data-reveal aria-labelledby={`year-${y.year}`}>
+              <div class="year-panel__head">
+                <h3 id={`year-${y.year}`} class="year-panel__year font-display font-bold leading-none">{y.year}</h3>
+                <div class="year-panel__split">
+                  <div class="year-split" aria-hidden="true">
+                    {y.b > 0 && <i style={`flex:${y.b};background:var(--side-b)`}></i>}
+                    {y.a > 0 && <i style={`flex:${y.a};background:var(--side-a)`}></i>}
                   </div>
-                ))}
-              </dl>
-            </div>
-            <div class="min-w-0" data-side-list>
-              <ol>
-                {y.top.map(e => <PastGigRow lang={lang} event={e} />)}
-              </ol>
-              {y.rest.length > 0 && (
-                <details class="year-more">
-                  <summary>{t.events.showAllYear.replace('{n}', String(y.total))} <i class="fa-solid fa-chevron-right year-more__chevron" aria-hidden="true"></i></summary>
-                  <ol>
-                    {y.rest.map(e => <PastGigRow lang={lang} event={e} />)}
-                  </ol>
-                </details>
-              )}
-              <p class="px-3 py-2 text-sm text-gray-400" data-side-empty hidden>{t.sides.empty}</p>
-            </div>
-          </section>
-        ))}
-      </div>
-      <div class="mt-12 text-center">
-        <a href={l('/')} class="inline-flex items-center gap-2 text-gray-400 hover:text-brand-orange transition-colors">
-          <i class="fa-solid fa-arrow-left"></i> {t.events.backHome}
-        </a>
+                  <p class="year-split__label mono-caps" aria-hidden="true"><span class={y.b ? 'is-b' : undefined}>{y.b} B</span> · <span class={y.a ? 'is-a' : undefined}>{y.a} A</span></p>
+                  <p class="sr-only">{t.events.yearSummary.replace('{n}', String(y.total)).replace('{a}', String(y.a)).replace('{b}', String(y.b))}</p>
+                </div>
+                {/* a single night needs no tally */}
+                {y.total > 1 && (
+                  <dl class="year-facts">
+                    {yearFacts.map(([key, label]) => (
+                      <div>
+                        <dt class="mono-caps">{label}</dt>
+                        <dd class="side-n"><span data-n="all">{y.counts.all[key]}</span><span data-n="A">{y.counts.A[key]}</span><span data-n="B">{y.counts.B[key]}</span></dd>
+                      </div>
+                    ))}
+                  </dl>
+                )}
+              </div>
+              <div class="min-w-0" data-side-list>
+                <ol class="year-list">
+                  {y.top.map((e) => <PastGigRow lang={lang} event={e} />)}
+                </ol>
+                {y.rest.length > 0 && (
+                  <details class="year-more">
+                    <summary>{t.events.showAllYear.replace('{n}', String(y.total))} <i class="fa-solid fa-chevron-right year-more__chevron" aria-hidden="true"></i></summary>
+                    <ol class="year-list">
+                      {y.rest.map((e) => <PastGigRow lang={lang} event={e} />)}
+                    </ol>
+                  </details>
+                )}
+                <p class="ev-empty" data-side-empty hidden>{t.sides.empty}</p>
+              </div>
+            </section>
+          ))}
+        </div>
+        <div class="mt-12 text-center">
+          <a href={l('/')} class="inline-flex items-center gap-2 py-2 text-gray-400 hover:text-brand-orange transition-colors">
+            <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> {t.events.backHome}
+          </a>
+        </div>
       </div>
     </div>
   </section>
 
+  <script>
+    // With a side picked, each year opens its fold so every night of that side
+    // shows (the "Show all" line is hidden by CSS meanwhile). Back on both
+    // sides, the folds this opened close again; one the visitor opened stays.
+    function syncFolds(choice: string) {
+      document.querySelectorAll<HTMLDetailsElement>('details.year-more').forEach((d) => {
+        if (choice === 'A' || choice === 'B') {
+          if (!d.open) { d.open = true; d.dataset.sideOpened = '1'; }
+        } else if (d.dataset.sideOpened) {
+          d.open = false;
+          delete d.dataset.sideOpened;
+        }
+      });
+    }
+    document.addEventListener('side:change', (e) => syncFolds(String((e as CustomEvent).detail)));
+    document.addEventListener('astro:page-load', () => syncFolds(document.documentElement.getAttribute('data-side-pick') ?? 'all'));
+  </script>
 </Layout>

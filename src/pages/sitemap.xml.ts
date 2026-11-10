@@ -1,96 +1,111 @@
-// Sitemap XML Generator
-// Emits every indexable page once per language, with reciprocal xhtml:link
-// alternates so Google can pair /about with /sr/about instead of treating them
-// as duplicates.
+// Sitemap XML
+// Every indexable page once per language, with reciprocal xhtml:link
+// alternates so Google pairs /about with /sr/about instead of treating them as
+// duplicates. noindex pages (/gallery, /blog, 404s) stay out: listing a page
+// the site asks not to index only earns a Search Console warning.
 //
-// No <lastmod>: this file is prerendered, so the only date available here is
-// the build time, which would claim every page changed on every deploy and
-// teach Google to ignore the field. Leaving it out is the honest option.
+// <lastmod> has to be honest or Google learns to ignore it, so it is never
+// the build or request time. The sitemap is rendered on demand and reads the
+// dates from what actually changes each page:
+//   /events  the newest gig added, or the last gig that has since been played
+//            (it moves from the upcoming list to the archive)
+//   /mixes   the newest mix added or edited
+//   /        whichever of those two is newer: the home page shows both
+// plus TEMPLATE_EDITED, the last time the page templates or copy changed.
+// `events.updated_at` is not used: the gig-sheet sync touches it on every run
+// even when nothing changed.
+//
+// Bump TEMPLATE_EDITED (or a page's own `edited`) when page copy or layout
+// changes in a deploy.
 
 import type { APIRoute } from 'astro';
 import { localize, htmlLang, type Lang } from '../i18n/utils';
 
-const LOCALES: Lang[] = ['en', 'sr'];
+export const prerender = false;
 
-// Indexable pages, as canonical (English) paths. /gallery and /blog are
-// deliberately absent — both are noindex.
-const pages: { path: string; priority: string; changefreq: string; extra?: string }[] = [
-  {
-    path: '/',
-    priority: '1.0',
-    changefreq: 'weekly',
-    extra: `
-    <image:image>
-      <image:loc>https://zippydj.com/images/dj-zippy-house-music-dj.webp</image:loc>
-      <image:title>DJ Zippy — House Music Therapy</image:title>
-    </image:image>
-    <video:video>
-      <video:thumbnail_loc>https://img.youtube.com/vi/pbT603mKdsc/maxresdefault.jpg</video:thumbnail_loc>
-      <video:title>EXIT 2024 | Zippy live at AS FM Stage FULL SHOW</video:title>
-      <video:description>Zippy live performance at EXIT Festival 2024, AS FM Stage.</video:description>
-      <video:player_loc>https://www.youtube.com/embed/pbT603mKdsc</video:player_loc>
-      <video:duration>3608</video:duration>
-      <video:publication_date>2024-08-09T00:00:00+00:00</video:publication_date>
-      <video:family_friendly>yes</video:family_friendly>
-    </video:video>`,
-  },
-  {
-    path: '/mixes',
-    priority: '0.9',
-    changefreq: 'weekly',
-    extra: `
-    <video:video>
-      <video:thumbnail_loc>https://img.youtube.com/vi/IzkAZcbyCSI/maxresdefault.jpg</video:thumbnail_loc>
-      <video:title>House Music Therapy / #LetsMixIt Contest</video:title>
-      <video:description>DJ Zippy's high-energy rooftop set recorded in Novi Sad for the #LetsMixIt competition.</video:description>
-      <video:player_loc>https://www.youtube.com/embed/IzkAZcbyCSI</video:player_loc>
-      <video:family_friendly>yes</video:family_friendly>
-    </video:video>
-    <video:video>
-      <video:thumbnail_loc>https://img.youtube.com/vi/c1M_dMg_CcU/maxresdefault.jpg</video:thumbnail_loc>
-      <video:title>House Music Therapy / Deep &amp; Tech Grooves</video:title>
-      <video:description>DJ Zippy's curated mix blending deep basslines with rhythmic tech house elements.</video:description>
-      <video:player_loc>https://www.youtube.com/embed/c1M_dMg_CcU</video:player_loc>
-      <video:family_friendly>yes</video:family_friendly>
-    </video:video>`,
-  },
-  { path: '/events', priority: '0.9', changefreq: 'weekly' },
-  { path: '/about', priority: '0.8', changefreq: 'monthly' },
+const LOCALES: Lang[] = ['en', 'sr'];
+const TEMPLATE_EDITED = '2026-11-10';
+
+type Source = 'events' | 'mixes';
+
+// Indexable pages, as canonical (English) paths.
+const pages: { path: string; priority: string; changefreq: string; sources?: Source[]; edited?: string; image?: boolean }[] = [
+  { path: '/', priority: '1.0', changefreq: 'weekly', sources: ['events', 'mixes'], image: true },
+  { path: '/events', priority: '0.9', changefreq: 'weekly', sources: ['events'] },
+  { path: '/mixes', priority: '0.9', changefreq: 'weekly', sources: ['mixes'] },
+  { path: '/about', priority: '0.8', changefreq: 'monthly', image: true },
   { path: '/links', priority: '0.6', changefreq: 'monthly' },
 ];
 
-export const GET: APIRoute = async ({ site }) => {
+/** Today in Serbia, where the gigs happen. */
+const todayBelgrade = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Belgrade' }).format(new Date());
+
+/** 'YYYY-MM-DD…' (D1 timestamps are 'YYYY-MM-DD HH:MM:SS') → 'YYYY-MM-DD', or '' if it is not a date. */
+const day = (v: unknown) => (typeof v === 'string' && /^\d{4}-\d{2}-\d{2}/.test(v) ? v.slice(0, 10) : '');
+
+const newest = (...dates: string[]) => dates.filter(Boolean).sort().pop() ?? '';
+
+async function sourceDates(db: any): Promise<Record<Source, string>> {
+  const out: Record<Source, string> = { events: '', mixes: '' };
+  if (!db) return out;
+  const today = todayBelgrade();
+  try {
+    const ev = await db
+      .prepare('SELECT MAX(created_at) AS added, MAX(CASE WHEN date <= ?1 THEN date END) AS played FROM events')
+      .bind(today)
+      .first();
+    out.events = newest(day(ev?.added), day(ev?.played));
+  } catch { /* no events table: fall back to the template date */ }
+  try {
+    const mx = await db
+      .prepare('SELECT MAX(created_at) AS added, MAX(updated_at) AS edited FROM mixes WHERE published = 1')
+      .first();
+    out.mixes = newest(day(mx?.added), day(mx?.edited));
+  } catch { /* same */ }
+  // A timestamp from the future (clock skew, a typo in the admin) is never passed on.
+  for (const k of Object.keys(out) as Source[]) if (out[k] > today) out[k] = today;
+  return out;
+}
+
+const escapeXml = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+export const GET: APIRoute = async ({ site, locals }) => {
   const origin = (site ?? new URL('https://zippydj.com')).origin;
+  const db = (locals as any).runtime?.env?.DB;
+  const dates = await sourceDates(db);
 
   const url = (path: string, lang: Lang) => `${origin}${localize(path, lang)}`;
 
-  const entries = pages.flatMap((page) =>
-    LOCALES.map((lang) => {
-      const alternates = LOCALES.map(
-        (alt) => `    <xhtml:link rel="alternate" hreflang="${htmlLang[alt]}" href="${url(page.path, alt)}" />`,
-      ).join('\n');
+  const entries = pages.flatMap((page) => {
+    const lastmod = newest(TEMPLATE_EDITED, page.edited ?? '', ...(page.sources ?? []).map((s) => dates[s]));
+    const alternates = LOCALES.map(
+      (alt) => `    <xhtml:link rel="alternate" hreflang="${htmlLang[alt]}" href="${url(page.path, alt)}" />`,
+    ).join('\n');
+    // The portrait is on the page (home intro, About hero); Google reads only image:loc.
+    const image = page.image
+      ? `\n    <image:image>\n      <image:loc>${escapeXml(`${origin}/images/dj-zippy-house-music-dj.webp`)}</image:loc>\n    </image:image>`
+      : '';
 
-      return `  <url>
+    return LOCALES.map((lang) => `  <url>
     <loc>${url(page.path, lang)}</loc>
+    <lastmod>${lastmod}</lastmod>
     <changefreq>${page.changefreq}</changefreq>
     <priority>${page.priority}</priority>
 ${alternates}
-    <xhtml:link rel="alternate" hreflang="x-default" href="${url(page.path, 'en')}" />${page.extra ?? ''}
-  </url>`;
-    }),
-  );
+    <xhtml:link rel="alternate" hreflang="x-default" href="${url(page.path, 'en')}" />${image}
+  </url>`);
+  });
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml"
-        xmlns:video="http://www.google.com/schemas/sitemap-video/1.1"
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
 ${entries.join('\n')}
 </urlset>`;
 
   return new Response(xml, {
     headers: {
-      'Content-Type': 'application/xml',
+      'Content-Type': 'application/xml; charset=utf-8',
       'Cache-Control': 'public, max-age=3600',
     },
   });

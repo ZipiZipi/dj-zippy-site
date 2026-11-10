@@ -3,7 +3,8 @@
 // language toggle here is styled with the page's own CSS rather than reusing
 // <LanguageSwitcher />.
 import Analytics from '../Analytics.astro';
-import { useTranslations, localize, alternateLinks, htmlLang, ogLocale, type Lang } from '../../i18n/utils';
+import CookieConsent from '../CookieConsent.astro';
+import { useTranslations, localize, alternateLinks, htmlLang, ogLocale, languages, type Lang } from '../../i18n/utils';
 import '../../styles/fonts.css';
 
 interface Props {
@@ -24,6 +25,9 @@ const xDefault = alternates.find((a) => a.lang === 'en')!.href;
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- The browser bar takes the page's own black (the rest of the site sets the same in Layout) -->
+    <meta name="theme-color" content="#000000" />
+    <meta name="color-scheme" content="dark" />
     <title>{t.links.title}</title>
     <meta name="description" content={t.links.description} />
     <link rel="canonical" href={canonical} />
@@ -70,6 +74,21 @@ const xDefault = alternates.find((a) => a.lang === 'en')!.href;
         --accent-rgb: 255 85 0;
         --orange: rgb(var(--accent-rgb));
         --orange-fill: #cc4400;
+        /* the two sides, fixed: B = underground (orange), A = open format (blue) */
+        --side-b-rgb: 255 85 0;
+        --side-a-rgb: 56 189 248;
+        --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+      }
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
       }
 
       html { overflow-x: hidden; }
@@ -157,8 +176,9 @@ const xDefault = alternates.find((a) => a.lang === 'en')!.href;
       }
 
       /* === Language toggle ===
-         Segmented control: the track has its own inner padding, so the globe and
-         the pills sit inside the rounded edge instead of running into its curve. */
+         The site header's segmented EN / SR switch: mono labels, and the picked
+         language in plain white. Language is not a side, so orange stays with
+         the links. The track's inner padding keeps the pills off its curve. */
       .lang-switch {
         position: absolute;
         top: 20px;
@@ -170,14 +190,10 @@ const xDefault = alternates.find((a) => a.lang === 'en')!.href;
         padding: 4px;
         border: 1px solid rgba(255,255,255,0.15);
         border-radius: 999px;
-        font-size: 0.72rem;
-        font-weight: 700;
-        letter-spacing: 0.04em;
         background: rgba(14,14,17,0.55);
         -webkit-backdrop-filter: blur(14px);
         backdrop-filter: blur(14px);
       }
-      .lang-switch > .globe { display: flex; padding: 0 6px 0 8px; color: rgba(255,255,255,0.45); font-size: 0.8rem; }
       .lang-switch a {
         position: relative;
         display: inline-flex;
@@ -185,20 +201,25 @@ const xDefault = alternates.find((a) => a.lang === 'en')!.href;
         justify-content: center;
         min-width: 40px;
         height: 32px;
-        padding: 0 12px;
+        padding: 0 11px;
         border-radius: 999px;
-        color: rgba(255,255,255,0.6);
+        font-family: var(--mono);
+        font-size: 0.6875rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        line-height: 1;
+        color: rgba(255,255,255,0.62);
         text-decoration: none;
         -webkit-tap-highlight-color: transparent;
         transition: color 0.3s, background 0.3s;
       }
-      /* 40px tap target on touch screens, spilling into the track's padding */
+      /* 44px tap target on touch screens, spilling over the track's padding */
       @media (pointer: coarse) {
-        .lang-switch a::after { content: ''; position: absolute; inset: -4px -1px; }
+        .lang-switch a::after { content: ''; position: absolute; inset: -6px -1px; }
       }
       .lang-switch a:hover { color: #fff; background: rgba(255,255,255,0.1); }
       .lang-switch a:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
-      .lang-switch a[aria-current] { background: var(--orange); color: #000; }
+      .lang-switch a[aria-current] { background: #fff; color: #050505; }
       @media (min-width: 640px) {
         .lang-switch { top: 28px; right: 28px; }
       }
@@ -226,23 +247,110 @@ const xDefault = alternates.find((a) => a.lang === 'en')!.href;
         text-shadow: 0 2px 24px rgba(0,0,0,0.6);
       }
       header p {
-        color: #d8d8de;
-        font-size: 1.05rem;
-        font-weight: 500;
-        letter-spacing: 0.02em;
+        margin-top: 8px;
+        font-family: var(--mono);
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.22em;
+        padding-left: 0.22em;   /* balances the trailing letter-spacing */
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.72);
         text-shadow: 0 2px 16px rgba(0,0,0,0.7);
       }
 
       section { width: 100%; display: flex; flex-direction: column; gap: 11px; }
       .section-label {
-        font-size: 0.7rem;
+        font-family: var(--mono);
+        font-size: 0.68rem;
         text-transform: uppercase;
-        letter-spacing: 0.18em;
+        letter-spacing: 0.14em;
         font-weight: 700;
         margin-bottom: 6px;
         padding-left: 4px;
-        color: rgba(255,255,255,0.5);
+        color: rgba(255,255,255,0.55);
         text-shadow: 0 1px 10px rgba(0,0,0,0.7);
+      }
+
+      /* === Two sides: B leads (House Music Therapy), A follows (Core Memories) ===
+         Each side keeps its own colour here, whatever the accent. */
+      section.sides { gap: 10px; }
+      a.link-side {
+        --side-rgb: var(--side-b-rgb);
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        width: 100%;
+        min-height: 68px;
+        padding: 12px 18px 12px 12px;
+        border-radius: 15px;
+        text-decoration: none;
+        color: #fff;
+        background: rgba(22, 22, 26, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        box-shadow: 0 6px 26px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(255,255,255,0.05);
+        -webkit-backdrop-filter: blur(16px) saturate(135%);
+        backdrop-filter: blur(16px) saturate(135%);
+        -webkit-tap-highlight-color: transparent;
+        transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+                    border-color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+      }
+      a.link-side[data-side="A"] { --side-rgb: var(--side-a-rgb); }
+      /* the B side leads: its edge and glow are on before anyone touches it */
+      a.link-side[data-side="B"] {
+        border-color: rgb(var(--side-b-rgb) / 0.42);
+        box-shadow: 0 6px 26px rgba(0, 0, 0, 0.38), 0 0 26px rgb(var(--side-b-rgb) / 0.14), inset 0 1px 0 rgba(255,255,255,0.05);
+      }
+      .link-side .key {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        width: 44px;
+        height: 44px;
+        border-radius: 11px;
+        background: rgb(var(--side-rgb));
+        color: #050505;
+        font-family: 'Unbounded', sans-serif;
+        font-size: 1.05rem;
+        font-weight: 800;
+      }
+      .link-side .side-text { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1; }
+      .link-side .side-name { font-family: 'Unbounded', sans-serif; font-size: 0.95rem; font-weight: 700; line-height: 1.25; }
+      .link-side .side-detail {
+        font-family: var(--mono);
+        font-size: 0.64rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        line-height: 1.4;
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.6);
+      }
+      .link-side .side-arrow { flex-shrink: 0; font-size: 0.8rem; color: rgba(255,255,255,0.5); transition: transform 0.3s, color 0.3s; }
+      /* the smallest phones: a little more room for the name */
+      @media (max-width: 359px) {
+        a.link-side { gap: 12px; padding: 11px 14px 11px 11px; }
+        .link-side .key { width: 40px; height: 40px; border-radius: 10px; }
+        .link-side .side-name { font-size: 0.9rem; }
+      }
+      a.link-side:focus-visible,
+      a.link-side:active {
+        border-color: rgb(var(--side-rgb));
+        background: rgb(var(--side-rgb) / 0.16);
+        box-shadow: 0 14px 38px rgba(0, 0, 0, 0.5), 0 0 28px rgb(var(--side-rgb) / 0.35);
+      }
+      a.link-side:focus-visible .side-arrow,
+      a.link-side:active .side-arrow { color: rgb(var(--side-rgb)); transform: translateX(3px); }
+      a.link-side:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+      a.link-side:active { transform: scale(0.98); transition-duration: 0.1s; }
+      @media (hover: hover) {
+        a.link-side:hover {
+          transform: translateY(-2px);
+          border-color: rgb(var(--side-rgb));
+          background: rgb(var(--side-rgb) / 0.16);
+          box-shadow: 0 14px 38px rgba(0, 0, 0, 0.5), 0 0 28px rgb(var(--side-rgb) / 0.35);
+        }
+        a.link-side:hover .side-arrow { color: rgb(var(--side-rgb)); transform: translateX(3px); }
+        a.link-side:active:hover { transform: scale(0.98); }
       }
 
       /* === Glass cards === */
@@ -331,6 +439,7 @@ const xDefault = alternates.find((a) => a.lang === 'en')!.href;
         align-items: center;
         gap: 13px;
         width: 100%;
+        min-height: 44px;
         padding: 9px 16px;
         font-size: 0.875rem;
         font-weight: 500;
@@ -359,9 +468,22 @@ const xDefault = alternates.find((a) => a.lang === 'en')!.href;
         margin: 2px 0;
       }
 
-      footer { text-align: center; display: flex; flex-direction: column; gap: 6px; padding-top: 12px; }
-      footer p, footer a { font-size: 0.8rem; color: rgba(255,255,255,0.45); text-decoration: none; }
+      footer { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 2px; padding-top: 12px; }
+      /* .6 white keeps the small print above 4.5:1 wherever the video shows through */
+      footer p, footer a { font-size: 0.8rem; color: rgba(255,255,255,0.6); text-decoration: none; }
+      /* a full-size tap target around a small line of text */
+      footer a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 999px; }
       footer a:hover { color: #fff; }
+      footer a:focus-visible { outline: 2px solid #fff; outline-offset: 2px; color: #fff; }
+      footer .legal { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; color: rgba(255,255,255,0.35); }
+      footer .legal a, footer .legal button { font-size: 0.75rem; color: rgba(255,255,255,0.6); }
+      footer .legal button {
+        appearance: none; background: none; border: 0; font-family: inherit; cursor: pointer;
+        display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 999px;
+      }
+      footer .legal a:hover, footer .legal button:hover { color: #fff; }
+      footer .legal a:focus-visible,
+      footer .legal button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; color: #fff; }
 
       /* === Subtle entrance === */
       @keyframes rise {
@@ -376,22 +498,23 @@ const xDefault = alternates.find((a) => a.lang === 'en')!.href;
       main > *:nth-child(5) { animation-delay: 0.30s; }
       main > *:nth-child(6) { animation-delay: 0.36s; }
       main > *:nth-child(7) { animation-delay: 0.42s; }
+      main > *:nth-child(8) { animation-delay: 0.48s; }
 
       @media (prefers-reduced-motion: reduce) {
         main > * { animation: none; }
-        a.link-primary, a.link-secondary { transition: border-color 0.3s, background 0.3s, color 0.3s; }
-        a.link-primary:hover, a.link-secondary:hover,
-        a.link-primary:active, a.link-secondary:active { transform: none; }
+        a.link-primary, a.link-secondary, a.link-side { transition: border-color 0.3s, background 0.3s, color 0.3s; }
+        a.link-primary:hover, a.link-secondary:hover, a.link-side:hover,
+        a.link-primary:active, a.link-secondary:active, a.link-side:active { transform: none; }
+        .link-side .side-arrow { transition: none; }
       }
     </style>
   </head>
   <body>
-    <!-- GTM noscript -->
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-KLGKHMGM" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
     <!-- Background video (540×960, ~0.7 MB, no audio). The poster is its own
          first frame, so the hand-off is seamless. The source is attached by the
-         script below — skipped on Save-Data / 2G, where the poster stays. -->
+         script below — skipped on Save-Data / 2G and for visitors who asked for
+         reduced motion, where the still poster stays. -->
     <div class="bg-ambient" aria-hidden="true"></div>
     <video
       class="bg-video"
@@ -409,6 +532,8 @@ const xDefault = alternates.find((a) => a.lang === 'en')!.href;
         var v = document.querySelector('.bg-video');
         var c = navigator.connection || {};
         if (!v || c.saveData || /(^|-)2g$/.test(c.effectiveType || '')) return;
+        // full-screen motion behind the links is a vestibular trigger: keep the still
+        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
         v.src = v.getAttribute('data-src');
         var p = v.play();
         if (p && p.catch) p.catch(function () {});
@@ -417,9 +542,9 @@ const xDefault = alternates.find((a) => a.lang === 'en')!.href;
     <div class="bg-overlay" aria-hidden="true"></div>
 
     <div class="lang-switch" role="group" aria-label={t.langSwitch.label}>
-      <span class="globe" aria-hidden="true"><i class="fa-solid fa-globe"></i></span>
-      <a href="/links" hreflang="en" aria-current={lang === 'en' ? 'true' : undefined}>EN</a>
-      <a href="/sr/links" hreflang="sr-Latn" aria-current={lang === 'sr' ? 'true' : undefined}>SR</a>
+      {/* the language's own name, so a screen reader says "Srpski", not "S R" */}
+      <a href="/links" hreflang={htmlLang.en} lang={htmlLang.en} aria-label={languages.en} title={languages.en} aria-current={lang === 'en' ? 'true' : undefined}>EN</a>
+      <a href="/sr/links" hreflang={htmlLang.sr} lang={htmlLang.sr} aria-label={languages.sr} title={languages.sr} aria-current={lang === 'sr' ? 'true' : undefined}>SR</a>
     </div>
 
     <main>
@@ -445,6 +570,26 @@ const xDefault = alternates.find((a) => a.lang === 'en')!.href;
           <p>{t.links.tagline}</p>
         </div>
       </header>
+
+      <!-- The two sides, B first. They open the site, where both sides live. -->
+      <section class="sides" aria-label={t.links.sidesLabel}>
+        <a href={`${l('/mixes')}?side=b`} class="link-side" data-side="B">
+          <span class="key" aria-hidden="true">B</span>
+          <span class="side-text">
+            <span class="side-name"><span class="sr-only">{t.sides.b}: </span>House Music Therapy</span>
+            <span class="side-detail">{t.links.sideBDetail}</span>
+          </span>
+          <i class="fa-solid fa-arrow-right side-arrow" aria-hidden="true"></i>
+        </a>
+        <a href={`${l('/events')}?side=a`} class="link-side" data-side="A">
+          <span class="key" aria-hidden="true">A</span>
+          <span class="side-text">
+            <span class="side-name"><span class="sr-only">{t.sides.a}: </span>Core Memories</span>
+            <span class="side-detail">{t.links.sideADetail}</span>
+          </span>
+          <i class="fa-solid fa-arrow-right side-arrow" aria-hidden="true"></i>
+        </a>
+      </section>
 
       <!-- Main Links -->
       <section aria-label={t.links.mainLabel}>
@@ -538,8 +683,18 @@ const xDefault = alternates.find((a) => a.lang === 'en')!.href;
       <footer>
         <p>{t.links.copyright(new Date().getFullYear())}</p>
         <a href={`https://zippydj.com${l('/')}`}>{t.links.visit}</a>
+        <p class="legal">
+          <a href={l('/privacy')}>{t.footer.privacy}</a>
+          <span aria-hidden="true"> · </span>
+          <button type="button" data-consent-open>{t.footer.cookieSettings}</button>
+        </p>
       </footer>
 
     </main>
+    <CookieConsent lang={lang} />
+    <script>
+      import '../../scripts/attribution';
+      import '../../scripts/track';
+    </script>
   </body>
 </html>

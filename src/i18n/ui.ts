@@ -47,8 +47,9 @@ const en = {
       "DJ Zippy (Veljko Nedeljković) is a Serbian house and tech house DJ and selector, creator of the 'House Music Therapy' mix series.",
     orgDescription:
       'House Music Therapy - DJ brand curating frequencies, grooves, and the journey through house music.',
-    eventDescription: (title: string, location: string) =>
-      `DJ Zippy (Zippy) performing live at ${title} in ${location}. House Music Therapy.`,
+    // side: B = underground (House Music Therapy), A = open format; see eventSide()
+    eventDescription: (title: string, location: string, side: 'A' | 'B' = 'B') =>
+      `DJ Zippy (Zippy) performing live at ${title} in ${location}. ${side === 'A' ? 'Open format night.' : 'House Music Therapy.'}`,
     ogImageAlt: 'DJ Zippy with headphones — Serbian house DJ, House Music Therapy',
   },
 
@@ -66,6 +67,10 @@ const en = {
     links: 'Links',
     book: 'Book Now',
     openMenu: 'Open menu',
+    closeMenu: 'Close menu',
+    mainLabel: 'Main',
+    homeLabel: 'DJ Zippy, home',
+    skip: 'Skip to content',
   },
 
   breadcrumb: {
@@ -81,7 +86,7 @@ const en = {
     heading1: "Let's ",
     heading2: 'Connect',
     blurb:
-      'Available for club bookings, private events, and festivals — bringing the House Music Therapy to your event.',
+      'Available for club nights, festivals and private events — bringing House Music Therapy to your event.',
     raProfile: 'Resident Advisor Profile',
     name: 'Name',
     venue: 'Venue/Event',
@@ -91,12 +96,28 @@ const en = {
     submit: 'Send Request',
     sending: 'Sending...',
     sent: 'Sent ✓',
-    error: 'Error — try veljkoned@gmail.com',
+    error: 'Not sent',
     subject: 'DJ Zippy — Booking Request',
     copyright: (year: number) => `© ${year} DJ Zippy. All Rights Reserved. House Music Therapy.`,
     allLinks: 'All Links',
     sideLabel: 'Which side?',
     sideAny: 'Not sure yet',
+    // The booking desk: the form panel, the side pads and the direct lines
+    kicker: 'Booking',
+    deskTitle: 'Booking request',
+    sideBNote: 'House Music Therapy',
+    sideANote: 'Core Memories',
+    detailsLabel: 'Details',
+    sentNote: 'Thanks, the request is in. DJ Zippy will get back to you by email.',
+    errorNote: 'That did not go through. Try again, or write to veljkoned@gmail.com.',
+    emailShort: 'Email',
+    profile: 'Profile',
+    follow: 'Follow',
+    copied: 'Copied',
+    copyLabel: 'Copy the email address',
+    // The bottom row: the privacy page and the way back to the cookie choice
+    privacy: 'Privacy',
+    cookieSettings: 'Cookie settings',
   },
 
   // The two sides of Zippy: A = open format, B = underground. See eventSide().
@@ -129,29 +150,32 @@ const en = {
     soundOff: 'Sound off',
   },
 
-  // "Reads the room": the fader in the home intro. Genres run from what suits a
-  // warm-up to what suits peak time; `lines` are read out in that order too.
+  // The set in the booking form (Footer.astro): a fader over the night, from
+  // warm-up to closing. Genres run in that order, so the ones near the fader
+  // light up; `lines` has one line per part of the night (warm-up, peak, closing).
+  // The email and analytics always get the English part and genre names.
   room: {
-    title: 'The room',
+    title: 'Part of the night',
     warmup: 'Warm-up',
     peak: 'Peak time',
-    faderLabel: 'Part of the night, from warm-up to peak time',
+    closing: 'Closing',
+    faderLabel: 'Slide from warm-up to closing',
+    genresLabel: 'Genres for this part of the night',
+    anyLine: 'Not sure yet? Describe the crowd in your message and he will suggest the side that fits.',
     B: {
       genres: ['Jazz', 'Funk', 'Disco', 'Deep House', 'French House', 'Groove', 'Minimal', 'Deep Tech'],
       lines: [
-        'Jazz, funk and disco while people are still walking in.',
-        'Deep house and disco edges while the floor fills up.',
-        'Groove and French house once the room is moving.',
-        'Driving deep tech and minimal when the floor asks for it.',
+        'Jazz, funk and disco while people walk in: warm, patient, never in a hurry.',
+        'Deep and French house with a groove that keeps the floor locked in.',
+        'Minimal and deep tech for the last ones standing, right into the after-hours.',
       ],
     },
     A: {
       genres: ['R&B', 'Disco', 'Funk', '2000s', 'Pop', 'Hip-hop', 'Balkan', 'Trap'],
       lines: [
         'R&B, disco and funk while people are still arriving.',
-        '2000s and pop once the first ones start singing along.',
-        'Hip-hop and the hits everyone knows by heart.',
-        'Balkan and trap when the whole place is up.',
+        '2000s, pop and hip-hop: the hits everyone sings along to.',
+        'Balkan and trap when the whole place is on its feet.',
       ],
     },
   },
@@ -180,26 +204,65 @@ const en = {
     heroLatestTag: 'Latest',
     weekdays: ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'],
     playedAt: 'Played at',
+    // Rooms he has played, festival stages first. Only places: no crews, no partners.
     venues: [
       'Exit Festival · Dance Arena',
       'Exit Festival · AS FM Stage',
       'Exit Festival · Students Stage',
-      'Club Kult',
+      'Ray Bar · Novi Sad',
       'Toucan · Zakynthos',
       'Capital · Lefkada',
+      'Krivi Put · Smederevo',
+      'Lazino Tele · Novi Sad',
       'Borisov Atelje',
-      'Ray Bar',
-      'Kult Talents',
+      'Club Kult',
     ],
     tapeWords: ['Deep Tech', 'Minimal', 'Deep House', 'French House', 'Groove', 'Disco', 'Funk', 'Jazz'],
     kicker: 'Serbian House DJ',
     // the same line on the other side of the hero title
     kickerA: 'Serbian Open Format DJ',
+    // "The selector": the back of his record. Heading, a two-line motto (each
+    // line gets its full stop from the template), the bio for search engines,
+    // the numbers, the sleeve's credits and the two sides as a tracklist.
+    datesKicker: 'Live',
+    introKicker: 'Liner notes',
     introHeading1: 'The selector behind ',
     introHeading2: 'House Music Therapy',
+    introQuote: ['Reads the room first', 'Plays second'],
     introBody:
-      'DJ Zippy (Veljko Nedeljković) is a Serbian house and tech house DJ who reads the room first and plays second. He has played three Exit Festival stages, Club Kult in Belgrade and summer club nights on Zakynthos and Lefkada, moving from deep grooves to driving tech house when the floor asks for it. Available for clubs, festivals and private events across Serbia and Europe.',
-    introChips: ['Exit Festival 2024 & 2025', '3 Exit Festival stages', 'Kult Talents member', 'Serbia · Greece'],
+      "DJ Zippy (Veljko Nedeljković) is a Serbian house and tech house DJ. He has played three Exit Festival stages, House Music Therapy nights at Ray Bar in Novi Sad, underground nights at Kaz'te, Krivi Put and Charlie Bar, and summer club nights on Zakynthos and Lefkada. His sets move from groove-led deep house to driving deep tech and minimal when the floor asks for it. Available for clubs, festivals and private events across Serbia and Europe.",
+    introStats: { gigs: 'Gigs', venues: 'Venues', cities: 'Cities', countries: 'Countries' },
+    introCredits: [
+      { label: 'Based in', value: 'Serbia' },
+      { label: 'Plays', value: 'Clubs, festivals, private events' },
+      { label: 'Travels', value: 'Across Europe' },
+    ],
+    // Tracks are nights he plays, B side first. A note of '{exit}' is filled in
+    // from the events: how many Exit stages, and in which years.
+    introSides: {
+      B: {
+        name: 'House Music Therapy',
+        blurb: 'Deep and French house to open, deep tech and minimal for the late hours.',
+        tracks: [
+          { name: 'Exit Festival', note: '{exit}' },
+          { name: 'Ray Bar', note: 'Novi Sad' },
+          { name: "Kaz'te", note: '' },
+          { name: 'Krivi Put', note: 'Smederevo' },
+          { name: 'Charlie Bar', note: 'Smederevo' },
+        ],
+        link: 'Listen to the mixes',
+      },
+      A: {
+        name: 'Core Memories',
+        blurb: 'R&B, disco, the 2000s, hip-hop and Balkan hits for nights when everyone sings along.',
+        tracks: [
+          { name: 'Lazino Tele', note: 'Novi Sad' },
+          { name: 'Šuma Peva', note: '' },
+        ],
+        link: 'See the dates',
+      },
+    },
+    introStages: (n: number) => `${n} ${n === 1 ? 'stage' : 'stages'}`,
     introPhotoAlt: 'DJ Zippy, Serbian house DJ, wearing headphones',
     introBook: 'Book Zippy',
     introBio: 'Full bio',
@@ -211,27 +274,74 @@ const en = {
       'DJ Zippy (Veljko Nedeljković) is a Serbian house and tech house DJ and selector, creator of House Music Therapy, with sets at Exit Festival.',
     heading1: 'About ',
     heading2: 'DJ Zippy',
+    // The residency line follows the lead only while the residency is live:
+    // AboutPage fills {venue}, {city} and {year} from the gig archive.
     lead:
-      'DJ Zippy curates frequencies from club nights to festival main stages, dedicated to the groove, the vibe, and the journey.',
+      'Serbian house and tech house DJ. First public set in a Smederevo café in 2022 and three Exit Festival stages by 2025.',
+    leadResidency: 'Resident at {venue} in {city} since {year}.',
     photoAlt: 'DJ Zippy, Serbian house DJ and creator of House Music Therapy.',
-    badge: 'THE ARTIST',
+    book: 'Book Zippy',
+    raProfile: 'Resident Advisor',
+    // The numbers under the lead, counted from the gig archive (same counting as /events)
+    statExit: 'Exit Festival stages',
+    statVenues: 'Venues',
+    statCities: 'Cities',
+    statCountries: 'Countries',
+    badge: 'The artist',
     subheading1: 'Not a Producer.',
     subheading2: 'A ',
     subheading3: 'Selector.',
     bio1Html:
-      "DJ Zippy's brand, <span class=\"text-white font-semibold\">House Music Therapy</span>, is built on the belief that the right groove can heal. While his foundation is strictly <span class=\"text-white font-semibold\">House</span>, Zippy adapts to the energy of the night, shifting into <span class=\"text-white font-semibold\">Techno</span> when the atmosphere demands darker, driving rhythms.",
+      "DJ Zippy's brand, <span class=\"text-white font-semibold\">House Music Therapy</span>, is built on the belief that the right groove can heal. While his foundation is <span class=\"text-white font-semibold\">house</span>, Zippy adapts to the energy of the night, shifting into <span class=\"text-white font-semibold\">deep tech and techno</span> when the atmosphere demands darker, driving rhythms.",
     bio2Html:
       'In an era dominated by production credits, the art of selection is the true therapy. DJ Zippy specializes in <strong>reading the room</strong>, bridging the gap between the DJ booth and the dancefloor.',
     bio3Html:
-      '<strong>Reliability is key.</strong> Through his collaboration with <strong class="text-white">Go2 Travel</strong>, DJ Zippy has proven his adaptability, making him a safe and exciting bet for any promoter.',
-    memberOf: 'Proud Member of:',
-    kultDesc:
-      "Platform for those who dare to experiment, learn, and evolve — the artists who will soon define tomorrow's sound.",
-    izuvanjeDesc:
-      'Non-EDM party concept blending all kinds of genres and generations operating since 2022.',
-    kultTitle: 'Kult Talents Member',
-    go2Title: 'Trusted by Go2 Travel',
-    raTitle: 'Resident Advisor',
+      '<strong>Reliability is key.</strong> Club nights, festival stages, summer nights in Greece and private events: DJ Zippy adapts to the crowd in front of him, which makes him a safe and exciting bet for any promoter.',
+    // The fact sheet next to the bio ("Liner notes" belong to the home page):
+    // each row is a name with a quieter line (…Note) under it. Kult Talents is
+    // a past programme (he is no longer on it); Izuvanje is a side project.
+    notesHeading: 'Fact sheet',
+    notesName: 'Real name',
+    notesBase: 'Based in',
+    notesBaseValue: 'Serbia',
+    notesBaseNote: 'Available across Europe',
+    notesResidency: 'Residency',
+    notesSince: 'Since {year}',
+    notesAlumni: 'Alumni',
+    notesAlumniValue: 'Kult Talents',
+    notesAlumniNote: "Club Kult's talent programme, Belgrade",
+    notesSideProject: 'Side project',
+    notesSideProjectValue: 'Izuvanje',
+    notesSideProjectNote: 'A non-EDM open-format party',
+    // The two sides of the record: B leads (underground), A is open format
+    sidesLabel: 'B side / A side',
+    sidesHeading1: 'Two sides, ',
+    sidesHeading2: 'one selector',
+    sidesLead:
+      'Like a record, Zippy has two sides. The B side leads: underground house and the House Music Therapy nights. The A side is open format, for crowds that came to sing along.',
+    sidesPick: 'Pick a side',
+    sideOn: 'Now playing',
+    soundLabel: 'Sound',
+    nightsLabel: 'Nights',
+    sideB: {
+      name: 'House Music Therapy',
+      body: 'His mix series and the name of his club nights. The set opens deep and warm and turns darker and more driving as the room fills up.',
+      sound: ['Deep Tech', 'Minimal', 'Deep House', 'French House', 'Groove', 'Disco', 'Funk', 'Jazz'],
+      nights: ['Exit Festival', "Kaz'te", 'Krivi Put', 'Charlie Bar', 'Ray Bar'],
+    },
+    sideA: {
+      name: 'Core Memories',
+      body: 'Open-format nights for crowds that came to sing along. Everyone knows the words, and the set still has a shape.',
+      sound: ['R&B', 'Disco', 'Funk', '2000s', 'Pop', 'Hip-hop', 'Balkan', 'Trap'],
+      nights: ['Lazino Tele', 'Šuma Peva', 'Izuvanje'],
+    },
+    // The path: a few nights from every year of the gig archive
+    pathHeading1: 'The path ',
+    pathHeading2: 'so far',
+    pathLead: 'A few nights from every year, straight from the gig archive.',
+    pathNights: 'Nights',
+    pathAll: 'Full archive',
+    faqLabel: 'FAQ',
     faqHeading1: 'Frequently Asked ',
     faqHeading2: 'Questions',
     faq: [
@@ -248,6 +358,13 @@ const en = {
           'DJ Zippy plays Deep Tech, Minimal, Deep House, French House and groove-led house, and works Disco, Funk and Jazz into his sets.',
         aText:
           'DJ Zippy plays Deep Tech, Minimal, Deep House, French House and groove-led house, and works Disco, Funk and Jazz into his sets.',
+      },
+      {
+        q: 'Does DJ Zippy play open format?',
+        aHtml:
+          'Yes. Besides the underground house of <strong>House Music Therapy</strong> (his B side), DJ Zippy plays open-format nights (his A side) such as <strong>Core Memories</strong> in Novi Sad: R&amp;B, disco, funk, 2000s, pop, hip-hop and Balkan hits.',
+        aText:
+          "Yes. Besides the underground house of 'House Music Therapy' (his B side), DJ Zippy plays open-format nights (his A side) such as 'Core Memories' in Novi Sad: R&B, disco, funk, 2000s, pop, hip-hop and Balkan hits.",
       },
       {
         q: 'Where is DJ Zippy from?',
@@ -311,13 +428,17 @@ const en = {
     upcoming1: 'Upcoming ',
     upcoming2: 'Events',
     noUpcoming: 'No upcoming events scheduled.',
+    noUpcomingHint:
+      "DJ Zippy's new dates are announced here first. Subscribe to the calendar and they show up on your phone automatically.",
+    bookCta: 'Book DJ Zippy',
+    nextUp: 'Next up',
     openFormat: 'Open format',
     past1: 'Past ',
     past2: 'Highlights',
     highlightBadge: 'Highlight',
     showAllPast: 'All past gigs',
     showAllYear: 'Show all {n}',
-    yearSummary: '{n} gigs: {a} open format, {b} underground',
+    yearSummary: '{n} gigs: {b} underground, {a} open format',
     statGigs: 'Gigs',
     statVenues: 'Venues',
     statCities: 'Cities',
@@ -332,17 +453,31 @@ const en = {
     heading: 'DJ Zippy Gallery',
     subheading: 'Live Performances & House Music Therapy Moments',
     lead: 'Capturing the energy of the dancefloor. From club nights to festival stages.',
-    photos: [
-      'DJ Zippy performing house music at Exit Festival Dance Arena, Novi Sad, 2025',
-      'DJ Zippy performing house music at Exit Festival Students Stage, Novi Sad, 2025',
-      'DJ Zippy performing house music at Club Kult, Belgrade, 2025',
-      'DJ Zippy performing house music at Exit Festival AS FM Stage, Novi Sad, 2024',
-      'DJ Zippy performing house music at Krivi Put, Smederevo, 2022',
-      'House Music Therapy session in the studio, Belgrade, 2024',
+    // Frames on the page now. Live photos from the stages below are added in T17.
+    portrait: {
+      caption: 'Portrait',
+      place: 'House Music Therapy',
+      alt: 'DJ Zippy, Serbian house DJ, wearing headphones',
+    },
+    live: {
+      caption: 'Behind the decks',
+      place: 'Live',
+      alt: 'DJ Zippy behind the decks, facing the crowd',
+    },
+    // "Developing": the shoots still to come, B side first
+    developing: 'Developing',
+    developingItems: [
+      { side: 'B', title: 'Exit Festival', detail: 'Dance Arena · Students Stage · AS FM Stage' },
+      { side: 'B', title: 'Summer in Greece', detail: 'Zakynthos · Lefkada' },
+      { side: 'B', title: 'House Music Therapy', detail: 'Club nights across Serbia' },
+      { side: 'A', title: 'Core Memories', detail: 'Open format nights' },
     ],
-    firstCaption: 'Exit Festival - Dance Arena',
-    firstCaptionSub: 'Novi Sad, 2025',
     more: 'More photos coming soon.',
+    open: 'View: {alt}',
+    viewer: 'Photo viewer',
+    close: 'Close',
+    prev: 'Previous photo',
+    next: 'Next photo',
     backHome: 'Back to Homepage',
     schemaName: 'DJ Zippy Photo Gallery',
     schemaDesc:
@@ -352,9 +487,12 @@ const en = {
   notFound: {
     title: '404 - Page Not Found | DJ Zippy',
     description: "The page you're looking for doesn't exist. Return to DJ Zippy's official website.",
-    kicker: 'Track Not Found',
-    lead: 'This page dropped off the playlist. Head back and keep the vibe going.',
+    kicker: 'Track not found',
+    lead: 'The needle lifted and this page dropped out of the set. Pick another track below.',
+    pathLabel: 'Requested address',
     backHome: 'Back to Home',
+    events: 'Upcoming dates',
+    mixes: 'Mixes',
   },
 
   links: {
@@ -365,7 +503,11 @@ const en = {
       'All official DJ Zippy links — streaming, socials, events and bookings. House Music Therapy by a Serbian house DJ.',
     twitterDescription: 'All official DJ Zippy links — streaming, socials, events and bookings.',
     avatarAlt: 'Zippy (DJ Zippy) - House Music Therapy Profile',
-    tagline: 'House Music Therapy',
+    tagline: 'Serbian house DJ',
+    // The two sides, B first: House Music Therapy leads, Core Memories follows
+    sidesLabel: 'Two sides',
+    sideBDetail: 'Underground sets & nights',
+    sideADetail: 'Open format nights',
     mainLabel: 'Main Links',
     streamFollow: 'Stream & Follow',
     website: 'Official Website',
@@ -386,29 +528,36 @@ const en = {
   blog: {
     title: 'DJ Zippy Blog | House Music Articles & Insights',
     description:
-      'Read articles about house music, production tips, event reviews, and more from DJ Zippy.',
+      'Articles about house music, selection and DJing, gig stories and more from DJ Zippy.',
     heading: 'BLOG',
+    crumb: 'Blog',
+    // shown when a post is written in another language than the page around it
+    inEnglish: 'In English',
     lead: 'House Music Articles, Tips & Insights',
     featured: 'Featured',
     latest: 'Latest Articles',
-    readArticle: 'Read Article',
+    readArticle: 'Read article',
     read: 'Read',
     empty: 'No posts published yet',
-    ctaHeading: 'Stay Updated',
-    ctaLead: 'Get notified when new articles are published',
-    ctaButton: 'Subscribe to Updates',
-    readTime: '5 min read',
-    aboutAuthor: 'About the Author',
+    ctaHeading: 'Keep listening',
+    ctaLead: 'The newest House Music Therapy sets and every upcoming date, one click away.',
+    ctaButton: 'All mixes',
+    ctaEvents: 'Upcoming dates',
+    readTime: '{n} min read',
+    aboutAuthor: 'About the author',
     authorBio:
       'is a Serbian house DJ and selector and the creator of House Music Therapy. His sets blend classic house selections with contemporary sounds.',
-    share: 'Share:',
-    shareTwitter: 'Share on Twitter',
+    authorMore: 'Full bio',
+    share: 'Share',
+    shareTwitter: 'Share on X',
     shareFacebook: 'Share on Facebook',
     shareLinkedIn: 'Share on LinkedIn',
-    moreArticles: 'More Articles',
-    prevArticle: '← Previous Article',
-    nextArticle: 'Next Article →',
-    backToBlog: 'Back to Blog',
+    copyLink: 'Copy link',
+    copied: 'Link copied',
+    moreArticles: 'More articles',
+    prevArticle: 'Previous article',
+    nextArticle: 'Next article',
+    backToBlog: 'Back to blog',
   },
 };
 
@@ -422,8 +571,8 @@ const sr: Dict = {
       "DJ Zippy (Veljko Nedeljković) je srpski house i tech house DJ i selektor, tvorac serijala mikseva 'House Music Therapy'.",
     orgDescription:
       'House Music Therapy - DJ brend koji bira frekvencije, groove i vodi kroz putovanje house muzikom.',
-    eventDescription: (title: string, location: string) =>
-      `DJ Zippy (Zippy) nastupa uživo u ${title}, ${location}. House Music Therapy.`,
+    eventDescription: (title: string, location: string, side: 'A' | 'B' = 'B') =>
+      `DJ Zippy (Zippy) uživo: ${title}, ${location}. ${side === 'A' ? 'Open format veče.' : 'House Music Therapy.'}`,
     ogImageAlt: 'DJ Zippy sa slušalicama — srpski house DJ, House Music Therapy',
   },
 
@@ -435,17 +584,23 @@ const sr: Dict = {
 
   nav: {
     home: 'Početna',
-    about: 'O meni',
+    // third person, like the page and its breadcrumb
+    about: 'O Zippyju',
     mixes: 'Miksevi',
     events: 'Nastupi',
     links: 'Linkovi',
     book: 'Rezerviši',
     openMenu: 'Otvori meni',
+    closeMenu: 'Zatvori meni',
+    mainLabel: 'Glavni meni',
+    homeLabel: 'DJ Zippy, početna',
+    skip: 'Preskoči na sadržaj',
   },
 
   breadcrumb: {
     home: 'Početna',
-    about: 'O meni',
+    // third person, like the page itself
+    about: 'O Zippyju',
     mixes: 'Miksevi',
     events: 'Nastupi',
     gallery: 'Galerija',
@@ -456,7 +611,7 @@ const sr: Dict = {
     heading1: 'Hajde da se ',
     heading2: 'čujemo',
     blurb:
-      'Dostupan za klupske nastupe, privatne žurke i festivale — House Music Therapy stiže na tvoj event.',
+      'Dostupan za klupske nastupe, festivale i privatne žurke — House Music Therapy stiže na tvoj event.',
     raProfile: 'Resident Advisor profil',
     name: 'Ime',
     venue: 'Klub/Event',
@@ -466,12 +621,26 @@ const sr: Dict = {
     submit: 'Pošalji upit',
     sending: 'Šaljem...',
     sent: 'Poslato ✓',
-    error: 'Greška — piši na veljkoned@gmail.com',
+    error: 'Nije poslato',
     subject: 'DJ Zippy — Upit za nastup',
     copyright: (year: number) => `© ${year} DJ Zippy. Sva prava zadržana. House Music Therapy.`,
     allLinks: 'Svi linkovi',
     sideLabel: 'Koja strana?',
     sideAny: 'Još ne znam',
+    kicker: 'Booking',
+    deskTitle: 'Upit za nastup',
+    sideBNote: 'House Music Therapy',
+    sideANote: 'Core Memories',
+    detailsLabel: 'Detalji',
+    sentNote: 'Hvala, upit je stigao. DJ Zippy će ti se javiti na email.',
+    errorNote: 'Nije prošlo. Pokušaj ponovo ili piši na veljkoned@gmail.com.',
+    emailShort: 'Email',
+    profile: 'Profil',
+    follow: 'Prati',
+    copied: 'Kopirano',
+    copyLabel: 'Kopiraj email adresu',
+    privacy: 'Privatnost',
+    cookieSettings: 'Podešavanja kolačića',
   },
 
   sides: {
@@ -503,25 +672,26 @@ const sr: Dict = {
   },
 
   room: {
-    title: 'Publika',
+    title: 'Deo večeri',
     warmup: 'Zagrevanje',
-    peak: 'Vrhunac večeri',
-    faderLabel: 'Deo večeri, od zagrevanja do vrhunca',
+    peak: 'Vrhunac',
+    closing: 'Zatvaranje',
+    faderLabel: 'Pomeri fejder od zagrevanja do zatvaranja',
+    genresLabel: 'Žanrovi za ovaj deo večeri',
+    anyLine: 'Još ne znaš? Opiši publiku u poruci i on će predložiti stranu koja joj odgovara.',
     B: {
       genres: ['Jazz', 'Funk', 'Disco', 'Deep House', 'French House', 'Groove', 'Minimal', 'Deep Tech'],
       lines: [
-        'Jazz, funk i disco dok ljudi tek ulaze.',
-        'Deep house i disco prizvuk dok se podijum puni.',
-        'Groove i French house kad se ekipa razmrda.',
-        'Jak deep tech i minimal kad podijum to traži.',
+        'Jazz, funk i disco dok ljudi ulaze: toplo, strpljivo, bez žurbe.',
+        'Deep i French house sa groove-om koji drži podijum na okupu.',
+        'Minimal i deep tech za one koji ostaju do kraja, pravo u after.',
       ],
     },
     A: {
       genres: ['R&B', 'Disco', 'Funk', '2000-te', 'Pop', 'Hip-hop', 'Balkan', 'Trep'],
       lines: [
         'R&B, disco i funk dok ljudi tek stižu.',
-        'Dvehiljadite i pop kad prvi krenu da pevaju.',
-        'Hip-hop i hitovi koje svi znaju napamet.',
+        'Dvehiljadite, pop i hip-hop: hitovi koje svi pevaju.',
         'Balkan i trep kad je cela ekipa na nogama.',
       ],
     },
@@ -555,21 +725,58 @@ const sr: Dict = {
       'Exit festival · Dance Arena',
       'Exit festival · AS FM bina',
       'Exit festival · Studentska bina',
-      'Club Kult',
+      'Ray Bar · Novi Sad',
       'Toucan · Zakintos',
       'Capital · Lefkada',
+      'Krivi Put · Smederevo',
+      'Lazino Tele · Novi Sad',
       'Borisov Atelje',
-      'Ray Bar',
-      'Kult Talents',
+      'Club Kult',
     ],
     tapeWords: ['Deep Tech', 'Minimal', 'Deep House', 'French House', 'Groove', 'Disco', 'Funk', 'Jazz'],
     kicker: 'Srpski house DJ',
     kickerA: 'Srpski open format DJ',
+    datesKicker: 'Uživo',
+    introKicker: 'Beleške sa omota',
     introHeading1: 'Selektor iza ',
     introHeading2: 'House Music Therapy',
+    introQuote: ['Prvo čita publiku', 'Tek onda pušta'],
     introBody:
-      'DJ Zippy (Veljko Nedeljković) je srpski house i tech house DJ koji prvo čita publiku, pa tek onda pušta. Nastupao je na tri bine Exit festivala, u klubu Kult u Beogradu i na letnjim klupskim večerima na Zakintosu i Lefkadi, a iz dubokog groove-a prelazi u jak tech house kad podijum to traži. Dostupan za klubove, festivale i privatne žurke u Srbiji i Evropi.',
-    introChips: ['Exit festival 2024. i 2025.', '3 bine Exit festivala', 'Član Kult Talents', 'Srbija · Grčka'],
+      "DJ Zippy (Veljko Nedeljković) je srpski house i tech house DJ. Nastupao je na tri bine Exit festivala, na House Music Therapy večerima u Ray Baru u Novom Sadu, na underground večerima u Kaz'te, Krivom Putu i Charlie Baru, a leti i u klubovima na Zakintosu i Lefkadi. Iz groove deep housea prelazi u jak deep tech i minimal kad podijum to traži. Dostupan za klubove, festivale i privatne žurke u Srbiji i Evropi.",
+    introStats: { gigs: 'Nastupi', venues: 'Lokacije', cities: 'Gradovi', countries: 'Države' },
+    introCredits: [
+      { label: 'Baza', value: 'Srbija' },
+      { label: 'Nastupa', value: 'Klubovi, festivali, privatne žurke' },
+      { label: 'Putuje', value: 'Širom Evrope' },
+    ],
+    introSides: {
+      B: {
+        name: 'House Music Therapy',
+        blurb: 'Deep i French house za početak, deep tech i minimal za kasne sate.',
+        tracks: [
+          { name: 'Exit festival', note: '{exit}' },
+          { name: 'Ray Bar', note: 'Novi Sad' },
+          { name: "Kaz'te", note: '' },
+          { name: 'Krivi Put', note: 'Smederevo' },
+          { name: 'Charlie Bar', note: 'Smederevo' },
+        ],
+        link: 'Slušaj mikseve',
+      },
+      A: {
+        name: 'Core Memories',
+        blurb: 'R&B, disco, dvehiljadite, hip-hop i balkanski hitovi za večeri kad svi pevaju.',
+        tracks: [
+          { name: 'Lazino Tele', note: 'Novi Sad' },
+          { name: 'Šuma Peva', note: '' },
+        ],
+        link: 'Pogledaj datume',
+      },
+    },
+    // 1 bina, 2–4 bine, 5+ bina (11–14 bina)
+    introStages: (n: number) => {
+      const few = n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14);
+      return `${n} ${few ? 'bine' : 'bina'}`;
+    },
     introPhotoAlt: 'DJ Zippy, srpski house DJ, sa slušalicama',
     introBook: 'Rezerviši Zippyja',
     introBio: 'Cela biografija',
@@ -582,26 +789,65 @@ const sr: Dict = {
     heading1: 'O ',
     heading2: 'DJ Zippyju',
     lead:
-      'DJ Zippy bira frekvencije — od klupskih večeri do festivalskih bina — posvećen grooveu, vibe-u i putovanju kroz zvuk.',
+      'Srpski house i tech house DJ. Prvi javni nastup 2022. u jednom smederevskom kafiću i tri bine Exit festivala do 2025.',
+    leadResidency: 'Od {year}. ima rezidenciju u klubu {venue} ({city}).',
     photoAlt: 'DJ Zippy, srpski house DJ i tvorac House Music Therapy.',
-    badge: 'ARTIST',
+    book: 'Rezerviši Zippyja',
+    raProfile: 'Resident Advisor',
+    statExit: 'Bine Exit festivala',
+    statVenues: 'Lokacije',
+    statCities: 'Gradovi',
+    statCountries: 'Države',
+    badge: 'Umetnik',
     subheading1: 'Nije producent.',
     subheading2: 'Već ',
     subheading3: 'selektor.',
     bio1Html:
-      'Brend DJ Zippyja, <span class="text-white font-semibold">House Music Therapy</span>, počiva na uverenju da pravi groove leči. Iako mu je temelj isključivo <span class="text-white font-semibold">house</span>, Zippy se prilagođava energiji noći i prelazi u <span class="text-white font-semibold">techno</span> kada atmosfera traži mračnije i jače ritmove.',
+      'Brend DJ Zippyja, <span class="text-white font-semibold">House Music Therapy</span>, počiva na uverenju da pravi groove leči. Iako mu je temelj <span class="text-white font-semibold">house</span>, Zippy se prilagođava energiji noći i prelazi u <span class="text-white font-semibold">deep tech i techno</span> kada atmosfera traži mračnije i jače ritmove.',
     bio2Html:
       'U vremenu u kom sve zavisi od producentskih kredita, umetnost selekcije je prava terapija. DJ Zippy je specijalista za <strong>čitanje publike</strong> i spaja DJ pult sa podijumom.',
     bio3Html:
-      '<strong>Pouzdanost je ključna.</strong> Kroz saradnju sa <strong class="text-white">Go2 Travel</strong> DJ Zippy je dokazao svoju prilagodljivost, što ga čini sigurnim i uzbudljivim izborom za svakog promotera.',
-    memberOf: 'Ponosni član:',
-    kultDesc:
-      'Platforma za one koji smeju da eksperimentišu, uče i razvijaju se — artiste koji će uskoro definisati zvuk sutrašnjice.',
-    izuvanjeDesc:
-      'Non-EDM party koncept koji spaja različite žanrove i generacije, aktivan od 2022.',
-    kultTitle: 'Član Kult Talents',
-    go2Title: 'Saradnja sa Go2 Travel',
-    raTitle: 'Resident Advisor',
+      '<strong>Pouzdanost je ključna.</strong> Klupske večeri, festivalske bine, letnji nastupi u Grčkoj i privatne žurke: DJ Zippy se prilagođava publici pred kojom svira, što ga čini sigurnim i uzbudljivim izborom za svakog promotera.',
+    notesHeading: 'Ukratko',
+    notesName: 'Pravo ime',
+    notesBase: 'Baza',
+    notesBaseValue: 'Srbija',
+    notesBaseNote: 'Dostupan širom Evrope',
+    notesResidency: 'Rezidencija',
+    notesSince: 'Od {year}.',
+    notesAlumni: 'Prošao kroz',
+    notesAlumniValue: 'Kult Talents',
+    notesAlumniNote: 'Program za talente kluba Kult, Beograd',
+    notesSideProject: 'Sporedni projekat',
+    notesSideProjectValue: 'Izuvanje',
+    notesSideProjectNote: 'Non-EDM open format žurka',
+    sidesLabel: 'B strana / A strana',
+    sidesHeading1: 'Dve strane, ',
+    sidesHeading2: 'jedan selektor',
+    sidesLead:
+      'Kao ploča, Zippy ima dve strane. B strana je glavna: underground house i House Music Therapy večeri. A strana je open format, za ekipu koja je došla da peva.',
+    sidesPick: 'Izaberi stranu',
+    sideOn: 'Sada svira',
+    soundLabel: 'Zvuk',
+    nightsLabel: 'Večeri',
+    sideB: {
+      name: 'House Music Therapy',
+      body: 'Njegov serijal mikseva i ime njegovih klupskih večeri. Set počinje duboko i toplo, a postaje mračniji i jači kako se podijum puni.',
+      sound: ['Deep Tech', 'Minimal', 'Deep House', 'French House', 'Groove', 'Disco', 'Funk', 'Jazz'],
+      nights: ['Exit festival', "Kaz'te", 'Krivi Put', 'Charlie Bar', 'Ray Bar'],
+    },
+    sideA: {
+      name: 'Core Memories',
+      body: 'Open format večeri za ekipu koja je došla da peva. Svi znaju tekst, a set i dalje ima svoj tok.',
+      sound: ['R&B', 'Disco', 'Funk', '2000-te', 'Pop', 'Hip-hop', 'Balkan', 'Trep'],
+      nights: ['Lazino Tele', 'Šuma Peva', 'Izuvanje'],
+    },
+    pathHeading1: 'Put ',
+    pathHeading2: 'do sada',
+    pathLead: 'Po nekoliko večeri iz svake godine, pravo iz arhive nastupa.',
+    pathNights: 'Nastupi',
+    pathAll: 'Cela arhiva',
+    faqLabel: 'FAQ',
     faqHeading1: 'Često postavljana ',
     faqHeading2: 'pitanja',
     faq: [
@@ -618,6 +864,13 @@ const sr: Dict = {
           'DJ Zippy pušta deep tech, minimal, deep house, french house i groove house, a u setove upliće disco, funk i jazz.',
         aText:
           'DJ Zippy pušta deep tech, minimal, deep house, french house i groove house, a u setove upliće disco, funk i jazz.',
+      },
+      {
+        q: 'Da li DJ Zippy pušta open format?',
+        aHtml:
+          'Da. Pored underground house zvuka <strong>House Music Therapy</strong> (njegove B strane), DJ Zippy svira i na open format večerima (njegova A strana), kao što je <strong>Core Memories</strong> u Novom Sadu: R&amp;B, disco, funk, dvehiljadite, pop, hip-hop i balkanski hitovi.',
+        aText:
+          "Da. Pored underground house zvuka 'House Music Therapy' (njegove B strane), DJ Zippy svira i na open format večerima (njegova A strana), kao što je 'Core Memories' u Novom Sadu: R&B, disco, funk, dvehiljadite, pop, hip-hop i balkanski hitovi.",
       },
       {
         q: 'Odakle je DJ Zippy?',
@@ -681,13 +934,17 @@ const sr: Dict = {
     upcoming1: 'Naredni ',
     upcoming2: 'nastupi',
     noUpcoming: 'Trenutno nema zakazanih nastupa.',
+    noUpcomingHint:
+      'Novi nastupi DJ Zippyja prvo se objavljuju ovde. Pretplati se na kalendar i automatski će ti stizati na telefon.',
+    bookCta: 'Rezerviši DJ Zippyja',
+    nextUp: 'Sledeći nastup',
     openFormat: 'Open format',
     past1: 'Iz ',
     past2: 'arhive',
     highlightBadge: 'Izdvojeno',
     showAllPast: 'Svi prošli nastupi',
     showAllYear: 'Prikaži svih {n}',
-    yearSummary: 'Nastupa: {n}. Open format: {a}, underground: {b}',
+    yearSummary: 'Nastupa: {n}. Underground: {b}, open format: {a}',
     statGigs: 'Nastupi',
     statVenues: 'Lokacije',
     statCities: 'Gradovi',
@@ -702,17 +959,29 @@ const sr: Dict = {
     heading: 'Galerija DJ Zippyja',
     subheading: 'Nastupi uživo i House Music Therapy trenuci',
     lead: 'Energija podijuma na jednom mestu. Od klupskih večeri do festivalskih bina.',
-    photos: [
-      'DJ Zippy pušta house muziku na Dance Areni, Exit festival, Novi Sad, 2025',
-      'DJ Zippy pušta house muziku na Studentskoj bini, Exit festival, Novi Sad, 2025',
-      'DJ Zippy pušta house muziku u klubu Kult, Beograd, 2025',
-      'DJ Zippy pušta house muziku na AS FM bini, Exit festival, Novi Sad, 2024',
-      'DJ Zippy pušta house muziku u Krivom Putu, Smederevo, 2022',
-      'House Music Therapy sesija u studiju, Beograd, 2024',
+    portrait: {
+      caption: 'Portret',
+      place: 'House Music Therapy',
+      alt: 'DJ Zippy, srpski house DJ, sa slušalicama',
+    },
+    live: {
+      caption: 'Za pultom',
+      place: 'Uživo',
+      alt: 'DJ Zippy za pultom, okrenut ka publici',
+    },
+    developing: 'U razvijanju',
+    developingItems: [
+      { side: 'B', title: 'Exit festival', detail: 'Dance Arena · Studentska bina · AS FM bina' },
+      { side: 'B', title: 'Leto u Grčkoj', detail: 'Zakintos · Lefkada' },
+      { side: 'B', title: 'House Music Therapy', detail: 'Klupske večeri širom Srbije' },
+      { side: 'A', title: 'Core Memories', detail: 'Open format žurke' },
     ],
-    firstCaption: 'Exit festival - Dance Arena',
-    firstCaptionSub: 'Novi Sad, 2025',
     more: 'Uskoro još fotografija.',
+    open: 'Pogledaj: {alt}',
+    viewer: 'Pregled fotografija',
+    close: 'Zatvori',
+    prev: 'Prethodna fotografija',
+    next: 'Sledeća fotografija',
     backHome: 'Nazad na početnu',
     schemaName: 'Foto galerija DJ Zippyja',
     schemaDesc:
@@ -723,8 +992,11 @@ const sr: Dict = {
     title: '404 - Stranica nije pronađena | DJ Zippy',
     description: 'Stranica koju tražiš ne postoji. Vrati se na zvanični sajt DJ Zippyja.',
     kicker: 'Numera nije pronađena',
-    lead: 'Ova stranica je ispala sa plejliste. Vrati se i nastavi vibe.',
+    lead: 'Igla se podigla i ova stranica je ispala iz seta. Izaberi drugu numeru ispod.',
+    pathLabel: 'Tražena adresa',
     backHome: 'Nazad na početnu',
+    events: 'Naredni nastupi',
+    mixes: 'Miksevi',
   },
 
   links: {
@@ -735,7 +1007,10 @@ const sr: Dict = {
       'Svi zvanični linkovi DJ Zippyja — striming, mreže, nastupi i booking. House Music Therapy srpskog house DJ-a.',
     twitterDescription: 'Svi zvanični linkovi DJ Zippyja — striming, mreže, nastupi i booking.',
     avatarAlt: 'Zippy (DJ Zippy) - House Music Therapy profil',
-    tagline: 'House Music Therapy',
+    tagline: 'Srpski house DJ',
+    sidesLabel: 'Dve strane',
+    sideBDetail: 'Underground setovi i večeri',
+    sideADetail: 'Open format žurke',
     mainLabel: 'Glavni linkovi',
     streamFollow: 'Slušaj i prati',
     website: 'Zvanični sajt',
@@ -756,28 +1031,34 @@ const sr: Dict = {
   blog: {
     title: 'Blog DJ Zippyja | Tekstovi o house muzici',
     description:
-      'Tekstovi o house muzici, saveti za produkciju, utisci sa eventova i još toga, iz pera DJ Zippyja.',
+      'Tekstovi o house muzici, selekciji i didžejingu, priče sa nastupa i još toga od DJ Zippyja.',
     heading: 'BLOG',
+    crumb: 'Blog',
+    inEnglish: 'Na engleskom',
     lead: 'Tekstovi o house muzici, saveti i uvidi',
     featured: 'Izdvojeno',
     latest: 'Najnoviji tekstovi',
     readArticle: 'Pročitaj tekst',
     read: 'Pročitaj',
     empty: 'Još nema objavljenih tekstova',
-    ctaHeading: 'Budi u toku',
-    ctaLead: 'Javimo ti kada izađu novi tekstovi',
-    ctaButton: 'Prijavi se',
-    readTime: '5 min čitanja',
+    ctaHeading: 'Slušaj dalje',
+    ctaLead: 'Najnoviji House Music Therapy setovi i svi naredni nastupi, na jedan klik.',
+    ctaButton: 'Svi miksevi',
+    ctaEvents: 'Naredni nastupi',
+    readTime: '{n} min čitanja',
     aboutAuthor: 'O autoru',
     authorBio:
       'je srpski house DJ i selektor i tvorac House Music Therapy. Njegovi setovi spajaju klasične house selekcije sa savremenim zvukom.',
-    share: 'Podeli:',
-    shareTwitter: 'Podeli na Twitteru',
+    authorMore: 'Cela biografija',
+    share: 'Podeli',
+    shareTwitter: 'Podeli na X-u',
     shareFacebook: 'Podeli na Facebooku',
     shareLinkedIn: 'Podeli na LinkedInu',
+    copyLink: 'Kopiraj link',
+    copied: 'Link je kopiran',
     moreArticles: 'Još tekstova',
-    prevArticle: '← Prethodni tekst',
-    nextArticle: 'Sledeći tekst →',
+    prevArticle: 'Prethodni tekst',
+    nextArticle: 'Sledeći tekst',
     backToBlog: 'Nazad na blog',
   },
 };

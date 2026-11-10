@@ -1,39 +1,43 @@
 # DJ Zippy
 
-> DJ Zippy (Veljko Nedeljković) is a Serbian house and tech house DJ and selector, and the creator of the "House Music Therapy" mix series. He has performed at Exit Festival (AS FM Stage 2024, Dance Arena and Students Stage 2025) and at leading clubs in Serbia and Greece.
+> DJ Zippy (Veljko Nedeljković) is a Serbian house DJ and selector and the creator of "House Music Therapy". He plays two sides, named after the sides of a record: the B side, underground house (House Music Therapy), which he leads with, and the A side, open format (Core Memories). He has played three Exit Festival stages (AS FM Stage 2024, Dance Arena and Students Stage 2025) and club nights in Serbia and Greece.
 
 ## Key facts
 
 - Real name: Veljko Nedeljković
 - Stage names: DJ Zippy, Zippy, Zovumezippy
 - Based in: Serbia
-- Genres: House — Deep Tech, Minimal, Deep House, French House, Groove, Disco, Funk, Jazz
-- Brand: House Music Therapy
-- Affiliations: Kult Talents, Izuvanje, Go2 Travel (collaboration)
+- Role: DJ and selector (not a producer); reads the room first and plays second
+- B side, underground (the main focus): "House Music Therapy". Deep Tech, Minimal, Deep House, French House, Groove, with Disco, Funk and Jazz worked in. Nights such as the Exit Festival stages, Ray Bar, Kaz'te, Krivi Put and Charlie Bar.
+- A side, open format: "Core Memories". R&B, Disco, Funk, 2000s, Pop, Hip-hop, Balkan and Trap for parties and private events. Nights such as Lazino Tele, Šuma Peva and the Izuvanje side project.
 - Languages: Serbian, English
 - Booking email: veljkoned@gmail.com
 - Official website: https://zippydj.com
 
 ## Pages
 
-- [Home](https://zippydj.com/): Overview, featured mixes, upcoming events, booking.
-- [About](https://zippydj.com/about): Biography, artist philosophy, affiliations, FAQ.
-- [Mixes](https://zippydj.com/mixes): Full catalog of DJ Zippy mixes and playlists on YouTube, MixCloud, Spotify, and SoundCloud.
-- [Events](https://zippydj.com/events): Upcoming gigs and past performance history.
+- [Home](https://zippydj.com/): Upcoming dates, the latest mixes, both sides of DJ Zippy, booking.
+- [About](https://zippydj.com/about): Biography, the selector's approach, FAQ.
+- [Mixes](https://zippydj.com/mixes): DJ Zippy mixes and playlists on YouTube, MixCloud, Spotify, SoundCloud and Deezer.
+- [Events](https://zippydj.com/events): Upcoming gigs and the archive of past gigs by year.
 - [Links](https://zippydj.com/links): All official social and streaming profiles.
 
 The site is bilingual. Every page above has a Serbian (Latin script) counterpart
-under the `/sr` prefix — https://zippydj.com/sr, /sr/about, /sr/mixes, /sr/events,
-/sr/links — with the same content in Serbian.
+under the `/sr` prefix (https://zippydj.com/sr, /sr/about, /sr/mixes, /sr/events,
+/sr/links) with the same content in Serbian.
 
 ## Notable performances
 
-- 2024-07-12 — Exit Festival, AS FM Stage (Novi Sad, Serbia) — first major festival stage
-- 2024-07-23 — Capital Night Club (Lefkada, Greece)
-- 2025-07-12 — Exit Festival, Dance Arena (Novi Sad, Serbia) — first Dance Arena set
-- 2025-07-12 — Exit Festival, Students Stage (Novi Sad, Serbia)
-- 2025-08-19 — Toucan Nightclub (Zakynthos, Greece)
-- 2026-03-18 — Club Kult (Belgrade, Serbia)
+- 2024-07-12: Exit Festival, AS FM Stage (Novi Sad, Serbia), his first major festival stage
+- 2024-07-23: Capital Night Club (Lefkada, Greece)
+- 2024-09-07: Borisov Atelje (Petrovaradin, Serbia)
+- 2025-07-12: Exit Festival, Dance Arena (Novi Sad, Serbia), his first Dance Arena set
+- 2025-07-12: Exit Festival, Students Stage (Novi Sad, Serbia)
+- 2025-08-19: Toucan Nightclub (Zakynthos, Greece)
+- 2025 and 2026: club nights in Belgrade (Club Kult) and Smederevo (Krivi Put, Charlie Bar)
+- Since 2026: regular House Music Therapy nights at Ray Bar (Novi Sad)
+
+The full, current list of gigs is on https://zippydj.com/events.
 
 ## Official profiles
 
@@ -51,5 +55,7 @@ under the `/sr` prefix — https://zippydj.com/sr, /sr/about, /sr/mixes, /sr/eve
 
 ## Booking
 
-Available for club bookings, private events, and festivals across Serbia and the EU.
-Contact: veljkoned@gmail.com — https://zippydj.com/#contact
+Available for club nights, festivals and private events across Serbia and Europe,
+on either side: underground house (B side) or open format (A side).
+Contact: veljkoned@gmail.com, or the booking form at the bottom of every page
+(https://zippydj.com/#contact).

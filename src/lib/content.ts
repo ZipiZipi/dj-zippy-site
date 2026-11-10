@@ -16,6 +16,7 @@ export interface UIEvent {
   country?: string;    // ISO-2, used for schema
   status: 'upcoming' | 'past';
   featured: boolean;   // pin to top of Past Highlights
+  link?: string;       // ticket / event page typed into the admin ('' = none)
 }
 
 // --- Seed / fallback events (mirror of the original hardcoded lists) ---
@@ -68,7 +69,7 @@ export function eventSound(e: UIEvent): { name: string; openFormat: boolean; gen
  * The two sides of Zippy, named after the sides of a record. A is the open
  * format night (blue on the site), B is the underground house night (orange).
  * Nothing is tagged by hand: an event is A exactly when it is flagged open
- * format, and a mix is A when its genre says so.
+ * format, and a mix is A when its genre or title says so.
  */
 export type Side = 'A' | 'B';
 
@@ -83,8 +84,15 @@ export function eventSide(e: UIEvent): Side {
   return OPEN_FORMAT_NIGHTS.test(`${e.title} ${e.subtitle ?? ''}`) ? 'A' : 'B';
 }
 
+/**
+ * A playlist's genre field often only names the platform ("Spotify Playlist"),
+ * so the title decides too: trap ("trep"), Balkan, R&B and hip-hop sets are the
+ * open-format side.
+ */
+const OPEN_FORMAT_MIX = /open[\s_-]?format|\btrep\b|\btrap\b|\bbalkan|\br\s?&\s?b\b|\brnb\b|hip[\s-]?hop/i;
+
 export function mixSide(m: UIMix): Side {
-  return /open[\s_-]?format/i.test(m.genre) ? 'A' : 'B';
+  return OPEN_FORMAT_MIX.test(`${m.genre} ${m.title}`) ? 'A' : 'B';
 }
 
 function minutesOfDay(hhmm: string): number {
@@ -96,6 +104,13 @@ function minutesOfDay(hhmm: string): number {
 function nextDay(date: string): string {
   const d = new Date(`${date}T00:00:00Z`);
   d.setUTCDate(d.getUTCDate() + 1);
+  return d.toISOString().slice(0, 10);
+}
+
+/** The calendar day before a YYYY-MM-DD string. */
+function prevDay(date: string): string {
+  const d = new Date(`${date}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() - 1);
   return d.toISOString().slice(0, 10);
 }
 
@@ -136,6 +151,7 @@ function mapRow(row: any): UIEvent {
     country: row.country ?? 'RS',
     status: row.status,
     featured: !!row.featured,
+    link: row.link ?? '',
   };
 }
 
@@ -149,9 +165,17 @@ function sortPast(a: UIEvent, b: UIEvent) {
   return a.date < b.date ? 1 : a.date > b.date ? -1 : 0;
 }
 
+/** Today's date (YYYY-MM-DD) in Serbia, where the gigs are. */
+const todayBelgrade = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Belgrade' }).format(new Date());
+
 /**
  * Returns split upcoming/past event lists. Reads from D1 when `db` is provided
  * and has rows; otherwise uses the built-in seed data.
+ *
+ * The sheet → D1 sync flips a gig to `past` only when the sheet is next edited,
+ * so the date decides as well: a gig dated before yesterday is past whatever its
+ * status says. Yesterday's gig stays upcoming for one more day, since a club
+ * night runs past midnight and the home deck shows it as played the morning after.
  */
 export async function getEvents(db: any): Promise<{ upcoming: UIEvent[]; past: UIEvent[] }> {
   let all: UIEvent[] | null = null;
@@ -164,8 +188,10 @@ export async function getEvents(db: any): Promise<{ upcoming: UIEvent[]; past: U
   }
   if (!all) all = EVENTS_FALLBACK.slice();
 
-  const upcoming = all.filter(e => e.status === 'upcoming').sort(sortUpcoming);
-  const past = all.filter(e => e.status === 'past').sort(sortPast);
+  const cutoff = prevDay(todayBelgrade());
+  const isPast = (e: UIEvent) => e.status !== 'upcoming' || e.date < cutoff;
+  const upcoming = all.filter(e => !isPast(e)).sort(sortUpcoming);
+  const past = all.filter(isPast).map(e => (e.status === 'past' ? e : { ...e, status: 'past' as const })).sort(sortPast);
   return { upcoming, past };
 }
 

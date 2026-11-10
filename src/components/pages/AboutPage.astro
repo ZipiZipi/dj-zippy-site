@@ -1,6 +1,8 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import { useTranslations, localize, htmlLang, type Lang } from '../../i18n/utils';
+import { getEvents, eventSide, type UIEvent, type Side } from '../../lib/content';
+import { placeName, placeKey, venueName, subtitleText } from '../../lib/places';
+import { useTranslations, localize, htmlLang, dateParts, type Lang } from '../../i18n/utils';
 
 interface Props {
   lang: Lang;
@@ -11,15 +13,120 @@ const t = useTranslations(lang);
 const l = (path: string) => localize(path, lang);
 
 const pageUrl = `https://zippydj.com${l('/about')}`;
-const contactHref = `${l('/')}#contact`;
+const RA_URL = 'https://ra.co/dj/zippy-2';
 
 // The visible FAQ and the FAQPage node are generated from the same entries, so
-// they can never drift apart.
+// they can never drift apart. The booking form is the footer of this page, so
+// the answer's "contact form" link stays on the page.
 const faq = t.about.faq.map((item) => ({
   q: item.q,
-  aHtml: item.aHtml.replace('{contact}', contactHref),
+  aHtml: item.aHtml.replace('{contact}', '#contact'),
   aText: item.aText,
 }));
+// Two quiet columns on wide screens. Each column folds open on its own, so
+// opening a question never leaves a gap next to it.
+const faqHalf = Math.ceil(faq.length / 2);
+const faqCols = [faq.slice(0, faqHalf), faq.slice(faqHalf)].filter((col) => col.length);
+
+// ---- Numbers and the path, straight from the gig archive -------------------
+const db = (Astro.locals as any).runtime?.env?.DB;
+const { upcoming, past } = await getEvents(db);
+
+// Counted the same way as the /events archive (EventsPage.astro), so the two
+// pages agree: "RayBar" and "Ray Bar" are one venue, "Beograd" and "Belgrade"
+// one city.
+const venueKey = (e: UIEvent) => venueName(e.title).toLowerCase();
+const cityKey = (e: UIEvent) => placeKey(e.location);
+const distinct = (list: UIEvent[], key: (e: UIEvent) => string) => new Set(list.map(key)).size;
+const isExit = (e: UIEvent) => /\bexit\b/i.test(e.title);
+const isFirst = (e: UIEvent) => /^first\b/i.test((e.subtitle ?? '').trim());
+const byDate = (a: { date: string; title: string }, b: { date: string; title: string }) =>
+  a.date < b.date ? -1 : a.date > b.date ? 1 : a.title.localeCompare(b.title);
+
+const stats = [
+  { n: distinct(past.filter(isExit), venueKey), label: t.about.statExit },
+  { n: distinct(past, venueKey), label: t.about.statVenues },
+  { n: distinct(past, cityKey), label: t.about.statCities },
+  { n: distinct(past, (e) => e.country ?? 'RS'), label: t.about.statCountries },
+].filter((s) => s.n > 0);
+
+// The residency (a line in the lead and a row in the fact sheet) only stands
+// while the venue still has dates: one in the last six months or one coming
+// up. If the archive ever holds more than one, the venue played most recently
+// wins, and "since" is its first residency night.
+const recentFrom = new Date(Date.now() - 183 * 864e5).toISOString().slice(0, 10);
+const isResidency = (e: UIEvent) => /residen/i.test(e.subtitle ?? '');
+const lastDate = (venue: string) =>
+  [...past, ...upcoming].reduce((d, e) => (venueKey(e) === venue && e.date > d ? e.date : d), '');
+const resVenue = [...new Set(past.filter(isResidency).map(venueKey))]
+  .filter((v) => lastDate(v) >= recentFrom)
+  .sort((a, b) => lastDate(b).localeCompare(lastDate(a)))[0];
+const resFirst = resVenue ? [...past].sort(byDate).find((e) => isResidency(e) && venueKey(e) === resVenue) : undefined;
+const residency = resFirst
+  ? { venue: venueName(resFirst.title), city: placeName(resFirst.location, lang), year: resFirst.date.slice(0, 4) }
+  : null;
+const withResidency = (s: string) =>
+  residency ? s.replace('{venue}', residency.venue).replace('{city}', residency.city).replace('{year}', residency.year) : '';
+const lead = residency ? `${t.about.lead} ${withResidency(t.about.leadResidency)}` : t.about.lead;
+
+// The path: every year of the archive with a few of its nights. A festival
+// with several stages on one day is one line. Firsts ("First Public Party"),
+// Exit and highlights rank first; a year that had open-format nights keeps
+// one of them, so the A side is part of the story too.
+interface PathLine {
+  date: string;
+  title: string;
+  stages: string[];
+  location: string;
+  side: Side;
+  tag: string;
+  first: boolean;
+  weight: number;
+}
+const BRAND = 'house music therapy';
+function pathLines(gigs: UIEvent[]): PathLine[] {
+  const lines = new Map<string, PathLine>();
+  for (const e of [...gigs].sort(byDate)) {
+    const [head, ...rest] = e.title.split(/\s+[—–]\s+/);
+    const sub = (e.subtitle ?? '').trim();
+    const tag = sub.toLowerCase() === BRAND ? '' : sub;
+    const weight = (isFirst(e) ? 4 : 0) + (isExit(e) ? 2 : 0) + (e.featured ? 1 : 0);
+    const key = `${e.date}|${head.trim().toLowerCase()}`;
+    const line = lines.get(key);
+    if (!line) {
+      lines.set(key, {
+        date: e.date, title: venueName(head), stages: rest.length ? [rest.join(' — ')] : [],
+        location: placeName(e.location, lang), side: eventSide(e), tag, first: isFirst(e), weight,
+      });
+      continue;
+    }
+    if (rest.length) line.stages.push(rest.join(' — '));
+    if (isFirst(e) || !line.tag) {
+      line.tag = tag || line.tag;
+      line.first = line.first || isFirst(e);
+    }
+    line.weight = Math.max(line.weight, weight);
+  }
+  return [...lines.values()];
+}
+const PER_YEAR = 3;
+const path = [...new Set(past.map((e) => e.date.slice(0, 4)))].sort().map((year) => {
+  const gigs = past.filter((e) => e.date.startsWith(year));
+  const ranked = pathLines(gigs).sort((a, b) => b.weight - a.weight || byDate(a, b));
+  let picks = ranked.slice(0, PER_YEAR);
+  const open = ranked.find((x) => x.side === 'A');
+  if (open && !picks.includes(open)) picks = [...picks.slice(0, PER_YEAR - 1), open];
+  const a = gigs.filter((e) => eventSide(e) === 'A').length;
+  return { year, total: gigs.length, a, b: gigs.length - a, lines: picks.sort(byDate) };
+});
+// "2022–2026", written like the year spans on /events
+const pathSpan = path.length > 1 ? `${path[0].year}–${path[path.length - 1].year}` : path[0]?.year ?? '';
+
+// The two sides of the record. B leads: it comes first and gets the wider panel.
+const sides = [
+  { side: 'B' as Side, key: t.sides.b, kind: t.sides.bLabel, ...t.about.sideB },
+  { side: 'A' as Side, key: t.sides.a, kind: t.sides.aLabel, ...t.about.sideA },
+];
 
 const aboutSchema = {
   '@context': 'https://schema.org',
@@ -58,16 +165,16 @@ const aboutSchema = {
       'homeLocation': { '@type': 'Place', 'address': { '@type': 'PostalAddress', 'addressCountry': 'RS' } },
       'genre': ['House', 'Deep Tech', 'Minimal', 'Deep House', 'French House', 'Groove', 'Disco', 'Funk', 'Jazz'],
       'knowsLanguage': ['sr', 'en'],
-      'memberOf': [
-        { '@type': 'Organization', 'name': 'Kult Talents' },
-        { '@type': 'Organization', 'name': 'Izuvanje' },
-      ],
+      // Matches the fact sheet: Izuvanje is a side project he still plays;
+      // Kult Talents is a past talent programme, not a current membership.
+      'memberOf': [{ '@type': 'Organization', 'name': 'Izuvanje' }],
+      'alumniOf': { '@type': 'Organization', 'name': 'Kult Talents' },
       'sameAs': [
         'https://musicbrainz.org/artist/a6a53c2e-8fa0-4612-8e43-8de7af43dc2a',
         'https://www.wikidata.org/wiki/Q138220521',
         'https://www.instagram.com/zovumezippy',
         'https://www.youtube.com/@zovumezippy',
-        'https://ra.co/dj/zippy-2',
+        RA_URL,
         'https://soundcloud.com/zovumezippy',
         'https://www.mixcloud.com/zovumezippy/',
         'https://www.tiktok.com/@zovumezippy',
@@ -93,131 +200,580 @@ const aboutSchema = {
 <Layout lang={lang} title={t.about.title} description={t.about.description} activePage="about" preloadImage="/images/dj-zippy-house-music-dj.webp">
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(aboutSchema)} />
 
-  {/* Hero / Bio Section */}
-  <section class="isolate relative min-h-screen flex flex-col justify-center bg-brand-black pt-24 sm:pt-28 pb-16 overflow-hidden">
-    <div class="max-w-6xl mx-auto px-6 sm:px-8 lg:px-12 z-30">
+  <style is:global>
+    /* ===== /about =====
+       Same language as the rest of the site: black stage, the accent (orange on
+       the B side, blue on the A side) for what matters, the other colour
+       (--alt-rgb) for a few small details, mono caps for labels. */
+    .about-section { position: relative; isolation: isolate; background: #000; padding: 4rem 0; }
+    @media (min-width: 640px) { .about-section { padding: 5.5rem 0; } }
 
-      {/* Breadcrumb */}
-      <nav aria-label={t.breadcrumb.label} class="mb-6">
+    /* Section heads use the site's .eyebrow and .section-title (global.css) */
+    .about-head__lead { margin-top: 0.9rem; max-width: 38rem; font-size: 1rem; line-height: 1.6; color: #9ca3af; text-wrap: pretty; }
+    .about-head--split { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 1.5rem 2rem; }
+
+    /* --- Hero --- */
+    /* The booth lights from the home page, quieter: a warm key light under the
+       portrait, a cool rim light in the top corner, fine grain over both. */
+    .about-hero__light {
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      overflow: hidden;
+      pointer-events: none;
+      /* fades out before the next section, so there is no seam */
+      -webkit-mask-image: linear-gradient(to bottom, #000 72%, transparent);
+      mask-image: linear-gradient(to bottom, #000 72%, transparent);
+    }
+    .about-hero__light::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 75% 34% at 50% 52%, rgb(var(--accent-rgb) / 0.17), transparent 72%),
+        radial-gradient(ellipse 60% 26% at 100% 0%, rgb(var(--alt-rgb) / 0.10), transparent 70%);
+    }
+    /* "split" = words left, portrait right: from 1024px, or any landscape screen
+       from 768px (a phone on its side). Portrait tablets keep the phone layout. */
+    @media (min-width: 1024px), (min-width: 768px) and (orientation: landscape) {
+      .about-hero__light::before {
+        background:
+          radial-gradient(ellipse 34% 58% at 76% 52%, rgb(var(--accent-rgb) / 0.2), transparent 72%),
+          radial-gradient(ellipse 30% 34% at 100% 0%, rgb(var(--alt-rgb) / 0.11), transparent 70%);
+      }
+    }
+    .about-hero__light::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: 0.08;
+      mix-blend-mode: overlay;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    }
+
+    /* Phones and portrait tablets: title, portrait, then the words. Split:
+       words left, portrait right. */
+    .about-hero__grid { display: grid; gap: 2rem; }
+    .about-hero__text { display: contents; }
+    .about-hero__head { order: 1; }
+    .about-hero__media { order: 2; }
+    .about-hero__body { order: 3; }
+    @media (min-width: 1024px), (min-width: 768px) and (orientation: landscape) {
+      /* top-aligned, so the portrait sits next to the name even on a short
+         landscape phone screen */
+      .about-hero__grid { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); align-items: start; column-gap: 2.5rem; }
+      .about-hero__text { display: block; }
+      .about-hero__body { margin-top: 1.75rem; }
+    }
+    @media (min-width: 1024px) { .about-hero__grid { column-gap: 4rem; } }
+
+    /* The H1 reads "About DJ Zippy": a small raised "About", then the name. The
+       size is worked out so the Serbian "O DJ Zippyju" fits on one line too. */
+    .about-title { margin: 0; font-weight: 900; line-height: 1; letter-spacing: -0.02em; font-size: clamp(1.875rem, calc((100vw - 4.75rem) / 7.4), 4.5rem); }
+    @media (min-width: 1024px), (min-width: 768px) and (orientation: landscape) { .about-title { font-size: clamp(2.75rem, 5.9vw, 6.5rem); } }
+    .about-title__pre {
+      display: inline-block;
+      vertical-align: top;
+      margin: 0.55em 0.5em 0 0;
+      font-size: max(0.6875rem, 0.2em);
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.55);
+    }
+    .about-title__name { white-space: nowrap; }
+    .about-title__name::after { content: '.'; color: rgb(var(--accent-rgb)); }
+    /* A one-letter "About" (Serbian "O") would shrink to a stray mark, so there it
+       stays in the line at full size, just quieter. */
+    .about-title--short { font-size: clamp(1.75rem, calc((100vw - 3rem) / 8.4), 4.25rem); }
+    @media (min-width: 1024px), (min-width: 768px) and (orientation: landscape) { .about-title--short { font-size: clamp(2.5rem, 5.3vw, 6rem); } }
+    .about-title--short .about-title__pre { display: inline; vertical-align: baseline; margin: 0; font-size: 1em; font-weight: 900; letter-spacing: inherit; text-transform: none; color: rgba(255,255,255,0.38); }
+
+    /* B · House Music Therapy   A · Core Memories */
+    .about-tags { display: flex; flex-wrap: wrap; gap: 0.25rem 1.25rem; margin-top: 1rem; }
+    .about-tag { display: inline-flex; align-items: center; gap: 0.55rem; min-height: 2rem; font-size: 0.6875rem; color: rgba(255,255,255,0.82); transition: color 0.2s; }
+    @media (min-width: 640px) { .about-tags { gap: 0.4rem 1.5rem; margin-top: 1.25rem; } .about-tag { font-size: 0.75rem; } }
+    .about-tag:hover { color: var(--side); }
+    .about-tag:focus-visible { outline: 2px solid #fff; outline-offset: 3px; border-radius: 0.4rem; }
+
+    .about-lead { max-width: 34rem; font-size: 1.0625rem; line-height: 1.6; color: rgba(255,255,255,0.82); text-wrap: pretty; }
+    @media (min-width: 1024px) { .about-lead { font-size: 1.1875rem; } }
+
+    /* The archive in four numbers, set like a spec sheet */
+    .about-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 1.75rem; }
+    .about-stat { display: flex; flex-direction: column-reverse; justify-content: flex-end; gap: 0.45rem; padding: 0.95rem 1rem 0.95rem 0; border-top: 1px solid rgba(255,255,255,0.1); }
+    .about-stat:nth-child(2n) { padding-left: 1rem; border-left: 1px solid rgba(255,255,255,0.1); }
+    .about-stat dd { font-family: 'Unbounded', sans-serif; font-size: 1.875rem; font-weight: 700; line-height: 1; color: #fff; }
+    .about-stat:first-child dd { color: rgb(var(--accent-rgb)); }
+    .about-stat dt { font-size: 0.6875rem; line-height: 1.35; color: #9ca3af; }
+    /* one row of four wherever the column is wide enough: a portrait tablet, or
+       the split layout from 1024px (a landscape phone keeps two by two) */
+    @media (min-width: 640px) and (orientation: portrait), (min-width: 1024px) {
+      .about-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .about-stat { padding-left: 1rem; border-left: 1px solid rgba(255,255,255,0.1); }
+      .about-stat:first-child { padding-left: 0; border-left: 0; }
+    }
+    @media (min-width: 1024px) { .about-stat dd { font-size: 2.25rem; } }
+
+    /* The calls to action are the site's .btn pills (global.css). On phones
+       they stack and take the full width. */
+    .about-ctas { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 2rem; }
+    @media (max-width: 639px) { .about-ctas .btn { flex: 1 1 auto; } }
+    .about-ra { display: inline-flex; align-items: center; justify-content: center; height: 1.125rem; padding: 0 0.3rem; border-radius: 0.25rem; background: #fff; color: #050505; font-family: 'Unbounded', sans-serif; font-size: 0.625rem; font-weight: 900; letter-spacing: 0.02em; transition: background-color 0.2s; }
+    .about-ctas .btn--secondary:hover .about-ra { background: rgb(var(--accent-rgb)); }
+
+    /* The portrait: rounded, with the gradient rim and the glow of the home
+       page. The record sleeve stays the home page's own; here the photo
+       simply stands at the right of the name. */
+    .about-photo { position: relative; width: min(100%, 22rem); margin: 0; }
+    /* a portrait tablet: big, but the buttons under it still make the first screen */
+    @media (min-width: 640px) { .about-photo { width: min(100%, 24rem); } }
+    @media (min-width: 1024px), (min-width: 768px) and (orientation: landscape) { .about-photo { width: 100%; max-width: 28rem; margin-left: auto; } }
+    /* a phone on its side: a tighter top and a smaller portrait, so the whole
+       photo is on the first screen next to the name */
+    @media (orientation: landscape) and (max-height: 500px) {
+      section.about-hero { padding-top: 5.25rem; }
+      .about-hero .about-crumbs { margin-bottom: 1rem; }
+      .about-photo { max-width: min(100%, 15rem); }
+    }
+    .about-photo__frame {
+      position: relative;
+      z-index: 1;
+      display: block;
+      padding: 2px;
+      border-radius: 1.25rem;
+      background: linear-gradient(135deg, rgb(var(--accent-rgb)), rgb(var(--accent-rgb) / 0.22) 42%, rgba(255,255,255,0.12) 68%, rgb(var(--alt-rgb) / 0.55));
+      box-shadow: 0 34px 70px -30px rgb(var(--accent-rgb) / 0.5), 0 24px 40px -22px rgba(0,0,0,0.9);
+    }
+    .about-photo__img { display: block; width: 100%; height: auto; aspect-ratio: 1; border-radius: calc(1.25rem - 2px); background: #050505; }
+
+    /* --- Bio and fact sheet --- */
+    .about-bio { display: grid; gap: 3rem; }
+    @media (min-width: 1024px) { .about-bio { grid-template-columns: minmax(0, 7fr) minmax(0, 4fr); gap: 4.5rem; align-items: start; } }
+    .about-bio__title { margin-top: 1rem; font-size: clamp(1.75rem, 8.5vw, 2.25rem); font-weight: 700; line-height: 1.05; }
+    @media (min-width: 768px) { .about-bio__title { font-size: 3rem; } }
+    .about-bio__copy { display: grid; gap: 1.25rem; max-width: 40rem; margin-top: 1.75rem; font-size: 1rem; line-height: 1.75; color: rgba(255,255,255,0.68); }
+    @media (min-width: 768px) { .about-bio__copy { font-size: 1.0625rem; } }
+    .about-bio__copy strong { font-weight: 600; color: #fff; }
+
+    .about-notes__list { margin-top: 1.25rem; border-top: 1px solid rgba(255,255,255,0.1); }
+    .about-notes__row { display: grid; gap: 0.3rem; padding: 0.85rem 0; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    @media (min-width: 360px) { .about-notes__row { grid-template-columns: 6.75rem minmax(0, 1fr); gap: 1rem; } }
+    @media (min-width: 640px) { .about-notes__row { grid-template-columns: 8.25rem minmax(0, 1fr); } }
+    .about-notes__row dt { padding-top: 0.2rem; font-size: 0.6875rem; line-height: 1.35; color: #9ca3af; }
+    .about-notes__row dd { font-size: 0.9375rem; line-height: 1.5; color: #fff; }
+    /* the quieter line under a name: "Since 2026", "Available across Europe" */
+    .about-notes__sub { display: block; margin-top: 0.1rem; font-size: 0.8125rem; line-height: 1.45; color: #9ca3af; }
+    .about-notes__row .side-key { width: 1.125rem; height: 1.125rem; margin-right: 0.35rem; border-radius: 0.35rem; font-size: 0.5625rem; vertical-align: 0.1rem; }
+
+    /* --- Two sides --- */
+    /* the switch drops under its label on the narrowest phones (Serbian) */
+    .about-pick { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem 0.9rem; }
+    .about-pick .side-seg button { white-space: nowrap; }
+    .about-pick__label { font-size: 0.6875rem; color: #9ca3af; }
+    .about-sides-grid { display: grid; gap: 1rem; margin-top: 2.25rem; }
+    @media (min-width: 768px) { .about-sides-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (min-width: 1024px) { .about-sides-grid { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 1.25rem; } }
+    .about-side[data-side="A"] { --side-rgb: var(--side-a-rgb); }
+    .about-side[data-side="B"] { --side-rgb: var(--side-b-rgb); }
+    .about-side {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      padding: 1.5rem;
+      border-radius: 1.5rem;
+      border: 1px solid rgba(255,255,255,0.09);
+      background: linear-gradient(180deg, #131313, #0b0b0b);
+      transition: border-color 0.3s;
+    }
+    /* a wash of the side's colour from the top left, like a lit display */
+    .about-side::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      pointer-events: none;
+      background: radial-gradient(ellipse 70% 60% at 10% 0%, rgb(var(--side-rgb) / 0.12), transparent 70%);
+      transition: opacity 0.3s;
+      opacity: 0.6;
+    }
+    .about-side > * { position: relative; }
+    @media (min-width: 640px) { .about-side { padding: 2rem; } }
+    /* The side that is on: B, unless the visitor flipped the site to A */
+    .about-side[data-side="B"],
+    :root[data-side-pick="A"] .about-side[data-side="A"] { border-color: rgb(var(--side-rgb) / 0.5); }
+    .about-side[data-side="B"]::before,
+    :root[data-side-pick="A"] .about-side[data-side="A"]::before { opacity: 1; }
+    :root[data-side-pick="A"] .about-side[data-side="B"] { border-color: rgba(255,255,255,0.09); }
+    :root[data-side-pick="A"] .about-side[data-side="B"]::before { opacity: 0.6; }
+
+    .about-side__top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.5rem 1rem; }
+    .about-side__kind { display: inline-flex; align-items: center; gap: 0.6rem; font-size: 0.6875rem; color: var(--side); }
+    .about-side__status { display: none; align-items: center; gap: 0.5rem; font-size: 0.6875rem; color: rgba(255,255,255,0.72); }
+    .about-side[data-side="B"] .about-side__status,
+    :root[data-side-pick="A"] .about-side[data-side="A"] .about-side__status { display: inline-flex; }
+    :root[data-side-pick="A"] .about-side[data-side="B"] .about-side__status { display: none; }
+    .about-side__led { width: 7px; height: 7px; border-radius: 50%; background: var(--side); box-shadow: 0 0 8px 1px var(--side); animation: about-blink 0.484s steps(1) infinite alternate; }   /* one beat at 124 BPM */
+    @keyframes about-blink { 50% { opacity: 0.25; } }
+    .about-side__name { font-size: clamp(1.5rem, 7.4vw, 2.25rem); font-weight: 800; line-height: 1.05; color: var(--side); text-wrap: balance; }
+    @media (min-width: 768px) { .about-side__name { font-size: clamp(1.75rem, 3.6vw, 2.75rem); } }
+    .about-side__body { max-width: 34rem; font-size: 1rem; line-height: 1.65; color: rgba(255,255,255,0.75); }
+    .about-side__facts { display: grid; gap: 0.8rem; margin-top: auto; padding-top: 1.1rem; border-top: 1px solid rgba(255,255,255,0.08); }
+    .about-side__facts > div { display: grid; gap: 0.35rem; }
+    @media (min-width: 640px) { .about-side__facts > div { grid-template-columns: 4.75rem minmax(0, 1fr); gap: 0.75rem; } }
+    .about-side__facts dt { padding-top: 0.2rem; font-size: 0.6875rem; color: #9ca3af; }
+    /* Dot-separated list. Each item carries the dot before it, and the list is
+       pulled left by one dot so the dot that starts a new line is clipped. */
+    .about-side__facts dd { overflow: hidden; }
+    .about-side__facts ul { display: flex; flex-wrap: wrap; margin-left: -1.1rem; font-size: 0.875rem; line-height: 1.6; color: rgba(255,255,255,0.88); }
+    .about-side__facts li { white-space: nowrap; }
+    .about-side__facts li::before { content: '·'; display: inline-block; width: 1.1rem; text-align: center; color: var(--side); }
+
+    /* --- The path: one column per year on the drag rail (src/scripts/rail.ts) --- */
+    .about-path__nav { display: flex; align-items: center; gap: 0.75rem; }
+    .about-link { display: inline-flex; align-items: center; gap: 0.4rem; min-height: 2.5rem; font-size: 0.875rem; font-weight: 600; color: #9ca3af; transition: color 0.2s; }
+    .about-link:hover { color: rgb(var(--accent-rgb)); }
+    .about-link:focus-visible { outline: 2px solid #fff; outline-offset: 3px; border-radius: 0.3rem; }
+    .about-path .rail__viewport { margin-top: 2.5rem; }
+    .about-path .rail__track { gap: 0; }
+    .path-year { position: relative; flex: 0 0 auto; width: 82%; padding: 0 1.75rem 0.25rem 0; }
+    @media (min-width: 640px) { .path-year { width: 46%; } }
+    @media (min-width: 768px) { .path-year { width: 33.333%; } }
+    @media (min-width: 1024px) { .path-year { width: 25%; } }
+    @media (min-width: 1280px) { .path-year { width: 20%; } }
+    /* the time line: a hairline through every year, a ring per year, the last one lit */
+    .path-year::before { content: ''; position: absolute; top: 0.375rem; left: 0; right: 0; height: 1px; background: rgba(255,255,255,0.14); }
+    .path-year:last-child::before { right: 1.75rem; background: linear-gradient(to right, rgba(255,255,255,0.14), transparent); }
+    .path-year__dot { position: absolute; top: 0; left: 0; width: 0.8125rem; height: 0.8125rem; border-radius: 50%; border: 2px solid rgb(var(--accent-rgb)); background: #000; }
+    .path-year:last-child .path-year__dot { background: rgb(var(--accent-rgb)); box-shadow: 0 0 0 4px rgb(var(--accent-rgb) / 0.2); }
+    .path-year__num { margin-top: 1.5rem; font-size: 2.75rem; font-weight: 700; line-height: 1; }
+    @media (min-width: 1024px) { .path-year__num { font-size: 3rem; } }
+    .path-year__meta { display: flex; align-items: center; gap: 0.75rem; margin-top: 0.85rem; font-size: 0.6875rem; color: #9ca3af; }
+    .path-year__meta b { font-weight: 700; color: #fff; }
+    .path-split { display: flex; gap: 2px; width: 4.5rem; height: 4px; flex-shrink: 0; }
+    .path-split i { min-width: 4px; border-radius: 4px; }
+    .path-gigs { display: grid; gap: 1.1rem; margin-top: 1.4rem; }
+    .path-gig { display: grid; grid-template-columns: 1.375rem minmax(0, 1fr); gap: 0.75rem; align-items: start; }
+    .path-gig__title { font-size: 0.9375rem; font-weight: 600; line-height: 1.3; color: #fff; }
+    .path-gig__stages { margin-top: 0.15rem; font-size: 0.8125rem; line-height: 1.4; color: rgba(255,255,255,0.7); }
+    .path-gig__meta { margin-top: 0.35rem; font-size: 0.6875rem; line-height: 1.4; color: #9ca3af; }
+    .path-gig__tag { margin-top: 0.25rem; font-size: 0.6875rem; line-height: 1.4; color: #9ca3af; }
+    .path-gig__tag.is-first { color: rgb(var(--alt-rgb)); }
+    .about-path .rail__bar { margin-top: 2rem; }
+
+    /* --- FAQ: small, folded, at the bottom. The answers stay in the HTML. --- */
+    .about-section--faq { padding: 3.5rem 0; }
+    @media (min-width: 640px) { .about-section--faq { padding: 4.5rem 0; } }
+    .about-faq { display: grid; gap: 1.5rem; }
+    @media (min-width: 1024px) { .about-faq { grid-template-columns: 14rem minmax(0, 1fr); gap: 3rem; } }
+    .about-faq__title { margin-top: 0.75rem; font-size: 1.125rem; font-weight: 700; line-height: 1.25; }
+    .about-faq__cols { display: grid; column-gap: 2.5rem; }
+    @media (min-width: 768px) { .about-faq__cols { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    .about-faq__col { border-top: 1px solid rgba(255,255,255,0.08); }
+    @media (max-width: 767px) { .about-faq__col + .about-faq__col { border-top: 0; } }
+    .faq-item { border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .faq-item > summary { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 2.875rem; padding: 0.65rem 0; list-style: none; cursor: pointer; }
+    .faq-item > summary::-webkit-details-marker { display: none; }
+    .faq-item > summary:focus-visible { outline: 2px solid #fff; outline-offset: 2px; border-radius: 0.3rem; }
+    .faq-item h3 { font-size: 0.875rem; font-weight: 600; line-height: 1.4; color: rgba(255,255,255,0.78); transition: color 0.2s; }
+    .faq-item > summary:hover h3, .faq-item[open] h3 { color: #fff; }
+    /* a plus that folds into a minus */
+    .faq-item__icon { position: relative; width: 0.625rem; height: 0.625rem; flex-shrink: 0; color: rgb(var(--alt-rgb)); }
+    .faq-item__icon::before,
+    .faq-item__icon::after { content: ''; position: absolute; top: 50%; left: 0; width: 100%; height: 1.5px; margin-top: -0.75px; border-radius: 1px; background: currentColor; transition: transform 0.25s ease; }
+    .faq-item__icon::after { transform: rotate(90deg); }
+    .faq-item[open] .faq-item__icon::after { transform: rotate(0deg); }
+    .faq-item__body { padding: 0 1.75rem 1rem 0; font-size: 0.875rem; line-height: 1.65; color: rgba(255,255,255,0.62); }
+    .faq-item__body strong { font-weight: 600; color: rgba(255,255,255,0.85); }
+    .faq-item[open] .faq-item__body { animation: about-faq-open 0.25s ease-out; }
+    @keyframes about-faq-open { from { opacity: 0; transform: translateY(-4px); } }
+
+    @media (prefers-reduced-motion: reduce) {
+      .faq-item__icon::before, .faq-item__icon::after { transition: none; }
+      .about-side__led, .faq-item[open] .faq-item__body { animation: none; }
+    }
+  </style>
+
+  {/* ===== Hero ===== */}
+  <section class="about-hero isolate relative overflow-x-clip bg-brand-black pt-24 sm:pt-28 pb-16 sm:pb-24">
+    <div class="about-hero__light" aria-hidden="true"></div>
+    <div class="container relative mx-auto px-6 sm:px-8 lg:px-12">
+      <nav aria-label={t.breadcrumb.label} class="about-crumbs mb-6 sm:mb-10">
         <ol class="flex items-center space-x-2 text-sm text-gray-400">
-          <li><a href={l('/')} class="hover:text-brand-orange transition-colors">{t.breadcrumb.home}</a></li>
-          <li><span class="mx-2">/</span></li>
-          <li class="text-white">{t.breadcrumb.about}</li>
+          <li><a href={l('/')} class="inline-flex items-center min-h-[1.5rem] hover:text-brand-orange transition-colors">{t.breadcrumb.home}</a></li>
+          <li><span class="mx-2" aria-hidden="true">/</span></li>
+          <li class="text-white" aria-current="page">{t.breadcrumb.about}</li>
         </ol>
       </nav>
 
-      <h1 class="font-display text-4xl md:text-5xl lg:text-6xl font-black leading-tight mb-4">
-        {t.about.heading1}<span class="text-brand-orange">{t.about.heading2}</span>
-      </h1>
-      <p class="text-gray-400 text-lg md:text-xl mb-16">
-        {t.about.lead}
-      </p>
-
-      {/* Bio Grid */}
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-
-        {/* Photo */}
-        <div class="flex items-center justify-center">
-          <img
-            src="/images/dj-zippy-house-music-dj.webp"
-            alt={t.about.photoAlt}
-            class="w-full max-h-md rounded-lg"
-          />
-        </div>
-
-        {/* Bio Text */}
-        <div>
-          <div class="inline-block px-3 py-1 border border-brand-orange/50 rounded-full text-brand-orange text-xs font-bold tracking-widest mb-6">
-            {t.about.badge}
+      <div class="about-hero__grid">
+        <div class="about-hero__text">
+          <div class="about-hero__head">
+            <h1 class={`about-title font-display${t.about.heading1.trim().length <= 2 ? ' about-title--short' : ''}`}>
+              <span class="about-title__pre">{t.about.heading1}</span><span class="about-title__name">{t.about.heading2}</span>
+            </h1>
+            <ul class="about-tags" aria-label={t.about.sidesLabel}>
+              {sides.map((s) => (
+                <li data-side={s.side}>
+                  <a href="#sides" class="about-tag mono-caps">
+                    <span class="side-key" aria-hidden="true">{s.side}</span>
+                    <span class="sr-only">{s.key}:</span>
+                    {s.name}
+                  </a>
+                </li>
+              ))}
+            </ul>
           </div>
-          <h2 class="font-display text-4xl md:text-5xl font-bold mb-8">
-            {t.about.subheading1}<br />{t.about.subheading2}<span class="text-brand-orange">{t.about.subheading3}</span>
-          </h2>
 
-          <div class="space-y-6 text-gray-400 font-light leading-relaxed">
-            <p set:html={t.about.bio1Html} />
-            <p set:html={t.about.bio2Html} />
-            <p set:html={t.about.bio3Html} />
+          <div class="about-hero__body">
+            <p class="about-lead">{lead}</p>
 
-            {/* Affiliation Cards */}
-            <div class="pt-6">
-              <h3 class="text-white font-display text-xl mb-4">{t.about.memberOf}</h3>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="p-6 glass-panel rounded-lg border-l-4 border-brand-orange">
-                  <h4 class="text-xl font-bold text-white mb-2">KULT TALENTS</h4>
-                  <p class="text-sm">{t.about.kultDesc}</p>
-                </div>
-                <div class="p-6 glass-panel rounded-lg border-l-4 border-brand-orange">
-                  <h4 class="text-xl font-bold text-white mb-2">IZUVANJE</h4>
-                  <p class="text-sm">{t.about.izuvanjeDesc}</p>
-                </div>
-              </div>
+            {stats.length > 0 && (
+              <dl class="about-stats">
+                {stats.map((s) => (
+                  <div class="about-stat">
+                    <dt class="mono-caps">{s.label}</dt>
+                    <dd>{s.n}</dd>
+                  </div>
+                ))}
+              </dl>
+            )}
+
+            <div class="about-ctas">
+              {/* The booking form is the footer of this page */}
+              <a href="#contact" class="btn btn--primary">
+                <i class="fa-solid fa-envelope" aria-hidden="true"></i> {t.about.book}
+              </a>
+              <a href={RA_URL} target="_blank" rel="noopener" class="btn btn--secondary">
+                <span class="about-ra" aria-hidden="true">RA</span>
+                {t.about.raProfile}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9" /></svg>
+              </a>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Partners / Affiliations Bar */}
-      <div class="mt-12 md:mt-20 flex justify-center items-center gap-6 sm:gap-8 md:gap-16 opacity-50 grayscale hover:grayscale-0 transition-all duration-500 flex-wrap z-30 px-4">
-        <div class="flex items-center gap-2" title={t.about.kultTitle}>
-          <i class="fa-solid fa-star text-xl"></i>
-          <span class="font-display font-bold text-lg sm:text-xl">KULT TALENTS</span>
-        </div>
-        <div class="flex items-center gap-2" title={t.about.go2Title}>
-          <i class="fa-solid fa-plane text-xl"></i>
-          <span class="font-display font-bold text-lg sm:text-xl">GO2 TRAVEL</span>
-        </div>
-        <div class="flex items-center gap-2" title={t.about.raTitle}>
-          <span class="font-display font-bold text-lg sm:text-xl bg-white text-black px-1">RA</span>
-          <span class="font-display font-bold text-lg sm:text-xl">RESIDENT ADVISOR</span>
+        <div class="about-hero__media">
+          <figure class="about-photo">
+            <span class="about-photo__frame">
+              <img
+                src="/images/dj-zippy-house-music-dj.webp"
+                alt={t.about.photoAlt}
+                width="800"
+                height="800"
+                fetchpriority="high"
+                decoding="async"
+                class="about-photo__img"
+              />
+            </span>
+          </figure>
         </div>
       </div>
     </div>
   </section>
 
-  {/* FAQ Section — mirrored in FAQPage JSON-LD for rich results & AI Overviews */}
-  <section id="faq" class="isolate relative py-16 sm:py-20 bg-brand-black border-t border-white/5">
-    <div class="container mx-auto px-6 sm:px-8 lg:px-12 max-w-3xl">
-      <h2 class="font-display text-3xl md:text-4xl font-bold mb-10 text-center">
-        {t.about.faqHeading1}<span class="text-brand-orange">{t.about.faqHeading2}</span>
-      </h2>
-      {/* Native <details>, no JS: answers stay in the HTML for search engines.
-          name="faq" makes it an exclusive accordion where the browser supports it. */}
-      <div class="space-y-3">
-        {faq.map((item, i) => (
-          <details name="faq" class="faq-item group rounded-xl border border-white/10 bg-white/5 transition-colors hover:border-white/20 open:border-brand-orange/50" open={i === 0}>
-            <summary class="flex min-h-[3rem] cursor-pointer list-none items-center justify-between gap-4 px-5 py-4">
-              <h3 class="font-display text-base sm:text-lg font-bold text-white leading-snug transition-colors group-hover:text-brand-orange group-open:text-brand-orange">{item.q}</h3>
-              <span class="faq-item__icon relative h-4 w-4 flex-shrink-0 text-gray-400 group-hover:text-brand-orange group-open:text-brand-orange" aria-hidden="true"></span>
-            </summary>
-            <div class="faq-item__body px-5 pb-5 text-gray-300 leading-relaxed">
-              <p set:html={item.aHtml} />
+  {/* ===== Bio + fact sheet ===== */}
+  <section id="bio" class="about-section border-t border-white/5">
+    <div class="container mx-auto px-6 sm:px-8 lg:px-12">
+      <div class="about-bio" data-reveal>
+        <div>
+          <p class="eyebrow">{t.about.badge}</p>
+          <h2 class="about-bio__title font-display">
+            {t.about.subheading1}{' '}<br />{t.about.subheading2}<span class="text-brand-orange">{t.about.subheading3}</span>
+          </h2>
+          <div class="about-bio__copy">
+            <p set:html={t.about.bio1Html} />
+            <p set:html={t.about.bio2Html} />
+            <p set:html={t.about.bio3Html} />
+          </div>
+        </div>
+
+        <aside class="about-notes lg:pt-12" aria-labelledby="about-notes-title">
+          <h3 id="about-notes-title" class="eyebrow">{t.about.notesHeading}</h3>
+          <dl class="about-notes__list">
+            <div class="about-notes__row">
+              <dt class="mono-caps">{t.about.notesName}</dt>
+              <dd>Veljko Nedeljković</dd>
             </div>
-          </details>
+            <div class="about-notes__row">
+              <dt class="mono-caps">{t.about.notesBase}</dt>
+              <dd>{t.about.notesBaseValue} <span class="about-notes__sub">{t.about.notesBaseNote}</span></dd>
+            </div>
+            {residency && (
+              <div class="about-notes__row">
+                <dt class="mono-caps">{t.about.notesResidency}</dt>
+                <dd>{residency.venue}, {residency.city} <span class="about-notes__sub">{withResidency(t.about.notesSince)}</span></dd>
+              </div>
+            )}
+            <div class="about-notes__row">
+              <dt class="mono-caps">{t.about.notesAlumni}</dt>
+              <dd>{t.about.notesAlumniValue} <span class="about-notes__sub">{t.about.notesAlumniNote}</span></dd>
+            </div>
+            <div class="about-notes__row" data-side="A">
+              <dt class="mono-caps">{t.about.notesSideProject}</dt>
+              <dd><span class="side-key" aria-hidden="true">A</span>{t.about.notesSideProjectValue}<span class="sr-only"> ({t.sides.a})</span> <span class="about-notes__sub">{t.about.notesSideProjectNote}</span></dd>
+            </div>
+          </dl>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  {/* ===== The two sides ===== */}
+  <section id="sides" class="about-section border-t border-white/5">
+    <div class="container mx-auto px-6 sm:px-8 lg:px-12">
+      <div class="about-head--split">
+        <div>
+          <p class="eyebrow">{t.about.sidesLabel}</p>
+          <h2 class="section-title mt-3">{t.about.sidesHeading1}<span class="text-brand-orange">{t.about.sidesHeading2}</span></h2>
+          <p class="about-head__lead">{t.about.sidesLead}</p>
+        </div>
+        {/* Picks the side for the whole site, like the A/B flip in the header */}
+        <div class="about-pick">
+          <span class="about-pick__label mono-caps" id="about-pick-label">{t.about.sidesPick}</span>
+          <div class="side-seg" role="group" aria-labelledby="about-pick-label" data-about-seg>
+            {sides.map((s) => (
+              <button type="button" data-about-side={s.side} data-side-value={s.side} aria-pressed={s.side === 'B' ? 'true' : 'false'} title={s.kind}>{s.key}</button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div class="about-sides-grid" data-reveal>
+        {sides.map((s) => (
+          <article class="about-side" data-side={s.side} aria-labelledby={`about-side-${s.side}`}>
+            <div class="about-side__top">
+              <p class="about-side__kind mono-caps"><span class="side-key" aria-hidden="true">{s.side}</span>{s.key} · {s.kind}</p>
+              <p class="about-side__status mono-caps" aria-hidden="true"><span class="about-side__led"></span>{t.about.sideOn}</p>
+            </div>
+            <h3 id={`about-side-${s.side}`} class="about-side__name font-display">{s.name}</h3>
+            <p class="about-side__body">{s.body}</p>
+            <dl class="about-side__facts">
+              <div>
+                <dt class="mono-caps">{t.about.soundLabel}</dt>
+                <dd><ul>{s.sound.map((g) => <li>{g}</li>)}</ul></dd>
+              </div>
+              <div>
+                <dt class="mono-caps">{t.about.nightsLabel}</dt>
+                <dd><ul>{s.nights.map((n) => <li>{n}</li>)}</ul></dd>
+              </div>
+            </dl>
+          </article>
         ))}
       </div>
     </div>
   </section>
 
-  <style>
-    .faq-item summary::-webkit-details-marker { display: none; }
-    .faq-item summary:focus-visible { outline: 2px solid #fff; outline-offset: -2px; border-radius: 0.75rem; }
-    /* Plus that turns into a minus: the vertical bar folds flat when open */
-    .faq-item__icon::before,
-    .faq-item__icon::after {
-      content: ''; position: absolute; left: 50%; top: 50%;
-      width: 100%; height: 2px; margin: -1px 0 0 -50%;
-      background: currentColor; border-radius: 1px;
-      transition: transform 0.25s ease;
-    }
-    .faq-item__icon::after { transform: rotate(90deg); }
-    .faq-item[open] .faq-item__icon::after { transform: rotate(0deg); }
-    .faq-item[open] .faq-item__body { animation: faq-open 0.25s ease-out; }
-    @keyframes faq-open { from { opacity: 0; transform: translateY(-4px); } }
-    @media (prefers-reduced-motion: reduce) {
-      .faq-item__icon::before, .faq-item__icon::after { transition: none; }
-      .faq-item[open] .faq-item__body { animation: none; }
-    }
-  </style>
+  {/* ===== The path: a few nights from every year ===== */}
+  {path.length > 0 && (
+    <section id="path" class="about-section border-t border-white/5">
+      <div class="container mx-auto px-6 sm:px-8 lg:px-12">
+        <div class="rail about-path" data-rail data-reveal>
+          <div class="about-head--split">
+            <div>
+              <p class="eyebrow">{pathSpan}</p>
+              <h2 class="section-title mt-3">{t.about.pathHeading1}<span class="text-brand-orange">{t.about.pathHeading2}</span></h2>
+              <p class="about-head__lead">{t.about.pathLead}</p>
+            </div>
+            <div class="about-path__nav">
+              <a href={`${l('/events')}#past`} class="about-link">{t.about.pathAll} <span aria-hidden="true">→</span></a>
+              <button type="button" class="rail__nav" data-rail-prev aria-label={t.home.prev}><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
+              <button type="button" class="rail__nav" data-rail-next aria-label={t.home.next}><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>
+            </div>
+          </div>
+          <div class="rail__viewport" data-rail-viewport>
+            <ol class="rail__track" data-rail-track>
+              {path.map((y) => (
+                <li class="path-year">
+                  <span class="path-year__dot" aria-hidden="true"></span>
+                  <h3 class="path-year__num font-display">{y.year}</h3>
+                  <div class="path-year__meta">
+                    <span class="path-split" aria-hidden="true">
+                      {y.b > 0 && <i style={`flex:${y.b};background:var(--side-b)`}></i>}
+                      {y.a > 0 && <i style={`flex:${y.a};background:var(--side-a)`}></i>}
+                    </span>
+                    <p class="mono-caps">{t.about.pathNights} <b>{y.total}</b></p>
+                  </div>
+                  <ol class="path-gigs">
+                    {y.lines.map((g) => {
+                      const { day, month } = dateParts(g.date, lang);
+                      return (
+                        <li class="path-gig" data-side={g.side}>
+                          <span class="side-key" aria-hidden="true">{g.side}</span>
+                          <div class="min-w-0">
+                            <p class="path-gig__title">{g.title}</p>
+                            {g.stages.length > 0 && <p class="path-gig__stages">{g.stages.join(' · ')}</p>}
+                            <p class="path-gig__meta mono-caps">{day} {month} · {g.location}<span class="sr-only"> · {g.side === 'A' ? t.sides.a : t.sides.b}</span></p>
+                            {g.tag && <p class={`path-gig__tag mono-caps${g.first ? ' is-first' : ''}`}>{subtitleText(g.tag, lang)}</p>}
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ol>
+                </li>
+              ))}
+            </ol>
+          </div>
+          <div class="rail__bar" data-rail-bar aria-hidden="true"><span></span></div>
+        </div>
+      </div>
+    </section>
+  )}
 
+  {/* ===== FAQ, mirrored in the FAQPage JSON-LD =====
+      Native <details>, no JS: every answer stays in the HTML for search
+      engines. name="faq" makes it an exclusive accordion where supported. */}
+  <section id="faq" class="about-section about-section--faq border-t border-white/5">
+    <div class="container mx-auto px-6 sm:px-8 lg:px-12">
+      <div class="about-faq" data-reveal>
+        <div>
+          <p class="eyebrow">{t.about.faqLabel}</p>
+          <h2 class="about-faq__title font-display">{t.about.faqHeading1}<span class="text-brand-orange">{t.about.faqHeading2}</span></h2>
+        </div>
+        <div class="about-faq__cols">
+          {faqCols.map((col) => (
+            <div class="about-faq__col">
+              {col.map((item) => (
+                <details name="faq" class="faq-item">
+                  <summary>
+                    <h3>{item.q}</h3>
+                    <span class="faq-item__icon" aria-hidden="true"></span>
+                  </summary>
+                  <div class="faq-item__body">
+                    <p set:html={item.aHtml} />
+                  </div>
+                </details>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    // The B / A switch in "Two sides". It picks the side for the whole site
+    // (src/scripts/sides.ts), like the A/B flip in the header. B is where the
+    // site rests, so pressing B goes back to "all" instead of filtering the A
+    // side out of the lists on other pages.
+    function initAboutSides() {
+      const seg = document.querySelector<HTMLElement>('[data-about-seg]');
+      if (!seg || seg.dataset.ready) return;
+      seg.dataset.ready = '1';
+      const buttons = seg.querySelectorAll<HTMLButtonElement>('[data-about-side]');
+      const sync = (pick: string | null) => {
+        buttons.forEach((b) => b.setAttribute('aria-pressed', String((b.dataset.aboutSide === 'A') === (pick === 'A'))));
+      };
+      buttons.forEach((b) => b.addEventListener('click', () => {
+        document.dispatchEvent(new CustomEvent('side:set', { detail: b.dataset.aboutSide === 'A' ? 'A' : 'all' }));
+      }));
+      document.addEventListener('side:change', (e) => {
+        if (seg.isConnected) sync((e as CustomEvent).detail);
+      });
+      sync(document.documentElement.getAttribute('data-side-pick'));
+    }
+    document.addEventListener('astro:page-load', initAboutSides);
+  </script>
 </Layout>

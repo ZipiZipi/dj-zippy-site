@@ -1,4 +1,12 @@
 ---
+// The footer of every page (Layout.astro) is the booking desk, "Let's Connect":
+// a heading and the direct lines (email, Resident Advisor, socials) next to a
+// booking form built like a piece of the dates deck. In the form the visitor
+// picks a side (B · underground, A · open format or not sure yet) and slides a
+// fader to the part of the night; the genres for that side and that part light
+// up. Behaviour: src/scripts/booking-set.ts (the set) and the script at the
+// bottom (sending). Without JS the radios still carry the side and the part of
+// the night, and the form posts straight to web3forms.
 import { getLangFromUrl, useTranslations, localize, type Lang } from '../i18n/utils';
 
 interface Props {
@@ -7,180 +15,794 @@ interface Props {
 
 const lang: Lang = (Astro.props as Props).lang ?? getLangFromUrl(Astro.url);
 const t = useTranslations(lang);
+// What goes out in the email and to analytics stays English in both languages.
+const en = useTranslations('en');
+
+const EMAIL = 'veljkoned@gmail.com';
+const privacyHref = localize('/privacy', lang);
+const here = Astro.url.pathname.replace(/\/+$/, '') || '/';
+
+const sidePads = [
+  { key: 'B', value: 'B side (underground)', short: t.sides.b, name: t.sides.bLabel, note: t.footer.sideBNote },
+  { key: 'A', value: 'A side (open format)', short: t.sides.a, name: t.sides.aLabel, note: t.footer.sideANote },
+] as const;
+
+// Three stops on the fader, each in the middle of its third of the night.
+const parts = [
+  { label: t.room.warmup, value: en.room.warmup, at: 100 / 6 },
+  { label: t.room.peak, value: en.room.peak, at: 50 },
+  { label: t.room.closing, value: en.room.closing, at: 500 / 6 },
+];
+const START = 1;   // peak time
+
+// The night as a waveform, one shape per side: B builds to the peak and stays
+// deep through the closing, A keeps climbing to a singalong finish. Fixed noise
+// gives the bars their texture. Heights are % of the strip; CSS picks the
+// side's set and morphs between them when the side changes.
+const BARS = 64;
+type Env = [number, number][];
+const B_ENV: Env = [[0, 0.2], [0.18, 0.38], [0.33, 0.55], [0.45, 0.88], [0.58, 1], [0.7, 0.88], [0.82, 0.74], [1, 0.6]];
+const A_ENV: Env = [[0, 0.26], [0.18, 0.44], [0.33, 0.56], [0.5, 0.72], [0.66, 0.8], [0.78, 0.9], [0.9, 1], [1, 0.9]];
+function envelope(keys: Env, u: number) {
+  for (let k = 1; k < keys.length; k++) {
+    const [x0, y0] = keys[k - 1];
+    const [x1, y1] = keys[k];
+    if (u <= x1) {
+      const s = (u - x0) / (x1 - x0);
+      return y0 + (y1 - y0) * s * s * (3 - 2 * s);
+    }
+  }
+  return keys[keys.length - 1][1];
+}
+const bars = Array.from({ length: BARS }, (_, i) => {
+  const u = (i + 0.5) / BARS;
+  const noise = Math.abs(Math.sin(i * 0.9)) * 0.5 + Math.abs(Math.sin(i * 0.37)) * 0.3 + Math.abs(Math.sin(i * 2.3)) * 0.2;
+  const k = 0.55 + 0.45 * noise;
+  const pct = (v: number) => `${Math.round(Math.max(0.1, v * k) * 100)}%`;
+  return `--hb:${pct(envelope(B_ENV, u))};--ha:${pct(envelope(A_ENV, u))}`;
+});
+
+const strings = {
+  sides: { B: t.sides.b, A: t.sides.a, any: t.footer.sideAny },
+  lines: { B: t.room.B.lines, A: t.room.A.lines, any: t.room.anyLine },
+};
+
+const socials = [
+  { href: 'https://www.instagram.com/zovumezippy/', label: 'Instagram', icon: 'fa-instagram' },
+  { href: 'https://www.youtube.com/@zovumezippy/', label: 'YouTube', icon: 'fa-youtube' },
+  { href: 'https://open.spotify.com/user/31aj2g4yokqhpoxwkpo5odxegsle', label: 'Spotify', icon: 'fa-spotify' },
+  { href: 'https://www.mixcloud.com/zovumezippy/', label: 'MixCloud', icon: 'fa-mixcloud' },
+  { href: 'https://www.deezer.com/en/profile/2582254702', label: 'Deezer', icon: 'fa-deezer' },
+];
 ---
 
-<footer id="contact" class="bg-brand-dark pt-12 sm:pt-14 pb-8 border-t border-white/10">
-  <div class="max-w-3xl mx-auto px-6 sm:px-8">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-10">
-      <div>
-        <h2 class="font-display text-2xl sm:text-3xl font-bold mb-3">{t.footer.heading1}<span class="text-brand-orange">{t.footer.heading2}</span></h2>
-        <p class="text-gray-400 text-sm leading-relaxed mb-5">
-          {t.footer.blurb}
-        </p>
-
-        <div class="space-y-2.5 mb-5 text-sm">
-          <a href="mailto:veljkoned@gmail.com" class="flex items-center gap-3 hover:text-brand-orange transition-colors">
-            <i class="fa-regular fa-envelope text-brand-orange w-4"></i> veljkoned@gmail.com
-          </a>
-          <a href="https://ra.co/dj/zippy-2" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 hover:text-brand-orange transition-colors">
-            <i class="fa-solid fa-square-poll-vertical text-brand-orange w-4"></i> {t.footer.raProfile}
-          </a>
+<footer id="contact" class="book" aria-labelledby="contact-heading">
+  <div class="container mx-auto px-6 sm:px-8 lg:px-12">
+    <div class="max-w-6xl mx-auto">
+      <div class="book__grid">
+        <div class="book__intro" data-reveal>
+          <p class="eyebrow">{t.footer.kicker}</p>
+          <h2 id="contact-heading" class="section-title mt-3">{t.footer.heading1}<span class="text-brand-orange">{t.footer.heading2}</span></h2>
+          <p class="book__blurb">{t.footer.blurb}</p>
         </div>
 
-        <div class="flex gap-2.5 flex-wrap">
-          <a href="https://www.instagram.com/zovumezippy/" target="_blank" rel="me noopener noreferrer" aria-label="Instagram"
-            class="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center hover:bg-brand-orange hover:text-white transition-all">
-            <i class="fa-brands fa-instagram"></i>
-          </a>
-          <a href="https://www.youtube.com/@zovumezippy/" target="_blank" rel="me noopener noreferrer" aria-label="YouTube"
-            class="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center hover:bg-brand-orange hover:text-white transition-all">
-            <i class="fa-brands fa-youtube"></i>
-          </a>
-          <a href="https://open.spotify.com/user/31aj2g4yokqhpoxwkpo5odxegsle" target="_blank" rel="me noopener noreferrer" aria-label="Spotify"
-            class="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center hover:bg-brand-orange hover:text-white transition-all">
-            <i class="fa-brands fa-spotify"></i>
-          </a>
-          <a href="https://www.mixcloud.com/zovumezippy/" target="_blank" rel="me noopener noreferrer" aria-label="MixCloud"
-            class="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center hover:bg-brand-orange hover:text-white transition-all">
-            <i class="fa-brands fa-mixcloud"></i>
-          </a>
-          <a href="https://www.deezer.com/en/profile/2582254702" target="_blank" rel="me noopener noreferrer" aria-label="Deezer"
-            class="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center hover:bg-brand-orange hover:text-white transition-all">
-            <i class="fa-brands fa-deezer"></i>
-          </a>
+        {/* the direct lines come before the form in the page, as they do on wider
+            screens (beside the heading), so the keyboard follows the screen there;
+            phones show the form first and the direct lines under it */}
+        <div class="book__direct">
+          <ul class="book-rows">
+            <li class="book-row">
+              <span class="book-row__label mono-caps">{t.footer.emailShort}</span>
+              <a class="book-row__value" href={`mailto:${EMAIL}`}>{EMAIL}</a>
+              <button type="button" class="book-row__copy" data-copy={EMAIL} data-copied={t.footer.copied} aria-label={t.footer.copyLabel} title={t.footer.copyLabel} hidden>
+                <svg class="is-idle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5" /><path d="M5 15V6.5A2.5 2.5 0 0 1 7.5 4H15" /></svg>
+                <svg class="is-ok" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5" /></svg>
+              </button>
+              <span class="sr-only" data-copy-status aria-live="polite"></span>
+            </li>
+            <li class="book-row">
+              <span class="book-row__label mono-caps">{t.footer.profile}</span>
+              <a class="book-row__value" href="https://ra.co/dj/zippy-2" target="_blank" rel="noopener noreferrer" title={t.footer.raProfile}>
+                Resident Advisor
+                <svg class="book-row__go" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8" /></svg>
+              </a>
+            </li>
+            <li class="book-row book-row--social">
+              <span class="book-row__label mono-caps">{t.footer.follow}</span>
+              <span class="book-socials">
+                {socials.map((s) => (
+                  <a href={s.href} target="_blank" rel="me noopener noreferrer" aria-label={s.label} class="book-social">
+                    <i class={`fa-brands ${s.icon}`} aria-hidden="true"></i>
+                  </a>
+                ))}
+              </span>
+            </li>
+          </ul>
         </div>
+
+        <form
+          id="contact-form"
+          name="contact"
+          method="POST"
+          action="https://api.web3forms.com/submit"
+          class="book-desk"
+          aria-labelledby="cf-title"
+          data-astro-reload
+          data-reveal
+          data-book-strings={JSON.stringify(strings)}
+          data-sending={t.footer.sending}
+          data-sent={t.footer.sent}
+          data-error={t.footer.error}
+          data-sent-note={t.footer.sentNote}
+          data-error-note={t.footer.errorNote}
+        >
+          <input type="hidden" name="access_key" value="53a011ae-cafe-4a90-b080-b4e4d5891262" />
+          <input type="hidden" name="subject" value={t.footer.subject} />
+          <input type="hidden" name="language" value={lang} />
+          <!-- where the visit came from; filled in by the attribution script -->
+          <input type="hidden" name="source" value="" data-attribution />
+          <!-- web3forms honeypot: people never see it, bots that tick it get rejected -->
+          <input type="checkbox" name="botcheck" class="hidden" style="display:none" tabindex="-1" autocomplete="off" aria-hidden="true" />
+
+          <div class="book-desk__top mono-caps">
+            <span id="cf-title" class="book-desk__title"><span class="book-led" aria-hidden="true"></span>{t.footer.deskTitle}</span>
+            <span class="book-readout" data-book-readout aria-hidden="true">{t.sides.b} · {t.room.peak}</span>
+          </div>
+
+          <div class="book-desk__body">
+            <div class="book-set">
+              <fieldset class="book-group">
+                <legend class="book-step mono-caps"><span class="book-step__n" aria-hidden="true">01</span>{t.footer.sideLabel}</legend>
+                <div class="book-sides">
+                  {sidePads.map((o) => (
+                    <label class="book-pad" data-side={o.key}>
+                      <input type="radio" name="side" value={o.value} data-side-choice={o.key} checked={o.key === 'B'} class="book-pad__input" />
+                      <span class="book-pad__face">
+                        <span class="side-key" aria-hidden="true">{o.key}</span>
+                        <span class="book-pad__text">
+                          <span class="sr-only">{o.short}: </span>
+                          <span class="book-pad__name">{o.name}</span>
+                          <span class="book-pad__note">{o.note}</span>
+                        </span>
+                      </span>
+                    </label>
+                  ))}
+                  <label class="book-pad book-pad--any">
+                    <input type="radio" name="side" value="Not sure yet" data-side-choice="any" class="book-pad__input" />
+                    <span class="book-pad__face">
+                      <span class="side-key book-pad__both" aria-hidden="true"><span>A</span><span>B</span></span>
+                      <span class="book-pad__name">{t.footer.sideAny}</span>
+                    </span>
+                  </label>
+                </div>
+              </fieldset>
+
+              <fieldset class="book-group book-night">
+                <legend class="book-step mono-caps"><span class="book-step__n" aria-hidden="true">02</span>{t.room.title}</legend>
+                <div class="book-wave" data-book-wave aria-hidden="true">
+                  {bars.map((style) => <i style={style}></i>)}
+                </div>
+                <div class="book-fader" data-book-fader title={t.room.faderLabel}>
+                  <span class="book-fader__rail" aria-hidden="true"><i class="book-fader__win"></i></span>
+                  <span class="book-fader__ticks" aria-hidden="true">
+                    {Array.from({ length: 13 }, (_, i) => <i class={i % 4 === 2 ? 'is-major' : undefined}></i>)}
+                  </span>
+                  <span class="book-fader__slide" aria-hidden="true"><span class="book-fader__cap"></span></span>
+                  {parts.map((p, i) => (
+                    <label class="book-stop" style={`--at:${p.at.toFixed(3)}`}>
+                      <input type="radio" name="set" value={p.value} data-stop={i} data-at={p.at.toFixed(3)} checked={i === START} class="book-stop__input" />
+                      <span class="book-stop__label mono-caps">{p.label}</span>
+                    </label>
+                  ))}
+                </div>
+                {(['B', 'A'] as const).map((side) => (
+                  <div class="book-genres" data-book-genres={side} data-side={side} hidden={side !== 'B'}>
+                    <span class="side-key book-genres__key" aria-hidden="true">{side}</span>
+                    <ul aria-label={`${side === 'A' ? t.sides.a : t.sides.b} · ${t.room.genresLabel}`}>
+                      {t.room[side].genres.map((g, i) => <li data-genre={en.room[side].genres[i]}>{g}</li>)}
+                    </ul>
+                  </div>
+                ))}
+                <p class="book-line" data-book-line>{t.room.B.lines[START]}</p>
+                <input type="hidden" name="genres" value="" disabled />
+              </fieldset>
+            </div>
+
+            <div class="book-details" role="group" aria-labelledby="cf-details">
+              <p id="cf-details" class="book-step mono-caps"><span class="book-step__n" aria-hidden="true">03</span>{t.footer.detailsLabel}</p>
+              <div class="book-details__body">
+                <div class="book-fields">
+                  <div class="book-fields__pair">
+                    <div class="book-field">
+                      <label for="cf-name" class="mono-caps">{t.footer.name}</label>
+                      <input type="text" id="cf-name" name="name" autocomplete="name" enterkeyhint="next" required class="book-input" />
+                    </div>
+                    <div class="book-field">
+                      <label for="cf-email" class="mono-caps">{t.footer.email}</label>
+                      <input type="email" id="cf-email" name="email" autocomplete="email" inputmode="email" enterkeyhint="next" required class="book-input" />
+                    </div>
+                  </div>
+                  <div class="book-field">
+                    <label for="cf-venue" class="mono-caps">{t.footer.venue}</label>
+                    <input type="text" id="cf-venue" name="venue" autocomplete="organization" enterkeyhint="next" required class="book-input" />
+                  </div>
+                  <div class="book-field book-field--grow">
+                    <label for="cf-message" class="mono-caps">{t.footer.messageLabel}</label>
+                    <textarea id="cf-message" name="message" rows="4" placeholder={t.footer.message} required class="book-input"></textarea>
+                  </div>
+                </div>
+                <div class="book-send-row">
+                  <button type="submit" class="btn btn--primary book-send">
+                    <span data-book-send>{t.footer.submit}</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+                  </button>
+                  <p class="book-status" data-book-status role="status" aria-live="polite"></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
       </div>
 
-      <form
-        id="contact-form"
-        name="contact"
-        method="POST"
-        class="space-y-4"
-        data-sending={t.footer.sending}
-        data-sent={t.footer.sent}
-        data-error={t.footer.error}
-      >
-        <input type="hidden" name="access_key" value="53a011ae-cafe-4a90-b080-b4e4d5891262" />
-        <input type="hidden" name="subject" value={t.footer.subject} />
-        <input type="hidden" name="language" value={lang} />
-        <!-- web3forms honeypot: people never see it, bots that tick it get rejected -->
-        <input type="checkbox" name="botcheck" class="hidden" style="display:none" tabindex="-1" autocomplete="off" aria-hidden="true" />
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label for="cf-name" class="block mb-1 text-[11px] font-semibold uppercase tracking-widest text-gray-400">{t.footer.name}</label>
-            <input type="text" id="cf-name" name="name" autocomplete="name" required
-              class="w-full bg-transparent border-b border-white/15 pb-2 text-sm text-white focus:border-brand-orange focus:outline-none" />
-          </div>
-          <div>
-            <label for="cf-venue" class="block mb-1 text-[11px] font-semibold uppercase tracking-widest text-gray-400">{t.footer.venue}</label>
-            <input type="text" id="cf-venue" name="venue" autocomplete="organization" required
-              class="w-full bg-transparent border-b border-white/15 pb-2 text-sm text-white focus:border-brand-orange focus:outline-none" />
-          </div>
+      <div class="book__bottom">
+        <p>{t.footer.copyright(new Date().getFullYear())}</p>
+        {/* the privacy page and the way back to the cookie choice, on every page
+            (CookieConsent.astro opens itself for any [data-consent-open]) */}
+        <div class="book__legal">
+          <a href={privacyHref} aria-current={here === privacyHref ? 'page' : undefined}>{t.footer.privacy}</a>
+          <button type="button" data-consent-open>{t.footer.cookieSettings}</button>
+          <a href={localize('/links', lang)}>{t.footer.allLinks} <span class="book__go" aria-hidden="true">&rarr;</span></a>
         </div>
-
-        <div>
-          <label for="cf-email" class="block mb-1 text-[11px] font-semibold uppercase tracking-widest text-gray-400">{t.footer.email}</label>
-          <input type="email" id="cf-email" name="email" autocomplete="email" inputmode="email" required
-            class="w-full bg-transparent border-b border-white/15 pb-2 text-sm text-white focus:border-brand-orange focus:outline-none" />
-        </div>
-
-        <fieldset>
-          <legend class="block mb-2 text-[11px] font-semibold uppercase tracking-widest text-gray-400">{t.footer.sideLabel}</legend>
-          <div class="flex flex-wrap gap-2">
-            {[
-              { value: 'B side (underground)', side: 'B', label: `${t.sides.b} · ${t.sides.bLabel}` },
-              { value: 'A side (open format)', side: 'A', label: `${t.sides.a} · ${t.sides.aLabel}` },
-              { value: 'Not sure yet', side: undefined, label: t.footer.sideAny },
-            ].map((o) => (
-              <label class="side-radio" data-side={o.side}>
-                <input type="radio" name="side" value={o.value} data-side-choice={o.side} class="sr-only" checked={!o.side} />
-                <span>{o.label}</span>
-              </label>
-            ))}
-          </div>
-        </fieldset>
-
-        <div>
-          <label for="cf-message" class="block mb-1 text-[11px] font-semibold uppercase tracking-widest text-gray-400">{t.footer.messageLabel}</label>
-          <textarea id="cf-message" name="message" rows="3" placeholder={t.footer.message} required
-            class="w-full bg-transparent border-b border-white/15 pb-2 text-sm text-white placeholder-gray-500 focus:border-brand-orange focus:outline-none resize-none"></textarea>
-        </div>
-
-        <button type="submit"
-          class="text-sm text-brand-orange font-bold uppercase tracking-widest border-b border-brand-orange hover:text-white hover:border-white transition-colors pb-1">
-          {t.footer.submit}
-        </button>
-      </form>
-    </div>
-
-    <div class="mt-8 pt-5 border-t border-white/5 text-center text-gray-600 text-xs">
-      {t.footer.copyright(new Date().getFullYear())}
-      <span class="mx-2">|</span>
-      <a href={localize('/links', lang)} class="hover:text-brand-orange transition-colors">{t.footer.allLinks} &rarr;</a>
+      </div>
     </div>
   </div>
 </footer>
 
-<script>
-  // Google Ads conversion label for the booking form: Google Ads → Goals →
-  // Conversions → (the booking conversion) → Tag setup, the part after
-  // "AW-975400552/". Empty = the Ads conversion is skipped; Meta Lead and the
-  // GTM event still fire.
-  const ADS_CONVERSION_LABEL = '';
+<style is:global>
+  /* === The booking desk (Footer.astro) ===
+     The form is a panel from the same family as the dates deck. Its colour
+     follows the side picked in it (--book-rgb), and the other side's colour
+     (--book-alt-rgb) marks the small details, so a B request stays orange with
+     touches of blue and an A request turns it around. */
+  .book {
+    position: relative;
+    isolation: isolate;
+    padding: 4rem 0 2rem;
+    background: var(--bg, #050505);
+    border-top: 1px solid rgb(255 255 255 / 0.07);
+  }
+  /* the hero's lighting once more: a warm key light on the left, a cool rim on the right */
+  .book::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: min(36rem, 100%);
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 60% 70% at 8% 0%, rgb(var(--accent-rgb) / 0.12), transparent 70%),
+      radial-gradient(ellipse 34% 50% at 96% 0%, rgb(var(--alt-rgb) / 0.08), transparent 70%);
+  }
+  @media (min-width: 640px) { .book { padding-top: 5.5rem; } }
+  /* While the cookie card (CookieConsent.astro) is open it covers the bottom of
+     the screen; room under the footer lets the send button and the bottom row
+     still scroll up above it. */
+  :root:has([data-consent]:not([hidden])) .book { padding-bottom: 21rem; }
 
-  // Reports a sent booking request to every tracker on the page. Analytics may
-  // still be loading (or blocked), so each call is guarded and none of them
-  // can break the form.
-  function trackBookingLead(lang: string) {
+  .book__grid { display: grid; gap: 2.5rem; grid-template-areas: "intro" "desk" "direct"; }
+  .book__intro { grid-area: intro; }
+  .book__direct { grid-area: direct; }
+  @media (min-width: 768px) {
+    .book__grid {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      grid-template-areas: "intro direct" "desk desk";
+      column-gap: 3rem;
+      row-gap: 2.5rem;
+      align-items: end;
+    }
+  }
+  @media (min-width: 1024px) { .book__grid { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); } }
+  .book__blurb { max-width: 34rem; margin-top: 1rem; font-size: 1rem; line-height: 1.6; color: rgb(255 255 255 / 0.62); text-wrap: pretty; }
+  @media (min-width: 640px) { .book__blurb { font-size: 1.0625rem; } }
+
+  /* Direct lines: a small spec sheet, label on the left */
+  .book-rows { border-top: 1px solid var(--line, rgb(255 255 255 / 0.09)); }
+  .book-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 0.75rem;
+    row-gap: 0.5rem;
+    min-height: 3.25rem;
+    padding: 0.25rem 0;
+    border-bottom: 1px solid var(--line, rgb(255 255 255 / 0.09));
+  }
+  .book-row__label { flex: 0 0 4rem; font-size: 0.6875rem; color: rgb(255 255 255 / 0.55); }
+  /* the link fills the height of its row: a comfortable target for a thumb */
+  .book-row__value {
+    display: inline-flex;
+    align-items: center;
+    align-self: stretch;
+    gap: 0.5rem;
+    min-width: 0;
+    min-height: 2.75rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: #fff;
+    overflow-wrap: anywhere;
+    transition: color 0.2s;
+  }
+  .book-row__value:hover { color: rgb(var(--accent-rgb)); }
+  .book-row__go { width: 0.875rem; height: 0.875rem; flex-shrink: 0; color: rgb(var(--alt-rgb)); transition: transform 0.2s var(--ease-out, ease-out); }
+  .book-row__value:hover .book-row__go { transform: translate(2px, -2px); }
+  .book-row__copy {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    margin-left: auto;
+    border-radius: 0.6rem;
+    border: 1px solid rgb(255 255 255 / 0.12);
+    color: rgb(255 255 255 / 0.6);
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .book-row__copy[hidden] { display: none; }
+  .book-row__copy svg { width: 0.9rem; height: 0.9rem; }
+  .book-row__copy .is-ok, .book-row__copy.is-done .is-idle { display: none; }
+  .book-row__copy.is-done .is-ok { display: block; }
+  .book-row__copy:hover { color: #fff; border-color: rgb(255 255 255 / 0.3); }
+  .book-row__copy.is-done { color: rgb(var(--alt-rgb)); border-color: rgb(var(--alt-rgb) / 0.5); }
+  /* phones open the mail app instead, and copy with a long press */
+  @media (hover: none) { .book-row__copy { display: none; } }
+  .book-socials { display: flex; flex-wrap: wrap; gap: 0.375rem; }
+  .book-social {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 999px;
+    border: 1px solid rgb(255 255 255 / 0.12);
+    color: rgb(255 255 255 / 0.8);
+    transition: color 0.2s, border-color 0.2s, background-color 0.2s;
+  }
+  .book-social:hover { color: #050505; background: rgb(var(--accent-rgb)); border-color: rgb(var(--accent-rgb)); }
+  @media (pointer: coarse) { .book-social { width: 2.75rem; height: 2.75rem; } }
+
+  /* The desk */
+  .book-desk {
+    --book-rgb: var(--side-b-rgb);
+    --book-alt-rgb: var(--side-a-rgb);
+    grid-area: desk;
+    container: book / inline-size;
+    position: relative;
+    padding: 1.125rem;
+    border-radius: 1.5rem;
+    border: 1px solid var(--line, rgb(255 255 255 / 0.09));
+    background: linear-gradient(180deg, #141414, #0b0b0b);
+    box-shadow: 0 40px 70px -40px rgb(0 0 0 / 0.95), inset 0 1px 0 rgb(255 255 255 / 0.06);
+  }
+  .book-desk[data-book-side="A"] { --book-rgb: var(--side-a-rgb); --book-alt-rgb: var(--side-b-rgb); }
+  .book-desk[data-book-side="any"] { --book-rgb: var(--accent-rgb); --book-alt-rgb: var(--alt-rgb); }
+  /* before the script runs (or without it) the checked pad sets the colours */
+  .book-desk:not([data-book-side]):has(input[data-side-choice="A"]:checked) { --book-rgb: var(--side-a-rgb); --book-alt-rgb: var(--side-b-rgb); }
+  .book-desk:not([data-book-side]):has(input[data-side-choice="any"]:checked) { --book-rgb: var(--accent-rgb); --book-alt-rgb: var(--alt-rgb); }
+  /* a wash of the side's colour from the top left, like a lit display */
+  .book-desk::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: radial-gradient(ellipse 70% 50% at 10% 0%, rgb(var(--book-rgb) / 0.1), transparent 70%);
+  }
+  .book-desk > * { position: relative; }
+  @media (min-width: 640px) { .book-desk { padding: 1.75rem; } }
+
+  .book-desk__top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; font-size: 0.6875rem; color: rgb(255 255 255 / 0.62); }
+  .book-led {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    margin-right: 0.55rem;
+    border-radius: 50%;
+    background: rgb(var(--book-rgb));
+    box-shadow: 0 0 8px 1px rgb(var(--book-rgb));
+    vertical-align: 1px;
+  }
+  .book-readout { color: rgb(var(--book-rgb)); text-align: right; }
+  @container book (max-width: 26rem) { .book-readout { display: none; } }
+
+  .book-desk__body { display: grid; gap: 2.25rem; }
+  @container book (min-width: 50rem) {
+    .book-desk__body { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0; }
+    .book-set { padding-right: 2.25rem; }
+    .book-details { padding-left: 2.25rem; border-left: 1px solid rgb(255 255 255 / 0.07); }
+    /* side by side with the set, the message box takes up the spare height */
+    .book-fields { flex: 1; }
+    .book-field--grow { flex: 1; display: flex; flex-direction: column; }
+    .book-field--grow > .book-input { flex: 1; }
+  }
+  .book-group { min-width: 0; margin: 0; padding: 0; border: 0; }
+  .book-step { display: flex; align-items: center; gap: 0.625rem; margin-bottom: 0.875rem; padding: 0; font-size: 0.6875rem; color: rgb(255 255 255 / 0.62); }
+  .book-step__n { color: rgb(var(--book-alt-rgb)); }
+
+  /* 01 · the side pads */
+  .book-sides { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.625rem; }
+  .book-pad { position: relative; display: block; cursor: pointer; }
+  .book-pad--any { grid-column: 1 / -1; --side: rgb(var(--accent-rgb)); }
+  .book-pad__input { position: absolute; top: 0; left: 0; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+  .book-pad__face {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    height: 100%;
+    padding: 0.875rem;
+    border-radius: 1rem;
+    border: 1px solid var(--line, rgb(255 255 255 / 0.09));
+    background: rgb(255 255 255 / 0.035);
+    transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
+  }
+  /* each pad has an LED that lights in its side's colour when picked */
+  .book-pad__face::after {
+    content: '';
+    position: absolute;
+    top: 1.1rem;
+    right: 0.9rem;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: rgb(255 255 255 / 0.14);
+    transition: background-color 0.2s, box-shadow 0.2s;
+  }
+  .book-pad:hover .book-pad__face { border-color: rgb(255 255 255 / 0.24); background: rgb(255 255 255 / 0.055); }
+  .book-pad__input:checked + .book-pad__face { border-color: var(--side); background: rgb(255 255 255 / 0.07); box-shadow: inset 0 0 0 1px var(--side); }
+  .book-pad__input:checked + .book-pad__face::after { background: var(--side); box-shadow: 0 0 8px 1px var(--side); }
+  .book-pad__input:focus-visible + .book-pad__face { outline: 2px solid #fff; outline-offset: 2px; }
+  .book-pad__face > .side-key { margin-bottom: 0.875rem; }
+  .book-pad__text { display: flex; flex-direction: column; min-width: 0; }
+  .book-pad__name { font-size: 0.9375rem; font-weight: 600; line-height: 1.25; color: #fff; }
+  .book-pad__note { margin-top: 0.25rem; font-size: 0.75rem; line-height: 1.35; color: rgb(255 255 255 / 0.55); }
+  .book-pad--any .book-pad__face { flex-direction: row; align-items: center; gap: 0.75rem; padding: 0.625rem 2rem 0.625rem 0.875rem; }
+  .book-pad--any .book-pad__face::after { top: 50%; margin-top: -3.5px; }
+  .book-pad--any .book-pad__face > .side-key { margin: 0; }
+  .book-pad--any .book-pad__name { font-size: 0.875rem; font-weight: 500; color: rgb(255 255 255 / 0.8); }
+  .book-pad--any .book-pad__input:checked + .book-pad__face .book-pad__name { color: #fff; }
+  /* "not sure yet": a key that is half of each side */
+  .book-pad .book-pad__both { width: auto; padding: 0; overflow: hidden; background: none; }
+  .book-pad__both span { display: inline-flex; align-items: center; justify-content: center; width: 1.125rem; height: 100%; }
+  .book-pad__both span:first-child { background: var(--side-a); }
+  .book-pad__both span:last-child { background: var(--side-b); }
+  /* a narrow desk: one pad per row, key on the left */
+  @container book (max-width: 24rem) {
+    .book-sides { grid-template-columns: minmax(0, 1fr); }
+    .book-pad__face { flex-direction: row; align-items: center; gap: 0.75rem; padding: 0.75rem 2rem 0.75rem 0.875rem; }
+    .book-pad__face::after { top: 50%; margin-top: -3.5px; }
+    .book-pad__face > .side-key { margin: 0; }
+    .book-pad__note { margin-top: 0.1rem; }
+  }
+
+  /* 02 · the night: waveform, fader, genres, line */
+  .book-night { margin-top: 1.75rem; }
+  .book-wave { display: flex; align-items: center; gap: 2px; height: 3.25rem; }
+  .book-wave i {
+    flex: 1 1 0;
+    min-width: 1px;
+    height: var(--hb);
+    border-radius: 2px;
+    background: rgb(255 255 255 / 0.14);
+    transition: height 0.6s var(--ease-out, ease-out), background-color 0.25s;
+  }
+  .book-desk[data-book-side="A"] .book-wave i { height: var(--ha); }
+  .book-wave i.on { background: rgb(var(--book-rgb)); }
+  @container book (max-width: 32rem) { .book-wave i:nth-child(even) { display: none; } }
+
+  .book-fader {
+    --pos: 50;
+    position: relative;
+    height: 4.25rem;
+    margin-top: 0.375rem;
+    /* sideways drags move the fader; vertical swipes still scroll and pinches
+       still zoom the page (plain pan-y first, for browsers without pinch-zoom) */
+    touch-action: pan-y;
+    touch-action: pan-y pinch-zoom;
+    cursor: ew-resize;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .book-fader__rail { position: absolute; left: 0; right: 0; top: 1rem; height: 4px; border-radius: 4px; background: rgb(255 255 255 / 0.12); overflow: hidden; }
+  /* the part of the night being booked, lit on the rail */
+  .book-fader__win {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 33.334%;
+    border-radius: 4px;
+    background: rgb(var(--book-rgb));
+    transform: translateX(calc((var(--pos) - 16.667) / 33.334 * 100%));
+  }
+  .book-fader__ticks { position: absolute; left: 0; right: 0; top: 1.5rem; display: flex; align-items: flex-start; justify-content: space-between; }
+  .book-fader__ticks i { width: 1px; height: 4px; background: rgb(255 255 255 / 0.2); }
+  .book-fader__ticks i.is-major { height: 8px; background: rgb(255 255 255 / 0.45); }
+  /* a zero-size point on the rail that carries the cap (a full-width box moved
+     with a transform would stick out past the page edge on phones) */
+  .book-fader__slide { position: absolute; left: calc(var(--pos) * 1%); top: calc(1rem + 2px); width: 0; height: 0; transition: left 0.45s var(--ease-out, ease-out); }
+  .book-fader__win { transition: transform 0.45s var(--ease-out, ease-out); }
+  .book-fader.is-dragging .book-fader__slide, .book-fader.is-dragging .book-fader__win { transition: none; }
+  /* a fader cap: dark, ribbed, with a lit centre line */
+  .book-fader__cap {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1.125rem;
+    height: 2.125rem;
+    margin: -1.0625rem 0 0 -0.5625rem;
+    border-radius: 0.4rem;
+    border: 1px solid rgb(255 255 255 / 0.22);
+    background: linear-gradient(180deg, #3b3b3b, #1b1b1b 55%, #262626);
+    box-shadow: 0 8px 16px -4px rgb(0 0 0 / 0.8), inset 0 1px 0 rgb(255 255 255 / 0.12);
+    transition: border-color 0.2s;
+  }
+  .book-fader__cap::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 5px;
+    bottom: 5px;
+    width: 2px;
+    margin-left: -1px;
+    border-radius: 2px;
+    background: rgb(var(--book-rgb));
+    box-shadow: 0 0 6px rgb(var(--book-rgb) / 0.8);
+  }
+  .book-fader:hover .book-fader__cap, .book-fader.is-dragging .book-fader__cap { border-color: rgb(255 255 255 / 0.45); }
+  .book-stop {
+    position: absolute;
+    top: 2.25rem;
+    left: calc(var(--at) * 1%);
+    transform: translateX(-50%);
+    padding: 0.375rem 0.5rem;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .book-stop__input { position: absolute; top: 0; left: 0; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+  .book-stop__label { display: block; font-size: 0.6875rem; color: rgb(255 255 255 / 0.55); transition: color 0.2s; }
+  .book-stop:hover .book-stop__label { color: #fff; }
+  .book-stop__input:checked + .book-stop__label { color: rgb(var(--book-rgb)); }
+  .book-stop__input:focus-visible + .book-stop__label { outline: 2px solid #fff; outline-offset: 4px; border-radius: 3px; }
+  /* no script: the checked stop places the fader */
+  .book-desk:not(.is-live):has([data-stop="0"]:checked) .book-fader { --pos: 16.667; }
+  .book-desk:not(.is-live):has([data-stop="2"]:checked) .book-fader { --pos: 83.333; }
+
+  .book-genres { display: flex; align-items: baseline; gap: 0.625rem; margin-top: 0.75rem; }
+  .book-genres[hidden] { display: none; }
+  .book-genres + .book-genres { margin-top: 0.5rem; }
+  .book-genres .book-genres__key { display: none; transform: translateY(0.2rem); }
+  .book-desk[data-book-side="any"] .book-genres .book-genres__key { display: inline-flex; }
+  .book-genres ul { display: flex; flex-wrap: wrap; row-gap: 0.25rem; font-size: 0.9375rem; font-weight: 600; line-height: 1.4; }
+  .book-genres li { color: rgb(255 255 255 / 0.75); transition: color 0.25s; }
+  /* the slash goes after each genre, so a wrapped line ends on one instead of starting with it */
+  .book-genres li:not(:last-child)::after { content: '/'; margin: 0 0.55rem; color: rgb(255 255 255 / 0.16); font-weight: 400; }
+  .book-desk.is-live .book-genres li { color: rgb(255 255 255 / 0.45); }
+  .book-desk.is-live .book-genres li.on { color: #fff; }
+  .book-line { min-height: 2.9em; margin-top: 0.75rem; font-size: 0.9375rem; line-height: 1.45; color: rgb(255 255 255 / 0.78); }
+  @container book (max-width: 26rem) { .book-line { min-height: 4.35em; } }
+  .book-desk:not(.is-live) .book-line { visibility: hidden; }
+
+  /* 03 · details */
+  .book-details { display: flex; flex-direction: column; min-width: 0; }
+  .book-details__body { container: book-details / inline-size; display: flex; flex-direction: column; flex: 1; }
+  .book-fields { display: flex; flex-direction: column; gap: 1rem; }
+  .book-fields__pair { display: grid; gap: 1rem; }
+  @container book-details (min-width: 26rem) {
+    .book-fields__pair { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 0.875rem; }
+  }
+  .book-field > label { display: block; margin-bottom: 0.5rem; font-size: 0.6875rem; color: rgb(255 255 255 / 0.62); }
+  .book-input {
+    display: block;
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border-radius: 0.875rem;
+    border: 1px solid rgb(255 255 255 / 0.1);
+    background: rgb(0 0 0 / 0.35);
+    color: #fff;
+    font-size: 1rem;   /* 16px: iOS does not zoom into the field */
+    line-height: 1.4;
+    transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
+  }
+  .book-input::placeholder { color: rgb(255 255 255 / 0.45); }
+  .book-input:hover { border-color: rgb(255 255 255 / 0.2); }
+  .book-input:focus, .book-input:focus-visible { outline: none; border-color: rgb(var(--book-rgb)); background: rgb(0 0 0 / 0.5); box-shadow: 0 0 0 3px rgb(var(--book-rgb) / 0.2); }
+  .book-input:user-invalid { border-color: rgb(248 113 113 / 0.7); }
+  textarea.book-input { min-height: 7.25rem; resize: vertical; }
+
+  .book-send-row { display: flex; flex-direction: column; align-items: stretch; gap: 0.875rem; margin-top: auto; padding-top: 1.5rem; }
+  @container book-details (min-width: 26rem) {
+    .book-send-row { flex-direction: row; align-items: center; }
+    /* next to the status line the button keeps one size and one line in every state */
+    .book-desk .book-send { flex-shrink: 0; min-width: 13rem; }
+  }
+  .book-desk .book-send {
+    gap: 0.75rem;
+    min-height: 3.25rem;
+    padding: 0.875rem 1.75rem;
+    background-color: rgb(var(--book-rgb));
+    font-family: 'Unbounded', sans-serif;
+    font-size: 0.875rem;
+    box-shadow: 0 16px 32px -14px rgb(var(--book-rgb) / 0.6);
+    white-space: normal;
+    transition: color 0.2s, background-color 0.2s, box-shadow 0.2s;
+  }
+  .book-desk .book-send svg { width: 1.125rem; height: 1.125rem; transition: transform 0.25s var(--ease-out, ease-out); }
+  .book-desk .book-send:hover { background-color: #fff; box-shadow: 0 16px 32px -14px rgb(255 255 255 / 0.3); }
+  .book-desk .book-send:hover svg { transform: translateX(4px); }
+  .book-desk .book-send:disabled { opacity: 1; }
+  .book-desk[data-state="sending"] .book-send { cursor: progress; }
+  .book-desk[data-state="sending"] .book-send svg { animation: book-nudge 0.9s ease-in-out infinite; }
+  .book-desk[data-state="sent"] .book-send { background-color: #fff; }
+  .book-desk[data-state="error"] .book-send { background-color: #fca5a5; }
+  .book-desk[data-state="sent"] .book-send svg, .book-desk[data-state="error"] .book-send svg { display: none; }
+  @keyframes book-nudge { 50% { transform: translateX(5px); opacity: 0.35; } }
+  .book-status { font-size: 0.875rem; line-height: 1.45; color: rgb(255 255 255 / 0.62); }
+  .book-status:empty { display: none; }
+  .book-status[data-tone="ok"] { color: #fff; }
+  .book-status[data-tone="error"] { color: #fca5a5; }
+
+  .book__bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 3.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid rgb(255 255 255 / 0.06);
+    font-size: 0.75rem;
+    line-height: 1.5;
+    color: rgb(255 255 255 / 0.55);
+    text-align: center;
+  }
+  /* the copyright, then the privacy page, the cookie choice and all links */
+  .book__bottom > p { text-wrap: balance; }
+  .book__legal { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; column-gap: 1.5rem; }
+  .book__legal a, .book__legal button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 2.25rem;
+    color: rgb(255 255 255 / 0.68);
+    white-space: nowrap;
+    transition: color 0.2s;
+  }
+  .book__legal a:hover, .book__legal button:hover { color: rgb(var(--accent-rgb)); }
+  .book__legal a[aria-current="page"] { color: #fff; }
+  .book__go { color: rgb(var(--alt-rgb)); transition: transform 0.2s var(--ease-out, ease-out); }
+  .book__legal a:hover .book__go { transform: translateX(3px); }
+  @media (pointer: coarse) { .book__legal a, .book__legal button { min-height: 2.75rem; } }
+  @media (min-width: 768px) { .book__bottom { flex-direction: row; justify-content: space-between; gap: 2rem; text-align: left; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .book-wave i, .book-fader__slide, .book-fader__win, .book-genres li, .book-pad__face, .book-row__go, .book__go, .book-desk .book-send svg { transition: none; }
+    .book-desk[data-state="sending"] .book-send svg { animation: none; }
+  }
+</style>
+
+<script>
+  import { bookingLead, type BookingSide } from '../scripts/booking-set';
+
+  interface Lead { side: BookingSide; set: string; genres: string }
+
+  // Reports a sent booking request. GTM turns booking_form_submit into the GA4
+  // generate_lead event and the Google Ads conversion (AW-17997341905), so the
+  // Ads conversion is not sent from here. Meta's Lead only goes out when
+  // marketing cookies are allowed (Analytics.astro loads the pixel only then).
+  // Analytics may still be loading (or blocked), so each call is guarded and
+  // none of them can break the form.
+  function trackBookingLead(lang: string, lead: Lead) {
     const w = window as any;
     try {
       w.dataLayer = w.dataLayer || [];
-      w.dataLayer.push({ event: 'booking_form_submit', form_language: lang });
+      w.dataLayer.push({
+        event: 'booking_form_submit',
+        form_language: lang,
+        booking_side: lead.side,       // 'A' | 'B' | 'any'
+        booking_set: lead.set,         // the part of the night, in English
+        booking_genres: lead.genres,   // comma-separated
+      });
     } catch { /* ignore */ }
     try {
-      if (typeof w.fbq === 'function') w.fbq('track', 'Lead');
-    } catch { /* ignore */ }
-    try {
-      if (ADS_CONVERSION_LABEL && typeof w.gtag === 'function') {
-        w.gtag('event', 'conversion', { send_to: `AW-975400552/${ADS_CONVERSION_LABEL}` });
+      if (w.zippyConsent?.get()?.marketing && typeof w.fbq === 'function') {
+        w.fbq('track', 'Lead', { content_name: 'Booking request', content_category: `side_${lead.side}` });
       }
     } catch { /* ignore */ }
   }
 
+  // The email lists the fields in the order they arrive: who, then what, then the rest.
+  const FIRST = ['name', 'email', 'venue', 'side', 'set', 'genres', 'message'];
+  const clip = (v: unknown, max: number) => (typeof v === 'string' ? v.replace(/\s+/g, ' ').trim().slice(0, max) : '');
+  function payload(form: HTMLFormElement) {
+    const all = Object.fromEntries(new FormData(form));
+    // Each request gets its own subject, so the inbox shows who and what at a
+    // glance and Gmail does not fold every request into one thread:
+    // "DJ Zippy — Booking Request · Drugstore · B side, Peak time".
+    // (Without JS the form posts the plain subject from its hidden field.)
+    const who = clip(all.venue, 60) || clip(all.name, 60);
+    const what = [clip(all.side, 40).replace(/\s*\(.*\)$/, ''), clip(all.set, 20)].filter(Boolean).join(', ');
+    all.subject = [clip(all.subject, 80), who, what].filter(Boolean).join(' · ');
+    const out: Record<string, FormDataEntryValue> = {};
+    for (const k of FIRST) if (k in all) out[k] = all[k];
+    for (const k of Object.keys(all)) if (!(k in out)) out[k] = all[k];
+    return out;
+  }
+
   function initContactForm() {
-  const form = document.getElementById('contact-form') as HTMLFormElement | null;
-  if (form && !form.dataset.bound) {
+    const form = document.getElementById('contact-form') as HTMLFormElement | null;
+    if (!form || form.dataset.bound) return;
     form.dataset.bound = '1';
     // Status copy is rendered per-language onto the form element.
     const sendingText = form.dataset.sending || 'Sending...';
     const sentText = form.dataset.sent || 'Sent ✓';
-    const errorText = form.dataset.error || 'Error — try veljkoned@gmail.com';
-    form.addEventListener('submit', function(e) {
+    const errorText = form.dataset.error || 'Not sent';
+    const btn = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+    const label = btn?.querySelector<HTMLElement>('[data-book-send]') ?? btn;
+    const status = form.querySelector<HTMLElement>('[data-book-status]');
+    const idle = label?.textContent ?? '';
+    let timer = 0;
+
+    const say = (text: string, tone: 'ok' | 'error' | '') => {
+      if (!status) return;
+      status.textContent = text;
+      if (tone) status.dataset.tone = tone;
+      else delete status.dataset.tone;
+    };
+
+    form.addEventListener('submit', (e) => {
       e.preventDefault();
-      const btn = this.querySelector('button[type="submit"]') as HTMLButtonElement;
-      const orig = btn.innerText;
+      if (!btn || !label || form.dataset.state === 'sending') return;
+      // What the request is for, read now: the form is reset once it has gone through.
+      const lead = bookingLead(form);
+      const lang = (form.elements.namedItem('language') as HTMLInputElement | null)?.value || 'en';
+      clearTimeout(timer);
+      form.dataset.state = 'sending';
+      form.setAttribute('aria-busy', 'true');
       btn.disabled = true;
-      btn.innerText = sendingText;
+      label.textContent = sendingText;
+      say('', '');
       fetch('https://api.web3forms.com/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(Object.fromEntries(new FormData(this))),
+        body: JSON.stringify(payload(form)),
       })
-      .then(res => {
-        btn.innerText = res.ok ? sentText : errorText;
-        if (res.ok) {
-          const lang = (form.elements.namedItem('language') as HTMLInputElement | null)?.value || 'en';
-          form.reset();
-          trackBookingLead(lang);
-        }
-      })
-      .catch(() => { btn.innerText = errorText; })
-      .finally(() => {
-        setTimeout(() => { btn.disabled = false; btn.innerText = orig; }, 4000);
-      });
+        .then((res) => {
+          form.dataset.state = res.ok ? 'sent' : 'error';
+          label.textContent = res.ok ? sentText : errorText;
+          say((res.ok ? form.dataset.sentNote : form.dataset.errorNote) || '', res.ok ? 'ok' : 'error');
+          if (res.ok) {
+            // the visit's attribution outlives one request
+            const source = form.elements.namedItem('source') as HTMLInputElement | null;
+            const kept = source?.value ?? '';
+            form.reset();
+            if (source) source.value = kept;
+            trackBookingLead(lang, lead);
+          }
+        })
+        .catch(() => {
+          form.dataset.state = 'error';
+          label.textContent = errorText;
+          say(form.dataset.errorNote || '', 'error');
+        })
+        .finally(() => {
+          form.removeAttribute('aria-busy');
+          timer = window.setTimeout(() => {
+            btn.disabled = false;
+            label.textContent = idle;
+            delete form.dataset.state;
+          }, 4000);
+        });
     });
-  }
   }
   document.addEventListener('astro:page-load', initContactForm);
 </script>

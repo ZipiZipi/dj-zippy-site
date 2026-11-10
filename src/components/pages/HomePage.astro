@@ -4,7 +4,9 @@
 import Layout from '../../layouts/Layout.astro';
 import DatesDeck from '../DatesDeck.astro';
 import SideFilter from '../SideFilter.astro';
-import { getEvents, getMixes, MIX_PLATFORMS, youtubeThumb, eventSound, eventSide, type UIMix } from '../../lib/content';
+import { getEvents, getMixes, MIX_PLATFORMS, youtubeThumb, eventSound, eventSide, eventInterval, mixSide, type UIEvent, type UIMix } from '../../lib/content';
+import { eventTimes, ICS_FEED_PATH } from '../../lib/calendar';
+import { placeName, placeKey, venueName, eventName } from '../../lib/places';
 import { useTranslations, localize, htmlLang, type Lang } from '../../i18n/utils';
 
 interface Props {
@@ -16,9 +18,20 @@ const t = useTranslations(lang);
 const l = (path: string) => localize(path, lang);
 
 const db = (Astro.locals as any).runtime?.env?.DB;
-const { upcoming } = await getEvents(db);
-const homeUpcoming = upcoming.slice(0, 4);
+const { upcoming, past } = await getEvents(db);
+// A gig stays "upcoming" until the sheet sync next runs. The deck keeps one for
+// a day after it ends (it shows as played), then lets it go to the archive.
+const nowMs = Date.now();
+const homeUpcoming = upcoming.filter((e) => eventTimes(e).endMs > nowMs - 86_400_000).slice(0, 4);
 const { all } = await getMixes(db);
+
+// With nothing booked the deck rests: the same waveform noise as deck.ts, with
+// no gigs to swell it, and the calendar feed /events links to.
+const feedUrl = `webcal://${(Astro.site ?? Astro.url).host}${ICS_FEED_PATH}`;
+const idleBars = homeUpcoming.length ? [] : Array.from({ length: 84 }, (_, i) => {
+  const noise = Math.abs(Math.sin(i * 0.9)) * 0.5 + Math.abs(Math.sin(i * 0.37)) * 0.3 + Math.abs(Math.sin(i * 2.3)) * 0.2;
+  return Math.round((0.16 + 0.26 * noise) * 100);
+});
 
 // Hero ring: three objects, each one a kind of set. Mixes come newest first.
 // Playlists are not sets, so they never land on the vinyl or the tape.
@@ -52,9 +65,19 @@ const tape = ringMix(tapeMix);
 // "EXIT 2024 | AS FM Stage Live" → printed strip "EXIT 2024", handwritten line "AS FM Stage Live"
 const [tapeStrip, ...tapeRest] = tapeMix.title.split(/\s*[|/]\s*/);
 const tapeLine = tapeRest.join(' · ') || tape.platformLabel;
+// the side letter on the cassette label: Exit is an underground set, so B
+const tapeSide = mixSide(tapeMix);
 
 // The line under the ring: the next gig, or the newest set when nothing is booked.
-const nextGig = upcoming[0];
+// A gig whose date has gone by can still be marked upcoming until the sheet sync
+// next runs, so "Next" only looks at today (in Belgrade) and later.
+const dayParts = Object.fromEntries(
+  new Intl.DateTimeFormat('en', { timeZone: 'Europe/Belgrade', year: 'numeric', month: '2-digit', day: '2-digit' })
+    .formatToParts(new Date())
+    .map((p) => [p.type, p.value]),
+);
+const today = `${dayParts.year}-${dayParts.month}-${dayParts.day}`;
+const nextGig = upcoming.find((e) => e.date >= today);
 const heroLine = nextGig
   ? (() => {
       const [y, mo, d] = nextGig.date.split('-');
@@ -65,14 +88,75 @@ const heroLine = nextGig
         name: sound.name,
         openFormat: sound.openFormat,
         side: eventSide(nextGig),
-        where: `${nextGig.title}, ${nextGig.location}`,
+        where: `${nextGig.title}, ${placeName(nextGig.location, lang)}`,
         href: l('/events'),
         external: false,
       };
     })()
   : sets[0] && { label: t.home.heroLatest, when: '', name: sets[0].title, openFormat: false, side: null, where: '', href: sets[0].link, external: true };
 
+// "The selector": the archive in numbers, counted exactly the way /events counts
+// them (EventsPage.astro): venues and cities by name, one city however it is spelled.
+const venueKey = (e: UIEvent) => venueName(e.title).toLowerCase();
+const cityKey = (e: UIEvent) => placeKey(e.location);
+const distinct = (list: UIEvent[], key: (e: UIEvent) => string) => new Set(list.map(key)).size;
+const introStats = [
+  { n: past.length, label: t.home.introStats.gigs },
+  { n: distinct(past, venueKey), label: t.home.introStats.venues },
+  { n: distinct(past, cityKey), label: t.home.introStats.cities },
+  { n: distinct(past, (e) => e.country ?? 'RS'), label: t.home.introStats.countries },
+].filter((s) => s.n > 0);
+
+// Side B opens with Exit Festival: how many of its stages, in which years ("3 stages · 2024–25").
+const exitGigs = past.filter((e) => /^exit\b/i.test(e.title.trim()));
+const exitYears = [...new Set(exitGigs.map((e) => e.date.slice(0, 4)))].sort();
+const exitNote = exitGigs.length
+  ? [
+      t.home.introStages(distinct(exitGigs, venueKey)),
+      exitYears.length > 1 ? `${exitYears[0]}–${exitYears[exitYears.length - 1].slice(2)}` : exitYears[0],
+    ].join(' · ')
+  : '';
+const introSides = (['B', 'A'] as const).map((side) => {
+  const s = t.home.introSides[side];
+  return {
+    side,
+    ...s,
+    tag: side === 'A' ? `${t.sides.a} · ${t.sides.aLabel}` : `${t.sides.b} · ${t.sides.bLabel}`,
+    href: side === 'A' ? l('/events') : l('/mixes'),
+    tracks: s.tracks.map((tr) => ({ name: tr.name, note: tr.note === '{exit}' ? exitNote : tr.note })),
+  };
+});
+
 const pageUrl = `https://zippydj.com${l('/')}`;
+
+// The gigs on the deck, as on /events (same @id, so they are the same events),
+// without the offer and organizer: the venue runs the night, not DJ Zippy.
+const eventsUrl = `https://zippydj.com${l('/events')}`;
+const deckEvents = homeUpcoming.map((e) => {
+  const { start, end } = eventInterval(e);
+  const place = placeName(e.location, lang);
+  const venue = venueName(e.title);
+  // The same node as on /events (same @id), so the same name, place and description.
+  return {
+    '@type': 'MusicEvent',
+    '@id': `${eventsUrl}#${e.slug}`,
+    'name': eventName(e, lang),
+    'startDate': start,
+    'endDate': end,
+    'eventStatus': 'https://schema.org/EventScheduled',
+    'eventAttendanceMode': 'https://schema.org/OfflineEventAttendanceMode',
+    'inLanguage': htmlLang[lang],
+    'location': {
+      '@type': 'Place',
+      'name': venue,
+      'address': { '@type': 'PostalAddress', 'addressLocality': place, 'addressCountry': e.country },
+    },
+    'performer': { '@id': 'https://zippydj.com/#person' },
+    'url': eventsUrl,
+    'image': 'https://zippydj.com/images/dj-zippy-house-music-dj.webp',
+    'description': t.schema.eventDescription(venue, place, eventSide(e)),
+  };
+});
 
 // Person / Organization / WebSite are one entity across both locales, so their
 // @ids stay canonical. Only the page node is per-locale.
@@ -87,7 +171,7 @@ const homeSchema = {
       'mainEntity': { '@id': 'https://zippydj.com/#person' },
       'isPartOf': { '@id': 'https://zippydj.com/#website' },
       'dateCreated': '2024-01-01T00:00:00-05:00',
-      'dateModified': '2026-09-29T00:00:00+02:00',
+      'dateModified': '2026-11-10T00:00:00+01:00',
     },
     {
       '@type': ['Person', 'MusicGroup'],
@@ -113,10 +197,9 @@ const homeSchema = {
       'address': { '@type': 'PostalAddress', 'addressCountry': 'RS' },
       'genre': ['House', 'Deep Tech', 'Minimal', 'Deep House', 'French House', 'Groove', 'Disco', 'Funk', 'Jazz'],
       'knowsLanguage': ['sr', 'en'],
-      'memberOf': [
-        { '@type': 'Organization', 'name': 'Kult Talents' },
-        { '@type': 'Organization', 'name': 'Izuvanje' },
-      ],
+      // No memberOf / alumniOf here: neither Izuvanje (a side project) nor Kult
+      // Talents (a programme he has left) is on this page. AboutPage carries
+      // both, next to the lines that mention them.
       'sameAs': [
         'https://musicbrainz.org/artist/a6a53c2e-8fa0-4612-8e43-8de7af43dc2a',
         'https://www.wikidata.org/wiki/Q138220521',
@@ -169,6 +252,7 @@ const homeSchema = {
       'inLanguage': ['en', 'sr-Latn'],
       'publisher': { '@id': 'https://zippydj.com/#organization' },
     },
+    ...deckEvents,
   ],
 };
 ---
@@ -180,8 +264,11 @@ const homeSchema = {
     /* Hero scene: a dark booth, a warm key light from the decks below the ring and a
        cool rim light in the top right corner, under a fine film grain. */
     .hero-light__key, .hero-light__rim { position: absolute; inset: 0; transition: filter 0.75s; }
-    .hero-light__key { background: radial-gradient(ellipse 58% 40% at 50% 74%, rgba(255,85,0,0.42), rgba(255,85,0,0.12) 45%, transparent 72%); }
-    .hero-light__rim { background: radial-gradient(ellipse 38% 30% at 92% 3%, rgba(56,189,248,0.18), transparent 70%); }
+    /* The lights follow the face the title shows (B at rest, A on hover or once
+       A is picked), not the accent: they start in the fixed side colours and
+       .hero-top.is-a turns them over (below). */
+    .hero-light__key { background: radial-gradient(ellipse 58% 40% at 50% 74%, rgb(var(--side-b-rgb) / 0.42), rgb(var(--side-b-rgb) / 0.12) 45%, transparent 72%); }
+    .hero-light__rim { background: radial-gradient(ellipse 38% 30% at 92% 3%, rgb(var(--side-a-rgb) / 0.18), transparent 70%); }
     .hero-light::after {
       content: '';
       position: absolute;
@@ -318,7 +405,7 @@ const homeSchema = {
     .tape-label { position: absolute; left: 12px; right: 12px; top: 12px; height: 86px; border-radius: 5px; background: #efe8dc; overflow: hidden; text-align: left; }
     .tape-strip { position: absolute; left: 0; right: 0; top: 0; height: 20px; padding: 4px 8px; background: rgb(var(--accent-rgb)); color: #050505; font-size: 10px; line-height: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .tape-line { position: absolute; left: 9px; right: 28px; bottom: 6px; font-size: 11px; font-weight: 600; color: #2a2a2a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .tape-side { position: absolute; right: 9px; bottom: 5px; font-size: 13px; font-weight: 900; color: #2a2a2a; }
+    .tape-side { position: absolute; right: 9px; bottom: 5px; font-size: 13px; font-weight: 900; color: var(--side, #2a2a2a); }
     .tape-window { position: absolute; left: 52px; right: 52px; top: 38px; height: 36px; border-radius: 18px; background: #0b0b0b; display: flex; justify-content: space-between; align-items: center; padding: 0 7px; }
     .tape-reel {
       width: 24px;
@@ -341,7 +428,8 @@ const homeSchema = {
       height: 66px;
       padding: 10px 14px;
       border-radius: 10px;
-      background: linear-gradient(180deg, #ff6a1f, #dc4800);
+      /* the accent, lit from above: orange on the B side, blue on the A side */
+      background: linear-gradient(180deg, rgb(255 255 255 / 0.1), rgb(0 0 0 / 0.14)), rgb(var(--accent-rgb));
       box-shadow: 0 16px 28px -8px rgba(0,0,0,0.85), inset 0 1px 0 rgba(255,255,255,0.28);
       color: #050505;
       text-align: left;
@@ -389,8 +477,11 @@ const homeSchema = {
     .hring-dot[aria-current="true"]::before { width: 20px; background: rgb(var(--accent-rgb)); }
     .hring-dot:focus-visible { outline: 2px solid #fff; outline-offset: 1px; border-radius: 6px; }
 
-    /* The next gig (or the newest set) under the ring; the dot blinks on the beat */
-    .hero-next { color: rgba(255,255,255,0.7); font-size: 11px; transition: color 0.3s; }
+    /* The next gig (or the newest set) under the ring; the dot blinks on the beat.
+       The padding makes it a 44px tap target; the margins give that space back
+       (top: 1.5rem / 2rem from 640px, minus the padding), so the hero keeps its height. */
+    .hero-next { display: inline-block; padding-block: 0.875rem; margin: 0.625rem 0 -0.875rem; border-radius: 0.5rem; color: rgba(255,255,255,0.7); font-size: 11px; transition: color 0.3s; }
+    @media (min-width: 640px) { .hero-next { margin-top: 1.125rem; } }
     .hero-next:hover { color: #fff; }
     .hero-next b { font-weight: 600; color: var(--side-b); }
     .hero-next b.is-open { color: var(--side-a); }
@@ -411,7 +502,7 @@ const homeSchema = {
       .hero-flip .hero-name { font-size: min(8rem, 15vh); }
       .hero-flip .hero-sub { font-size: min(3.75rem, 7vh); }
       #highlights.hero-stage { padding-bottom: min(3rem, 5.2vh); }
-      #highlights .hero-next { margin-top: min(2rem, 3.5vh); }
+      #highlights .hero-next { margin-top: calc(min(2rem, 3.5vh) - 0.875rem); }
     }
 
     /* "SERBIAN HOUSE DJ" kicker over the name, framed by two short orange rules.
@@ -448,21 +539,6 @@ const homeSchema = {
     .hero-side-tag { margin: 0.45rem 0 0; font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.24em; padding-left: 0.24em; }
     @media (min-width: 768px) { .hero-side-tag { font-size: 0.75rem; } }
 
-    /* "Reads the room" panel in the intro */
-    .room { padding: 1.1rem 1.25rem 1.25rem; border-radius: 1.25rem; border: 1px solid rgba(255,255,255,0.09); background: linear-gradient(180deg, #131313, #0c0c0c); }
-    .room__fader { -webkit-appearance: none; appearance: none; display: block; width: 100%; height: 1.5rem; background: transparent; cursor: ew-resize; }
-    .room__fader::-webkit-slider-runnable-track { height: 4px; border-radius: 4px; background: linear-gradient(to right, var(--side) var(--fill, 35%), rgba(255,255,255,0.14) var(--fill, 35%)); }
-    .room__fader::-moz-range-track { height: 4px; border-radius: 4px; background: rgba(255,255,255,0.14); }
-    .room__fader::-moz-range-progress { height: 4px; border-radius: 4px; background: var(--side); }
-    .room__fader::-webkit-slider-thumb { -webkit-appearance: none; width: 1.25rem; height: 1.25rem; margin-top: -0.5rem; border-radius: 50%; border: 3px solid var(--side); background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.6); }
-    .room__fader::-moz-range-thumb { width: 0.875rem; height: 0.875rem; border-radius: 50%; border: 3px solid var(--side); background: #fff; }
-    .room__fader:focus-visible { outline: 2px solid #fff; outline-offset: 4px; border-radius: 999px; }
-    .room__genres { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.75rem; }
-    .room__genres[hidden] { display: none; }
-    .room__genres li { padding: 0.3rem 0.75rem; border-radius: 999px; border: 1px solid rgba(255,255,255,0.1); font-size: 0.75rem; font-weight: 600; color: rgba(255,255,255,0.4); transition: color 0.25s, background-color 0.25s, border-color 0.25s; }
-    .room__genres li.on { border-color: var(--side); background: var(--side); color: #050505; }
-    .room__line { min-height: 2.75rem; margin-top: 0.9rem; font-size: 0.9375rem; line-height: 1.45; color: #fff; }
-    @media (prefers-reduced-motion: reduce) { .room__genres li { transition: none; } }
     /* Half a turn of the colour wheel swaps the two lights. Each one is turned
        the way that passes through purple: orange goes backwards to blue, blue
        goes forwards to orange. Turned the other way they would cross green. */
@@ -470,6 +546,318 @@ const homeSchema = {
     .hero-top.is-a .hero-light__rim { filter: hue-rotate(180deg); }
     @media (prefers-reduced-motion: reduce) {
       .hero-flip__inner, .hero-light__key, .hero-light__rim { transition: none; }
+    }
+
+    /* Quiet text links on the home page: mono caps, a 44px tap target and an
+       arrow that nudges on hover. Inside a side they take that side's colour. */
+    .home-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      min-height: 2.75rem;
+      border-radius: 0.5rem;   /* rounds the focus ring */
+      font-size: 0.75rem;
+      color: rgb(255 255 255 / 0.78);
+      transition: color 0.2s;
+    }
+    .home-link:hover { color: var(--side, rgb(var(--accent-rgb))); }
+    .home-link__arrow { display: inline-block; transition: transform 0.2s; }
+    .home-link:hover .home-link__arrow { transform: translateX(3px); }
+
+    /* Upcoming dates: the deck. The tapes above already leave room on top. */
+    .dates { padding-block: 1.75rem 3rem; }
+    @media (min-width: 640px) { .dates { padding-block: 2.5rem 3.5rem; } }
+
+    /* Nothing booked: the deck at rest. The same panel as DatesDeck, the line
+       and the two things to do meanwhile where the gig and its calendar
+       buttons would be, and a flat waveform from today with no cues on it. */
+    .deck-idle {
+      position: relative;
+      padding: 1.25rem;
+      border-radius: 1.5rem;
+      border: 1px solid var(--line, rgb(255 255 255 / 0.09));
+      background: linear-gradient(180deg, #141414, #0b0b0b);
+      box-shadow: 0 40px 70px -40px rgb(0 0 0 / 0.95), inset 0 1px 0 rgb(255 255 255 / 0.06);
+    }
+    .deck-idle::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      pointer-events: none;
+      background: radial-gradient(ellipse 70% 55% at 12% 0%, rgb(var(--accent-rgb) / 0.09), transparent 70%);
+    }
+    .deck-idle > * { position: relative; }
+    @media (min-width: 640px) { .deck-idle { padding: 1.75rem; } }
+    .deck-idle__title { font-size: 1.25rem; font-weight: 700; line-height: 1.25; color: #fff; text-wrap: balance; }
+    @media (min-width: 640px) { .deck-idle__title { font-size: 1.5rem; } }
+    .deck-idle__main { display: flex; flex-direction: column; gap: 1.25rem; margin-top: 0.625rem; }
+    @media (min-width: 768px) { .deck-idle__main { flex-direction: row; align-items: flex-end; justify-content: space-between; gap: 2rem; } }
+    .deck-idle__hint { min-width: 0; max-width: 34rem; font-size: 0.9375rem; line-height: 1.6; color: rgb(255 255 255 / 0.62); text-wrap: pretty; }
+    .deck-idle__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem 1.5rem; flex-shrink: 0; }
+    .deck-idle__actions svg { width: 0.875rem; height: 0.875rem; flex-shrink: 0; color: rgb(var(--alt-rgb)); }
+    .deck-idle__wave { position: relative; height: 2.75rem; margin: 1.75rem 0 1.25rem; }
+    .deck-idle__bars { display: flex; align-items: center; gap: 2px; height: 100%; }
+    .deck-idle__bars i { flex: 1; min-width: 1px; height: var(--h); border-radius: 2px; background: rgb(255 255 255 / 0.12); }
+    @media (max-width: 639px) { .deck-idle__bars i:nth-child(n + 49) { display: none; } }
+    .deck-idle__ph { position: absolute; top: -0.25rem; bottom: -0.25rem; left: 0; width: 2px; border-radius: 2px; background: #fff; }
+    .deck-idle__ph::after { content: ''; position: absolute; left: 50%; bottom: -5px; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%; background: #fff; }
+    .deck-idle__ph span { position: absolute; top: calc(100% + 0.6rem); left: -4px; font-size: 0.6875rem; color: #fff; white-space: nowrap; }
+
+    /* === The selector (#intro): the back of his record ===
+       Phones: the sleeve, the text, the two sides, then the credits as the
+       sleeve's small print. From 640px the credits sit beside the sleeve and
+       the rest runs full width. From 1024px the sleeve and its credits take
+       the left column, the text the right, the sides run across the bottom. */
+    .liner { padding-block: 3.5rem 4rem; overflow-x: clip; }
+    @media (min-width: 640px) { .liner { padding-block: 4.5rem 5rem; } }
+    .liner__grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-areas: "sleeve" "head" "body" "sides" "credits";
+      row-gap: 2.5rem;
+    }
+    .liner__text, .liner__media { display: contents; }
+    .liner__sleeve { grid-area: sleeve; }
+    .liner__head { grid-area: head; container-type: inline-size; }
+    .liner__body { grid-area: body; }
+    .liner__credits { grid-area: credits; }
+    .liner__sides { grid-area: sides; }
+    @media (min-width: 640px) {
+      .liner__grid {
+        grid-template-columns: auto minmax(0, 1fr);
+        grid-template-areas: "sleeve credits" "head head" "body body" "sides sides";
+        column-gap: clamp(1.5rem, 4vw, 3rem);
+        row-gap: 3rem;
+      }
+      .liner__credits { align-self: center; }
+    }
+    @media (min-width: 1024px) {
+      .liner__grid {
+        grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+        grid-template-areas: "media text" "sides sides";
+        column-gap: clamp(3rem, 5.5vw, 5.5rem);
+        row-gap: 4.5rem;
+        align-items: center;
+      }
+      .liner__media { display: block; grid-area: media; }
+      .liner__text { display: block; grid-area: text; }
+      .liner__body { margin-top: 1.75rem; }
+      .liner__credits { margin-top: 2.5rem; }
+    }
+
+    /* Heading: always two lines ("The selector behind" / "House Music
+       Therapy"), sized to the column it sits in. The motto under it is light
+       and large; its full stops take the alt colour, like the dot in ZIPPY. */
+    .liner__head .eyebrow { margin-bottom: 1rem; }
+    .liner__title { font-size: clamp(1.25rem, 7.1cqi, 2.5rem); }
+    .liner__title span { display: block; }
+    .liner__quote {
+      margin-top: 1.25rem;
+      font-size: 1.375rem;
+      font-size: clamp(1.125rem, 5cqi, 1.75rem);
+      font-weight: 300;
+      line-height: 1.3;
+      letter-spacing: -0.01em;
+      color: #fff;
+    }
+    .liner__quote > span { display: block; }
+    .liner__dot { color: rgb(var(--alt-rgb)); font-weight: 600; }
+
+    .liner__copy { max-width: 37rem; font-size: 1rem; line-height: 1.7; color: rgb(255 255 255 / 0.74); text-wrap: pretty; }
+    @media (min-width: 768px) { .liner__copy { font-size: 1.0625rem; line-height: 1.75; } }
+
+    /* The archive in numbers: a ruled strip, the number over its label */
+    .liner__stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      max-width: 34rem;
+      margin-top: 2rem;
+      border-top: 1px solid var(--line, rgb(255 255 255 / 0.09));
+    }
+    .liner__stat { display: flex; flex-direction: column-reverse; justify-content: flex-end; gap: 0.45rem; padding-top: 1rem; }
+    .liner__stat + .liner__stat { padding-left: clamp(0.75rem, 2.5vw, 1.25rem); border-left: 1px solid var(--line, rgb(255 255 255 / 0.09)); }
+    .liner__stat dd { font-size: clamp(1.625rem, 1.2rem + 1.5vw, 2.25rem); font-weight: 700; line-height: 1; color: #fff; font-variant-numeric: tabular-nums; }
+    .liner__stat dt { font-size: 0.6875rem; color: rgb(255 255 255 / 0.55); }
+    @media (max-width: 359px) {
+      .liner__stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .liner__stat:nth-child(3) { padding-left: 0; border-left: 0; }
+      .liner__stat:nth-child(n + 3) { margin-top: 1rem; border-top: 1px solid var(--line, rgb(255 255 255 / 0.09)); }
+    }
+    .liner__cta { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 2rem; }
+    /* on phones the two buttons share the row, or each takes a full row when they wrap */
+    @media (max-width: 639px) { .liner__cta .btn { flex: 1 1 auto; } }
+
+    /* The sleeve. The stage is the cover's square; the record slides out of it
+       to the right, so the stage leaves a quarter of the width free for it. */
+    .liner__sleeve { position: relative; width: min(100%, 22rem); }
+    @media (min-width: 640px) { .liner__sleeve { width: clamp(17rem, 44vw, 25rem); } }
+    @media (min-width: 1024px) { .liner__sleeve { width: 100%; } }
+    .liner__stage { position: relative; width: 74.5%; aspect-ratio: 1; }
+    /* The booth light behind it, as in the hero: warm where the record comes
+       out, cool on the far corner. Each glow is a circle that fades out exactly
+       at the edge of its own box (closest-side), so no edge ever shows. */
+    .liner__stage::before,
+    .liner__sleeve::before {
+      content: '';
+      position: absolute;
+      z-index: -1;
+      pointer-events: none;
+    }
+    .liner__stage::before {
+      inset: -40% -75% -40% 5%;
+      background: radial-gradient(closest-side, rgb(var(--accent-rgb) / 0.26), transparent);
+    }
+    .liner__sleeve::before {
+      left: -20%;
+      top: -30%;
+      width: 55%;
+      height: 75%;
+      background: radial-gradient(closest-side, rgb(var(--alt-rgb) / 0.14), transparent);
+    }
+    .liner__record {
+      position: absolute;
+      inset: 4%;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle, transparent 0 27%, rgb(255 255 255 / 0.08) 27.4% 27.9%, transparent 28.4%),
+        repeating-radial-gradient(circle, #0a0a0a 0 1.5px, #171717 1.5px 2.75px);
+      box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.07), 0 18px 40px -14px rgb(0 0 0 / 0.9);
+      transform: translateX(40%);
+      transition: transform 1.4s var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1));
+    }
+    /* light catching the grooves; it stays put while the record moves */
+    .liner__record::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: conic-gradient(from 200deg, transparent 0 6%, rgb(255 255 255 / 0.11) 13%, transparent 21% 56%, rgb(255 255 255 / 0.06) 63%, transparent 71%);
+    }
+    .liner__label {
+      position: absolute;
+      inset: 27%;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle, #050505 0 4%, transparent 4.5%),
+        radial-gradient(circle, transparent 0 68%, rgb(0 0 0 / 0.22) 69% 70.5%, transparent 71.5%),
+        rgb(var(--accent-rgb));
+    }
+    .liner__sleeve.is-tucked .liner__record { transform: translateX(8%); }
+    .liner__sleeve.is-still .liner__record { transition: none; }
+    @media (hover: hover) {
+      .liner__sleeve:hover .liner__record { transform: translateX(50%); }
+    }
+    .liner__cover {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      overflow: hidden;
+      border-radius: 1rem;
+      background: #050505;
+      box-shadow: 0 0 0 1px rgb(255 255 255 / 0.1), 0 28px 60px -24px rgb(0 0 0 / 0.95);
+      container-type: inline-size;
+    }
+    .liner__cover img { display: block; width: 100%; height: 100%; object-fit: cover; }
+    .liner__cover::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      pointer-events: none;
+      background: linear-gradient(135deg, rgb(255 255 255 / 0.08), transparent 35%);
+    }
+    /* printed on the sleeve: the name top left, the side playing bottom left */
+    .liner__print {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 7%;
+      padding: 7cqi;
+      pointer-events: none;
+    }
+    .liner__print-name { font-size: 1rem; font-size: max(0.875rem, 7.5cqi); font-weight: 900; line-height: 1; color: #fff; }
+    .liner__print-side { font-size: 0.625rem; font-size: max(0.5625rem, 2.9cqi); color: rgb(255 255 255 / 0.72); }
+    .liner__print-a { display: none; }
+    html[data-side-pick="A"] .liner__print-a { display: inline; }
+    html[data-side-pick="A"] .liner__print-b { display: none; }
+
+    /* Credits, ruled like the small print on a sleeve */
+    .liner__credits { width: 100%; max-width: 27rem; }
+    .liner__credits > div {
+      display: grid;
+      grid-template-columns: 5.75rem minmax(0, 1fr);
+      gap: 1rem;
+      align-items: baseline;
+      padding: 0.7rem 0;
+      border-top: 1px solid var(--line, rgb(255 255 255 / 0.09));
+    }
+    .liner__credits > div:last-child { border-bottom: 1px solid var(--line, rgb(255 255 255 / 0.09)); }
+    @media (min-width: 640px) and (max-width: 767px) {
+      .liner__credits > div { grid-template-columns: minmax(0, 1fr); gap: 0.3rem; }
+    }
+    .liner__credits dt { font-size: 0.6875rem; color: rgb(255 255 255 / 0.5); }
+    .liner__credits dd { font-size: 0.875rem; line-height: 1.45; color: rgb(255 255 255 / 0.88); }
+    .liner__plane {
+      display: inline-block;
+      width: 0.95em;
+      height: 0.95em;
+      margin-left: 0.4em;
+      vertical-align: -0.1em;
+      color: rgb(var(--alt-rgb));
+      transform: rotate(45deg);
+      transition: transform 0.5s var(--ease-out, ease);
+    }
+    .liner__credits > div:hover .liner__plane { transform: translate(3px, -3px) rotate(45deg); }
+
+    /* The two sides as a tracklist. B leads: first, wider, a larger title. */
+    .liner__sides { display: grid; row-gap: 3rem; }
+    @media (min-width: 768px) {
+      .liner__sides { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); column-gap: clamp(2rem, 4vw, 3rem); align-items: start; }
+    }
+    @media (min-width: 1024px) { .liner__sides { column-gap: clamp(3rem, 5.5vw, 5.5rem); } }
+    .liner-side { position: relative; padding-top: 1.25rem; border-top: 1px solid var(--line, rgb(255 255 255 / 0.09)); }
+    .liner-side::before { content: ''; position: absolute; left: 0; top: -1px; width: 2.5rem; height: 2px; background: var(--side); }
+    /* a faint wash of the side's colour from the top corner, like the deck's display */
+    .liner-side::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      height: 10rem;
+      z-index: -1;
+      pointer-events: none;
+      background: radial-gradient(60% 100% at 0% 0%, color-mix(in srgb, var(--side) 9%, transparent), transparent 80%);
+    }
+    .liner-side__meta { display: flex; align-items: center; gap: 0.625rem; font-size: 0.6875rem; color: var(--side); }
+    /* lit for the side the visitor has picked: B until they pick A */
+    .liner-side__led { width: 6px; height: 6px; margin-left: auto; border-radius: 50%; background: rgb(255 255 255 / 0.16); transition: background-color 0.3s, box-shadow 0.3s; }
+    html:not([data-side-pick="A"]) .liner-side--b .liner-side__led,
+    html[data-side-pick="A"] .liner-side--a .liner-side__led { background: var(--side); box-shadow: 0 0 8px 1px var(--side); }
+    .liner-side__name { margin-top: 0.875rem; font-size: clamp(1.0625rem, 0.9rem + 0.6vw, 1.25rem); font-weight: 700; line-height: 1.2; }
+    .liner-side--b .liner-side__name { font-size: clamp(1.1875rem, 0.95rem + 1vw, 1.5rem); }
+    .liner-side__blurb { margin-top: 0.5rem; max-width: 30rem; font-size: 0.9375rem; line-height: 1.6; color: rgb(255 255 255 / 0.68); text-wrap: pretty; }
+    .liner-side__tracks { margin-top: 1.125rem; }
+    .liner-side__tracks li {
+      display: grid;
+      grid-template-columns: 2rem minmax(0, 1fr) auto;
+      align-items: baseline;
+      column-gap: 0.75rem;
+      padding: 0.65rem 0;
+      border-top: 1px solid rgb(255 255 255 / 0.06);
+    }
+    .liner-side__no { font-size: 0.6875rem; color: var(--side); }
+    .liner-side__track { font-size: 0.9375rem; font-weight: 600; color: #fff; }
+    .liner-side__note { font-size: 0.8125rem; color: rgb(255 255 255 / 0.5); text-align: right; white-space: nowrap; }
+    .liner-side .home-link { margin-top: 0.5rem; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .liner__record, .liner-side__led, .liner__plane, .home-link__arrow { transition: none; }
     }
   </style>
 
@@ -538,7 +926,7 @@ const homeSchema = {
                 <span class="tape-label">
                   <span class="tape-strip hring-mono">{tapeStrip}</span>
                   <span class="tape-line">{tapeLine}</span>
-                  <span class="tape-side font-display">A</span>
+                  <span class="tape-side font-display" data-side={tapeSide}>{tapeSide}</span>
                 </span>
                 <span class="tape-window"><span class="tape-reel"></span><span class="tape-reel"></span></span>
                 <span class="tape-teeth"></span>
@@ -563,7 +951,7 @@ const homeSchema = {
           <p id="ring-status" class="sr-only" aria-live="polite"></p>
         </div>
         {heroLine && (
-          <a href={heroLine.href} class="hero-next hring-mono inline-block mt-6 sm:mt-8" {...(heroLine.external ? { target: '_blank', rel: 'noopener' } : {})}>
+          <a href={heroLine.href} class="hero-next hring-mono" {...(heroLine.external ? { target: '_blank', rel: 'noopener' } : {})}>
             <span class="hero-next-dot" aria-hidden="true"></span>{heroLine.label}{heroLine.side && <> · {heroLine.side === 'A' ? t.sides.a : t.sides.b}</>}{heroLine.when && <> · {heroLine.when}</>}{heroLine.name && <> · <b class={heroLine.openFormat ? 'is-open' : undefined}>{heroLine.name}</b></>}{heroLine.where && <> · {heroLine.where}</>} →
           </a>
         )}
@@ -601,74 +989,142 @@ const homeSchema = {
   </section>
 
   <!-- Upcoming dates as a deck: one cue per gig on a waveform timeline -->
-  <section id="dates" class="isolate relative py-10 sm:py-16 bg-brand-black">
+  <section id="dates" class="dates isolate relative bg-brand-black" aria-labelledby="dates-heading">
     <div class="container mx-auto px-6 sm:px-8 lg:px-12">
       <div class="max-w-4xl mx-auto">
-        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6 sm:mb-8">
-          <h2 class="font-display text-3xl md:text-4xl font-bold text-center sm:text-left">{t.home.upcoming1}<span class="text-brand-orange">{t.home.upcoming2}</span></h2>
+        <div class="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 sm:gap-6 mb-6 sm:mb-8">
+          <div>
+            <p class="eyebrow">{t.home.datesKicker}</p>
+            <h2 id="dates-heading" class="section-title mt-3">{t.home.upcoming1}<span class="text-brand-orange">{t.home.upcoming2}</span></h2>
+          </div>
           {homeUpcoming.length > 0 && <SideFilter lang={lang} />}
         </div>
         {homeUpcoming.length === 0
-          ? <p class="text-gray-400 text-center">{t.home.noUpcoming}</p>
+          ? (
+            <div class="deck-idle" data-reveal>
+              <p class="deck-idle__title font-display">{t.home.noUpcoming}</p>
+              <div class="deck-idle__main">
+                <p class="deck-idle__hint">{t.events.noUpcomingHint}</p>
+                <div class="deck-idle__actions">
+                  <a href="#contact" class="btn btn--primary">{t.events.bookCta} <span aria-hidden="true">→</span></a>
+                  <a href={feedUrl} class="home-link mono-caps">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16" /><circle cx="5" cy="19" r="1" /></svg>
+                    {t.deck.calSubscribe}
+                  </a>
+                </div>
+              </div>
+              {/* The timeline from today, with nothing cued on it yet */}
+              <div class="deck-idle__wave" aria-hidden="true">
+                <div class="deck-idle__bars">{idleBars.map((h) => <i style={`--h:${h}%`}></i>)}</div>
+                <span class="deck-idle__ph"><span class="mono-caps">{t.deck.today}</span></span>
+              </div>
+            </div>
+          )
           : <div data-reveal><DatesDeck lang={lang} events={homeUpcoming} /></div>}
-        <div class="mt-8 text-center">
-          <a href={l('/events')} class="inline-flex items-center gap-2 text-gray-400 hover:text-brand-orange transition-colors">
-            <i class="fa-solid fa-calendar"></i> {t.home.viewAllEvents}
-          </a>
+        <div class="mt-6 sm:mt-8 text-center">
+          <a href={l('/events')} class="home-link mono-caps">{t.home.viewAllEvents} <span class="home-link__arrow" aria-hidden="true">→</span></a>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Intro: the only real photo on the home page, plus enough copy for search
-       engines to know who this is. Photo stacks above the text on phones. -->
-  <section id="intro" class="isolate relative py-16 sm:py-24 bg-brand-black border-t border-white/5">
+  <!-- The selector: the back of his record. The text comes first in the source,
+       so the heading is what gets read first; on screen the sleeve leads. The
+       photo is the sleeve with the record half out of it, the copy is the "who is
+       DJ Zippy" text for search engines, the numbers come from the events
+       archive, and the two sides of the record are the two kinds of nights he
+       plays, B (his own) first. -->
+  <section id="intro" class="liner isolate relative bg-brand-black" aria-labelledby="intro-heading">
     <div class="container mx-auto px-6 sm:px-8 lg:px-12">
-      <div class="grid md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] gap-10 md:gap-14 lg:gap-20 items-center max-w-5xl mx-auto" data-reveal>
-        <!-- The photo's own background is black, so a 2px gradient rim (orange top-left
-             fading to a faint white) marks its edge evenly on all four sides. -->
-        <div class="relative w-full max-w-[320px] sm:max-w-[360px] md:max-w-none mx-auto rounded-2xl p-[2px] bg-gradient-to-br from-brand-orange via-brand-orange/25 to-white/15 shadow-[0_24px_60px_-20px_rgb(var(--accent-rgb)/0.35)]">
-          <img
-            src="/images/dj-zippy-house-music-dj.webp"
-            alt={t.home.introPhotoAlt}
-            width="800"
-            height="800"
-            loading="lazy"
-            decoding="async"
-            class="relative block w-full h-auto rounded-[14px] bg-brand-black"
-          />
+      <div class="liner__grid max-w-6xl mx-auto" data-reveal>
+        <div class="liner__text">
+          <div class="liner__head">
+            <p class="eyebrow">{t.home.introKicker}</p>
+            <h2 id="intro-heading" class="liner__title section-title">{t.home.introHeading1}<span class="text-brand-side-b">{t.home.introHeading2}</span></h2>
+            <p class="liner__quote">{t.home.introQuote.map((line) => <span>{line}<span class="liner__dot">.</span> </span>)}</p>
+          </div>
+          <div class="liner__body">
+            <p class="liner__copy">{t.home.introBody}</p>
+            {introStats.length > 0 && (
+              <dl class="liner__stats">
+                {introStats.map((s) => (
+                  <div class="liner__stat">
+                    <dt class="mono-caps">{s.label}</dt>
+                    <dd class="font-display">{s.n}</dd>
+                  </div>
+                ))}
+              </dl>
+            )}
+            <div class="liner__cta">
+              <a href={`${l('/')}#contact`} class="btn btn--primary">
+                <i class="fa-solid fa-envelope" aria-hidden="true"></i> {t.home.introBook}
+              </a>
+              <a href={l('/about')} class="btn btn--secondary">
+                {t.home.introBio} <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+              </a>
+            </div>
+          </div>
         </div>
-        <div class="text-center md:text-left">
-          <h2 class="font-display text-3xl md:text-4xl font-bold leading-tight mb-5">{t.home.introHeading1}<span class="text-brand-orange">{t.home.introHeading2}</span></h2>
-          <p class="text-gray-300 text-base md:text-lg leading-relaxed mb-6">{t.home.introBody}</p>
-          {/* What "reads the room first" means in practice: slide from warm-up to
-              peak time and the genres he would reach for light up, on either side.
-              Every genre is in the markup, so it all reads without JS too. */}
-          <div class="room mb-8 text-left" id="room" data-side="B" data-room={JSON.stringify({ A: t.room.A.lines, B: t.room.B.lines })}>
-            <div class="flex items-center justify-between gap-3 mb-4">
-              <p class="mono-caps text-[0.6875rem] text-gray-400">{t.room.title}</p>
-              <div class="side-seg" role="group" aria-label={t.sides.filterLabel}>
-                <button type="button" data-room-side="B" data-side-value="B" aria-pressed="true" title={t.sides.bLabel}>{t.sides.b}</button>
-                <button type="button" data-room-side="A" data-side-value="A" aria-pressed="false" title={t.sides.aLabel}>{t.sides.a}</button>
+
+        <div class="liner__media">
+          {/* The sleeve: his photo, printed like a cover, with the record sliding
+              out of it (the label takes the accent colour). The print and the
+              record are decoration; the photo carries the alt text. */}
+          <div class="liner__sleeve" data-liner-sleeve>
+            <div class="liner__stage">
+              <div class="liner__record" aria-hidden="true"><span class="liner__label"></span></div>
+              <div class="liner__cover">
+                <img src="/images/dj-zippy-house-music-dj.webp" alt={t.home.introPhotoAlt} width="800" height="800" loading="lazy" decoding="async" />
+                <span class="liner__print" aria-hidden="true">
+                  <span class="liner__print-name font-display">ZIPPY<span class="text-brand-orange">.</span></span>
+                  <span class="liner__print-side mono-caps">
+                    <span class="liner__print-b">{t.sides.b} · House Music Therapy</span>
+                    <span class="liner__print-a">{t.sides.a} · Core Memories</span>
+                  </span>
+                </span>
               </div>
             </div>
-            <div class="flex items-center justify-between mono-caps text-[0.6875rem] text-gray-400 mb-1"><span>{t.room.warmup}</span><span>{t.room.peak}</span></div>
-            <input type="range" class="room__fader" min="0" max="100" step="1" value="35" aria-label={t.room.faderLabel} data-room-fader />
-            {(['B', 'A'] as const).map((side) => (
-              <ul class="room__genres" data-room-genres={side} hidden={side !== 'B'} aria-label={side === 'A' ? t.sides.aLabel : t.sides.bLabel}>
-                {t.room[side].genres.map((g) => <li>{g}</li>)}
-              </ul>
+          </div>
+          {/* Credits, as on the back of a sleeve. The plane is a small wink: he flies out for gigs. */}
+          <dl class="liner__credits">
+            {t.home.introCredits.map((c, i) => (
+              <div>
+                <dt class="mono-caps">{c.label}</dt>
+                <dd>
+                  {c.value}
+                  {i === t.home.introCredits.length - 1 && (
+                    <svg class="liner__plane" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z" /></svg>
+                  )}
+                </dd>
+              </div>
             ))}
-            <p class="room__line" data-room-line aria-live="polite">{t.room.B.lines[1]}</p>
-          </div>
-          <div class="flex flex-wrap justify-center md:justify-start gap-3">
-            <a href={`${l('/')}#contact`} data-room-book class="inline-flex items-center gap-2 rounded-full bg-brand-orange px-6 py-3 text-sm font-bold text-brand-black hover:bg-white transition-colors">
-              <i class="fa-solid fa-envelope" aria-hidden="true"></i> {t.home.introBook}
-            </a>
-            <a href={l('/about')} class="inline-flex items-center gap-2 rounded-full border border-white/20 px-6 py-3 text-sm font-bold text-white hover:border-brand-orange hover:text-brand-orange transition-colors">
-              {t.home.introBio} <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
-            </a>
-          </div>
+          </dl>
+        </div>
+
+        {/* The two sides as a tracklist: B leads, A follows. The LED shows the side
+            the visitor has picked (B until they pick A). */}
+        <div class="liner__sides">
+          {introSides.map((s) => (
+            <div class={`liner-side liner-side--${s.side.toLowerCase()}`} data-side={s.side}>
+              <div class="liner-side__meta" aria-hidden="true">
+                <span class="side-key">{s.side}</span>
+                <span class="mono-caps">{s.tag}</span>
+                <span class="liner-side__led"></span>
+              </div>
+              <h3 class="liner-side__name font-display"><span class="sr-only">{s.tag}: </span>{s.name}</h3>
+              <p class="liner-side__blurb">{s.blurb}</p>
+              <ol class="liner-side__tracks">
+                {s.tracks.map((tr, i) => (
+                  <li>
+                    <span class="liner-side__no mono-caps" aria-hidden="true">{s.side}{i + 1}</span>
+                    <span class="liner-side__track">{tr.name}</span>
+                    {tr.note && <span class="liner-side__note">{tr.note}</span>}
+                  </li>
+                ))}
+              </ol>
+              <a href={s.href} class="home-link mono-caps">{s.link} <span class="home-link__arrow" aria-hidden="true">→</span></a>
+            </div>
+          ))}
         </div>
       </div>
     </div>
@@ -941,54 +1397,26 @@ const homeSchema = {
     render();
     requestAnimationFrame(function() { requestAnimationFrame(function() { flip.classList.remove('no-turn'); }); });
   }
-  // The room fader in the intro. Its own B/A switch only changes the panel, but
-  // it follows the site-wide side when that changes, and "Book Zippy" carries
-  // the side it is showing into the booking form.
-  function initRoom() {
-    var room = document.getElementById('room');
-    if (!room || room.dataset.roomReady) return;
-    room.dataset.roomReady = '1';
-    var lines = JSON.parse(room.getAttribute('data-room') || '{}');
-    var fader = room.querySelector('[data-room-fader]');
-    var line = room.querySelector('[data-room-line]');
-    var btns = room.querySelectorAll('[data-room-side]');
-    var lists = room.querySelectorAll('[data-room-genres]');
-    var REACH = 22;   // how far either side of the fader a genre still lights up
-    var side = document.documentElement.getAttribute('data-side-pick') === 'A' ? 'A' : 'B';
-    function render() {
-      var v = Number(fader.value);
-      fader.style.setProperty('--fill', v + '%');
-      room.setAttribute('data-side', side);
-      btns.forEach(function(b) { b.setAttribute('aria-pressed', b.getAttribute('data-room-side') === side ? 'true' : 'false'); });
-      lists.forEach(function(ul) {
-        var mine = ul.getAttribute('data-room-genres') === side;
-        ul.hidden = !mine;
-        if (!mine) return;
-        var n = ul.children.length;
-        for (var i = 0; i < n; i++) {
-          ul.children[i].classList.toggle('on', Math.abs(v - (n > 1 ? (i / (n - 1)) * 100 : 50)) <= REACH);
-        }
-      });
-      var mine = lines[side] || [];
-      if (mine.length) line.textContent = mine[Math.min(mine.length - 1, Math.floor((v / 100) * mine.length))];
-    }
-    fader.addEventListener('input', render);
-    btns.forEach(function(b) {
-      b.addEventListener('click', function() { side = b.getAttribute('data-room-side'); render(); });
-    });
-    document.addEventListener('side:change', function(e) {
-      if (!room.isConnected) return;
-      side = e.detail === 'A' ? 'A' : 'B';
-      render();
-    });
-    var book = document.querySelector('[data-room-book]');
-    if (book) book.addEventListener('click', function() {
-      var choice = document.querySelector('#contact-form input[name="side"][data-side-choice="' + side + '"]');
-      if (choice) choice.checked = true;
-    });
-    render();
+  // The selector's sleeve: the record waits tucked in while the sleeve is below
+  // the fold and slides out as it comes into view. One already on screen, and
+  // every visitor who prefers less motion, simply sees it out.
+  function initLiner() {
+    var sleeve = document.querySelector('[data-liner-sleeve]');
+    if (!sleeve || sleeve.dataset.linerReady) return;
+    sleeve.dataset.linerReady = '1';
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) return;
+    if (sleeve.getBoundingClientRect().top < window.innerHeight * 0.9) return;
+    // tuck it in without a slide, out of sight
+    sleeve.classList.add('is-tucked', 'is-still');
+    requestAnimationFrame(function() { requestAnimationFrame(function() { sleeve.classList.remove('is-still'); }); });
+    var io = new IntersectionObserver(function(entries) {
+      if (!entries[0].isIntersecting) return;
+      sleeve.classList.remove('is-tucked');
+      io.disconnect();
+    }, { threshold: 0.5 });
+    io.observe(sleeve);
   }
-  document.addEventListener('astro:page-load', initRoom);
+  document.addEventListener('astro:page-load', initLiner);
   document.addEventListener('astro:page-load', initHeroRing);
   document.addEventListener('astro:page-load', initHeroFlip);
   </script>

@@ -4,46 +4,144 @@
 
 /* === Base Layer === */
 @layer base {
+  :root {
+    /* The site is dark on both sides: native scrollbars and form controls follow */
+    color-scheme: dark;
+    /* Shared surfaces, lines and motion. Backgrounds never change with the side. */
+    --bg: #050505;
+    --surface: #0c0c0c;
+    --surface-2: #131313;
+    --line: rgb(255 255 255 / 0.09);
+    --line-strong: rgb(255 255 255 / 0.18);
+    --muted: rgb(255 255 255 / 0.62);
+    --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+    /* height of the fixed header bar (Header.astro) */
+    --header-h: 4rem;
+  }
+
+  html {
+    /* anchor jumps (#contact) and keyboard focus stop below the fixed header */
+    scroll-padding-top: calc(var(--header-h) + 1rem);
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+  /* <html> is scroll-smooth (Layout.astro) for in-page jumps, but during a
+     page change (Astro marks it with data-astro-transition) the router's scroll
+     must be instant: on Back the page returns to where it was instead of
+     gliding down from the top. */
+  html[data-astro-transition] { scroll-behavior: auto; }
+
   body {
     background-color: #050505;
     color: #ffffff;
+    /* Inter for text, Unbounded (font-display) for headings. "Inter Fallback"
+       is Arial resized to Inter's metrics (fonts.css), so lines barely move
+       when the webfont swaps in. */
+    font-family: 'Inter', 'Inter Fallback', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
+  ::selection {
+    background-color: rgb(var(--accent-rgb));
+    color: #050505;
+  }
+
+  /* One focus ring for the whole site: white reads on black, orange and blue
+     alike. Components that draw their own state may still override it. */
+  :focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 3px;
+  }
 }
 
 /* === Component Layer === */
 @layer components {
-  /* Open format flag on upcoming gigs: blue so it never reads as a house night, but quiet */
-  .open-chip {
-    @apply inline-flex items-center whitespace-nowrap rounded-full bg-sky-400/10 px-2 py-px text-xs font-medium text-sky-400 ring-1 ring-inset ring-sky-400/25;
-  }
-
   /* Frosted glass card */
   .glass-panel {
     @apply bg-opacity-40 backdrop-blur-lg border border-brand-orange border-opacity-10;
     background: rgba(30, 30, 30, 0.4);
   }
 
-  /* Nav link with animated orange underline */
-  .nav-link {
-    @apply relative;
-    position: relative;
+  /* Buttons: one shape for every call to action across the site.
+       <a class="btn btn--primary">   filled accent pill (the main action)
+       <a class="btn btn--secondary"> outline pill (the second choice)
+     Add btn--sm where space is tight (header, cards). Tailwind utilities
+     still win, e.g. `btn btn--primary px-8`. */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    padding: 0.75rem 1.5rem;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    font-size: 0.875rem;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: 0.01em;
+    text-align: center;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: color 0.2s, background-color 0.2s, border-color 0.2s;
   }
+  .btn svg { width: 1em; height: 1em; flex-shrink: 0; }
+  .btn--primary { background-color: rgb(var(--accent-rgb)); color: #050505; }
+  .btn--primary:hover { background-color: #fff; color: #050505; }
+  .btn--secondary { border-color: rgb(255 255 255 / 0.2); color: #fff; }
+  .btn--secondary:hover { border-color: rgb(var(--accent-rgb)); color: rgb(var(--accent-rgb)); }
+  .btn--sm { min-height: 2.25rem; padding: 0.5rem 1rem; font-size: 0.8125rem; }
+  .btn:disabled, .btn[aria-disabled="true"] { opacity: 0.5; cursor: default; pointer-events: none; }
 
-  .nav-link::after {
+  /* Section heading: a small label over a display title.
+       <p class="eyebrow">Live</p>
+       <h2 class="section-title">Upcoming <span class="text-brand-orange">Events</span></h2>
+     The eyebrow is in the alt colour (blue on the B side, orange on the A side):
+     one of the small details that keep the accent from turning monotonous. */
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    line-height: 1.4;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgb(var(--alt-rgb));
+  }
+  .eyebrow::before {
     content: '';
-    position: absolute;
-    width: 0;
-    height: 2px;
-    bottom: -4px;
-    left: 0;
-    background-color: rgb(var(--accent-rgb));
-    transition: width 0.3s;
+    width: 1.5rem;
+    height: 1px;
+    background: currentColor;
+    opacity: 0.7;
+  }
+  .section-title {
+    font-family: 'Unbounded', sans-serif;
+    font-weight: 700;
+    font-size: clamp(1.75rem, 1.3rem + 1.9vw, 2.5rem);
+    line-height: 1.12;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
   }
 
-  .nav-link:hover::after {
-    width: 100%;
+  /* "Skip to content": the first stop for keyboard users, hidden until focused */
+  .skip-link {
+    position: fixed;
+    top: 0.75rem;
+    left: 1rem;
+    z-index: 100;
+    padding: 0.6rem 1.1rem;
+    border-radius: 999px;
+    background: #fff;
+    color: #050505;
+    font-size: 0.875rem;
+    font-weight: 700;
+    transform: translateY(-200%);
   }
+  .skip-link:focus { transform: none; }
 }
 
 /* === Animations === */
@@ -134,7 +232,8 @@ html.anim-ready [data-reveal]:not(.in-view) {
 .tape__track {
   display: flex;
   width: max-content;
-  animation: tape-scroll 46s linear infinite;
+  /* the duration follows the length of the venue list, so the speed stays the same */
+  animation: tape-scroll 57s linear infinite;
   will-change: transform;
 }
 .tape--sub .tape__track { animation-duration: 38s; animation-direction: reverse; }
@@ -144,7 +243,8 @@ html.anim-ready [data-reveal]:not(.in-view) {
 .tape__list li::after { content: '\2726'; margin: 0 0.9em; font-size: 0.7em; opacity: 0.55; }
 .tape--main .tape__list li { padding: 0.55rem 0; font-size: 1.05rem; font-weight: 900; letter-spacing: 0.02em; }
 .tape--sub .tape__list li { padding: 0.5rem 0; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.22em; }
-.tape--sub .tape__list li::after { color: rgb(var(--accent-rgb)); opacity: 1; }
+/* the black tape's stars take the alt colour: a little blue under the orange tape on the B side */
+.tape--sub .tape__list li::after { color: rgb(var(--alt-rgb)); opacity: 1; }
 @media (min-width: 640px) {
   .tapes { padding: 44px 0 52px; }
   .tape--sub { margin-top: -14px; }
@@ -161,12 +261,14 @@ html.anim-ready [data-reveal]:not(.in-view) {
   to   { transform: translateX(-50%); }
 }
 
-/* Aurora — slow "breathing" glow behind the hero */
+/* Aurora — slow "breathing" glow behind the hero. Every layer reads the side
+   variables, so the whole glow swaps with the side: mostly accent, a faint
+   alt-colour pool underneath. */
 .aurora {
   background:
-    radial-gradient(40% 50% at 30% 35%, rgb(var(--accent-rgb)/0.22), transparent 70%),
-    radial-gradient(45% 55% at 72% 60%, rgba(255,120,40,0.14), transparent 70%),
-    radial-gradient(35% 45% at 50% 80%, rgba(0,229,255,0.06), transparent 70%);
+    radial-gradient(40% 50% at 30% 35%, rgb(var(--accent-rgb) / 0.22), transparent 70%),
+    radial-gradient(45% 55% at 72% 60%, rgb(var(--accent-rgb) / 0.14), transparent 70%),
+    radial-gradient(35% 45% at 50% 80%, rgb(var(--alt-rgb) / 0.06), transparent 70%);
   filter: blur(60px);
   animation: aurora-drift 16s ease-in-out infinite alternate;
   will-change: transform, opacity;
@@ -256,6 +358,10 @@ html[data-side-pick="A"] {
   transition: color 0.2s, background-color 0.2s;
 }
 .side-seg button:hover { color: #fff; }
+/* each side's own colour shows on hover, before it is picked */
+.side-seg button[data-side-value="A"]:not([aria-pressed="true"]):hover { color: var(--side-a); }
+.side-seg button[data-side-value="B"]:not([aria-pressed="true"]):hover { color: var(--side-b); }
+@media (pointer: coarse) { .side-seg button { padding-block: 0.6rem; } }
 .side-seg button[aria-pressed="true"] { background: #fff; color: #050505; }
 .side-seg button[data-side-value="A"][aria-pressed="true"] { background: var(--side-a); }
 .side-seg button[data-side-value="B"][aria-pressed="true"] { background: var(--side-b); }
@@ -295,7 +401,7 @@ html[data-side-pick="B"] [data-side-item="A"] { display: none !important; }
 .rail__nav:disabled { opacity: 0.3; cursor: default; }
 .rail__nav:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
 .rail__bar { position: relative; height: 3px; margin-top: 1.25rem; border-radius: 3px; background: rgba(255,255,255,0.1); }
-.rail__bar > * { position: absolute; top: 0; left: 0; height: 100%; border-radius: 3px; background: rgb(var(--accent-rgb)); }
+.rail__bar > * { position: absolute; top: 0; left: 0; height: 100%; border-radius: 3px; background: rgb(var(--accent-rgb)); will-change: transform; }
 .rail:not(.rail--js) .rail__nav,
 .rail:not(.rail--js) .rail__bar,
 .rail[data-rail-fits] .rail__nav,
@@ -320,8 +426,21 @@ html[data-side-pick="B"] [data-side-item="A"] { display: none !important; }
 .cal-btn:hover, .cal-save[open] > .cal-btn { color: var(--side, rgb(var(--accent-rgb))); border-color: var(--side, rgb(var(--accent-rgb))); }
 .cal-btn:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 .cal-btn svg, .cal-menu svg { width: 1rem; height: 1rem; flex-shrink: 0; }
-.cal-actions--compact .cal-btn { padding: 0.55rem; }
+@media (pointer: coarse) { .cal-btn { min-height: 2.5rem; } }
+/* List-row version: round icon buttons, labels from 1024px up. On phones the
+   "Check my calendar" button moves into the menu (see CalendarActions.astro). */
+.cal-actions--compact .cal-btn { width: 2.5rem; height: 2.5rem; padding: 0; justify-content: center; }
 .cal-actions--compact .cal-btn span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
+@media (pointer: coarse) { .cal-actions--compact .cal-btn { width: 2.75rem; height: 2.75rem; } }
+@media (min-width: 1024px) {
+  .cal-actions--compact .cal-btn { width: auto; height: auto; min-height: 2.5rem; padding: 0.5rem 0.95rem; }
+  .cal-actions--compact .cal-btn span { position: static; width: auto; height: auto; overflow: visible; clip: auto; }
+}
+.cal-menu a.cal-menu__check { display: none; }
+@media (max-width: 639px) {
+  .cal-actions--compact > .cal-check { display: none; }
+  .cal-actions--compact .cal-menu a.cal-menu__check { display: flex; margin-bottom: 0.25rem; border-bottom: 1px solid rgba(255,255,255,0.08); border-radius: 0.7rem 0.7rem 0 0; }
+}
 .cal-save { position: relative; }
 .cal-save > summary { list-style: none; }
 .cal-save > summary::-webkit-details-marker { display: none; }
@@ -331,6 +450,7 @@ html[data-side-pick="B"] [data-side-item="A"] { display: none !important; }
   top: calc(100% + 0.5rem);
   z-index: 40;
   min-width: 15.5rem;
+  max-width: calc(100vw - 1rem);   /* cal-menu.ts slides it inside the screen */
   padding: 0.375rem;
   border-radius: 1rem;
   border: 1px solid rgba(255,255,255,0.12);
@@ -346,155 +466,32 @@ html[data-side-pick="B"] [data-side-item="A"] { display: none !important; }
   font-size: 0.875rem;
   color: #fff;
 }
-.cal-menu a:hover, .cal-menu a:focus-visible { background: rgba(255,255,255,0.07); outline: none; }
+.cal-menu a:hover, .cal-menu a:focus-visible { background: rgba(255,255,255,0.07); }
+.cal-menu a:focus { outline: none; }
+.cal-menu a:focus-visible { outline: 2px solid #fff; outline-offset: -2px; }
 .cal-menu a + a.cal-menu__all { margin-top: 0.25rem; border-top: 1px solid rgba(255,255,255,0.08); border-radius: 0 0 0.7rem 0.7rem; }
 .cal-menu svg { color: var(--side, rgb(var(--accent-rgb))); }
+/* cal-menu.ts flips the menu when it would leave the screen */
+.cal-save--up > .cal-menu { top: auto; bottom: calc(100% + 0.5rem); }
+.cal-save--left > .cal-menu { right: auto; left: 0; }
+.cal-save[open] > .cal-menu { animation: cal-pop 0.16s cubic-bezier(0.22, 1, 0.36, 1); }
+.cal-save--up[open] > .cal-menu { animation-name: cal-pop-up; }
+@keyframes cal-pop { from { opacity: 0; transform: translateY(-4px); } }
+@keyframes cal-pop-up { from { opacity: 0; transform: translateY(4px); } }
+@media (prefers-reduced-motion: reduce) { .cal-save[open] > .cal-menu { animation: none; } }
 
-/* === /events === */
-.upcoming-row {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem;
-  border-radius: 1rem;
-  border: 1px solid rgba(255,255,255,0.09);
-  background: rgba(255,255,255,0.035);
-  transition: border-color 0.2s, background-color 0.2s;
-}
-.upcoming-row:hover { border-color: var(--side); background: rgba(255,255,255,0.055); }
-@media (min-width: 640px) { .upcoming-row { gap: 1.5rem; padding: 1.1rem 1.25rem; } }
+/* /events rules (upcoming rows, archive, PastGigRow) are in EventsPage.astro,
+   /mixes rules (platform tabs, cards) in MixesPage.astro. */
 
-/* Archive: one panel per year */
-.year-panel {
-  display: grid;
-  gap: 1.25rem;
-  padding: 1.25rem;
-  border-radius: 1.5rem;
-  border: 1px solid rgba(255,255,255,0.09);
-  background: linear-gradient(180deg, #131313, #0c0c0c);
-}
-.year-panel__head { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; }
-.year-split { display: flex; gap: 3px; width: 9rem; height: 6px; }
-.year-split i { min-width: 6px; border-radius: 6px; }
-@media (min-width: 768px) {
-  .year-panel { grid-template-columns: 12.5rem minmax(0, 1fr); gap: 2rem; padding: 1.75rem; }
-  .year-panel__head { display: block; }
-  .year-split { width: auto; max-width: 10.5rem; margin-top: 1rem; }
-}
-.past-row {
-  display: grid;
-  grid-template-columns: 1.375rem 3.25rem minmax(0, 1fr);
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.6rem 0.75rem;
-  border-radius: 0.9rem;
-  border: 1px solid transparent;
-  transition: background-color 0.2s, border-color 0.2s;
-}
-.past-row:hover { background: rgba(255,255,255,0.05); }
-.past-row--hi { margin-bottom: 0.375rem; padding: 0.9rem 0.75rem; border-color: rgba(255,255,255,0.09); background: rgba(255,255,255,0.035); }
-.past-row--hi:hover { border-color: var(--side); background: rgba(255,255,255,0.035); }
-.year-more > summary {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin: 0.5rem 0 0 0.75rem;
-  padding: 0.25rem 0;
-  list-style: none;
-  cursor: pointer;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  color: rgba(255,255,255,0.65);
-  transition: color 0.2s;
-}
-.year-more > summary::-webkit-details-marker { display: none; }
-[data-side-none] > .year-more { display: none; }
-/* a year with nothing on the picked side drops out of the archive */
-.year-panel:has([data-side-none]) { display: none; }
-.year-more > summary:hover { color: rgb(var(--accent-rgb)); }
-.year-more__chevron { font-size: 0.625rem; transition: transform 0.2s; }
-.year-more[open] .year-more__chevron { transform: rotate(90deg); }
-.year-more[open] > summary { margin-bottom: 0.25rem; }
+/* The booking form (side pads, fader, fields) is styled in Footer.astro. */
 
-/* === /mixes ===
-   A card is the cover and nothing else. The details come up over it on hover
-   or keyboard focus; on touch screens, where there is no hover, they sit along
-   the bottom edge all the time. */
-.mix-card {
-  position: relative;
-  display: block;
-  flex: 0 0 auto;
-  overflow: hidden;
-  border-radius: 0.9rem;
-  border: 1px solid rgba(255,255,255,0.1);
-  background: #000;
-  transition: border-color 0.3s;
-}
-.mix-card.hidden { display: none; }   /* the platform tabs hide cards with Tailwind's .hidden */
-.mix-card--wide { width: 84%; aspect-ratio: 16 / 9; }
-.mix-card--square { width: 66%; aspect-ratio: 1; }
-@media (min-width: 640px) {
-  .mix-card--wide { width: calc((100% - 1rem) / 2.2); }
-  .mix-card--square { width: calc((100% - 2rem) / 3.2); }
-}
-@media (min-width: 1024px) {
-  .mix-card--wide { width: calc((100% - 3rem) / 3.25); }
-  .mix-card--square { width: calc((100% - 4rem) / 4.25); }
-}
-.mix-card:hover, .mix-card:focus-visible { border-color: var(--side, rgb(var(--accent-rgb))); outline: none; }
-.mix-card__art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1); }
-.mix-card:hover .mix-card__art { transform: scale(1.05); }
-.mix-card__info {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 0.5rem;
-  padding: 1rem;
-  background: rgba(5,5,5,0.86);
-  opacity: 0;
-  transition: opacity 0.25s;
-}
-.mix-card:hover .mix-card__info, .mix-card:focus-visible .mix-card__info { opacity: 1; }
-.mix-card__genre { display: flex; align-items: center; gap: 0.5rem; font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--side, rgb(var(--accent-rgb))); }
-.mix-card__title { font-family: 'Unbounded', sans-serif; font-size: 0.875rem; font-weight: 700; line-height: 1.35; color: #fff; }
-.mix-card__listen { display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 0.625rem; font-size: 0.8125rem; font-weight: 700; color: var(--side, rgb(var(--accent-rgb))); }
-.mix-card__badge { position: absolute; top: 0.625rem; right: 0.625rem; z-index: 1; padding: 0.2rem 0.5rem; border-radius: 0.4rem; background: rgb(var(--accent-rgb)); color: #050505; font-size: 0.625rem; font-weight: 800; letter-spacing: 0.04em; transition: opacity 0.25s; }
-.mix-card:hover .mix-card__badge { opacity: 0; }
-/* No cover image: nothing to keep clean, so the details show all the time */
-.mix-card--bare .mix-card__info { opacity: 1; background: none; }
-@media (hover: none) {
-  .mix-card__info {
-    opacity: 1;
-    justify-content: flex-end;
-    background: linear-gradient(to top, rgba(5,5,5,0.94) 0%, rgba(5,5,5,0.6) 42%, rgba(5,5,5,0) 72%);
-  }
-  .mix-card__listen { display: none; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .mix-card__art, .mix-card__info { transition: none; }
-  .mix-card:hover .mix-card__art { transform: none; }
-}
-
-/* Booking form: which side of Zippy the request is for */
-.side-radio span {
-  display: inline-flex;
-  padding: 0.4rem 0.95rem;
-  border-radius: 999px;
-  border: 1px solid rgba(255,255,255,0.15);
-  font-size: 0.8125rem;
-  font-weight: 600;
-  color: rgba(255,255,255,0.7);
-  cursor: pointer;
-  transition: color 0.2s, background-color 0.2s, border-color 0.2s;
-}
-.side-radio span:hover { border-color: var(--side, #fff); color: #fff; }
-.side-radio input:checked + span { background: var(--side, #fff); border-color: var(--side, #fff); color: #050505; }
-.side-radio input:focus-visible + span { outline: 2px solid #fff; outline-offset: 2px; }
-
-/* A / B flip in the header: one press turns the whole site to the other side */
+/* A / B flip in the header: one press turns the whole site to the other side.
+   A tiny crossfader: the puck slides to the picked side and takes its colour,
+   and the letter not picked keeps its own colour, faintly, so the bar always
+   carries a hint of the other side. The state is read from <html> (restored
+   before a new page paints), so the puck never slides on page changes. */
 .side-flip {
+  position: relative;
   display: inline-flex;
   flex-shrink: 0;
   padding: 3px;
@@ -505,36 +502,45 @@ html[data-side-pick="B"] [data-side-item="A"] { display: none !important; }
   font-size: 0.6875rem;
   font-weight: 800;
   line-height: 1;
+  cursor: pointer;
+  transition: border-color 0.2s;
 }
-.side-flip span {
+.side-flip::before {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 999px;
+  background: var(--side-b);
+  transform: translateX(100%);
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.35s;
+}
+html[data-side-pick="A"] .side-flip::before { transform: none; background: var(--side-a); }
+.side-flip [data-face] {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 1.5rem;
   height: 1.5rem;
   border-radius: 999px;
-  color: rgba(255,255,255,0.5);
-  transition: color 0.2s, background-color 0.2s;
+  transition: color 0.25s;
 }
-.side-flip:hover span { color: #fff; }
-.side-flip[aria-pressed="false"] span[data-face="B"] { background: var(--side-b); color: #050505; }
-.side-flip[aria-pressed="true"] span[data-face="A"] { background: var(--side-a); color: #050505; }
+.side-flip [data-face="A"] { color: rgb(var(--side-a-rgb) / 0.72); }
+.side-flip [data-face="B"] { color: #050505; }
+html[data-side-pick="A"] .side-flip [data-face="A"] { color: #050505; }
+html[data-side-pick="A"] .side-flip [data-face="B"] { color: rgb(var(--side-b-rgb) / 0.72); }
+.side-flip:hover { border-color: rgba(255,255,255,0.28); }
+html:not([data-side-pick="A"]) .side-flip:hover [data-face="A"] { color: rgb(var(--side-a-rgb)); }
+html[data-side-pick="A"] .side-flip:hover [data-face="B"] { color: rgb(var(--side-b-rgb)); }
 .side-flip:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
-
-/* Archive totals */
-.archive-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; margin-bottom: 1rem; }
-@media (min-width: 640px) { .archive-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
-.archive-stat {
-  display: flex;
-  flex-direction: column-reverse;   /* the number reads first, its label sits under it */
-  gap: 0.6rem;
-  padding: 1.1rem 1.25rem;
-  border-radius: 1.25rem;
-  border: 1px solid rgba(255,255,255,0.09);
-  background: linear-gradient(180deg, #131313, #0c0c0c);
+/* 44px tall tap target on touch screens */
+@media (pointer: coarse) {
+  .side-flip::after { content: ''; position: absolute; inset: -7px -2px; }
 }
-/* per-year numbers in the left column of a year panel */
-.year-facts { display: flex; gap: 1.25rem; flex-basis: 100%; }
-.year-facts > div { display: flex; flex-direction: column-reverse; gap: 0.3rem; }
-.year-panel__head { flex-wrap: wrap; }
-@media (min-width: 768px) { .year-facts { margin-top: 1.25rem; gap: 1rem; } }
+@media (prefers-reduced-motion: reduce) {
+  .side-flip::before, .side-flip [data-face] { transition: none; }
+}
+

@@ -1,9 +1,12 @@
 ---
 // Blog index. Post copy is placeholder data (see src/lib/posts.ts) — only the
 // surrounding chrome is translated, and the page stays `noindex`.
+// Layout: the newest featured post leads as a large story, every other post
+// follows as a row in a list (cover left, text right), so the page reads the
+// same with two posts or twenty.
 import Layout from '../../layouts/Layout.astro';
 import { POSTS } from '../../lib/posts';
-import { useTranslations, localize, formatDate, type Lang } from '../../i18n/utils';
+import { useTranslations, localize, formatDate, htmlLang, type Lang } from '../../i18n/utils';
 
 interface Props {
   lang: Lang;
@@ -16,174 +19,330 @@ const l = (path: string) => localize(path, lang);
 const byNewest = (a: { date: string }, b: { date: string }) =>
   new Date(b.date).getTime() - new Date(a.date).getTime();
 
-const featuredPosts = POSTS.filter((p) => p.featured).sort(byNewest);
-const regularPosts = POSTS.filter((p) => !p.featured && p.published).sort(byNewest);
+const posts = POSTS.filter((p) => p.published).sort(byNewest);
+const lead = posts.find((p) => p.featured) ?? posts[0];
+const rest = posts.filter((p) => p !== lead);
 
-// Pagination
-const postsPerPage = 6;
-const totalPages = Math.ceil(regularPosts.length / postsPerPage);
-const currentPage = 1;
-const paginatedPosts = regularPosts.slice(0, postsPerPage);
+// Same estimate as the post page (BlogPostPage.astro): ~200 words a minute,
+// markdown symbols not counted
+const minutes = (md: string) =>
+  Math.max(1, Math.round(md.replace(/[#>*`_[\]()!-]/g, ' ').split(/\s+/).filter(Boolean).length / 200));
+const readTime = (md: string) => t.blog.readTime.replace('{n}', String(minutes(md)));
+const pad = (n: number) => String(n).padStart(2, '0');
+
+// Posts have no locale yet: all of them are written in English. On the Serbian
+// page their titles and summaries are marked as English, and the meta says so.
+const postLang: Lang = 'en';
+const textLang = postLang !== lang ? htmlLang[postLang] : undefined;
+
+// Structured data mirrors the page: the breadcrumb above the title and the posts listed
+const pageUrl = `https://zippydj.com${l('/blog')}`;
+const postUrl = (slug: string) => `https://zippydj.com${l(`/blog/${slug}`)}`;
+const blogSchema = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'BreadcrumbList',
+      '@id': `${pageUrl}#breadcrumb`,
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: t.breadcrumb.home, item: `https://zippydj.com${l('/')}` },
+        { '@type': 'ListItem', position: 2, name: t.blog.crumb, item: pageUrl },
+      ],
+    },
+    {
+      '@type': 'Blog',
+      '@id': `${pageUrl}#blog`,
+      url: pageUrl,
+      name: 'DJ Zippy Blog',
+      description: t.blog.description,
+      inLanguage: htmlLang[lang],
+      author: { '@id': 'https://zippydj.com/#person' },
+      publisher: { '@id': 'https://zippydj.com/#organization' },
+      blogPost: posts.map((p) => ({
+        '@type': 'BlogPosting',
+        '@id': `${postUrl(p.slug)}#article`,
+        url: postUrl(p.slug),
+        headline: p.title,
+        datePublished: p.date,
+        inLanguage: htmlLang[postLang],
+      })),
+    },
+  ],
+};
 ---
 
 <Layout lang={lang} title={t.blog.title} description={t.blog.description} activePage="blog" noindex={true}>
-  {/* Hero Section */}
-  <section class="min-h-[40vh] flex items-center justify-center bg-gradient-to-b from-brand-dark to-brand-gray relative overflow-hidden pt-20">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center z-30">
-      <h1 class="font-display font-bold text-5xl sm:text-6xl text-white mb-4">{t.blog.heading}</h1>
-      <p class="text-xl text-gray-300">{t.blog.lead}</p>
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(blogSchema)} />
+
+  <section class="isolate relative bg-brand-black pt-24 sm:pt-28 pb-10 sm:pb-14 overflow-hidden">
+    <div class="aurora absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] rounded-full pointer-events-none"></div>
+    <div class="container mx-auto px-6 sm:px-8 lg:px-12 text-center relative z-30">
+      <nav aria-label={t.breadcrumb.label} class="mb-6">
+        <ol class="flex justify-center items-center space-x-2 text-sm text-gray-400">
+          <li><a href={l('/')} class="inline-block py-2.5 -my-2.5 hover:text-brand-orange transition-colors">{t.breadcrumb.home}</a></li>
+          <li><span class="mx-2" aria-hidden="true">/</span></li>
+          <li class="text-white" aria-current="page">{t.blog.crumb}</li>
+        </ol>
+      </nav>
+      <h1 class="font-display text-5xl md:text-6xl lg:text-7xl font-black tracking-tight leading-none mb-5">{t.blog.heading}<span class="text-brand-orange" aria-hidden="true">.</span></h1>
+      <p class="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto">{t.blog.lead}</p>
     </div>
   </section>
 
-  {/* Featured Posts */}
-  {featuredPosts.length > 0 && (
-    <section class="py-20 bg-brand-dark">
-      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 z-30 relative">
-        <div class="mb-12">
-          <h2 class="font-display font-bold text-3xl text-white mb-2">{t.blog.featured}</h2>
-          <div class="w-12 h-1 bg-brand-orange rounded"></div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {featuredPosts.map((post) => (
-            <article class="group bg-brand-gray border border-white border-opacity-10 rounded-lg overflow-hidden hover:border-brand-orange hover:shadow-lg hover:shadow-brand-orange/20 transition-all">
-              {/* Image */}
-              <div class="relative aspect-video overflow-hidden bg-brand-dark">
-                {post.cover_image ? (
-                  <img
-                    src={post.cover_image}
-                    alt={post.title}
-                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                    loading="lazy"
-                  />
-                ) : (
-                  <div class="w-full h-full bg-gradient-to-br from-brand-gray to-brand-black flex items-center justify-center">
-                    <i class="fa-solid fa-pen-fancy text-4xl text-white/20"></i>
-                  </div>
-                )}
+  <section class="isolate relative pb-16 sm:pb-24 bg-brand-black">
+    <div class="container mx-auto px-6 sm:px-8 lg:px-12">
+      <div class="max-w-6xl mx-auto">
+        {lead ? (
+          <article class="blog-lead" data-reveal>
+            <a href={l(`/blog/${lead.slug}`)} class="blog-lead__link group">
+              <div class="blog-cover blog-lead__cover">
+                <span class="blog-cover__blank" aria-hidden="true">ZIPPY<span>.</span></span>
+                {lead.cover_image && <img src={lead.cover_image} alt="" width="1200" height="800" loading="eager" decoding="async" class="blog-cover__img" onerror="this.hidden=true" />}
               </div>
-
-              {/* Content */}
-              <div class="p-6">
-                {/* Meta */}
-                <div class="flex items-center justify-between mb-3">
-                  <span class="text-xs text-brand-orange font-bold uppercase tracking-wider">{t.blog.featured}</span>
-                  <span class="text-xs text-gray-500">{formatDate(post.date, lang)}</span>
-                </div>
-
-                {/* Title */}
-                <h3 class="font-display font-bold text-xl text-white mb-3 line-clamp-2 group-hover:text-brand-orange transition-colors">
-                  <a href={l(`/blog/${post.slug}`)}>{post.title}</a>
-                </h3>
-
-                {/* Description */}
-                <p class="text-gray-400 text-sm mb-4 line-clamp-2">{post.seo_description}</p>
-
-                {/* Read More Link */}
-                <a
-                  href={l(`/blog/${post.slug}`)}
-                  class="inline-flex items-center gap-2 text-brand-orange hover:text-white transition-colors font-bold text-sm group-hover:gap-3"
-                >
-                  <span>{t.blog.readArticle}</span>
-                  <i class="fa-solid fa-arrow-right"></i>
-                </a>
+              <div class="blog-lead__text">
+                <p class="blog-meta mono-caps">
+                  <span class="blog-meta__list">
+                    <span class="text-brand-orange">{t.blog.featured}</span>
+                    <span><span class="sr-only">, </span><time datetime={lead.date}>{formatDate(lead.date, lang, 'long')}</time></span>
+                    <span><span class="sr-only">, </span>{readTime(lead.content)}</span>
+                    {textLang && <span><span class="sr-only">, </span>{t.blog.inEnglish}</span>}
+                  </span>
+                </p>
+                <h2 class="blog-lead__title font-display" lang={textLang}>{lead.title}</h2>
+                <p class="blog-lead__dek" lang={textLang}>{lead.seo_description}</p>
+                <span class="blog-more">{t.blog.readArticle} <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></span>
               </div>
-            </article>
-          ))}
-        </div>
-      </div>
-    </section>
-  )}
+            </a>
+          </article>
+        ) : (
+          <p class="text-gray-400 text-center text-lg py-12">{t.blog.empty}</p>
+        )}
 
-  {/* All Posts Grid */}
-  <section class="py-20 bg-brand-gray">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 z-30 relative">
-      <div class="mb-12">
-        <h2 class="font-display font-bold text-3xl text-white mb-2">{t.blog.latest}</h2>
-        <div class="w-12 h-1 bg-brand-orange rounded"></div>
-      </div>
-
-      {paginatedPosts.length > 0 ? (
-        <>
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
-            {paginatedPosts.map((post) => (
-              <article class="group bg-brand-dark border border-white border-opacity-10 rounded-lg overflow-hidden hover:border-brand-orange hover:shadow-lg hover:shadow-brand-orange/20 transition-all">
-                {/* Image */}
-                <div class="relative aspect-video overflow-hidden bg-brand-gray">
-                  {post.cover_image ? (
-                    <img
-                      src={post.cover_image}
-                      alt={post.title}
-                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div class="w-full h-full bg-gradient-to-br from-brand-gray to-brand-black flex items-center justify-center">
-                      <i class="fa-solid fa-pen-fancy text-3xl text-white/20"></i>
+        {rest.length > 0 && (
+          <div class="mt-16 sm:mt-24" data-reveal>
+            <h2 class="section-title pb-5 border-b border-white/10">{t.blog.latest}</h2>
+            <ol class="blog-list">
+              {rest.map((post, i) => (
+                <li>
+                  <article class="blog-row group">
+                    <div class="blog-cover blog-row__cover">
+                      <span class="blog-cover__blank" aria-hidden="true">ZIPPY<span>.</span></span>
+                      {post.cover_image && <img src={post.cover_image} alt="" width="1200" height="800" loading="lazy" decoding="async" class="blog-cover__img" onerror="this.hidden=true" />}
                     </div>
-                  )}
-                </div>
-
-                {/* Content */}
-                <div class="p-6">
-                  {/* Date */}
-                  <span class="text-xs text-gray-500 mb-3 block">{formatDate(post.date, lang)}</span>
-
-                  {/* Title */}
-                  <h3 class="font-display font-bold text-lg text-white mb-3 line-clamp-2 group-hover:text-brand-orange transition-colors">
-                    <a href={l(`/blog/${post.slug}`)}>{post.title}</a>
-                  </h3>
-
-                  {/* Description */}
-                  <p class="text-gray-400 text-sm mb-4 line-clamp-2">{post.seo_description}</p>
-
-                  {/* Read More */}
-                  <a
-                    href={l(`/blog/${post.slug}`)}
-                    class="inline-flex items-center gap-2 text-brand-orange hover:text-white transition-colors font-bold text-sm group-hover:gap-3"
-                  >
-                    <span>{t.blog.read}</span>
-                    <i class="fa-solid fa-arrow-right"></i>
-                  </a>
-                </div>
-              </article>
-            ))}
-          </div>
-
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div class="flex justify-center items-center gap-2">
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                <a
-                  href={page === 1 ? l('/blog') : `${l('/blog')}?page=${page}`}
-                  class={`px-4 py-2 rounded-lg font-bold transition-colors ${
-                    page === currentPage
-                      ? 'bg-brand-orange text-white'
-                      : 'bg-brand-dark text-gray-400 hover:text-white hover:border border-brand-orange'
-                  }`}
-                >
-                  {page}
-                </a>
+                    <div class="min-w-0">
+                      <p class="blog-meta mono-caps">
+                        <span class="blog-meta__list">
+                          <span class="text-brand-alt">{pad(i + 1)}</span>
+                          <span><span class="sr-only">, </span><time datetime={post.date}>{formatDate(post.date, lang, 'long')}</time></span>
+                          <span><span class="sr-only">, </span>{readTime(post.content)}</span>
+                          {textLang && <span><span class="sr-only">, </span>{t.blog.inEnglish}</span>}
+                        </span>
+                      </p>
+                      <h3 class="blog-row__title font-display" lang={textLang}>
+                        <a href={l(`/blog/${post.slug}`)}>{post.title}</a>
+                      </h3>
+                      <p class="blog-row__dek" lang={textLang}>{post.seo_description}</p>
+                    </div>
+                  </article>
+                </li>
               ))}
-            </div>
-          )}
-        </>
-      ) : (
-        <div class="text-center py-12">
-          <p class="text-gray-400 text-lg">{t.blog.empty}</p>
-        </div>
-      )}
+            </ol>
+          </div>
+        )}
+      </div>
     </div>
   </section>
 
-  {/* Subscribe CTA */}
-  <section class="py-20 bg-brand-dark">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center z-30 relative">
-      <h2 class="font-display font-bold text-3xl text-white mb-6">{t.blog.ctaHeading}</h2>
-      <p class="text-gray-400 mb-8 text-lg">{t.blog.ctaLead}</p>
-      <a href={`${l('/')}#contact`} class="inline-block bg-brand-orange text-white px-8 py-4 rounded-lg font-bold hover:bg-opacity-90 transition-all">
-        {t.blog.ctaButton}
-      </a>
+  {/* No newsletter exists, so the way out of the blog is the music itself */}
+  <section class="isolate relative pb-16 sm:pb-24 bg-brand-black">
+    <div class="container mx-auto px-6 sm:px-8 lg:px-12">
+      <div class="blog-cta max-w-6xl mx-auto" data-reveal>
+        <div>
+          <h2 class="font-display text-2xl md:text-3xl font-bold mb-2">{t.blog.ctaHeading}</h2>
+          <p class="text-gray-400 max-w-xl">{t.blog.ctaLead}</p>
+        </div>
+        <div class="flex flex-wrap gap-3">
+          <a href={l('/mixes')} class="btn btn--primary">
+            {t.blog.ctaButton} <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+          </a>
+          <a href={l('/events')} class="btn btn--secondary">{t.blog.ctaEvents}</a>
+        </div>
+      </div>
     </div>
   </section>
 </Layout>
+
+<style>
+  /* Covers share the mix-card look: rounded, a hairline border that takes the
+     accent on hover, and a slow zoom */
+  .blog-cover {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    border-radius: 1.25rem;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: #0b0b0b;
+    transition: border-color 0.3s;
+  }
+  .blog-cover__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  /* Under every cover, and all that shows when a post has none (or it fails to load) */
+  .blog-cover__blank {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+      radial-gradient(60% 80% at 20% 20%, rgb(var(--accent-rgb) / 0.22), transparent 70%),
+      radial-gradient(50% 60% at 85% 90%, rgb(var(--alt-rgb) / 0.1), transparent 70%),
+      linear-gradient(160deg, #1a1a1a, #070707);
+    font-family: 'Unbounded', sans-serif;
+    font-size: clamp(1.25rem, 4vw, 2.5rem);
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    color: rgba(255,255,255,0.12);
+  }
+  .blog-cover__blank span { color: rgb(var(--accent-rgb) / 0.5); }
+  .blog-cover__img[hidden] { display: none; }
+  .group:hover .blog-cover { border-color: rgb(var(--accent-rgb)); }
+  .group:hover .blog-cover__img { transform: scale(1.04); }
+
+  /* Meta line: a dot between items, never at the end or start of a line. Each
+     item carries its dot on its left; the list is pulled left by one gap, so
+     the dot of whichever item starts a line falls outside the clipped box. */
+  .blog-meta {
+    overflow: hidden;
+    font-size: 0.6875rem;
+    color: rgb(156 163 175);
+  }
+  .blog-meta__list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    row-gap: 0.35rem;
+    margin-left: -1.25rem;
+  }
+  .blog-meta__list > * { position: relative; margin-left: 1.25rem; }
+  .blog-meta__list > *::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: -0.75rem;
+    width: 3px;
+    height: 3px;
+    margin-top: -1.5px;
+    border-radius: 50%;
+    background: rgb(var(--alt-rgb));
+  }
+
+  /* Lead story */
+  .blog-lead__link { display: grid; gap: 1.5rem; align-items: center; }
+  .blog-lead__cover { aspect-ratio: 16 / 10; }
+  .blog-lead__title {
+    margin-top: 0.9rem;
+    font-size: clamp(1.5rem, 1.1rem + 2vw, 2.5rem);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    color: #fff;
+    transition: color 0.2s;
+  }
+  .blog-lead__dek {
+    margin-top: 0.9rem;
+    font-size: 1rem;
+    line-height: 1.65;
+    color: rgb(209 213 219);
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .blog-more {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1.4rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: rgb(var(--accent-rgb));
+    transition: gap 0.2s, color 0.2s;
+  }
+  .blog-lead__link:hover .blog-lead__title { color: rgb(var(--accent-rgb)); }
+  .blog-lead__link:hover .blog-more { gap: 0.75rem; color: #fff; }
+  .blog-lead__link:focus-visible { outline: 2px solid #fff; outline-offset: 6px; border-radius: 1.25rem; }
+  @media (min-width: 768px) {
+    .blog-lead__link { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 2.5rem; }
+    .blog-lead__cover { aspect-ratio: 4 / 3; }
+  }
+  @media (min-width: 1024px) {
+    .blog-lead__link { gap: 3.5rem; }
+    .blog-lead__cover { aspect-ratio: 16 / 11; }
+  }
+
+  /* The list */
+  .blog-list { margin: 0; padding: 0; list-style: none; }
+  .blog-list > li { border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .blog-row {
+    position: relative;
+    display: grid;
+    gap: 1rem;
+    padding: 1.5rem 0;
+  }
+  .blog-row__cover { aspect-ratio: 16 / 10; }
+  .blog-row__title {
+    margin-top: 0.6rem;
+    font-size: 1.125rem;
+    font-weight: 700;
+    line-height: 1.3;
+    color: #fff;
+  }
+  /* the title link covers the whole row, so the row is one target */
+  .blog-row__title a::after { content: ''; position: absolute; inset: 0; }
+  .blog-row__title a { transition: color 0.2s; }
+  .blog-row:hover .blog-row__title a { color: rgb(var(--accent-rgb)); }
+  .blog-row__title a:focus-visible { outline: none; }
+  .blog-row:has(a:focus-visible) { outline: 2px solid #fff; outline-offset: 4px; border-radius: 1rem; }
+  .blog-row__dek {
+    margin-top: 0.5rem;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: rgb(156 163 175);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  @media (min-width: 640px) {
+    .blog-row { grid-template-columns: minmax(0, 15rem) minmax(0, 1fr); gap: 1.75rem; align-items: center; padding: 1.75rem 0; }
+  }
+  @media (min-width: 1024px) {
+    .blog-row { grid-template-columns: minmax(0, 18rem) minmax(0, 1fr); gap: 2.5rem; }
+    .blog-row__title { font-size: 1.375rem; }
+  }
+
+  .blog-cta {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 1.75rem 1.5rem;
+    border-radius: 1.5rem;
+    border: 1px solid rgba(255,255,255,0.09);
+    background: linear-gradient(180deg, #131313, #0c0c0c);
+  }
+  @media (min-width: 768px) {
+    .blog-cta { flex-direction: row; align-items: center; justify-content: space-between; padding: 2rem 2.25rem; }
+    .blog-cta > div:last-child { flex-shrink: 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .blog-cover__img, .blog-more { transition: none; }
+    .group:hover .blog-cover__img { transform: none; }
+  }
+</style>

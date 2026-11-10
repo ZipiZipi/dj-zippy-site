@@ -1,9 +1,12 @@
 ---
 // Segmented EN / SR toggle. Both options are always rendered as real links, so
 // the switcher works without JS and crawlers can follow it to the other locale.
-// `alternateUrl` keeps the current page: /mixes -> /sr/mixes, not /sr.
+// The link keeps the current page: /mixes -> /sr/mixes, not /sr.
+//
+// Language is not a side, so the picked option is plain white rather than the
+// accent: the header keeps its colour for the A/B flip and the booking button.
 import { alternateUrl, localize, stripLang, type Lang } from '../i18n/utils';
-import { ui } from '../i18n/ui';
+import { ui, languages, htmlLang } from '../i18n/ui';
 
 interface Props {
   lang: Lang;
@@ -13,50 +16,39 @@ interface Props {
 const { lang, class: className = '' } = Astro.props as Props;
 
 const basePath = stripLang(Astro.url.pathname);
-const suffix = Astro.url.search + Astro.url.hash;
+// Keep the page's own query (e.g. a filter), but not campaign tags or click
+// IDs: carried onto an internal link they would report the switch as a fresh
+// visit from the same ad.
+const params = new URLSearchParams(Astro.url.search);
+for (const key of [...params.keys()]) {
+  if (/^(utm_|gclid$|gbraid$|wbraid$|fbclid$|msclkid$|ttclid$|_gl$)/i.test(key)) params.delete(key);
+}
+const query = params.toString();
+const suffix = query ? `?${query}` : '';
 
-const options: { code: Lang; label: string; href: string; title: string }[] = [
-  {
-    code: 'en',
-    label: 'EN',
-    href: localize(basePath, 'en') + suffix,
-    title: ui.en.langSwitch.label + ': English',
-  },
-  {
-    code: 'sr',
-    label: 'SR',
-    href: localize(basePath, 'sr') + suffix,
-    title: ui.sr.langSwitch.label + ': Srpski',
-  },
-];
+const options = (['en', 'sr'] as Lang[]).map((code) => ({
+  code,
+  label: code.toUpperCase(),
+  // the language's own name, so a screen reader says "Srpski", not "S R"
+  name: languages[code],
+  href: localize(basePath, code) + suffix,
+}));
 
-// Kept for the aria-label on the group.
 const groupLabel = ui[lang].langSwitch.label;
 const other = alternateUrl(Astro.url, lang);
 ---
 
-<!-- The track has its own inner padding, so the globe and the pills sit inside
-     the rounded edge instead of running into its curve. -->
-<div
-  class={`inline-flex items-center gap-0.5 p-1 rounded-full border border-white/15 bg-white/5 text-xs font-bold tracking-wide ${className}`}
-  role="group"
-  aria-label={groupLabel}
-  data-lang-switcher
-  data-other={other}
->
-  <span class="flex items-center pl-2 pr-1.5 text-[13px] leading-none text-gray-500" aria-hidden="true"><i class="fa-solid fa-globe"></i></span>
+<div class:list={['lang-switch', className]} role="group" aria-label={groupLabel} data-lang-switcher data-other={other}>
   {
     options.map((o) => (
       <a
         href={o.href}
-        hreflang={o.code === 'sr' ? 'sr-Latn' : 'en'}
-        title={o.title}
+        hreflang={htmlLang[o.code]}
+        lang={htmlLang[o.code]}
+        aria-label={o.name}
+        title={o.name}
         aria-current={o.code === lang ? 'true' : undefined}
-        class={`lang-opt relative inline-flex h-8 min-w-[2.5rem] items-center justify-center rounded-full px-3 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white ${
-          o.code === lang
-            ? 'bg-brand-orange text-brand-black'
-            : 'text-gray-400 hover:text-white hover:bg-white/10'
-        }`}
+        class="lang-switch__opt"
       >
         {o.label}
       </a>
@@ -65,13 +57,44 @@ const other = alternateUrl(Astro.url, lang);
 </div>
 
 <style>
-  /* Pills stay 32px tall, but on touch screens the tap target reaches 40px by
-     spilling into the track's padding. */
+  .lang-switch {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+    gap: 2px;
+    padding: 3px;
+    border-radius: 999px;
+    border: 1px solid rgb(255 255 255 / 0.12);
+    background: rgb(255 255 255 / 0.04);
+  }
+  .lang-switch__opt {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 1.5rem;
+    min-width: 2.125rem;
+    padding: 0 0.5rem;
+    border-radius: 999px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    line-height: 1;
+    color: rgb(255 255 255 / 0.55);
+    transition: color 0.2s, background-color 0.2s;
+  }
+  .lang-switch__opt:hover { color: #fff; }
+  .lang-switch__opt[aria-current='true'] { background: #fff; color: #050505; }
+  .lang-switch__opt:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+  /* The pills are 24px tall; on touch screens the tap target grows to 44px
+     by spilling over the track and the header bar around it. */
   @media (pointer: coarse) {
-    .lang-opt::after {
+    .lang-switch__opt::after {
       content: '';
       position: absolute;
-      inset: -4px -1px;
+      inset: -10px -1px;
     }
   }
 </style>

@@ -1,6 +1,12 @@
 ---
+// Site header: logo, the main links, the A/B flip, the language switch and the
+// booking button. Below 768px the links move into a full-screen menu.
+//
+// The bar is see-through over the top of a page and turns to blurred black
+// once the page scrolls (data-top, set by the script below). Without JS it
+// simply stays black.
 import LanguageSwitcher from './LanguageSwitcher.astro';
-import { getLangFromUrl, useTranslations, localize, type Lang } from '../i18n/utils';
+import { getLangFromUrl, useTranslations, localize, stripLang, type Lang } from '../i18n/utils';
 
 interface Props {
   activePage?: string;
@@ -11,63 +17,527 @@ const { activePage = '' } = Astro.props as Props;
 const lang: Lang = Astro.props.lang ?? getLangFromUrl(Astro.url);
 const t = useTranslations(lang);
 const l = (path: string) => localize(path, lang);
+
+// The home page passes no activePage; it is recognised by its URL instead.
+const current = activePage || (stripLang(Astro.url.pathname) === '/' ? 'home' : '');
+
+// The desktop bar has no Home link (the logo is the way home); the phone menu
+// lists every page, Home first.
+const pages = [
+  { key: 'home', href: l('/'), label: t.nav.home },
+  { key: 'about', href: l('/about'), label: t.nav.about },
+  { key: 'mixes', href: l('/mixes'), label: t.nav.mixes },
+  { key: 'events', href: l('/events'), label: t.nav.events },
+  { key: 'links', href: l('/links'), label: t.nav.links },
+];
+const ariaCurrent = (key: string) => (key === current ? 'page' : undefined);
+
+// The booking form is the footer of every page ("Let's Connect"), so the
+// button scrolls there instead of leaving the page.
+const bookHref = '#contact';
 ---
 
-<nav class="fixed top-0 w-full z-50 bg-brand-black/90 backdrop-blur-md border-b border-white/5">
-  <div class="container mx-auto px-6 sm:px-8 lg:px-12 py-2.5 flex justify-between items-center">
-    <a href={l('/')} class="font-display font-bold text-2xl tracking-tighter">
+<a href="#main" class="skip-link">{t.nav.skip}</a>
+
+{/* No transition:name / transition:animate here on purpose. A view-transition
+    name makes the header a backdrop root, and the frosted ::before would then
+    blur only the header's own (empty) content instead of the page under it.
+    The bar is the same on every page, and the root cross-fade (plus-lighter)
+    adds identical pixels back up to full opacity, so it still looks still. */}
+<header class="site-header" data-site-header data-top>
+  <div class="site-header__bar container mx-auto px-6 sm:px-8 lg:px-12">
+    <a href={l('/')} class="site-logo" aria-label={t.nav.homeLabel} aria-current={ariaCurrent('home')}>
       ZIPPY<span class="text-brand-orange">.</span>
     </a>
 
-    <!-- Tighter gap + smaller type between md and lg, where the Serbian labels
-         plus the language toggle would otherwise wrap or crowd the logo -->
-    <div class="hidden md:flex items-center gap-4 lg:gap-8 text-xs lg:text-sm font-semibold tracking-wide uppercase text-gray-300 whitespace-nowrap">
-      {activePage !== '' && <a href={l('/')} class="nav-link hover:text-white transition-colors">{t.nav.home}</a>}
-      <a href={l('/about')} class={`nav-link hover:text-white transition-colors ${activePage === 'about' ? 'text-brand-orange' : ''}`}>{t.nav.about}</a>
-      <a href={l('/mixes')} class={`nav-link hover:text-white transition-colors ${activePage === 'mixes' ? 'text-brand-orange' : ''}`}>{t.nav.mixes}</a>
-      <a href={l('/events')} class={`nav-link hover:text-white transition-colors ${activePage === 'events' ? 'text-brand-orange' : ''}`}>{t.nav.events}</a>
-      <a href={l('/links')} class={`nav-link hover:text-white transition-colors ${activePage === 'links' ? 'text-brand-orange' : ''}`}>{t.nav.links}</a>
-      <a href={`${l('/')}#contact`} data-magnetic class="inline-block text-brand-orange hover:text-white transition-colors">{t.nav.book}</a>
-      <button type="button" class="side-flip" data-side-flip aria-pressed="false" aria-label={`${t.sides.a} · ${t.sides.aLabel}`} title={`${t.sides.a} / ${t.sides.b}`}><span data-face="A" aria-hidden="true">A</span><span data-face="B" aria-hidden="true">B</span></button>
-      <LanguageSwitcher lang={lang} />
-    </div>
+    <nav class="site-nav" aria-label={t.nav.mainLabel}>
+      <ul>
+        {pages.slice(1).map((p) => (
+          <li><a href={p.href} class="nav-link" aria-current={ariaCurrent(p.key)}>{p.label}</a></li>
+        ))}
+      </ul>
+    </nav>
 
-    <div class="md:hidden flex items-center gap-3">
-      <button type="button" class="side-flip" data-side-flip aria-pressed="false" aria-label={`${t.sides.a} · ${t.sides.aLabel}`} title={`${t.sides.a} / ${t.sides.b}`}><span data-face="A" aria-hidden="true">A</span><span data-face="B" aria-hidden="true">B</span></button>
-      <LanguageSwitcher lang={lang} />
-      <button id="mobile-menu-btn" class="text-white focus:outline-none" aria-label={t.nav.openMenu} aria-expanded="false" aria-controls="mobile-menu">
-        <i class="fa-solid fa-bars text-xl"></i>
+    <div class="site-header__tools">
+      <button
+        type="button"
+        class="side-flip"
+        data-side-flip
+        aria-pressed="false"
+        aria-label={`${t.sides.a} · ${t.sides.aLabel}`}
+      >
+        <span data-face="A" aria-hidden="true">A</span><span data-face="B" aria-hidden="true">B</span>
+        <!-- On hover: the side one press leads to, in that side's colour -->
+        <span class="side-flip__tip" aria-hidden="true">
+          <span class="side-flip__tip-a" data-side="A">{t.sides.a} · {t.sides.aLabel}</span>
+          <span class="side-flip__tip-b" data-side="B">{t.sides.b} · {t.sides.bLabel}</span>
+        </span>
+      </button>
+      <LanguageSwitcher lang={lang} class="lang-bar" />
+      <a href={bookHref} class="btn btn--primary btn--sm header-book" data-magnetic>{t.nav.book}</a>
+      <button
+        type="button"
+        class="menu-btn"
+        data-menu-toggle
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+        aria-label={t.nav.openMenu}
+        data-label-open={t.nav.openMenu}
+        data-label-close={t.nav.closeMenu}
+      >
+        <span class="menu-btn__icon" aria-hidden="true"><span></span><span></span></span>
       </button>
     </div>
   </div>
 
-  <div id="mobile-menu" class="hidden md:hidden bg-brand-dark border-t border-white/10 p-4 sm:p-6 flex flex-col space-y-4">
-    {activePage !== '' && <a href={l('/')} class="text-gray-300 hover:text-brand-orange">{t.nav.home}</a>}
-    <a href={l('/about')} class={`hover:text-brand-orange ${activePage === 'about' ? 'text-brand-orange font-bold' : 'text-gray-300'}`}>{t.nav.about}</a>
-    <a href={l('/mixes')} class={`hover:text-brand-orange ${activePage === 'mixes' ? 'text-brand-orange font-bold' : 'text-gray-300'}`}>{t.nav.mixes}</a>
-    <a href={l('/events')} class={`hover:text-brand-orange ${activePage === 'events' ? 'text-brand-orange font-bold' : 'text-gray-300'}`}>{t.nav.events}</a>
-    <a href={l('/links')} class={`hover:text-brand-orange ${activePage === 'links' ? 'text-brand-orange font-bold' : 'text-gray-300'}`}>{t.nav.links}</a>
-    <a href={`${l('/')}#contact`} class="text-brand-orange font-bold">{t.nav.book}</a>
+  <div id="mobile-menu" class="mobile-menu">
+    <nav class="mobile-menu__nav" aria-label={t.nav.mainLabel}>
+      <ol class="mobile-menu__list">
+        {pages.map((p, i) => (
+          <li style={`--i: ${i}`}>
+            <a href={p.href} class="mobile-menu__link" aria-current={ariaCurrent(p.key)}>
+              <span class="mobile-menu__idx mono-caps" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+              <span class="mobile-menu__label">{p.label}</span>
+            </a>
+          </li>
+        ))}
+      </ol>
+    </nav>
+    <div class="mobile-menu__foot" style={`--i: ${pages.length}`}>
+      <!-- Which side the site is on right now: the A/B flip up in the bar changes it -->
+      <p class="mobile-menu__side">
+        <span class="mobile-menu__side-b" data-side="B"><span class="side-key">B</span><span class="mono-caps">{t.sides.b} · {t.sides.bLabel}</span></span>
+        <span class="mobile-menu__side-a" data-side="A"><span class="side-key">A</span><span class="mono-caps">{t.sides.a} · {t.sides.aLabel}</span></span>
+      </p>
+      <div class="mobile-menu__actions">
+        <a href={bookHref} class="btn btn--primary mobile-menu__book">{t.nav.book}</a>
+        <LanguageSwitcher lang={lang} class="lang-menu" />
+      </div>
+    </div>
   </div>
-</nav>
+</header>
+
+<style>
+  .site-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+  }
+  /* The open menu covers the whole screen, the cookie banner (z-index 90)
+     included: that banner is inert while the menu is open, so a tap on it
+     would land on the menu link underneath. It is back once the menu closes. */
+  .site-header[data-menu-open] { z-index: 95; }
+  /* The bar's backdrop lives on a pseudo-element: a backdrop-filter on the
+     header itself would trap the fixed full-screen menu inside the bar. */
+  .site-header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgb(5 5 5 / 0.78);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    backdrop-filter: blur(16px) saturate(140%);
+    border-bottom: 1px solid rgb(255 255 255 / 0.07);
+    pointer-events: none;
+    transition: opacity 0.35s var(--ease-out);
+  }
+  :global(html.anim-ready) .site-header[data-top]:not([data-menu-open])::before { opacity: 0; }
+
+  .site-header__bar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    height: var(--header-h);
+  }
+
+  .site-logo {
+    flex-shrink: 0;
+    padding: 0.5rem 0;
+    font-family: 'Unbounded', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.05em;
+    color: #fff;
+  }
+  .site-logo span { transition: color 0.25s; }
+  .site-logo:hover span { color: rgb(var(--alt-rgb)); }
+
+  /* --- Desktop links --- */
+  .site-nav { display: none; }
+  .site-nav ul {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .nav-link {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    height: 2.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: rgb(255 255 255 / 0.68);
+    transition: color 0.2s;
+  }
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0.4rem;
+    height: 2px;
+    border-radius: 2px;
+    background: rgb(var(--accent-rgb));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s var(--ease-out);
+  }
+  .nav-link:hover,
+  .nav-link[aria-current='page'] { color: #fff; }
+  .nav-link:hover::after,
+  .nav-link[aria-current='page']::after { transform: scaleX(1); }
+
+  /* --- Right-hand tools --- */
+  .site-header__tools {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.625rem;
+  }
+  /* The language switch leaves the bar on the narrowest phones (it is in the menu there) */
+  .site-header__tools :global(.lang-bar) { display: none; }
+  @media (min-width: 360px) {
+    .site-header__tools :global(.lang-bar) { display: inline-flex; }
+  }
+  .header-book {
+    display: none;
+    /* keeps the colour fade of .btn alongside the magnetic pull */
+    transition: color 0.2s, background-color 0.2s, border-color 0.2s, transform 0.25s var(--ease-out);
+  }
+
+  /* The flip's hover label, under the bar (mouse only; the phone menu says it in words) */
+  .side-flip__tip {
+    position: absolute;
+    top: calc(100% + 0.75rem);
+    left: 50%;
+    display: none;
+    padding: 0.45rem 0.7rem;
+    border-radius: 0.6rem;
+    border: 1px solid var(--line);
+    background: #111;
+    box-shadow: 0 12px 28px -10px rgb(0 0 0 / 0.8);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+    font-size: 0.625rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    line-height: 1;
+    text-transform: uppercase;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transform: translate(-50%, -4px);
+    transition: opacity 0.2s, transform 0.2s var(--ease-out);
+  }
+  .side-flip__tip > span { color: var(--side); }
+  .side-flip__tip-b,
+  :global(html[data-side-pick='A']) .side-flip__tip-a { display: none; }
+  :global(html[data-side-pick='A']) .side-flip__tip-b { display: inline; }
+  @media (hover: hover) and (pointer: fine) {
+    .side-flip__tip { display: block; }
+    .side-flip:hover .side-flip__tip,
+    .side-flip:focus-visible .side-flip__tip { opacity: 1; transform: translate(-50%, 0); }
+  }
+
+  .menu-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    margin-right: -0.6875rem;
+    border-radius: 999px;
+    color: #fff;
+  }
+  .menu-btn__icon {
+    position: relative;
+    display: block;
+    width: 1.375rem;
+    height: 0.875rem;
+  }
+  .menu-btn__icon > span {
+    position: absolute;
+    right: 0;
+    height: 2px;
+    border-radius: 2px;
+    background: currentColor;
+    transition: top 0.3s var(--ease-out), width 0.3s var(--ease-out), transform 0.3s var(--ease-out);
+  }
+  .menu-btn__icon > span:first-child { top: 0; width: 100%; }
+  .menu-btn__icon > span:last-child { top: calc(100% - 2px); width: 62%; }
+  .menu-btn:hover .menu-btn__icon > span:last-child { width: 100%; }
+  .menu-btn[aria-expanded='true'] .menu-btn__icon > span { top: calc(50% - 1px); width: 100%; }
+  .menu-btn[aria-expanded='true'] .menu-btn__icon > span:first-child { transform: rotate(45deg); }
+  .menu-btn[aria-expanded='true'] .menu-btn__icon > span:last-child { transform: rotate(-45deg); }
+
+  @media (min-width: 768px) {
+    .site-header__bar {
+      display: grid;
+      grid-template-columns: minmax(max-content, 1fr) auto minmax(max-content, 1fr);
+      gap: 1.5rem;
+    }
+    .site-logo { justify-self: start; }
+    .site-nav { display: block; }
+    .header-book { display: inline-flex; }
+    .menu-btn { display: none; }
+  }
+  /* 768-1023: the bar sits in a 768px container, and the Serbian links
+     ("O Zippyju", "Rezerviši") leave little room, less still beside a desktop
+     scrollbar. Slightly tighter gaps keep every tool inside the edge. */
+  @media (min-width: 768px) and (max-width: 1023.98px) {
+    .site-header__bar { gap: 1.25rem; }
+    .site-nav ul { gap: 1rem; }
+  }
+  @media (min-width: 1024px) {
+    .site-nav ul { gap: 2.25rem; }
+    .site-header__tools { gap: 0.875rem; }
+  }
+  /* a touch larger on wide screens, where the bar has room to breathe */
+  @media (min-width: 1280px) {
+    .nav-link { font-size: 0.8125rem; }
+  }
+
+  /* --- Phone menu: full screen, under the bar --- */
+  .mobile-menu {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 2rem;
+    padding: calc(var(--header-h) + 1rem) 1.5rem calc(1.75rem + env(safe-area-inset-bottom, 0px));
+    background: #050505;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.25s var(--ease-out), visibility 0s linear 0.25s;
+  }
+  /* The same light as the home hero: warm from below, a cool rim top right */
+  .mobile-menu::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 90% 45% at 50% 100%, rgb(var(--accent-rgb) / 0.16), transparent 70%),
+      radial-gradient(ellipse 55% 30% at 100% 0%, rgb(var(--alt-rgb) / 0.09), transparent 70%);
+  }
+  .site-header[data-menu-open] .mobile-menu {
+    visibility: visible;
+    opacity: 1;
+    transition: opacity 0.25s var(--ease-out);
+  }
+  :global(html.menu-open) { overflow: hidden; }
+
+  .mobile-menu__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--line);
+  }
+  .mobile-menu__list li { border-bottom: 1px solid var(--line); }
+  .mobile-menu__link {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.7rem 0;
+    color: #fff;
+  }
+  .mobile-menu__idx {
+    flex-shrink: 0;
+    width: 1.75rem;
+    font-size: 0.6875rem;
+    color: rgb(var(--alt-rgb));
+  }
+  .mobile-menu__label {
+    font-family: 'Unbounded', sans-serif;
+    font-size: clamp(1.625rem, min(8.5vw, 6.5vh), 2.5rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  .mobile-menu__link:hover .mobile-menu__label,
+  .mobile-menu__link[aria-current='page'] .mobile-menu__label { color: rgb(var(--accent-rgb)); }
+
+  .mobile-menu__foot {
+    display: grid;
+    gap: 1rem;
+  }
+  .mobile-menu__side {
+    margin: 0;
+    font-size: 0.6875rem;
+    color: rgb(255 255 255 / 0.62);
+  }
+  .mobile-menu__side > span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+  }
+  .mobile-menu__side-a,
+  :global(html[data-side-pick='A']) .mobile-menu__side-b { display: none !important; }
+  :global(html[data-side-pick='A']) .mobile-menu__side-a { display: inline-flex !important; }
+  .mobile-menu__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .mobile-menu__book { flex: 1 1 auto; }
+  .mobile-menu__actions :global(.lang-menu) { display: inline-flex; }
+  @media (min-width: 360px) {
+    .mobile-menu__actions :global(.lang-menu) { display: none; }
+  }
+
+  /* Items rise in one after another as the menu opens; closing is instant */
+  .mobile-menu__list li,
+  .mobile-menu__foot {
+    opacity: 0;
+    transform: translateY(14px);
+    transition: opacity 0.4s var(--ease-out), transform 0.55s var(--ease-out);
+  }
+  .site-header[data-menu-open] .mobile-menu__list li,
+  .site-header[data-menu-open] .mobile-menu__foot {
+    opacity: 1;
+    transform: none;
+    transition-delay: calc(50ms + var(--i, 0) * 45ms);
+  }
+
+  /* Phones on their side: links on the left, the button on the right */
+  @media (orientation: landscape) and (max-height: 540px) {
+    .mobile-menu {
+      flex-direction: row;
+      align-items: flex-end;
+      gap: 2.5rem;
+      padding-top: calc(var(--header-h) + 0.5rem);
+      padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+    }
+    .mobile-menu__nav { flex: 1 1 auto; min-width: 0; }
+    .mobile-menu__link { padding: 0.4rem 0; }
+    .mobile-menu__foot { flex: 0 0 auto; }
+  }
+
+  @media (min-width: 768px) {
+    .mobile-menu { display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .site-header::before,
+    .mobile-menu,
+    .mobile-menu__list li,
+    .mobile-menu__foot,
+    .menu-btn__icon > span,
+    .side-flip__tip,
+    .nav-link::after { transition: none !important; }
+    .mobile-menu__list li,
+    .mobile-menu__foot { transform: none; }
+  }
+</style>
 
 <script>
-  function initHeaderMenu() {
-    const btn = document.getElementById('mobile-menu-btn');
-    const menu = document.getElementById('mobile-menu');
-    if (btn && menu && !btn.dataset.bound) {
-      btn.dataset.bound = '1';
-      btn.addEventListener('click', () => {
-        const open = menu.classList.toggle('hidden') === false;
-        btn.setAttribute('aria-expanded', String(open));
+  // One set of listeners for the whole visit: the header is re-rendered on
+  // every page, so everything looks it up again instead of holding on to it.
+  const DESKTOP = window.matchMedia('(min-width: 768px)');
+  const header = () => document.querySelector<HTMLElement>('[data-site-header]');
+
+  function isOpen(h = header()) {
+    return !!h && h.hasAttribute('data-menu-open');
+  }
+
+  function setMenu(open: boolean, returnFocus = false) {
+    const h = header();
+    if (!h) return;
+    const btn = h.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+    h.toggleAttribute('data-menu-open', open);
+    document.documentElement.classList.toggle('menu-open', open);
+    // The page behind the menu is out of reach for keyboards and screen
+    // readers: everything in <body> except the header itself.
+    if (open) {
+      Array.from(document.body.children).forEach((el) => {
+        if (el === h || !(el instanceof HTMLElement) || el.inert || /^(SCRIPT|NOSCRIPT|STYLE|TEMPLATE|ASTRO-DEV-TOOLBAR)$/.test(el.tagName)) return;
+        el.inert = true;
+        el.dataset.menuInert = '';
       });
-      document.querySelectorAll('.nav-link, #mobile-menu a').forEach(link => {
-        link.addEventListener('click', () => {
-          menu.classList.add('hidden');
-          btn.setAttribute('aria-expanded', 'false');
-        });
+    } else {
+      document.querySelectorAll<HTMLElement>('[data-menu-inert]').forEach((el) => {
+        el.inert = false;
+        delete el.dataset.menuInert;
       });
     }
+    if (btn) {
+      btn.setAttribute('aria-expanded', String(open));
+      btn.setAttribute('aria-label', (open ? btn.dataset.labelClose : btn.dataset.labelOpen) ?? '');
+      if (returnFocus) btn.focus();
+    }
   }
-  document.addEventListener('astro:page-load', initHeaderMenu);
+
+  // Keeps Tab inside the bar and the open menu.
+  function trapFocus(e: KeyboardEvent, h: HTMLElement) {
+    const items = Array.from(h.querySelectorAll<HTMLElement>('a[href], button:not([disabled])'))
+      .filter((el) => el.getClientRects().length > 0 && getComputedStyle(el).visibility !== 'hidden');
+    if (!items.length) return;
+    const first = items[0];
+    const last = items[items.length - 1];
+    const active = document.activeElement as HTMLElement | null;
+    if (e.shiftKey && (active === first || !h.contains(active))) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && (active === last || !h.contains(active))) { e.preventDefault(); first.focus(); }
+  }
+
+  document.addEventListener('click', (e) => {
+    const target = e.target as Element;
+    if (target.closest('[data-menu-toggle]')) { setMenu(!isOpen()); return; }
+    // Any link in the menu closes it, including #contact on the same page
+    if (isOpen() && target.closest('#mobile-menu a')) setMenu(false);
+  });
+
+  document.addEventListener('keydown', (e) => {
+    const h = header();
+    if (!h || !isOpen(h)) return;
+    if (e.key === 'Escape') { e.preventDefault(); setMenu(false, true); }
+    else if (e.key === 'Tab') trapFocus(e, h);
+  });
+
+  DESKTOP.addEventListener('change', (e) => { if (e.matches && isOpen()) setMenu(false); });
+
+  // See-through over the top of the page, blurred black once it scrolls.
+  let ticking = false;
+  function updateTop() {
+    ticking = false;
+    header()?.toggleAttribute('data-top', window.scrollY < 8);
+  }
+  window.addEventListener('scroll', () => {
+    if (!ticking) { ticking = true; requestAnimationFrame(updateTop); }
+  }, { passive: true });
+
+  // A new page arrives with a closed menu; let go of the old one's locks.
+  document.addEventListener('astro:before-swap', () => {
+    document.documentElement.classList.remove('menu-open');
+  });
+  // after-swap runs once the router has set the scroll position (top for a new
+  // page, the old spot on Back), so a page restored mid-way arrives frosted.
+  document.addEventListener('astro:after-swap', updateTop);
+  document.addEventListener('astro:page-load', updateTop);
 </script>

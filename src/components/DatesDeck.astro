@@ -8,6 +8,7 @@
 import { eventSound, eventSide, type UIEvent } from '../lib/content';
 import { eventTimes } from '../lib/calendar';
 import { previewsFor, PREVIEW_SECONDS } from '../lib/previews';
+import { placeName } from '../lib/places';
 import CalendarActions from './CalendarActions.astro';
 import { useTranslations, type Lang } from '../i18n/utils';
 
@@ -27,6 +28,8 @@ const gigs = events.map((e, i) => {
   const weekday = t.home.weekdays[new Date(Date.UTC(+y, +mo - 1, +d)).getUTCDay()];
   const from = (e.time ?? '').split(' - ')[0].trim();
   const sideShort = side === 'A' ? t.sides.a : t.sides.b;
+  // one spelling per language ("Beograd" on /sr, "Belgrade" on /), as on /events
+  const place = placeName(e.location, lang);
   return {
     event: e,
     n: i + 1,
@@ -35,9 +38,9 @@ const gigs = events.map((e, i) => {
     sideText: `${sideShort} · ${side === 'A' ? t.sides.aLabel : t.sides.bLabel}`,
     title: e.title,
     name: sound.name,
-    location: e.location,
+    location: place,
     short: `${d}.${mo}`,
-    meta: [`${weekday} ${d}.${mo}`, from, e.location].filter(Boolean).join(' · '),
+    meta: [`${weekday} ${d}.${mo}`, from, place].filter(Boolean).join(' · '),
     sound: sound.openFormat ? t.sides.aLabel : sound.genres.join(' · '),
     ...eventTimes(e),
     tracks: previewsFor(e).map((tr) => ({

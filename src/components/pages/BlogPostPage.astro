@@ -3,7 +3,7 @@
 // only the surrounding chrome is translated, and the page stays `noindex`.
 import Layout from '../../layouts/Layout.astro';
 import type { Post } from '../../types/database';
-import { renderPostBody } from '../../lib/posts';
+import { PUBLISHED_POSTS } from '../../lib/posts';
 import { useTranslations, localize, formatDate, htmlLang, type Lang } from '../../i18n/utils';
 
 interface Props {
@@ -15,209 +15,523 @@ const { lang, post } = Astro.props as Props;
 const t = useTranslations(lang);
 const l = (path: string) => localize(path, lang);
 
-const htmlContent = renderPostBody(post.content);
+// --- Body ------------------------------------------------------------------
+// A small markdown subset: ## / ### headings, paragraphs, - and 1. lists,
+// > quotes, standalone ![images](…), plus **bold**, *italic*, `code` and
+// [links](…) inside text. Text is escaped first, so stray markup in a post
+// cannot break the page. The post's own "# Title" line is skipped: the page
+// already shows the title as its one H1.
 
-// Previous/next will come from D1 alongside the real posts.
-const previousPost: Post | null = null;
-const nextPost: Post | null = null;
+const esc = (s: string) =>
+  s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const safeHref = (href: string) => (/^(https?:\/\/|mailto:|\/|#)/i.test(href) ? href : '#');
+const slugify = (s: string) =>
+  s.toLowerCase().normalize('NFKD').replace(/\p{M}+/gu, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+function inline(text: string): string {
+  return esc(text)
+    .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (_m, label: string, href: string) => {
+      const url = safeHref(href.replace(/&amp;/g, '&'));
+      const external = /^https?:\/\//i.test(url) && !/^https?:\/\/(www\.)?zippydj\.com/i.test(url);
+      return `<a href="${esc(url)}"${external ? ' target="_blank" rel="noopener noreferrer"' : ''}>${label}</a>`;
+    })
+    .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+    .replace(/(^|[^*])\*([^*\s][^*]*?)\*(?!\*)/g, '$1<em>$2</em>')
+    .replace(/`([^`]+)`/g, '<code>$1</code>');
+}
+
+function renderBody(md: string, title: string): { html: string; words: number } {
+  const out: string[] = [];
+  let para: string[] = [];
+  let list: { tag: 'ul' | 'ol'; items: string[] } | null = null;
+  let quote: string[] = [];
+  let seenContent = false;
+  // ids the layout already uses (#contact is the booking anchor) stay taken
+  const usedIds = new Set<string>(['main', 'contact', 'contact-heading', 'contact-form', 'top']);
+  const headingId = (text: string) => {
+    const base = slugify(text) || 'section';
+    let id = base;
+    for (let n = 2; usedIds.has(id); n++) id = `${base}-${n}`;
+    usedIds.add(id);
+    return id;
+  };
+
+  const flushPara = () => { if (para.length) out.push(`<p>${inline(para.join(' '))}</p>`); para = []; };
+  const flushList = () => {
+    if (list) out.push(`<${list.tag}>${list.items.map((i) => `<li>${inline(i)}</li>`).join('')}</${list.tag}>`);
+    list = null;
+  };
+  const flushQuote = () => { if (quote.length) out.push(`<blockquote><p>${inline(quote.join(' '))}</p></blockquote>`); quote = []; };
+  const flushAll = () => { flushPara(); flushList(); flushQuote(); };
+
+  for (const raw of md.replace(/\r\n?/g, '\n').split('\n')) {
+    const line = raw.trim();
+    if (!line) { flushAll(); continue; }
+    let m: RegExpMatchArray | null;
+    if ((m = line.match(/^(#{1,4})\s+(.+)$/))) {
+      flushAll();
+      const level = m[1].length;
+      const text = m[2].trim();
+      const isTitle = level === 1 && !seenContent && text.toLowerCase() === title.trim().toLowerCase();
+      seenContent = true;
+      if (isTitle) continue;
+      const tag = level <= 2 ? 'h2' : level === 3 ? 'h3' : 'h4';
+      out.push(`<${tag} id="${headingId(text)}">${inline(text)}</${tag}>`);
+      continue;
+    }
+    seenContent = true;
+    if ((m = line.match(/^!\[([^\]]*)\]\(([^)\s]+)\)$/))) {
+      flushAll();
+      const alt = esc(m[1]);
+      out.push(`<figure><img src="${esc(safeHref(m[2]))}" alt="${alt}" loading="lazy" decoding="async">${alt ? `<figcaption>${alt}</figcaption>` : ''}</figure>`);
+    } else if ((m = line.match(/^[-*]\s+(.+)$/))) {
+      flushPara(); flushQuote();
+      if (list?.tag !== 'ul') { flushList(); list = { tag: 'ul', items: [] }; }
+      list!.items.push(m[1]);
+    } else if ((m = line.match(/^\d+[.)]\s+(.+)$/))) {
+      flushPara(); flushQuote();
+      if (list?.tag !== 'ol') { flushList(); list = { tag: 'ol', items: [] }; }
+      list!.items.push(m[1]);
+    } else if ((m = line.match(/^>\s?(.*)$/))) {
+      flushPara(); flushList();
+      quote.push(m[1]);
+    } else {
+      flushList(); flushQuote();
+      para.push(line);
+    }
+  }
+  flushAll();
+
+  const words = md.replace(/[#>*`_[\]()!-]/g, ' ').split(/\s+/).filter(Boolean).length;
+  return { html: out.join('\n'), words };
+}
+
+const { html: bodyHtml, words } = renderBody(post.content, post.title);
+const minutes = Math.max(1, Math.round(words / 200));
+const author = post.author || 'DJ Zippy';
+const isZippy = /zippy/i.test(author);
+
+// Posts have no locale yet (src/lib/posts.ts): every one is written in English.
+// On a Serbian page the post's own text is marked as English, so screen readers
+// pronounce it right, and the meta line says so.
+const postLang: Lang = 'en';
+const textLang = postLang !== lang ? htmlLang[postLang] : undefined;
+
+// Neighbours by date: "previous" is the older post, "next" the newer one.
+const ordered = [...PUBLISHED_POSTS].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+const at = ordered.findIndex((p) => p.slug === post.slug);
+const newer = at > 0 ? ordered[at - 1] : null;
+const older = at >= 0 && at < ordered.length - 1 ? ordered[at + 1] : null;
 
 const canonicalUrl = `https://zippydj.com${l(`/blog/${post.slug}`)}`;
+const share = {
+  x: `https://twitter.com/intent/tweet?url=${encodeURIComponent(canonicalUrl)}&text=${encodeURIComponent(post.title)}`,
+  facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(canonicalUrl)}`,
+  linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(canonicalUrl)}`,
+};
 
 const structuredData = {
   '@context': 'https://schema.org',
-  '@type': 'BlogPosting',
-  headline: post.title,
-  image: post.cover_image,
-  datePublished: post.date,
-  dateModified: post.updated_at,
-  inLanguage: htmlLang[lang],
-  author: {
-    '@type': 'Person',
-    name: post.author || 'DJ Zippy',
-    url: 'https://zippydj.com',
-  },
-  description: post.seo_description,
+  '@graph': [
+    {
+      '@type': 'BreadcrumbList',
+      '@id': `${canonicalUrl}#breadcrumb`,
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: t.breadcrumb.home, item: `https://zippydj.com${l('/')}` },
+        { '@type': 'ListItem', position: 2, name: t.blog.crumb, item: `https://zippydj.com${l('/blog')}` },
+        { '@type': 'ListItem', position: 3, name: post.title, item: canonicalUrl },
+      ],
+    },
+    {
+      '@type': 'BlogPosting',
+      '@id': `${canonicalUrl}#article`,
+      mainEntityOfPage: canonicalUrl,
+      headline: post.title,
+      description: post.seo_description,
+      ...(post.cover_image ? { image: post.cover_image } : {}),
+      datePublished: post.date,
+      dateModified: post.updated_at,
+      // the language the article is written in, not the page's chrome
+      inLanguage: htmlLang[postLang],
+      wordCount: words,
+      timeRequired: `PT${minutes}M`,
+      author: isZippy
+        ? { '@type': 'Person', '@id': 'https://zippydj.com/#person', name: author, url: 'https://zippydj.com' }
+        : { '@type': 'Person', name: author },
+      publisher: { '@id': 'https://zippydj.com/#organization' },
+    },
+  ],
 };
 ---
 
-<Layout lang={lang} title={`${post.title} | DJ Zippy Blog`} description={post.seo_description} noindex={true}>
-  {/* Structured Data (JSON-LD) */}
-  <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+<Layout lang={lang} title={`${post.title} | DJ Zippy Blog`} description={post.seo_description} noindex={true} ogType="article">
+  <meta slot="head" property="article:published_time" content={post.date} />
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(structuredData)} />
 
-  {/* Canonical URL */}
-  <link rel="canonical" href={canonicalUrl} slot="head" />
+  <article class="bg-brand-black">
+    <header class="isolate relative pt-24 sm:pt-28 pb-8 sm:pb-12 overflow-hidden">
+      <div class="aurora absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] rounded-full pointer-events-none"></div>
+      <div class="container mx-auto px-6 sm:px-8 lg:px-12 relative z-30">
+        <div class="post-column">
+          <nav aria-label={t.breadcrumb.label} class="mb-6">
+            <ol class="flex items-center space-x-2 text-sm text-gray-400">
+              <li><a href={l('/')} class="inline-block py-2.5 -my-2.5 hover:text-brand-orange transition-colors">{t.breadcrumb.home}</a></li>
+              <li><span class="mx-2" aria-hidden="true">/</span></li>
+              <li><a href={l('/blog')} class="inline-block py-2.5 -my-2.5 hover:text-brand-orange transition-colors">{t.blog.crumb}</a></li>
+            </ol>
+          </nav>
+          <p class="post-meta mono-caps">
+            <span class="post-meta__list">
+              <span class="text-white">{author}</span>
+              <span><span class="sr-only">, </span><time datetime={post.date}>{formatDate(post.date, lang, 'long')}</time></span>
+              <span><span class="sr-only">, </span>{t.blog.readTime.replace('{n}', String(minutes))}</span>
+              {textLang && <span><span class="sr-only">, </span>{t.blog.inEnglish}</span>}
+            </span>
+          </p>
+          <h1 class="post-title font-display" lang={textLang}>{post.title}</h1>
+          {post.seo_description && <p class="post-dek" lang={textLang}>{post.seo_description}</p>}
+        </div>
+      </div>
+    </header>
 
-  {/* Hero/Cover Image Section */}
-  {post.cover_image && (
-    <section class="relative h-[400px] sm:h-[500px] overflow-hidden">
-      <img
-        src={post.cover_image}
-        alt={post.title}
-        class="w-full h-full object-cover"
-        loading="eager"
-      />
-      <div class="absolute inset-0 bg-gradient-to-t from-brand-dark via-transparent to-transparent"></div>
-      <div class="absolute bottom-0 left-0 right-0 p-8">
-        <div class="max-w-4xl mx-auto">
-          <h1 class="font-display font-bold text-4xl sm:text-5xl text-white mb-4">{post.title}</h1>
-          <div class="flex flex-wrap items-center gap-6 text-gray-300">
-            <span class="flex items-center gap-2">
-              <i class="fa-solid fa-user"></i>
-              {post.author || 'DJ Zippy'}
-            </span>
-            <span class="flex items-center gap-2">
-              <i class="fa-solid fa-calendar"></i>
-              {formatDate(post.date, lang, 'long')}
-            </span>
-            <span class="flex items-center gap-2">
-              <i class="fa-solid fa-clock"></i>
-              {t.blog.readTime}
-            </span>
+    {post.cover_image && (
+      <div class="container mx-auto px-6 sm:px-8 lg:px-12">
+        <figure class="post-cover">
+          {/* a cover that fails to load takes its frame with it */}
+          <img src={post.cover_image} alt="" width="1200" height="800" loading="eager" fetchpriority="high" decoding="async" onerror="this.parentElement.hidden=true" />
+        </figure>
+      </div>
+    )}
+
+    <div class="container mx-auto px-6 sm:px-8 lg:px-12">
+      <div class="post-body" lang={textLang} set:html={bodyHtml} />
+
+      <footer class="post-foot">
+        <div class="post-author">
+          <img src="/images/dj-zippy-house-music-dj.webp" alt="" width="64" height="64" loading="lazy" decoding="async" class="post-author__img" />
+          <div class="min-w-0">
+            <p class="mono-caps text-[0.6875rem] text-gray-400">{t.blog.aboutAuthor}</p>
+            <p class="mt-1 font-display font-bold text-white">{author}</p>
+            <p class="mt-2 text-sm leading-relaxed text-gray-400">{author} {t.blog.authorBio}</p>
+            {isZippy && (
+              <a href={l('/about')} class="mt-3 inline-flex items-center gap-2 py-3 -my-3 text-sm font-bold text-brand-orange hover:text-white transition-colors">
+                {t.blog.authorMore} <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+              </a>
+            )}
           </div>
         </div>
-      </div>
-    </section>
-  )}
 
-  {/* Article Content */}
-  <article class="py-20 bg-brand-dark">
-    <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
-      {/* Article Body */}
-      <div class="prose prose-invert max-w-none mb-12" set:html={htmlContent} />
-
-      {/* Article Footer */}
-      <div class="border-t border-white border-opacity-10 pt-8 mt-12">
-        <div class="mb-8">
-          <h3 class="font-display font-bold text-white mb-2">{t.blog.aboutAuthor}</h3>
-          <p class="text-gray-400">
-            {post.author || 'DJ Zippy'} {t.blog.authorBio}
-          </p>
+        <div class="post-share" role="group" aria-label={t.blog.share}>
+          <p class="mono-caps text-[0.6875rem] text-gray-400" aria-hidden="true">{t.blog.share}</p>
+          <div class="flex flex-wrap items-center gap-2">
+            <a href={share.x} target="_blank" rel="noopener noreferrer" class="post-share__btn" aria-label={t.blog.shareTwitter} title={t.blog.shareTwitter}>
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" /></svg>
+            </a>
+            <a href={share.facebook} target="_blank" rel="noopener noreferrer" class="post-share__btn" aria-label={t.blog.shareFacebook} title={t.blog.shareFacebook}>
+              <i class="fa-brands fa-facebook" aria-hidden="true"></i>
+            </a>
+            <a href={share.linkedin} target="_blank" rel="noopener noreferrer" class="post-share__btn" aria-label={t.blog.shareLinkedIn} title={t.blog.shareLinkedIn}>
+              <i class="fa-brands fa-linkedin" aria-hidden="true"></i>
+            </a>
+            <button type="button" class="post-share__copy" data-copy-link={canonicalUrl} data-copied={t.blog.copied}>
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1.5 1.5" /><path d="M14 11a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1.5-1.5" /></svg>
+              <span data-copy-label aria-live="polite">{t.blog.copyLink}</span>
+            </button>
+          </div>
         </div>
-
-        {/* Share Buttons */}
-        <div class="flex items-center gap-4">
-          <span class="text-gray-400 font-bold">{t.blog.share}</span>
-          <a
-            href={`https://twitter.com/intent/tweet?url=${canonicalUrl}&text=${post.title}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="text-brand-orange hover:text-white transition-colors"
-            title={t.blog.shareTwitter}
-          >
-            <i class="fa-brands fa-twitter text-xl"></i>
-          </a>
-          <a
-            href={`https://www.facebook.com/sharer/sharer.php?u=${canonicalUrl}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="text-brand-orange hover:text-white transition-colors"
-            title={t.blog.shareFacebook}
-          >
-            <i class="fa-brands fa-facebook text-xl"></i>
-          </a>
-          <a
-            href={`https://www.linkedin.com/sharing/share-offsite/?url=${canonicalUrl}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="text-brand-orange hover:text-white transition-colors"
-            title={t.blog.shareLinkedIn}
-          >
-            <i class="fa-brands fa-linkedin text-xl"></i>
-          </a>
-        </div>
-      </div>
+      </footer>
     </div>
   </article>
 
-  {/* Related Posts Navigation */}
-  {(previousPost || nextPost) && (
-    <section class="py-20 bg-brand-gray">
-      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 class="font-display font-bold text-2xl text-white mb-12">{t.blog.moreArticles}</h2>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {previousPost && (
-            <a
-              href={l(`/blog/${previousPost.slug}`)}
-              class="group bg-brand-dark border border-white border-opacity-10 rounded-lg p-6 hover:border-brand-orange hover:shadow-lg hover:shadow-brand-orange/20 transition-all"
-            >
-              <p class="text-brand-orange font-bold text-sm mb-2">{t.blog.prevArticle}</p>
-              <h3 class="font-display font-bold text-xl text-white group-hover:text-brand-orange transition-colors mb-2 line-clamp-2">
-                {previousPost.title}
-              </h3>
-              <p class="text-gray-400 text-sm mb-4">{previousPost.seo_description}</p>
-              <span class="text-xs text-gray-500">{formatDate(previousPost.date, lang)}</span>
-            </a>
-          )}
-
-          {nextPost && (
-            <a
-              href={l(`/blog/${nextPost.slug}`)}
-              class="group bg-brand-dark border border-white border-opacity-10 rounded-lg p-6 hover:border-brand-orange hover:shadow-lg hover:shadow-brand-orange/20 transition-all md:col-start-2"
-            >
-              <p class="text-brand-orange font-bold text-sm mb-2">{t.blog.nextArticle}</p>
-              <h3 class="font-display font-bold text-xl text-white group-hover:text-brand-orange transition-colors mb-2 line-clamp-2">
-                {nextPost.title}
-              </h3>
-              <p class="text-gray-400 text-sm mb-4">{nextPost.seo_description}</p>
-              <span class="text-xs text-gray-500">{formatDate(nextPost.date, lang)}</span>
-            </a>
-          )}
+  {(older || newer) && (
+    <nav class="bg-brand-black pt-14 sm:pt-16" aria-label={t.blog.moreArticles}>
+      <div class="container mx-auto px-6 sm:px-8 lg:px-12">
+        <div class="post-column">
+          <h2 class="font-display text-xl md:text-2xl font-bold mb-5">{t.blog.moreArticles}</h2>
+          <div class="post-nav">
+            {older && (
+              <a href={l(`/blog/${older.slug}`)} class="post-nav__item group">
+                <p class="mono-caps text-[0.6875rem] text-gray-400"><i class="fa-solid fa-arrow-left mr-2 text-brand-alt" aria-hidden="true"></i>{t.blog.prevArticle}</p>
+                <p class="post-nav__title font-display" lang={textLang}>{older.title}</p>
+                <time class="mono-caps text-[0.6875rem] text-gray-500" datetime={older.date}>{formatDate(older.date, lang, 'long')}</time>
+              </a>
+            )}
+            {newer && (
+              <a href={l(`/blog/${newer.slug}`)} class="post-nav__item post-nav__item--next group">
+                <p class="mono-caps text-[0.6875rem] text-gray-400">{t.blog.nextArticle}<i class="fa-solid fa-arrow-right ml-2 text-brand-alt" aria-hidden="true"></i></p>
+                <p class="post-nav__title font-display" lang={textLang}>{newer.title}</p>
+                <time class="mono-caps text-[0.6875rem] text-gray-500" datetime={newer.date}>{formatDate(newer.date, lang, 'long')}</time>
+              </a>
+            )}
+          </div>
         </div>
       </div>
-    </section>
+    </nav>
   )}
 
-  {/* Back to Blog Link */}
-  <section class="py-12 bg-brand-dark">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-      <a href={l('/blog')} class="inline-flex items-center gap-2 text-brand-orange hover:text-white transition-colors font-bold">
-        <i class="fa-solid fa-arrow-left"></i>
-        {t.blog.backToBlog}
+  <section class="bg-brand-black pt-8 pb-16 sm:pb-20">
+    <div class="container mx-auto px-6 sm:px-8 lg:px-12 text-center">
+      <a href={l('/blog')} class="inline-flex items-center gap-2 text-gray-400 hover:text-brand-orange transition-colors">
+        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> {t.blog.backToBlog}
       </a>
     </div>
   </section>
 </Layout>
 
-<style is:global>
-  article .prose h2 {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    padding-bottom: 1rem;
+<style>
+  /* Title, text and footer share one column, so their left edges line up;
+     only the cover breaks out wider */
+  .post-column { max-width: 42rem; margin: 0 auto; }
+  /* Meta line: a dot between items, never at the end or start of a line. Each
+     item carries its dot on its left; the list is pulled left by one gap, so
+     the dot of whichever item starts a line falls outside the clipped box. */
+  .post-meta {
+    overflow: hidden;
+    font-size: 0.6875rem;
+    color: rgb(156 163 175);
   }
-
-  article .prose li {
-    list-style-type: disc;
+  .post-meta__list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    row-gap: 0.35rem;
+    margin-left: -1.25rem;
   }
-
-  article .prose ol li {
-    list-style-type: decimal;
+  .post-meta__list > * { position: relative; margin-left: 1.25rem; }
+  .post-meta__list > *::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: -0.75rem;
+    width: 3px;
+    height: 3px;
+    margin-top: -1.5px;
+    border-radius: 50%;
+    background: rgb(var(--alt-rgb));
   }
+  .post-title {
+    margin-top: 1rem;
+    font-size: clamp(1.875rem, 1.3rem + 2.6vw, 3.25rem);
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+    overflow-wrap: anywhere;
+  }
+  .post-dek {
+    margin-top: 1.25rem;
+    font-size: 1.0625rem;
+    line-height: 1.65;
+    color: rgb(209 213 219);
+  }
+  @media (min-width: 768px) { .post-dek { font-size: 1.1875rem; } }
 
-  article .prose ul,
-  article .prose ol {
+  .post-cover {
+    max-width: 64rem;
+    margin: 0 auto;
+    overflow: hidden;
+    border-radius: 1.25rem;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: #0b0b0b;
+    aspect-ratio: 16 / 10;
+  }
+  @media (min-width: 768px) { .post-cover { aspect-ratio: 2 / 1; border-radius: 1.5rem; } }
+  .post-cover img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .post-cover[hidden] { display: none; }
+
+  /* Reading column: ~68 characters a line */
+  .post-body {
+    max-width: 42rem;
+    margin: 0 auto;
+    padding-top: 2.75rem;
+    font-size: 1.0625rem;
+    line-height: 1.8;
+    color: rgba(255,255,255,0.8);
+  }
+  @media (min-width: 768px) { .post-body { padding-top: 3.5rem; font-size: 1.125rem; } }
+  .post-body :global(p) { margin: 0 0 1.4em; }
+  .post-body :global(h2) {
+    margin: 2.4em 0 0.85em;
+    font-family: 'Unbounded', sans-serif;
+    font-size: clamp(1.3rem, 1.1rem + 0.9vw, 1.75rem);
+    font-weight: 700;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    color: #fff;
+    scroll-margin-top: 6rem;
+  }
+  .post-body :global(h2::before) {
+    content: '';
+    display: block;
+    width: 2rem;
+    height: 3px;
     margin-bottom: 1rem;
-    margin-left: 1rem;
+    border-radius: 3px;
+    background: rgb(var(--accent-rgb));
   }
-
-  article .prose a {
+  .post-body :global(h3),
+  .post-body :global(h4) {
+    margin: 2em 0 0.6em;
+    font-family: 'Unbounded', sans-serif;
+    font-size: 1.125rem;
+    font-weight: 700;
+    line-height: 1.3;
+    color: #fff;
+    scroll-margin-top: 6rem;
+  }
+  .post-body :global(h2 + h3) { margin-top: 1.2em; }
+  .post-body :global(ul),
+  .post-body :global(ol) { margin: 0 0 1.5em; padding-left: 1.5em; }
+  .post-body :global(li) { margin: 0.5em 0; padding-left: 0.35em; }
+  .post-body :global(ul > li) { list-style: none; position: relative; }
+  .post-body :global(ul > li::before) {
+    content: '';
+    position: absolute;
+    left: -1.1em;
+    top: 0.72em;
+    width: 0.4em;
+    height: 0.4em;
+    border-radius: 2px;
+    background: rgb(var(--alt-rgb));
+  }
+  .post-body :global(ol > li) { list-style: decimal; }
+  .post-body :global(ol > li::marker) {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.85em;
+    color: rgb(var(--alt-rgb));
+  }
+  .post-body :global(strong) { font-weight: 600; color: #fff; }
+  .post-body :global(em) { color: #fff; }
+  .post-body :global(a) {
     color: rgb(var(--accent-rgb));
     text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+    transition: color 0.2s;
+  }
+  .post-body :global(a:hover) { color: #fff; }
+  .post-body :global(blockquote) {
+    margin: 2em 0;
+    padding: 0.2em 0 0.2em 1.25em;
+    border-left: 3px solid rgb(var(--accent-rgb));
+    font-family: 'Unbounded', sans-serif;
+    font-size: 1.15em;
+    font-weight: 600;
+    line-height: 1.5;
+    color: #fff;
+  }
+  .post-body :global(blockquote p) { margin: 0; }
+  .post-body :global(figure) { margin: 2.25em 0; }
+  .post-body :global(figure img) { display: block; width: 100%; height: auto; border-radius: 1rem; border: 1px solid rgba(255,255,255,0.1); }
+  .post-body :global(figcaption) {
+    margin-top: 0.75rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgb(156 163 175);
+  }
+  .post-body :global(code) {
+    padding: 0.15em 0.4em;
+    border-radius: 0.35rem;
+    background: rgba(255,255,255,0.08);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.875em;
   }
 
-  article .prose a:hover {
-    color: #ffffff;
+  .post-foot {
+    max-width: 42rem;
+    margin: 3rem auto 0;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    display: grid;
+    gap: 1.75rem;
   }
+  .post-author {
+    display: flex;
+    gap: 1rem;
+    padding: 1.25rem;
+    border-radius: 1.25rem;
+    border: 1px solid rgba(255,255,255,0.09);
+    background: linear-gradient(180deg, #131313, #0c0c0c);
+  }
+  .post-author__img { width: 3.5rem; height: 3.5rem; flex-shrink: 0; border-radius: 50%; object-fit: cover; border: 2px solid rgb(var(--accent-rgb) / 0.6); }
+  /* narrow phones: the photo sits over the text instead of squeezing it */
+  @media (max-width: 399px) { .post-author { flex-direction: column; } }
+  .post-author a:focus-visible { outline: 2px solid #fff; outline-offset: 3px; border-radius: 4px; }
+  .post-share { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.75rem 1rem; }
+  .post-share__btn,
+  .post-share__copy {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    height: 2.5rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.14);
+    color: #fff;
+    transition: color 0.2s, border-color 0.2s, background-color 0.2s;
+  }
+  .post-share__btn { width: 2.5rem; font-size: 0.95rem; }
+  .post-share__copy { padding: 0 1rem; font-size: 0.8125rem; font-weight: 700; }
+  .post-share__btn:hover,
+  .post-share__copy:hover { color: rgb(var(--accent-rgb)); border-color: rgb(var(--accent-rgb)); }
+  .post-share__copy[data-done] { color: rgb(var(--alt-rgb)); border-color: rgb(var(--alt-rgb)); }
+  .post-share__btn:focus-visible,
+  .post-share__copy:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 
-  article .prose code {
-    background-color: #1f1f1f;
-    padding: 0.25rem 0.5rem;
-    border-radius: 0.25rem;
-    font-size: 0.9em;
+  .post-nav { display: grid; gap: 1rem; }
+  @media (min-width: 768px) { .post-nav { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .post-nav__item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    padding: 1.25rem 1.35rem;
+    border-radius: 1.25rem;
+    border: 1px solid rgba(255,255,255,0.09);
+    background: linear-gradient(180deg, #131313, #0c0c0c);
+    transition: border-color 0.2s;
   }
-
-  article .prose blockquote {
-    background-color: rgb(var(--accent-rgb)/0.05);
-    padding: 1rem;
-    border-radius: 0.5rem;
-  }
+  /* a lone tile takes the whole row; of a pair, "next" reads from the right */
+  .post-nav__item:only-child { grid-column: 1 / -1; }
+  .post-nav__item--next:not(:only-child) { text-align: right; align-items: flex-end; }
+  .post-nav__item:hover { border-color: rgb(var(--accent-rgb)); }
+  .post-nav__item:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+  .post-nav__title { font-size: 1.0625rem; font-weight: 700; line-height: 1.3; color: #fff; transition: color 0.2s; }
+  .post-nav__item:hover .post-nav__title { color: rgb(var(--accent-rgb)); }
 </style>
+
+<script>
+  // "Copy link": copies the post's address and says so for a moment.
+  function initCopyLink() {
+    document.querySelectorAll<HTMLButtonElement>('[data-copy-link]').forEach((btn) => {
+      if (btn.dataset.bound) return;
+      btn.dataset.bound = '1';
+      const label = btn.querySelector<HTMLElement>('[data-copy-label]');
+      const original = label?.textContent ?? '';
+      btn.addEventListener('click', async () => {
+        const url = btn.dataset.copyLink || location.href;
+        try {
+          await navigator.clipboard.writeText(url);
+        } catch {
+          // older browsers: fall back to a selected text field
+          const field = document.createElement('textarea');
+          field.value = url;
+          field.setAttribute('readonly', '');
+          field.style.position = 'fixed';
+          field.style.opacity = '0';
+          document.body.appendChild(field);
+          field.select();
+          try { document.execCommand('copy'); } catch { /* nothing else to try */ }
+          field.remove();
+        }
+        if (label) label.textContent = btn.dataset.copied || original;
+        btn.setAttribute('data-done', '');
+        window.setTimeout(() => {
+          if (label) label.textContent = original;
+          btn.removeAttribute('data-done');
+        }, 2200);
+      });
+    });
+  }
+  document.addEventListener('astro:page-load', initCopyLink);
+</script>
