@@ -5,7 +5,8 @@ import CalendarActions from '../CalendarActions.astro';
 import PastGigRow from '../PastGigRow.astro';
 import { getEvents, eventInterval, eventSound, eventSide, type UIEvent } from '../../lib/content';
 import { eventTimes, ICS_FEED_PATH } from '../../lib/calendar';
-import { placeName, placeKey, venueName, subtitleText, eventName } from '../../lib/places';
+import { placeName, venueName, subtitleText, eventName } from '../../lib/places';
+import { GIG_STATS } from '../../data/gig-stats';
 import { useTranslations, localize, dateParts, htmlLang, type Lang } from '../../i18n/utils';
 
 interface Props {
@@ -40,24 +41,17 @@ const nextLabel = upcoming[0] && eventTimes(upcoming[0]).startMs <= now ? t.deck
 // the rest away.
 const YEAR_ROWS = 5;
 
-// Archive numbers, for both sides together and for each side on its own (the
-// numbers follow the A side / B side switch). Venues and cities are counted by
-// name; the data spells Belgrade (and Ray Bar) two ways, which still counts once.
-const venueKey = (e: UIEvent) => venueName(e.title).toLowerCase();
-const cityKey = (e: UIEvent) => placeKey(e.location);
-const distinct = (list: UIEvent[], key: (e: UIEvent) => string) => new Set(list.map(key)).size;
-type Counts = { gigs: number; venues: number; cities: number; countries: number };
-const count = (list: UIEvent[]): Counts => ({
-  gigs: list.length,
-  venues: distinct(list, venueKey),
-  cities: distinct(list, cityKey),
-  countries: distinct(list, (e) => e.country ?? 'RS'),
-});
-const bySide = (list: UIEvent[]) => ({
-  all: count(list),
-  A: count(list.filter((e) => eventSide(e) === 'A')),
-  B: count(list.filter((e) => eventSide(e) === 'B')),
-});
+// The numbers come from the full gig sheet (src/data/gig-stats.ts, the same
+// as on About): the database below holds only the nights worth showing.
+// Database gigs dated after the sheet's date count on top. Gigs follow the
+// A side / B side switch; venues, countries and Exit stages are the artist's
+// and stay the same on either side.
+const isB = (e: UIEvent) => eventSide(e) === 'B';
+const newer = past.filter((e) => e.date > GIG_STATS.asOf);
+const gigsAll = GIG_STATS.gigs + newer.length;
+const gigsB = Object.values(GIG_STATS.years).reduce((s, y) => s + y.b, 0) + newer.filter(isB).length;
+type Trio = { all: string; A: string; B: string };
+const same = (v: string | number): Trio => ({ all: String(v), A: String(v), B: String(v) });
 
 const newestFirst = (a: UIEvent, b: UIEvent) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0);
 const years = [...new Set(past.map((e) => e.date.slice(0, 4)))].sort().reverse().map((year) => {
@@ -65,20 +59,18 @@ const years = [...new Set(past.map((e) => e.date.slice(0, 4)))].sort().reverse()
   const featured = gigs.filter((e) => e.featured);
   const recent = gigs.filter((e) => !e.featured).slice(0, Math.max(0, YEAR_ROWS - featured.length));
   const top = gigs.filter((e) => featured.includes(e) || recent.includes(e));
-  const a = gigs.filter((e) => eventSide(e) === 'A').length;
-  return { year, total: gigs.length, top, rest: gigs.filter((e) => !top.includes(e)), a, b: gigs.length - a, counts: bySide(gigs) };
+  // the year's count and its B/A split from the sheet, plus newer database gigs
+  const sheet = GIG_STATS.years[year];
+  const extra = sheet ? gigs.filter((e) => e.date > GIG_STATS.asOf) : gigs;
+  const total = (sheet?.total ?? 0) + extra.length;
+  const b = (sheet?.b ?? 0) + extra.filter(isB).length;
+  return { year, total, top, rest: gigs.filter((e) => !top.includes(e)), a: total - b, b };
 });
-const totals = bySide(past);
-const archiveStats: [keyof Counts, string][] = [
-  ['gigs', t.events.statGigs],
-  ['venues', t.events.statVenues],
-  ['cities', t.events.statCities],
-  ['countries', t.events.statCountries],
-];
-const yearFacts: [keyof Counts, string][] = [
-  ['gigs', t.events.statGigs],
-  ['venues', t.events.statVenues],
-  ['cities', t.events.statCities],
+const archiveStats: [string, Trio][] = [
+  [t.events.statGigs, { all: String(gigsAll), A: String(gigsAll - gigsB), B: String(gigsB) }],
+  [t.events.statVenues, same(`${GIG_STATS.venues}+`)],
+  [t.events.statCountries, same(GIG_STATS.countries)],
+  [t.events.statExit, same(GIG_STATS.exitStages)],
 ];
 // "2022–2026": the years the archive covers, for each side too
 const yearSpan = (list: UIEvent[]) => {
@@ -486,10 +478,10 @@ const musicEventSchema = {
         {/* The whole archive in numbers; with a side picked, that side's numbers */}
         {past.length > 0 && (
           <dl class="archive-stats" data-reveal>
-            {archiveStats.map(([key, label]) => (
+            {archiveStats.map(([label, n]) => (
               <div class="archive-stat">
                 <dt class="mono-caps">{label}</dt>
-                <dd class="side-n font-display font-bold leading-none"><span data-n="all">{totals.all[key]}</span><span data-n="A">{totals.A[key]}</span><span data-n="B">{totals.B[key]}</span></dd>
+                <dd class="side-n font-display font-bold leading-none"><span data-n="all">{n.all}</span><span data-n="A">{n.A}</span><span data-n="B">{n.B}</span></dd>
               </div>
             ))}
           </dl>
@@ -512,12 +504,10 @@ const musicEventSchema = {
                 {/* a single night needs no tally */}
                 {y.total > 1 && (
                   <dl class="year-facts">
-                    {yearFacts.map(([key, label]) => (
-                      <div>
-                        <dt class="mono-caps">{label}</dt>
-                        <dd class="side-n"><span data-n="all">{y.counts.all[key]}</span><span data-n="A">{y.counts.A[key]}</span><span data-n="B">{y.counts.B[key]}</span></dd>
-                      </div>
-                    ))}
+                    <div>
+                      <dt class="mono-caps">{t.events.statGigs}</dt>
+                      <dd class="side-n"><span data-n="all">{y.total}</span><span data-n="A">{y.a}</span><span data-n="B">{y.b}</span></dd>
+                    </div>
                   </dl>
                 )}
               </div>
@@ -527,7 +517,7 @@ const musicEventSchema = {
                 </ol>
                 {y.rest.length > 0 && (
                   <details class="year-more">
-                    <summary>{t.events.showAllYear.replace('{n}', String(y.total))} <i class="fa-solid fa-chevron-right year-more__chevron" aria-hidden="true"></i></summary>
+                    <summary>{t.events.showAllYear.replace('{n}', String(y.rest.length))} <i class="fa-solid fa-chevron-right year-more__chevron" aria-hidden="true"></i></summary>
                     <ol class="year-list">
                       {y.rest.map((e) => <PastGigRow lang={lang} event={e} />)}
                     </ol>
