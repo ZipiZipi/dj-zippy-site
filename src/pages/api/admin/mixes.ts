@@ -65,7 +65,7 @@ export const GET: APIRoute = async ({ locals, url }) => {
 // The date picked in the admin form (YYYY-MM-DD) as a timestamp at noon UTC,
 // or null when there is none. Mixes are listed newest first by created_at.
 function pickedDate(value: unknown): string | null {
-  return typeof value === 'string' && /^d{4}-d{2}-d{2}$/.test(value) ? `${value}T12:00:00.000Z` : null;
+  return typeof value === 'string' && /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(value) ? `${value}T12:00:00.000Z` : null;
 }
 
 export const POST: APIRoute = async ({ request, locals }) => {
