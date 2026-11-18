@@ -1376,6 +1376,7 @@ bet for any promoter“ (kliše); `bio1Html` „the right groove can heal“; �
   prekinuta 10.11.2026); Grčka i Ohrid ostaju kao mesta nastupa.
 - **„Balkan“ nigde među žanrovima** (ne radi balkansku muziku). A strana: R&B, disco, funk, 2000-te, pop, hip-hop, trap.
 - Pozicija **srpski DJ** (ne beogradski/novosadski). Exit kao „2024 i 2025“.
+- Kad se pominju tri Exit bine, **uvek naglasiti Dance Arena 2025** (liner notes, About lead i `llms.txt` su već sređeni 18.11.; proveri meta opise i ostalo).
 - A i B strana imaju **različite tekstove** (liner notes, About); predlog teksta je u Quick update fajlu u bazi znanja.
 - Brojke (nastupi, mesta) samo iz Sheet-a ili nikako; na početnoj se ne prikazuju.
 - Zippy Zove (@zippy.zove, prvo izdanje 18.9.2026) je projekat **B strane**, Izuvanje (@izuj_se) projekat **A strane**;
