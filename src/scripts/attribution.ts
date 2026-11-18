@@ -13,6 +13,10 @@
 // The booking form gets that source in a hidden field ([data-attribution]), so a
 // booking email says how the person found the site. The very first source is
 // also kept in localStorage for 90 days, but only once analytics is allowed.
+// sides.ts has to be listening before the side:set below goes out. The
+// bundler can put this module in a shared chunk that runs before the page
+// script's own imports, so the order in Layout.astro is not enough.
+import './sides';
 
 type Touch = {
   source: string;
