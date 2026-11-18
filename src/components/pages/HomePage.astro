@@ -536,9 +536,8 @@ const homeSchema = {
     /* === One panel per screen ===
        The hero, the dates (with the tapes) and the liner notes each fill the
        screen, content centred under the fixed header, and the page snaps from
-       one to the next; the booking footer is the last stop. A panel taller than
-       the screen (phones) grows and scrolls normally inside. Snapping is firm
-       from tablet size up and loose on phones, where panels are long. */
+       one to the next; the booking footer is the last stop. Every panel is sized
+       to fit the screen, phones included (see "Narrow windows" below). */
     .home-panel {
       min-height: 100vh;
       min-height: 100svh;
@@ -550,10 +549,9 @@ const homeSchema = {
       scroll-snap-align: start;
     }
     .home-panel__inner { width: 100%; }
-    html:has(.home-panel) { scroll-snap-type: y proximity; }
-    @media (min-width: 768px) and (min-height: 560px) {
-      html:has(.home-panel) { scroll-snap-type: y mandatory; }
-    }
+    /* touch screens snap firmly from panel to panel: every panel fits the
+       screen (the footer, taller, scrolls inside) */
+    html:has(.home-panel) { scroll-snap-type: y mandatory; }
     html:has(.home-panel) footer.book { scroll-snap-align: start; }
     /* with a mouse or trackpad, initPanelPaging() moves one panel per gesture */
     html.home-paging { scroll-snap-type: none !important; }
