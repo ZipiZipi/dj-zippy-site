@@ -4,7 +4,8 @@ const ZIPPY_ZOVE_IG = 'https://www.instagram.com/zippy.zove/';
 const IZUVANJE_IG = 'https://www.instagram.com/izuj_se';
 import Layout from '../../layouts/Layout.astro';
 import { getEvents, eventSide, type UIEvent, type Side } from '../../lib/content';
-import { placeName, placeKey, venueName, subtitleText } from '../../lib/places';
+import { GIG_STATS } from '../../data/gig-stats';
+import { placeName, venueName, subtitleText } from '../../lib/places';
 import { useTranslations, localize, htmlLang, dateParts, type Lang } from '../../i18n/utils';
 
 interface Props {
@@ -36,22 +37,24 @@ const db = (Astro.locals as any).runtime?.env?.DB;
 const { upcoming, past } = await getEvents(db);
 
 // Counted the same way as the /events archive (EventsPage.astro), so the two
-// pages agree: "RayBar" and "Ray Bar" are one venue, "Beograd" and "Belgrade"
-// one city.
+// pages agree: "RayBar" and "Ray Bar" are one venue.
 const venueKey = (e: UIEvent) => venueName(e.title).toLowerCase();
-const cityKey = (e: UIEvent) => placeKey(e.location);
 const distinct = (list: UIEvent[], key: (e: UIEvent) => string) => new Set(list.map(key)).size;
 const isExit = (e: UIEvent) => /\bexit\b/i.test(e.title);
 const isFirst = (e: UIEvent) => /^first\b/i.test((e.subtitle ?? '').trim());
 const byDate = (a: { date: string; title: string }, b: { date: string; title: string }) =>
   a.date < b.date ? -1 : a.date > b.date ? 1 : a.title.localeCompare(b.title);
 
+// The numbers come from the full gig sheet (src/data/gig-stats.ts); the
+// database only holds the nights worth showing. Gigs added to the database
+// after the sheet's date count on top, so the numbers keep up between updates.
+const newer = past.filter((e) => e.date > GIG_STATS.asOf);
 const stats = [
-  { n: distinct(past.filter(isExit), venueKey), label: t.about.statExit },
-  { n: distinct(past, venueKey), label: t.about.statVenues },
-  { n: distinct(past, cityKey), label: t.about.statCities },
-  { n: distinct(past, (e) => e.country ?? 'RS'), label: t.about.statCountries },
-].filter((s) => s.n > 0);
+  { n: String(Math.max(GIG_STATS.exitStages, distinct(past.filter(isExit), venueKey))), label: t.about.statExit },
+  { n: String(GIG_STATS.gigs + newer.length), label: t.about.statGigs },
+  { n: `${GIG_STATS.venues}+`, label: t.about.statVenues },
+  { n: String(Math.max(GIG_STATS.countries, distinct(past, (e) => e.country ?? 'RS'))), label: t.about.statCountries },
+];
 
 // The residency (a line in the lead and a row in the fact sheet) only stands
 // while the venue still has dates: one in the last six months or one coming
@@ -119,8 +122,12 @@ const path = [...new Set(past.map((e) => e.date.slice(0, 4)))].sort().map((year)
   let picks = ranked.slice(0, PER_YEAR);
   const open = ranked.find((x) => x.side === 'A');
   if (open && !picks.includes(open)) picks = [...picks.slice(0, PER_YEAR - 1), open];
-  const a = gigs.filter((e) => eventSide(e) === 'A').length;
-  return { year, total: gigs.length, a, b: gigs.length - a, lines: picks.sort(byDate) };
+  // the year's count and its B/A split come from the sheet, plus newer database gigs
+  const sheet = GIG_STATS.years[year];
+  const extra = sheet ? gigs.filter((e) => e.date > GIG_STATS.asOf) : gigs;
+  const total = (sheet?.total ?? 0) + extra.length;
+  const b = (sheet?.b ?? 0) + extra.filter((e) => eventSide(e) === 'B').length;
+  return { year, total, a: total - b, b, lines: picks.sort(byDate) };
 });
 // "2022–2026", written like the year spans on /events
 const pathSpan = path.length > 1 ? `${path[0].year}–${path[path.length - 1].year}` : path[0]?.year ?? '';

@@ -269,6 +269,7 @@ const en = {
     raProfile: 'Resident Advisor',
     // The numbers under the lead, counted from the gig archive (same counting as /events)
     statExit: 'Exit Festival stages',
+    statGigs: 'Gigs',
     statVenues: 'Venues',
     statCities: 'Cities',
     statCountries: 'Countries',
@@ -762,6 +763,7 @@ const sr: Dict = {
     book: 'Rezerviši Zippyja',
     raProfile: 'Resident Advisor',
     statExit: 'Bine Exit festivala',
+    statGigs: 'Nastupi',
     statVenues: 'Lokacije',
     statCities: 'Gradovi',
     statCountries: 'Države',
