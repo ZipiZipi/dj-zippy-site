@@ -158,7 +158,7 @@
    screen black for a moment on a fast scroll. */
 [data-reveal] {
   --reveal-y: 36px;
-  --reveal-scale: 0.98;
+  --reveal-scale: 1;
   transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay, 0s),
               transform 0.8s cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay, 0s);
 }

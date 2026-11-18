@@ -555,6 +555,8 @@ const homeSchema = {
       html:has(.home-panel) { scroll-snap-type: y mandatory; }
     }
     html:has(.home-panel) footer.book { scroll-snap-align: start; }
+    /* with a mouse or trackpad, initPanelPaging() moves one panel per gesture */
+    html.home-paging { scroll-snap-type: none !important; }
 
     /* A panel leaving the screen: its [data-exit] parts drift down a little and
        fade while the next panel slides over them, from the moment the panel's
@@ -563,7 +565,7 @@ const homeSchema = {
        compositor, so it keeps the screen's frame rate and plays backwards when
        scrolling up. Browsers without it get initPanelExit() below. */
     .home-panel { view-timeline: --panel block; }
-    @keyframes panel-exit { to { opacity: 0.08; transform: translate3d(0, 18vh, 0) scale(0.95); } }
+    @keyframes panel-exit { to { opacity: 0.08; transform: translate3d(0, 18vh, 0); } }
     @keyframes panel-exit-light { to { opacity: 0; } }
     @supports (animation-timeline: view()) {
       [data-exit] {
@@ -1381,7 +1383,7 @@ const homeSchema = {
         if (p === 0) { el.style.opacity = ''; el.style.transform = ''; return; }
         var e = p * p * (3 - 2 * p);
         el.style.opacity = (1 - e * 0.92).toFixed(3);
-        el.style.transform = 'translate3d(0,' + (p * vh * 0.18).toFixed(1) + 'px,0) scale(' + (1 - e * 0.05).toFixed(4) + ')';
+        el.style.transform = 'translate3d(0,' + (p * vh * 0.18).toFixed(1) + 'px,0)';
       });
     }
     function onScroll() { if (!raf) raf = requestAnimationFrame(update); }
@@ -1394,6 +1396,108 @@ const homeSchema = {
     }, { once: true });
   }
   document.addEventListener('astro:page-load', initPanelExit);
+
+  // Mouse or trackpad on a laptop or desktop: one wheel gesture (or PageDown,
+  // Space, the arrow keys) moves exactly one panel, with one long eased
+  // scroll. CSS snapping restarts its move on every wheel notch, which
+  // stutters on a quick flick; here the rest of the gesture (trackpad momentum
+  // included) is ignored until the move has landed. Touch screens keep the CSS
+  // snapping. The booking footer, the last stop, scrolls normally inside, and
+  // anything that scrolls on its own (a menu, a list) keeps its wheel.
+  function initPanelPaging() {
+    var root = document.documentElement;
+    var fit = window.matchMedia('(pointer: fine) and (min-width: 1024px) and (min-height: 560px)');
+    if (!document.querySelector('.home-panel') || !fit.matches || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    root.classList.add('home-paging');
+    var anim = 0, locked = false, lastWheel = 0;
+    function stops() {
+      var y = window.scrollY;
+      var els = Array.prototype.slice.call(document.querySelectorAll('.home-panel'));
+      var foot = document.querySelector('footer.book');
+      if (foot) els.push(foot);
+      return els.map(function (el) { return Math.round(el.getBoundingClientRect().top + y); });
+    }
+    function ease(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
+    function release() {
+      if (performance.now() - lastWheel < 220) { setTimeout(release, 80); return; }
+      locked = false;
+    }
+    function go(to) {
+      var from = window.scrollY, dist = to - from;
+      if (Math.abs(dist) < 2) return;
+      var dur = Math.min(1050, 700 + Math.abs(dist) * 0.2), t0 = performance.now();
+      locked = true;
+      cancelAnimationFrame(anim);
+      function frame(now) {
+        var t = Math.min(1, (now - t0) / dur);
+        window.scrollTo({ top: from + dist * ease(t), behavior: 'instant' });
+        if (t < 1) anim = requestAnimationFrame(frame);
+        else { anim = 0; release(); }
+      }
+      anim = requestAnimationFrame(frame);
+    }
+    function ownScroll(el, dir) {
+      for (; el && el !== document.body && el !== root; el = el.parentElement) {
+        var oy = getComputedStyle(el).overflowY;
+        if ((oy === 'auto' || oy === 'scroll') && el.scrollHeight > el.clientHeight + 1) {
+          if (dir > 0 ? el.scrollTop + el.clientHeight < el.scrollHeight - 1 : el.scrollTop > 0) return true;
+        }
+      }
+      return false;
+    }
+    // true when the move was taken over (the caller then stops the native scroll)
+    function page(dir) {
+      var s = stops(), y = window.scrollY, last = s[s.length - 1];
+      if (y > last - 2 && (dir > 0 || y > last + 2)) return false;
+      if (locked) return true;
+      var max = root.scrollHeight - window.innerHeight, target;
+      if (dir > 0) { for (var i = 0; i < s.length; i++) if (s[i] > y + 2) { target = s[i]; break; } }
+      else { for (var j = s.length - 1; j >= 0; j--) if (s[j] < y - 2) { target = s[j]; break; } }
+      if (target === undefined) return false;
+      go(Math.min(target, max));
+      return true;
+    }
+    function onWheel(e) {
+      if (e.ctrlKey || Math.abs(e.deltaX) > Math.abs(e.deltaY) || Math.abs(e.deltaY) < 2) return;
+      if (root.classList.contains('menu-open')) return;
+      var dir = e.deltaY > 0 ? 1 : -1;
+      if (ownScroll(e.target, dir)) return;
+      lastWheel = performance.now();
+      if (page(dir)) e.preventDefault();
+    }
+    var KEYS = { PageDown: 1, ArrowDown: 1, PageUp: -1, ArrowUp: -1 };
+    function onKey(e) {
+      var t = e.target;
+      if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || root.classList.contains('menu-open')) return;
+      if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) || t.closest('[role="slider"], [role="listbox"], [role="menu"], details'))) return;
+      var dir = e.key === ' ' ? (/^(BUTTON|A|SUMMARY)$/.test(t && t.tagName) ? 0 : (e.shiftKey ? -1 : 1)) : KEYS[e.key];
+      if (!dir) return;
+      if (page(dir)) e.preventDefault();
+    }
+    window.addEventListener('wheel', onWheel, { passive: false });
+    window.addEventListener('keydown', onKey);
+    document.addEventListener('astro:before-swap', function () {
+      window.removeEventListener('wheel', onWheel);
+      window.removeEventListener('keydown', onKey);
+      cancelAnimationFrame(anim);
+      root.classList.remove('home-paging');
+    }, { once: true });
+  }
+  document.addEventListener('astro:page-load', initPanelPaging);
+
+  // The liner photo is decoded while the page is idle, so its first paint
+  // (on the way to the liner panel) does not cost a frame mid-move.
+  function predecodeLiner() {
+    var run = function () {
+      document.querySelectorAll('.liner__cover img').forEach(function (img) {
+        img.loading = 'eager';
+        if (img.decode) img.decode().catch(function () {});
+      });
+    };
+    if ('requestIdleCallback' in window) requestIdleCallback(run, { timeout: 2500 });
+    else setTimeout(run, 1500);
+  }
+  document.addEventListener('astro:page-load', predecodeLiner);
   document.addEventListener('astro:page-load', initLiner);
   document.addEventListener('astro:page-load', initHeroRing);
   document.addEventListener('astro:page-load', initHeroFlip);
