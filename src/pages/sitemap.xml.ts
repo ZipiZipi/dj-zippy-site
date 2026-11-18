@@ -1,7 +1,7 @@
 // Sitemap XML
 // Every indexable page once per language, with reciprocal xhtml:link
 // alternates so Google pairs /about with /sr/about instead of treating them as
-// duplicates. noindex pages (/gallery, /blog, 404s) stay out: listing a page
+// duplicates. noindex pages (/blog, 404s) stay out: listing a page
 // the site asks not to index only earns a Search Console warning.
 //
 // <lastmod> has to be honest or Google learns to ignore it, so it is never
@@ -20,6 +20,7 @@
 
 import type { APIRoute } from 'astro';
 import { localize, htmlLang, type Lang } from '../i18n/utils';
+import { galleryPhotos, photoSrc } from '../data/gallery';
 
 export const prerender = false;
 
@@ -28,12 +29,15 @@ const TEMPLATE_EDITED = '2026-11-10';
 
 type Source = 'events' | 'mixes';
 
-// Indexable pages, as canonical (English) paths.
-const pages: { path: string; priority: string; changefreq: string; sources?: Source[]; edited?: string; image?: boolean }[] = [
-  { path: '/', priority: '1.0', changefreq: 'weekly', sources: ['events', 'mixes'], image: true },
+const PORTRAIT = '/images/dj-zippy-house-music-dj.webp';
+
+// Indexable pages, as canonical (English) paths. `images`: the pictures on the page, for <image:image>.
+const pages: { path: string; priority: string; changefreq: string; sources?: Source[]; edited?: string; images?: string[] }[] = [
+  { path: '/', priority: '1.0', changefreq: 'weekly', sources: ['events', 'mixes'], images: [PORTRAIT] },
   { path: '/events', priority: '0.9', changefreq: 'weekly', sources: ['events'] },
   { path: '/mixes', priority: '0.9', changefreq: 'weekly', sources: ['mixes'] },
-  { path: '/about', priority: '0.8', changefreq: 'monthly', image: true },
+  { path: '/about', priority: '0.8', changefreq: 'monthly', images: [PORTRAIT] },
+  { path: '/gallery', priority: '0.6', changefreq: 'monthly', edited: '2026-11-18', images: [...galleryPhotos.map((p) => photoSrc(p.slug)), PORTRAIT] },
   { path: '/links', priority: '0.6', changefreq: 'monthly' },
 ];
 
@@ -81,10 +85,10 @@ export const GET: APIRoute = async ({ site, locals }) => {
     const alternates = LOCALES.map(
       (alt) => `    <xhtml:link rel="alternate" hreflang="${htmlLang[alt]}" href="${url(page.path, alt)}" />`,
     ).join('\n');
-    // The portrait is on the page (home intro, About hero); Google reads only image:loc.
-    const image = page.image
-      ? `\n    <image:image>\n      <image:loc>${escapeXml(`${origin}/images/dj-zippy-house-music-dj.webp`)}</image:loc>\n    </image:image>`
-      : '';
+    // Google reads only image:loc.
+    const image = (page.images ?? [])
+      .map((src) => `\n    <image:image>\n      <image:loc>${escapeXml(`${origin}${src}`)}</image:loc>\n    </image:image>`)
+      .join('');
 
     return LOCALES.map((lang) => `  <url>
     <loc>${url(page.path, lang)}</loc>

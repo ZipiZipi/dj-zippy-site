@@ -252,6 +252,8 @@ const socials = [
         <div class="book__legal">
           <a href={privacyHref} aria-current={here === privacyHref ? 'page' : undefined}>{t.footer.privacy}</a>
           <button type="button" data-consent-open>{t.footer.cookieSettings}</button>
+          {/* the gallery is not in the menu; this is the one link to it on every page */}
+          <a href={localize('/gallery', lang)} aria-current={here === localize('/gallery', lang) ? 'page' : undefined}>{t.breadcrumb.gallery}</a>
           <a href={localize('/links', lang)}>{t.footer.allLinks} <span class="book__go" aria-hidden="true">&rarr;</span></a>
         </div>
       </div>

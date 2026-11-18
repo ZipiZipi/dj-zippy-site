@@ -20,11 +20,12 @@
 - [About](https://zippydj.com/about): Biography, the selector's approach, FAQ.
 - [Mixes](https://zippydj.com/mixes): DJ Zippy mixes and playlists on YouTube, MixCloud, Spotify, SoundCloud and Deezer.
 - [Events](https://zippydj.com/events): Upcoming gigs and the archive of past gigs by year.
+- [Gallery](https://zippydj.com/gallery): Live photos, 2024–2026: Exit Festival Dance Arena and Students Stage, Club Kult, Lazino Tele, London Pub, Hangar Ohrid, Capital Night Club Lefkada.
 - [Links](https://zippydj.com/links): All official social and streaming profiles.
 
 The site is bilingual. Every page above has a Serbian (Latin script) counterpart
 under the `/sr` prefix (https://zippydj.com/sr, /sr/about, /sr/mixes, /sr/events,
-/sr/links) with the same content in Serbian.
+/sr/gallery, /sr/links) with the same content in Serbian.
 
 ## Notable performances
 

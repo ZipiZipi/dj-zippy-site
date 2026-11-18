@@ -1,6 +1,7 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import { useTranslations, localize, htmlLang, type Lang } from '../../i18n/utils';
+import { galleryPhotos, galleryPlaces, photoSrc, thumbSrc } from '../../data/gallery';
 
 interface Props {
   lang: Lang;
@@ -14,28 +15,61 @@ const pageUrl = `https://zippydj.com${l('/gallery')}`;
 
 // Every frame with a picture. A frame is a still or a short muted clip (the clip
 // plays only while it is on screen, and never on Save-Data or reduced motion).
-// The first frame is the large one. Live photos from the stages listed under
-// "Developing" go here as they arrive (T17); the viewer picks them up as is.
+// The live photos come from src/data/gallery.ts in their order (B side first),
+// then the portrait and the clip. Rows are justified: every frame in a row has
+// the same height and keeps its own shape, so nothing is cropped.
 type Frame = {
   kind: 'image' | 'video';
-  src: string;          // the still, or the clip's poster
+  src: string;          // the still (full size), or the clip's poster
+  thumb?: string;       // 600 px version for the grid
+  thumbW?: number;
   video?: string;
   width: number;
   height: number;
   caption: string;
   place: string;
   alt: string;
-  shape: 'feature' | 'tall';
+  credit?: string;
+  // for the ImageObject schema
+  venue?: string;
+  city?: string;
+  country?: string;
+  date?: string;
 };
 
 const frames: Frame[] = [
-  { kind: 'image', src: '/images/dj-zippy-house-music-dj.webp', width: 800, height: 800, shape: 'feature', ...t.gallery.portrait },
-  { kind: 'video', src: '/videos/links-bg-poster.jpg', video: '/videos/links-bg.mp4', width: 540, height: 960, shape: 'tall', ...t.gallery.live },
+  ...galleryPhotos.map((p) => ({
+    kind: 'image' as const,
+    src: photoSrc(p.slug),
+    thumb: thumbSrc(p.slug),
+    thumbW: p.tw,
+    width: p.w,
+    height: p.h,
+    ...t.gallery.groups[p.group],
+    alt: t.gallery.shots[p.slug as keyof typeof t.gallery.shots],
+    credit: p.credit,
+    ...galleryPlaces[p.group],
+    ...(p.date ? { date: p.date } : {}),
+  })),
+  { kind: 'image', src: '/images/dj-zippy-house-music-dj.webp', width: 800, height: 800, ...t.gallery.portrait },
+  { kind: 'video', src: '/videos/links-bg-poster.jpg', video: '/videos/links-bg.mp4', width: 540, height: 960, ...t.gallery.live },
 ];
+
+const creditLine = (f: Frame) => (f.credit ? t.gallery.credit.replace('{name}', f.credit) : '');
+
+// Row heights of the justified grid (px): phone / from 640 / from 1024. `sizes` follows them.
+const ROW = { sm: 110, md: 220, lg: 280 };
+const sizesFor = (f: Frame) => {
+  const r = f.width / f.height;
+  // a frame grows past its basis to fill the row, so leave a third on top
+  const px = (h: number) => Math.round(r * h * 1.33);
+  return `(min-width: 1024px) ${px(ROW.lg)}px, (min-width: 640px) ${px(ROW.md)}px, ${px(ROW.sm)}px`;
+};
 
 // What the viewer needs, in order
 const viewerData = frames.map((f) => ({
-  kind: f.kind, src: f.src, video: f.video, w: f.width, h: f.height, alt: f.alt, caption: f.caption, place: f.place,
+  kind: f.kind, src: f.src, video: f.video, w: f.width, h: f.height, alt: f.alt, caption: f.caption,
+  place: [f.place, creditLine(f)].filter(Boolean).join(' · '),
 }));
 
 const gallerySchema = {
@@ -57,13 +91,34 @@ const gallerySchema = {
       'description': t.gallery.schemaDesc,
       'inLanguage': htmlLang[lang],
       'about': { '@id': 'https://zippydj.com/#person' },
-      'image': frames.filter((f) => f.kind === 'image').map((f) => ({
+      'primaryImageOfPage': { '@id': `https://zippydj.com${frames[0].src}` },
+      'numberOfItems': frames.filter((f) => f.kind === 'image').length,
+      // Each photo: what it shows (description = alt), who is on it (about),
+      // where and when it was taken, and who took it when that is known.
+      'image': frames.filter((f) => f.kind === 'image').map((f, i) => ({
         '@type': 'ImageObject',
+        '@id': `https://zippydj.com${f.src}`,
+        'url': `https://zippydj.com${f.src}`,
         'contentUrl': `https://zippydj.com${f.src}`,
+        ...(f.thumb ? { 'thumbnailUrl': `https://zippydj.com${f.thumb}` } : {}),
+        'encodingFormat': 'image/webp',
         'width': f.width,
         'height': f.height,
+        'name': `${f.caption} · ${f.place}`,
         'caption': `${f.caption} · ${f.place}`,
         'description': f.alt,
+        'inLanguage': htmlLang[lang],
+        'about': { '@id': 'https://zippydj.com/#person' },
+        ...(i === 0 ? { 'representativeOfPage': true } : {}),
+        ...(f.venue ? {
+          'contentLocation': {
+            '@type': 'Place',
+            'name': f.venue,
+            'address': { '@type': 'PostalAddress', 'addressLocality': f.city, 'addressCountry': f.country },
+          },
+        } : {}),
+        ...(f.date ? { 'dateCreated': f.date } : {}),
+        ...(f.credit ? { 'creditText': f.credit, 'creator': { '@type': 'Person', 'name': f.credit } } : {}),
       })),
     },
   ],
@@ -72,7 +127,13 @@ const gallerySchema = {
 const pad = (n: number) => String(n).padStart(2, '0');
 ---
 
-<Layout lang={lang} title={t.gallery.title} description={t.gallery.description} noindex={true}>
+<Layout
+  lang={lang}
+  title={t.gallery.title}
+  description={t.gallery.description}
+  ogImage="https://zippydj.com/images/gallery/og-dj-zippy-gallery.jpg"
+  ogImageAlt={t.gallery.ogImageAlt}
+>
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(gallerySchema)} />
 
   <section class="isolate relative bg-brand-black pt-24 sm:pt-28 pb-10 sm:pb-14 overflow-hidden">
@@ -96,7 +157,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
       <div class="gal" data-gallery data-frames={JSON.stringify(viewerData)}>
         <ul class="gal-grid" role="list">
           {frames.map((f, i) => (
-            <li class={`gal-item gal-item--${f.shape}`} data-reveal>
+            <li class="gal-item" style={`--r: ${(f.width / f.height).toFixed(4)}`} data-reveal>
               <button
                 type="button"
                 class="gal-frame"
@@ -106,7 +167,18 @@ const pad = (n: number) => String(n).padStart(2, '0');
               >
                 {f.kind === 'video'
                   ? <video class="gal-frame__media" muted loop playsinline preload="none" poster={f.src} data-gal-clip={f.video} width={f.width} height={f.height} aria-hidden="true"></video>
-                  : <img class="gal-frame__media" src={f.src} alt={f.alt} width={f.width} height={f.height} loading={i === 0 ? 'eager' : 'lazy'} decoding="async" />}
+                  : <img
+                      class="gal-frame__media"
+                      src={f.thumb ?? f.src}
+                      srcset={f.thumb ? `${f.thumb} ${f.thumbW}w, ${f.src} ${f.width}w` : undefined}
+                      sizes={f.thumb ? sizesFor(f) : undefined}
+                      alt={f.alt}
+                      width={f.width}
+                      height={f.height}
+                      loading={i < 4 ? 'eager' : 'lazy'}
+                      fetchpriority={i === 0 ? 'high' : undefined}
+                      decoding="async"
+                    />}
                 <span class="gal-frame__no mono-caps" aria-hidden="true">{pad(i + 1)}</span>
                 <span class="gal-frame__info" aria-hidden="true">
                   <span class="gal-frame__caption">{f.caption}</span>
@@ -116,24 +188,6 @@ const pad = (n: number) => String(n).padStart(2, '0');
             </li>
           ))}
         </ul>
-
-        {/* The shoots still to come, like prints in the darkroom; B side first */}
-        <aside class="gal-notes" aria-labelledby="gal-notes-title" data-reveal>
-          <h2 id="gal-notes-title" class="gal-notes__label mono-caps"><span class="gal-notes__lamp" aria-hidden="true"></span>{t.gallery.developing}</h2>
-          <ul class="gal-notes__list" role="list">
-            {t.gallery.developingItems.map((item) => (
-              <li class="gal-notes__item" data-side={item.side}>
-                <span class="side-key" aria-hidden="true">{item.side}</span>
-                <span class="min-w-0">
-                  <span class="sr-only">{item.side === 'A' ? t.sides.a : t.sides.b}: </span>
-                  <span class="block font-display font-bold text-white text-[0.9375rem] leading-snug">{item.title}</span>
-                  <span class="block mt-1 text-[0.8125rem] leading-snug text-gray-400">{item.detail}</span>
-                </span>
-              </li>
-            ))}
-          </ul>
-          <p class="gal-notes__more">{t.gallery.more}</p>
-        </aside>
       </div>
 
       <div class="mt-12 text-center">
@@ -167,20 +221,28 @@ const pad = (n: number) => String(n).padStart(2, '0');
 </Layout>
 
 <style>
-  /* Frames on the left (or on top), the darkroom notes beside them on wide screens */
-  .gal { display: grid; gap: 0.75rem; }
-  @media (min-width: 1024px) {
-    .gal { grid-template-columns: minmax(0, 1fr) minmax(15rem, 19rem); gap: 1rem; }
+  /* Justified rows: each frame starts at row height × its own ratio (--r = w/h)
+     and grows in proportion to it, so a row fills the width and every frame in
+     it keeps the same height and its whole picture. Row heights match ROW in
+     the frontmatter, which `sizes` is built from. */
+  .gal-grid {
+    --row: 110px; /* two landscape frames side by side on a 390 px phone */
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
-
-  .gal-grid { display: grid; gap: 0.75rem; margin: 0; padding: 0; list-style: none; }
-  /* From a large phone up the feature and the clip share a row; the clip
-     stretches to the feature's height */
-  @media (min-width: 560px) {
-    .gal-grid { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
+  @media (min-width: 640px) { .gal-grid { --row: 220px; gap: 0.75rem; } }
+  @media (min-width: 1024px) { .gal-grid { --row: 280px; } }
+  /* the last row keeps its frames at their basis instead of stretching them */
+  .gal-grid::after { content: ''; flex-grow: 999; }
+  .gal-item {
+    flex-grow: var(--r);
+    flex-basis: calc(var(--r) * var(--row));
+    min-width: 0;
   }
-  @media (min-width: 1024px) { .gal-grid { gap: 1rem; } }
-  .gal-item { min-width: 0; }
 
   .gal-frame {
     position: relative;
@@ -189,18 +251,15 @@ const pad = (n: number) => String(n).padStart(2, '0');
     height: 100%;
     padding: 0;
     overflow: hidden;
-    border-radius: 1.25rem;
+    aspect-ratio: var(--r);
+    border-radius: 0.75rem;
     border: 1px solid rgba(255,255,255,0.1);
     background: #0b0b0b;
     text-align: left;
     cursor: zoom-in;
     transition: border-color 0.3s;
   }
-  .gal-item--feature .gal-frame { aspect-ratio: 1; }
-  .gal-item--tall .gal-frame { aspect-ratio: 4 / 5; }
-  @media (min-width: 560px) {
-    .gal-item--tall .gal-frame { aspect-ratio: auto; min-height: 100%; }
-  }
+  @media (min-width: 640px) { .gal-frame { border-radius: 1.25rem; } }
   .gal-frame:hover { border-color: rgb(var(--accent-rgb)); }
   .gal-frame:focus-visible { outline: 2px solid #fff; outline-offset: 3px; border-color: rgb(var(--accent-rgb)); }
   .gal-frame__media {
@@ -240,50 +299,14 @@ const pad = (n: number) => String(n).padStart(2, '0');
   .gal-frame:focus-visible .gal-frame__info { opacity: 1; transform: none; }
   .gal-frame__caption { font-family: 'Unbounded', sans-serif; font-size: 1rem; font-weight: 700; line-height: 1.25; color: #fff; }
   .gal-frame__place { font-size: 0.6875rem; color: rgba(255,255,255,0.72); }
-  /* no hover on touch screens, so the caption stays */
-  @media (hover: none) {
+  /* no hover on touch screens, so the caption stays; on a phone the frames are
+     too small for it, and the viewer shows it instead */
+  @media (hover: none) and (min-width: 640px) {
     .gal-frame__info { opacity: 1; transform: none; }
   }
-
-  .gal-notes {
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
-    padding: 1.25rem;
-    border-radius: 1.25rem;
-    border: 1px solid rgba(255,255,255,0.09);
-    background: linear-gradient(180deg, #131313, #0c0c0c);
-  }
-  @media (min-width: 1024px) { .gal-notes { padding: 1.5rem 1.35rem; } }
-  .gal-notes__label { display: flex; align-items: center; gap: 0.6rem; font-size: 0.6875rem; color: rgba(255,255,255,0.62); }
-  /* the darkroom safelight */
-  .gal-notes__lamp {
-    width: 0.5rem;
-    height: 0.5rem;
-    flex-shrink: 0;
-    border-radius: 50%;
-    background: rgb(var(--accent-rgb));
-    box-shadow: 0 0 12px rgb(var(--accent-rgb) / 0.85);
-    animation: gal-lamp 2.6s ease-in-out infinite alternate;
-  }
-  @keyframes gal-lamp { from { opacity: 0.45; } to { opacity: 1; } }
-  .gal-notes__list { display: grid; gap: 1.1rem; margin: 0; padding: 0; list-style: none; }
-  @media (min-width: 560px) and (max-width: 1023px) {
-    .gal-notes__list { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 1.5rem; }
-  }
-  .gal-notes__item { display: flex; align-items: flex-start; gap: 0.75rem; }
-  .gal-notes__item .side-key { margin-top: 0.05rem; }
-  /* tall panel beside a large frame: the list breathes with it */
-  @media (min-width: 1280px) {
-    .gal-notes { gap: 1.75rem; }
-    .gal-notes__list { gap: 1.5rem; }
-  }
-  .gal-notes__more {
-    margin-top: auto;
-    padding-top: 1rem;
-    border-top: 1px solid rgba(255,255,255,0.08);
-    font-size: 0.875rem;
-    color: rgb(156 163 175);
+  @media (max-width: 639px) {
+    .gal-frame__info { display: none; }
+    .gal-frame__no { top: 0.5rem; left: 0.6rem; }
   }
 
   /* === Viewer === */
@@ -366,7 +389,6 @@ const pad = (n: number) => String(n).padStart(2, '0');
   @media (prefers-reduced-motion: reduce) {
     .gal-frame__media, .gal-frame__info { transition: none; }
     .gal-frame:hover .gal-frame__media { transform: none; }
-    .gal-notes__lamp { animation: none; }
   }
 </style>
 
