@@ -869,6 +869,12 @@ const homeSchema = {
       .liner__quote { margin-top: 0.75rem; font-size: clamp(1rem, min(5cqi, 3.2vh), 1.5rem); }
       .liner__copy { font-size: 0.9375rem; line-height: 1.6; }
       .liner__cta { margin-top: 1.25rem; }
+      /* the dates heading without its small "Live" line */
+      .dates .dates__head .eyebrow { display: none; }
+      .dates #dates-heading { margin-top: 0; }
+    }
+    @media (max-width: 1023px) and (max-height: 760px) {
+      .dates .tapes { padding: 12px 0 14px; }
     }
     /* from 640px the four pads and the deck's title row fit side by side */
     @media (min-width: 640px) and (max-width: 1023px) {
@@ -877,8 +883,16 @@ const homeSchema = {
       .dates .deck__pads > li { flex: 1 1 0; min-width: 0; }
       .liner__sleeve { width: min(clamp(13rem, 40vw, 25rem), 40vh); }
     }
-    /* phones: the credits beside a smaller sleeve, as on wider screens */
+    /* phones: the credits beside a smaller sleeve, as on wider screens; the
+       deck's calendar buttons become icons beside the gig's title (their labels
+       stay for screen readers), and the pads drop the place (it is in the deck) */
     @media (max-width: 639px) {
+      .dates .deck__main { flex-direction: row; align-items: flex-end; justify-content: space-between; }
+      .dates .deck__main > div:first-child { min-width: 0; }
+      .dates .cal-actions { flex-wrap: nowrap; gap: 0.375rem; }
+      .dates .cal-btn { width: 2.5rem; height: 2.5rem; min-height: 0; padding: 0; justify-content: center; }
+      .dates .cal-btn span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
+      .dates .deck__pad-place { display: none; }
       .liner__grid { grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "sleeve credits" "head head" "body body"; column-gap: 1rem; }
       .liner__sleeve { width: min(44vw, 30vh); }
       .liner__credits { align-self: center; }
@@ -890,8 +904,9 @@ const homeSchema = {
       .liner__grid { grid-template-columns: minmax(0, 1fr); grid-template-areas: "sleeve" "head" "body"; }
       .liner__credits { display: none; }
       .liner__sleeve { width: min(42vw, 24vh); }
-      .dates .deck__wave { height: 3.5rem; padding-top: 1.25rem; }
-      .dates .deck__mark::after { height: 2.25rem; }
+      .dates .deck__wave { height: 3rem; padding-top: 1.125rem; }
+      .dates .deck__mark::after { top: 1rem; height: 2rem; }
+      .dates .deck__ph { top: 1rem; }
     }
 
     @media (prefers-reduced-motion: reduce) {
