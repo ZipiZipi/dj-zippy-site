@@ -50,6 +50,7 @@ se u GTM: Admin → Import Container → Overwrite, pa Submit → Publish.
 | `social_click` | Instagram, YouTube, Spotify, Mixcloud, RA… | `social_click` | `SocialClick` |
 | `mix_open` | klik na miks (kartica ili ploča u heru) | `mix_open` | `ViewContent` |
 | `calendar_add` | Check calendar / Google / .ics / pretplata | `calendar_add` | `AddToCalendar` |
+| `map_open` | Dugme „Mapa“ kod nadolazećeg nastupa | `map_open` | `FindLocation` |
 | `side_switch` | A/B prekidač ili filter strane | `side_switch` | `SideSwitch` |
 | `language_switch` | EN/SR | `language_switch` | — |
 

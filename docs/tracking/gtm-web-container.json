@@ -549,7 +549,7 @@
               {
                 "type": "TEMPLATE",
                 "key": "arg1",
-                "value": "^(side_switch|calendar_add|mix_open|preview_play|contact_click|social_click|language_switch)$"
+                "value": "^(side_switch|calendar_add|map_open|mix_open|preview_play|contact_click|social_click|language_switch)$"
               }
             ]
           }

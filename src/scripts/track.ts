@@ -5,6 +5,7 @@
 //   social_click     Instagram, YouTube, Spotify, Mixcloud, RA… Meta: SocialClick
 //   mix_open         a mix card or the hero record              Meta: ViewContent
 //   calendar_add     check calendar / Google / .ics / subscribe Meta: AddToCalendar
+//   map_open         the venue's map on an upcoming gig         Meta: FindLocation
 //   side_switch      the A/B flip or a side filter              Meta: SideSwitch
 //   language_switch  EN / SR
 // The booking form reports its own booking_form_submit (Footer.astro), and GA4
@@ -73,6 +74,13 @@ function onLink(a: HTMLAnchorElement) {
     const slug = href.match(/\/calendar\/([^/]+)\.ics/)?.[1] ?? label.split(': ').slice(1).join(': ');
     push('calendar_add', { calendar_type: cal, event_slug: slug || undefined });
     meta('trackCustom', 'AddToCalendar', { calendar_type: cal });
+    return;
+  }
+
+  // The venue's map (the deck, /events)
+  if (a.dataset.mapSlug) {
+    push('map_open', { event_slug: a.dataset.mapSlug });
+    meta('track', 'FindLocation', { content_name: a.dataset.mapSlug });
     return;
   }
 

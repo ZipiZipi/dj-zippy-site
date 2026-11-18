@@ -75,3 +75,25 @@ export function eventName(e: UIEvent, lang: Lang): string {
   if (!night) return venue;
   return venue.includes('—') ? `${venue}, ${night}` : `${venue} — ${night}`;
 }
+
+// Countries the gigs have been in, as a map search wants them.
+const COUNTRIES: Record<string, string> = { RS: 'Serbia', GR: 'Greece', MK: 'North Macedonia', ME: 'Montenegro', HR: 'Croatia', BA: 'Bosnia and Herzegovina' };
+
+// A venue the plain search finds wrong gets its exact search here. The key is
+// the venue name squashed as for VENUES above ("raybar"); the value is what
+// Google Maps should look for (a full address or the place's own listing name).
+const MAP_QUERIES: Record<string, string> = {};
+
+/**
+ * Google Maps for the gig's venue: a search for "venue, city, country", which
+ * opens the Maps app on phones and the venue's card (with directions) on
+ * computers. Exit's stages all point at the festival itself.
+ */
+export function mapUrl(e: UIEvent): string | undefined {
+  const venue = venueName(e.title).split('—')[0].trim();
+  const city = (e.location ?? '').trim();
+  if (!venue && !city) return undefined;
+  const query = MAP_QUERIES[squash(venue)]
+    ?? [venue, city, COUNTRIES[(e.country ?? '').toUpperCase()]].filter(Boolean).join(', ');
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+}

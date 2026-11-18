@@ -1,5 +1,6 @@
 ---
-// Two calendar controls for one gig:
+// The controls for one upcoming gig:
+//   "Map" opens the venue in Google Maps (the Maps app on phones),
 //   "Check my calendar" opens the visitor's own Google Calendar on that day,
 //   "Save the date" offers Google Calendar, an .ics file and the feed of all dates.
 // `compact` is the list-row version (/events): icons only on tablets, labels from
@@ -8,6 +9,7 @@
 // The menu's behaviour (placement, keys, closing) is in src/scripts/cal-menu.ts.
 import type { UIEvent } from '../lib/content';
 import { googleDayUrl, googleSaveUrl, icsPath, ICS_FEED_PATH } from '../lib/calendar';
+import { mapUrl, placeName, venueName } from '../lib/places';
 import { useTranslations, localize, type Lang } from '../i18n/utils';
 
 interface Props {
@@ -23,9 +25,17 @@ const pageUrl = `https://zippydj.com${localize('/events', lang)}`;
 const host = (Astro.site ?? Astro.url).host;
 const what = `${event.title}, ${event.date.split('-').reverse().join('.')}`;
 const dayUrl = googleDayUrl(event);
+const map = mapUrl(event);
+const where = [venueName(event.title).split('—')[0].trim(), placeName(event.location, lang)].filter(Boolean).join(', ');
 ---
 
 <div class={`cal-actions flex items-center gap-2 ${compact ? 'cal-actions--compact' : ''} ${className}`}>
+  {map && (
+    <a class="cal-btn cal-map" href={map} target="_blank" rel="noopener noreferrer" data-map-slug={event.slug} aria-label={`${t.deck.map}: ${where}`} title={compact ? t.deck.map : undefined}>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.1-7-11.5a7 7 0 0 1 14 0C19 14.9 12 21 12 21z" /><circle cx="12" cy="9.5" r="2.5" /></svg>
+      <span>{t.deck.map}</span>
+    </a>
+  )}
   <a class="cal-btn cal-check" href={dayUrl} target="_blank" rel="noopener noreferrer" aria-label={`${t.deck.checkCalendar}: ${what}`} title={compact ? t.deck.checkCalendar : undefined}>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /><circle cx="11.5" cy="15.5" r="2.3" /><path d="m15 19-1.8-1.8" /></svg>
     <span>{t.deck.checkCalendar}</span>
