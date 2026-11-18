@@ -271,88 +271,6 @@ const xDefault = alternates.find((a) => a.lang === 'en')!.href;
         text-shadow: 0 1px 10px rgba(0,0,0,0.7);
       }
 
-      /* === Two sides: B leads (House Music Therapy), A follows (Core Memories) ===
-         Each side keeps its own colour here, whatever the accent. */
-      section.sides { gap: 10px; }
-      a.link-side {
-        --side-rgb: var(--side-b-rgb);
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        width: 100%;
-        min-height: 68px;
-        padding: 12px 18px 12px 12px;
-        border-radius: 15px;
-        text-decoration: none;
-        color: #fff;
-        background: rgba(22, 22, 26, 0.5);
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        box-shadow: 0 6px 26px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(255,255,255,0.05);
-        -webkit-backdrop-filter: blur(16px) saturate(135%);
-        backdrop-filter: blur(16px) saturate(135%);
-        -webkit-tap-highlight-color: transparent;
-        transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
-                    border-color 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
-      }
-      a.link-side[data-side="A"] { --side-rgb: var(--side-a-rgb); }
-      /* the B side leads: its edge and glow are on before anyone touches it */
-      a.link-side[data-side="B"] {
-        border-color: rgb(var(--side-b-rgb) / 0.42);
-        box-shadow: 0 6px 26px rgba(0, 0, 0, 0.38), 0 0 26px rgb(var(--side-b-rgb) / 0.14), inset 0 1px 0 rgba(255,255,255,0.05);
-      }
-      .link-side .key {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        width: 44px;
-        height: 44px;
-        border-radius: 11px;
-        background: rgb(var(--side-rgb));
-        color: #050505;
-        font-family: 'Unbounded', sans-serif;
-        font-size: 1.05rem;
-        font-weight: 800;
-      }
-      .link-side .side-text { display: flex; flex-direction: column; gap: 4px; min-width: 0; flex: 1; }
-      .link-side .side-name { font-family: 'Unbounded', sans-serif; font-size: 0.95rem; font-weight: 700; line-height: 1.25; }
-      .link-side .side-detail {
-        font-family: var(--mono);
-        font-size: 0.64rem;
-        font-weight: 700;
-        letter-spacing: 0.08em;
-        line-height: 1.4;
-        text-transform: uppercase;
-        color: rgba(255,255,255,0.6);
-      }
-      .link-side .side-arrow { flex-shrink: 0; font-size: 0.8rem; color: rgba(255,255,255,0.5); transition: transform 0.3s, color 0.3s; }
-      /* the smallest phones: a little more room for the name */
-      @media (max-width: 359px) {
-        a.link-side { gap: 12px; padding: 11px 14px 11px 11px; }
-        .link-side .key { width: 40px; height: 40px; border-radius: 10px; }
-        .link-side .side-name { font-size: 0.9rem; }
-      }
-      a.link-side:focus-visible,
-      a.link-side:active {
-        border-color: rgb(var(--side-rgb));
-        background: rgb(var(--side-rgb) / 0.16);
-        box-shadow: 0 14px 38px rgba(0, 0, 0, 0.5), 0 0 28px rgb(var(--side-rgb) / 0.35);
-      }
-      a.link-side:focus-visible .side-arrow,
-      a.link-side:active .side-arrow { color: rgb(var(--side-rgb)); transform: translateX(3px); }
-      a.link-side:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
-      a.link-side:active { transform: scale(0.98); transition-duration: 0.1s; }
-      @media (hover: hover) {
-        a.link-side:hover {
-          transform: translateY(-2px);
-          border-color: rgb(var(--side-rgb));
-          background: rgb(var(--side-rgb) / 0.16);
-          box-shadow: 0 14px 38px rgba(0, 0, 0, 0.5), 0 0 28px rgb(var(--side-rgb) / 0.35);
-        }
-        a.link-side:hover .side-arrow { color: rgb(var(--side-rgb)); transform: translateX(3px); }
-        a.link-side:active:hover { transform: scale(0.98); }
-      }
-
       /* === Glass cards === */
       a.link-primary,
       a.link-secondary {
@@ -502,10 +420,9 @@ const xDefault = alternates.find((a) => a.lang === 'en')!.href;
 
       @media (prefers-reduced-motion: reduce) {
         main > * { animation: none; }
-        a.link-primary, a.link-secondary, a.link-side { transition: border-color 0.3s, background 0.3s, color 0.3s; }
-        a.link-primary:hover, a.link-secondary:hover, a.link-side:hover,
-        a.link-primary:active, a.link-secondary:active, a.link-side:active { transform: none; }
-        .link-side .side-arrow { transition: none; }
+        a.link-primary, a.link-secondary { transition: border-color 0.3s, background 0.3s, color 0.3s; }
+        a.link-primary:hover, a.link-secondary:hover,
+        a.link-primary:active, a.link-secondary:active { transform: none; }
       }
     </style>
   </head>
@@ -570,26 +487,6 @@ const xDefault = alternates.find((a) => a.lang === 'en')!.href;
           <p>{t.links.tagline}</p>
         </div>
       </header>
-
-      <!-- The two sides, B first. They open the site, where both sides live. -->
-      <section class="sides" aria-label={t.links.sidesLabel}>
-        <a href={`${l('/mixes')}?side=b`} class="link-side" data-side="B">
-          <span class="key" aria-hidden="true">B</span>
-          <span class="side-text">
-            <span class="side-name"><span class="sr-only">{t.sides.b}: </span>House Music Therapy</span>
-            <span class="side-detail">{t.links.sideBDetail}</span>
-          </span>
-          <i class="fa-solid fa-arrow-right side-arrow" aria-hidden="true"></i>
-        </a>
-        <a href={`${l('/events')}?side=a`} class="link-side" data-side="A">
-          <span class="key" aria-hidden="true">A</span>
-          <span class="side-text">
-            <span class="side-name"><span class="sr-only">{t.sides.a}: </span>Core Memories</span>
-            <span class="side-detail">{t.links.sideADetail}</span>
-          </span>
-          <i class="fa-solid fa-arrow-right side-arrow" aria-hidden="true"></i>
-        </a>
-      </section>
 
       <!-- Main Links -->
       <section aria-label={t.links.mainLabel}>

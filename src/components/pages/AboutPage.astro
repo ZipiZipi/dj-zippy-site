@@ -1,4 +1,7 @@
 ---
+// Instagram pages of his two own nights: Zippy Zove (B side) and Izuvanje (A side)
+const ZIPPY_ZOVE_IG = 'https://www.instagram.com/zippy.zove/';
+const IZUVANJE_IG = 'https://www.instagram.com/izuj_se';
 import Layout from '../../layouts/Layout.astro';
 import { getEvents, eventSide, type UIEvent, type Side } from '../../lib/content';
 import { placeName, placeKey, venueName, subtitleText } from '../../lib/places';
@@ -364,6 +367,8 @@ const aboutSchema = {
     .about-notes__row dt { padding-top: 0.2rem; font-size: 0.6875rem; line-height: 1.35; color: #9ca3af; }
     .about-notes__row dd { font-size: 0.9375rem; line-height: 1.5; color: #fff; }
     /* the quieter line under a name: "Since 2026", "Available across Europe" */
+    .about-notes__link { color: inherit; text-decoration: underline; text-decoration-color: rgb(255 255 255 / 0.3); text-underline-offset: 0.2em; transition: text-decoration-color 0.2s; }
+    .about-notes__link:hover, .about-notes__link:focus-visible { text-decoration-color: currentColor; }
     .about-notes__sub { display: block; margin-top: 0.1rem; font-size: 0.8125rem; line-height: 1.45; color: #9ca3af; }
     .about-notes__row .side-key { width: 1.125rem; height: 1.125rem; margin-right: 0.35rem; border-radius: 0.35rem; font-size: 0.5625rem; vertical-align: 0.1rem; }
 
@@ -611,9 +616,13 @@ const aboutSchema = {
               <dt class="mono-caps">{t.about.notesAlumni}</dt>
               <dd>{t.about.notesAlumniValue} <span class="about-notes__sub">{t.about.notesAlumniNote}</span></dd>
             </div>
+            <div class="about-notes__row" data-side="B">
+              <dt class="mono-caps">{t.about.notesOwnNight}</dt>
+              <dd><span class="side-key" aria-hidden="true">B</span><a href={ZIPPY_ZOVE_IG} class="about-notes__link" target="_blank" rel="noopener">{t.about.notesOwnNightValue}</a><span class="sr-only"> ({t.sides.b})</span> <span class="about-notes__sub">{t.about.notesOwnNightNote}</span></dd>
+            </div>
             <div class="about-notes__row" data-side="A">
               <dt class="mono-caps">{t.about.notesSideProject}</dt>
-              <dd><span class="side-key" aria-hidden="true">A</span>{t.about.notesSideProjectValue}<span class="sr-only"> ({t.sides.a})</span> <span class="about-notes__sub">{t.about.notesSideProjectNote}</span></dd>
+              <dd><span class="side-key" aria-hidden="true">A</span><a href={IZUVANJE_IG} class="about-notes__link" target="_blank" rel="noopener">{t.about.notesSideProjectValue}</a><span class="sr-only"> ({t.sides.a})</span> <span class="about-notes__sub">{t.about.notesSideProjectNote}</span></dd>
             </div>
           </dl>
         </aside>

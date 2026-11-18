@@ -6,7 +6,7 @@ import DatesDeck from '../DatesDeck.astro';
 import SideFilter from '../SideFilter.astro';
 import { getEvents, getMixes, MIX_PLATFORMS, youtubeThumb, eventSound, eventSide, eventInterval, mixSide, type UIEvent, type UIMix } from '../../lib/content';
 import { eventTimes, ICS_FEED_PATH } from '../../lib/calendar';
-import { placeName, placeKey, venueName, eventName } from '../../lib/places';
+import { placeName, venueName, eventName } from '../../lib/places';
 import { useTranslations, localize, htmlLang, type Lang } from '../../i18n/utils';
 
 interface Props {
@@ -94,38 +94,6 @@ const heroLine = nextGig
       };
     })()
   : sets[0] && { label: t.home.heroLatest, when: '', name: sets[0].title, openFormat: false, side: null, where: '', href: sets[0].link, external: true };
-
-// "The selector": the archive in numbers, counted exactly the way /events counts
-// them (EventsPage.astro): venues and cities by name, one city however it is spelled.
-const venueKey = (e: UIEvent) => venueName(e.title).toLowerCase();
-const cityKey = (e: UIEvent) => placeKey(e.location);
-const distinct = (list: UIEvent[], key: (e: UIEvent) => string) => new Set(list.map(key)).size;
-const introStats = [
-  { n: past.length, label: t.home.introStats.gigs },
-  { n: distinct(past, venueKey), label: t.home.introStats.venues },
-  { n: distinct(past, cityKey), label: t.home.introStats.cities },
-  { n: distinct(past, (e) => e.country ?? 'RS'), label: t.home.introStats.countries },
-].filter((s) => s.n > 0);
-
-// Side B opens with Exit Festival: how many of its stages, in which years ("3 stages · 2024–25").
-const exitGigs = past.filter((e) => /^exit\b/i.test(e.title.trim()));
-const exitYears = [...new Set(exitGigs.map((e) => e.date.slice(0, 4)))].sort();
-const exitNote = exitGigs.length
-  ? [
-      t.home.introStages(distinct(exitGigs, venueKey)),
-      exitYears.length > 1 ? `${exitYears[0]}–${exitYears[exitYears.length - 1].slice(2)}` : exitYears[0],
-    ].join(' · ')
-  : '';
-const introSides = (['B', 'A'] as const).map((side) => {
-  const s = t.home.introSides[side];
-  return {
-    side,
-    ...s,
-    tag: side === 'A' ? `${t.sides.a} · ${t.sides.aLabel}` : `${t.sides.b} · ${t.sides.bLabel}`,
-    href: side === 'A' ? l('/events') : l('/mixes'),
-    tracks: s.tracks.map((tr) => ({ name: tr.name, note: tr.note === '{exit}' ? exitNote : tr.note })),
-  };
-});
 
 const pageUrl = `https://zippydj.com${l('/')}`;
 
@@ -605,16 +573,16 @@ const homeSchema = {
     .deck-idle__ph span { position: absolute; top: calc(100% + 0.6rem); left: -4px; font-size: 0.6875rem; color: #fff; white-space: nowrap; }
 
     /* === The selector (#intro): the back of his record ===
-       Phones: the sleeve, the text, the two sides, then the credits as the
-       sleeve's small print. From 640px the credits sit beside the sleeve and
-       the rest runs full width. From 1024px the sleeve and its credits take
-       the left column, the text the right, the sides run across the bottom. */
+       Phones: the sleeve, the text, then the credits as the sleeve's small
+       print. From 640px the credits sit beside the sleeve and the text runs
+       full width. From 1024px the sleeve and its credits take the left
+       column, the text the right. */
     .liner { padding-block: 3.5rem 4rem; overflow-x: clip; }
     @media (min-width: 640px) { .liner { padding-block: 4.5rem 5rem; } }
     .liner__grid {
       display: grid;
       grid-template-columns: minmax(0, 1fr);
-      grid-template-areas: "sleeve" "head" "body" "sides" "credits";
+      grid-template-areas: "sleeve" "head" "body" "credits";
       row-gap: 2.5rem;
     }
     .liner__text, .liner__media { display: contents; }
@@ -622,11 +590,10 @@ const homeSchema = {
     .liner__head { grid-area: head; container-type: inline-size; }
     .liner__body { grid-area: body; }
     .liner__credits { grid-area: credits; }
-    .liner__sides { grid-area: sides; }
     @media (min-width: 640px) {
       .liner__grid {
         grid-template-columns: auto minmax(0, 1fr);
-        grid-template-areas: "sleeve credits" "head head" "body body" "sides sides";
+        grid-template-areas: "sleeve credits" "head head" "body body";
         column-gap: clamp(1.5rem, 4vw, 3rem);
         row-gap: 3rem;
       }
@@ -635,9 +602,8 @@ const homeSchema = {
     @media (min-width: 1024px) {
       .liner__grid {
         grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-        grid-template-areas: "media text" "sides sides";
+        grid-template-areas: "media text";
         column-gap: clamp(3rem, 5.5vw, 5.5rem);
-        row-gap: 4.5rem;
         align-items: center;
       }
       .liner__media { display: block; grid-area: media; }
@@ -667,23 +633,12 @@ const homeSchema = {
     .liner__copy { max-width: 37rem; font-size: 1rem; line-height: 1.7; color: rgb(255 255 255 / 0.74); text-wrap: pretty; }
     @media (min-width: 768px) { .liner__copy { font-size: 1.0625rem; line-height: 1.75; } }
 
-    /* The archive in numbers: a ruled strip, the number over its label */
-    .liner__stats {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      max-width: 34rem;
-      margin-top: 2rem;
-      border-top: 1px solid var(--line, rgb(255 255 255 / 0.09));
-    }
-    .liner__stat { display: flex; flex-direction: column-reverse; justify-content: flex-end; gap: 0.45rem; padding-top: 1rem; }
-    .liner__stat + .liner__stat { padding-left: clamp(0.75rem, 2.5vw, 1.25rem); border-left: 1px solid var(--line, rgb(255 255 255 / 0.09)); }
-    .liner__stat dd { font-size: clamp(1.625rem, 1.2rem + 1.5vw, 2.25rem); font-weight: 700; line-height: 1; color: #fff; font-variant-numeric: tabular-nums; }
-    .liner__stat dt { font-size: 0.6875rem; color: rgb(255 255 255 / 0.55); }
-    @media (max-width: 359px) {
-      .liner__stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .liner__stat:nth-child(3) { padding-left: 0; border-left: 0; }
-      .liner__stat:nth-child(n + 3) { margin-top: 1rem; border-top: 1px solid var(--line, rgb(255 255 255 / 0.09)); }
-    }
+    /* One text per side: B until the visitor picks A (like the sleeve print) */
+    .liner__copy--a { display: none; }
+    html[data-side-pick="A"] .liner__copy--a { display: block; }
+    html[data-side-pick="A"] .liner__copy--b { display: none; }
+    .liner__copy a { color: #fff; text-decoration: underline; text-decoration-color: rgb(var(--side-a-rgb)); text-underline-offset: 0.2em; }
+    .liner__copy a:hover, .liner__copy a:focus-visible { color: rgb(var(--side-a-rgb)); }
     .liner__cta { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 2rem; }
     /* on phones the two buttons share the row, or each takes a full row when they wrap */
     @media (max-width: 639px) { .liner__cta .btn { flex: 1 1 auto; } }
@@ -814,50 +769,8 @@ const homeSchema = {
     }
     .liner__credits > div:hover .liner__plane { transform: translate(3px, -3px) rotate(45deg); }
 
-    /* The two sides as a tracklist. B leads: first, wider, a larger title. */
-    .liner__sides { display: grid; row-gap: 3rem; }
-    @media (min-width: 768px) {
-      .liner__sides { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); column-gap: clamp(2rem, 4vw, 3rem); align-items: start; }
-    }
-    @media (min-width: 1024px) { .liner__sides { column-gap: clamp(3rem, 5.5vw, 5.5rem); } }
-    .liner-side { position: relative; padding-top: 1.25rem; border-top: 1px solid var(--line, rgb(255 255 255 / 0.09)); }
-    .liner-side::before { content: ''; position: absolute; left: 0; top: -1px; width: 2.5rem; height: 2px; background: var(--side); }
-    /* a faint wash of the side's colour from the top corner, like the deck's display */
-    .liner-side::after {
-      content: '';
-      position: absolute;
-      left: 0;
-      right: 0;
-      top: 0;
-      height: 10rem;
-      z-index: -1;
-      pointer-events: none;
-      background: radial-gradient(60% 100% at 0% 0%, color-mix(in srgb, var(--side) 9%, transparent), transparent 80%);
-    }
-    .liner-side__meta { display: flex; align-items: center; gap: 0.625rem; font-size: 0.6875rem; color: var(--side); }
-    /* lit for the side the visitor has picked: B until they pick A */
-    .liner-side__led { width: 6px; height: 6px; margin-left: auto; border-radius: 50%; background: rgb(255 255 255 / 0.16); transition: background-color 0.3s, box-shadow 0.3s; }
-    html:not([data-side-pick="A"]) .liner-side--b .liner-side__led,
-    html[data-side-pick="A"] .liner-side--a .liner-side__led { background: var(--side); box-shadow: 0 0 8px 1px var(--side); }
-    .liner-side__name { margin-top: 0.875rem; font-size: clamp(1.0625rem, 0.9rem + 0.6vw, 1.25rem); font-weight: 700; line-height: 1.2; }
-    .liner-side--b .liner-side__name { font-size: clamp(1.1875rem, 0.95rem + 1vw, 1.5rem); }
-    .liner-side__blurb { margin-top: 0.5rem; max-width: 30rem; font-size: 0.9375rem; line-height: 1.6; color: rgb(255 255 255 / 0.68); text-wrap: pretty; }
-    .liner-side__tracks { margin-top: 1.125rem; }
-    .liner-side__tracks li {
-      display: grid;
-      grid-template-columns: 2rem minmax(0, 1fr) auto;
-      align-items: baseline;
-      column-gap: 0.75rem;
-      padding: 0.65rem 0;
-      border-top: 1px solid rgb(255 255 255 / 0.06);
-    }
-    .liner-side__no { font-size: 0.6875rem; color: var(--side); }
-    .liner-side__track { font-size: 0.9375rem; font-weight: 600; color: #fff; }
-    .liner-side__note { font-size: 0.8125rem; color: rgb(255 255 255 / 0.5); text-align: right; white-space: nowrap; }
-    .liner-side .home-link { margin-top: 0.5rem; }
-
     @media (prefers-reduced-motion: reduce) {
-      .liner__record, .liner-side__led, .liner__plane, .home-link__arrow { transition: none; }
+      .liner__record, .liner__plane, .home-link__arrow { transition: none; }
     }
   </style>
 
@@ -1031,9 +944,8 @@ const homeSchema = {
   <!-- The selector: the back of his record. The text comes first in the source,
        so the heading is what gets read first; on screen the sleeve leads. The
        photo is the sleeve with the record half out of it, the copy is the "who is
-       DJ Zippy" text for search engines, the numbers come from the events
-       archive, and the two sides of the record are the two kinds of nights he
-       plays, B (his own) first. -->
+       DJ Zippy" text for search engines, one per side: B until the visitor
+       picks A, like the print on the sleeve. -->
   <section id="intro" class="liner isolate relative bg-brand-black" aria-labelledby="intro-heading">
     <div class="container mx-auto px-6 sm:px-8 lg:px-12">
       <div class="liner__grid max-w-6xl mx-auto" data-reveal>
@@ -1044,17 +956,8 @@ const homeSchema = {
             <p class="liner__quote">{t.home.introQuote.map((line) => <span>{line}<span class="liner__dot">.</span> </span>)}</p>
           </div>
           <div class="liner__body">
-            <p class="liner__copy">{t.home.introBody}</p>
-            {introStats.length > 0 && (
-              <dl class="liner__stats">
-                {introStats.map((s) => (
-                  <div class="liner__stat">
-                    <dt class="mono-caps">{s.label}</dt>
-                    <dd class="font-display">{s.n}</dd>
-                  </div>
-                ))}
-              </dl>
-            )}
+            <p class="liner__copy liner__copy--b">{t.home.introBodyB}</p>
+            <p class="liner__copy liner__copy--a">{t.home.introBodyA.before}<a href="https://www.instagram.com/izuj_se" target="_blank" rel="noopener">{t.home.introBodyA.link}</a>{t.home.introBodyA.after}</p>
             <div class="liner__cta">
               <a href={`${l('/')}#contact`} class="btn btn--primary">
                 <i class="fa-solid fa-envelope" aria-hidden="true"></i> {t.home.introBook}
@@ -1099,32 +1002,6 @@ const homeSchema = {
               </div>
             ))}
           </dl>
-        </div>
-
-        {/* The two sides as a tracklist: B leads, A follows. The LED shows the side
-            the visitor has picked (B until they pick A). */}
-        <div class="liner__sides">
-          {introSides.map((s) => (
-            <div class={`liner-side liner-side--${s.side.toLowerCase()}`} data-side={s.side}>
-              <div class="liner-side__meta" aria-hidden="true">
-                <span class="side-key">{s.side}</span>
-                <span class="mono-caps">{s.tag}</span>
-                <span class="liner-side__led"></span>
-              </div>
-              <h3 class="liner-side__name font-display"><span class="sr-only">{s.tag}: </span>{s.name}</h3>
-              <p class="liner-side__blurb">{s.blurb}</p>
-              <ol class="liner-side__tracks">
-                {s.tracks.map((tr, i) => (
-                  <li>
-                    <span class="liner-side__no mono-caps" aria-hidden="true">{s.side}{i + 1}</span>
-                    <span class="liner-side__track">{tr.name}</span>
-                    {tr.note && <span class="liner-side__note">{tr.note}</span>}
-                  </li>
-                ))}
-              </ol>
-              <a href={s.href} class="home-link mono-caps">{s.link} <span class="home-link__arrow" aria-hidden="true">→</span></a>
-            </div>
-          ))}
         </div>
       </div>
     </div>

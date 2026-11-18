@@ -55,11 +55,12 @@ u isto vreme, jer se izmene sudaraju. Najsigurnije je raditi ih redom i commit-o
 | [ ] | T24 Plava kao druga boja: open format strana | 🟠 P1 | Sonnet 5.5 | medium | `tailwind.config.mjs`, `global.css`, `HomePage.astro`, `EventsPage.astro`, `AboutPage.astro` |
 | [ ] | T25 Vinili: klik pušta miks u plejeru na dnu (MixCloud widget), hover pali ploču | 🟠 P1 | Opus 5.5 | high | `HomePage.astro`, `Layout.astro`, `content.ts` |
 | [ ] | T26 Stranica za svaki miks (`/mixes/[slug]`) sa tracklistom | 🟡 P2 | Opus 5.5 | high | `src/pages/mixes/[slug].astro`, `sr/…`, `MixPage.astro`, `content.ts`, `sitemap.xml.ts` |
-| [ ] ⏸ odloženo 2026-10-01 | T27 Tekstovi: novi glas bez DJ klišea (en + sr) — korisnik: „ostavi za kasnije“ | 🔴 P0 | Opus 5.5 | high | `ui.ts`, `llms.txt`, schema opisi |
+| [ ] ⏸ odloženo 2026-10-01 → spojeno u T32 (2026-11-18) | T27 Tekstovi: novi glas bez DJ klišea (en + sr) — korisnik: „ostavi za kasnije“ | 🔴 P0 | Opus 5.5 | high | `ui.ts`, `llms.txt`, schema opisi |
 | [ ] | T28 About kao priča: put od 2022. do danas (rešava B9) | 🟠 P1 | Opus 5.5 | high | `AboutPage.astro`, `ui.ts` |
 | [ ] | T29 „U torbi“: ploče koje Zippy trenutno pušta | 🟡 P2 | Sonnet 5.5 | medium | `HomePage.astro` ili `MixesPage.astro`, `ui.ts` ili D1 |
 | [–] otkazano 2026-10-01 | ~~T30 Potpisi identiteta: HMT kataloški brojevi, mono metapodaci, zrno~~ — korisnik: „nećemo“ | 🟡 P2 | Sonnet 5.5 | medium | `global.css`, `MixesPage.astro`, `HomePage.astro`, `fonts.css` |
 | [x] 2026-10-04 | T31 Bug: `/mixes/` i `/events/` sa kosom crtom na kraju daju 404 — middleware vraća 301 na put bez kose crte (query ostaje) za sve GET/HEAD osim `/` i `/api/*`; pokriva i `/sr/` (srpska početna je takođe davala 404); vodeće `//` se sabijaju da ne bi bilo open redirect-a; provereno na `wrangler dev`. | 🔴 P0 | Sonnet 5.5 | low | `src/middleware/index.ts` |
+| [ ] | T32 Prolaz kroz SVE tekstove sajta (en + sr) po bazi znanja `E:\DJ\00_Znanje` — zamenjuje T27 | 🔴 P0 | Opus 5.5 | high | `src/i18n/ui.ts`, `public/llms.txt`, schema u `HomePage.astro` / `AboutPage.astro`, `content.ts` (seed), meta |
 
 Preporučeni redosled: **T1 → T2 → T6 → T7 → T9 → T8 → T5 → T10 → T3 → T4 → T11 → T13 → T12 → T14**.
 Posle toga: **T18 → T21 → T15 → T16 → T17 → T20 → T19 → T22**. T18 i T21 su skoro bez koda, a daju najviše za pozicioniranje i konverzije.
@@ -1344,3 +1345,45 @@ neki bukeri, Google ako ga negde nađe) dobija 404.
 > `pathname` ima više od 1 znaka i završava se sa `/` vrati **301** na isti put bez kose crte (zadrži query string).
 > Ne diraj `/` i `/api/*`. Proveri na `wrangler dev` (ne `astro dev`): `/mixes/`, `/events/`, `/sr/mixes/`,
 > `/sr/events/`, `/mixes/?x=1` → 301, a `/mixes` 200. Build jednom.
+
+---
+
+## T32 — Prolaz kroz sve tekstove sajta (en + sr)
+
+**Dodato 2026-11-18** (korisnik: „svi tekstovi treba da se prođu i srede“). **Zamenjuje T27** (njegova tabela i pravila
+ostaju kao polazna tačka). **Prioritet:** 🔴 P0 · **Model:** Opus 5.5 · **Effort:** high · **Pitaj me:** samo ⚠ činjenice
+
+**Izvor istine za činjenice i glas:** `E:\DJ\00_Znanje` — prvo pročitaj `00_KONTEKST ZA AI.md`, `02_Brend/Glas i ton.md`,
+`01_Ko je Zippy/Biografija i činjenice.md`, `Dnevnik odluka.md` i `05_Sajt zippydj.com/Quick update - izbor (nov 2026).md`.
+Kad se izvori ne slažu: Sheet „Odradjene zurke“ > kod > Dnevnik odluka > ostalo. Živi sajt NIJE izvor (ima stare tekstove).
+
+**Šta se prolazi:** svaki string u `src/i18n/ui.ts` (en i sr), `public/llms.txt`, schema opisi (Person/Organization/FAQ),
+title/description svih stranica, seed tekstovi u `content.ts`, alt tekstovi slika. Na kraju tabela „staro → novo“ za korisnika.
+
+**Već urađeno u quick update-u (2026-11-18, dev → main):** liner notes na početnoj imaju poseban tekst za B i A (`introBodyB` /
+`introBodyA`, A linkuje Izuvanje), bez brojki i bez B/A panela; „Balkan“ izbačen svuda (booking, About, FAQ, `llms.txt`, Spotify
+plejlista sa Mikseva); Links bez B/A dugmadi na vrhu; About „Nights“ iz Sheet-a (B: + Club Kult; A: + London Pub, Hangar Ohrid);
+fact sheet: Zippy Zove (B, link) i Izuvanje (A, link). To ne radi ponovo, samo uskladi glas.
+
+**Primećeno, ostalo za T32:** About podnaslov „Not a Producer. A Selector.“ (odbrambeno, izbaciti); `bio3Html` „safe and exciting
+bet for any promoter“ (kliše); `bio1Html` „the right groove can heal“; ⚠ JSON-LD `birthPlace: Belgrade` u `AboutPage.astro`
+(baza znanja kaže Smederevo, izvor Gemini — pitaj korisnika).
+
+**Pravila (iz baze znanja):**
+- Treće lice; činjenice umesto prideva; rečenice do ~20 reči; bez „journey“, „frequencies“, „curates“, „safe bet“, „proud member“,
+  „vibe“ (javno), „Not a producer“ (bez odbrane).
+- Kult Talents = **alumni**, nikad „član“; Club Kult kao mesto ostaje. **Go2 Travel se ne pominje** kao partner (saradnja
+  prekinuta 10.11.2026); Grčka i Ohrid ostaju kao mesta nastupa.
+- **„Balkan“ nigde među žanrovima** (ne radi balkansku muziku). A strana: R&B, disco, funk, 2000-te, pop, hip-hop, trap.
+- Pozicija **srpski DJ** (ne beogradski/novosadski). Exit kao „2024 i 2025“.
+- A i B strana imaju **različite tekstove** (liner notes, About); predlog teksta je u Quick update fajlu u bazi znanja.
+- Brojke (nastupi, mesta) samo iz Sheet-a ili nikako; na početnoj se ne prikazuju.
+- Zippy Zove (@zippy.zove, prvo izdanje 18.9.2026) je projekat **B strane**, Izuvanje (@izuj_se) projekat **A strane**;
+  oba mogu da se pominju i linkuju, svaki uz svoju stranu.
+- ⚠ Reč „underground“ za B stranu: pitaj korisnika pre nego što ostane (27.8. rekao „bez underground priče“).
+- Srpski: manje anglicizama; „Nastupao/Nastupi“, ne „Svirao“.
+
+**Prompt:**
+> Uradi Task T32 iz docs/TASKS.md. Prvo pročitaj fajlove iz baze znanja navedene u tasku. Prođi sve tekstove (en + sr) po
+> pravilima, jednim AskUserQuestion pitaj samo ⚠ stvari (underground, nepotvrđene činjenice), pa primeni. Na kraju
+> napravi tabelu „staro → novo“ i ne commit-uj bez pitanja. Build jednom, screenshot početne i About na en i sr.
