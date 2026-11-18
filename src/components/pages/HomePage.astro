@@ -1407,8 +1407,13 @@ const homeSchema = {
   function initPanelPaging() {
     var root = document.documentElement;
     var fit = window.matchMedia('(pointer: fine) and (min-width: 1024px) and (min-height: 560px)');
-    if (!document.querySelector('.home-panel') || !fit.matches || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    root.classList.add('home-paging');
+    var still = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (!document.querySelector('.home-panel')) return;
+    // on, off again when the window is resized past the limits
+    function on() { return fit.matches && !still.matches; }
+    function sync() { root.classList.toggle('home-paging', on()); }
+    sync();
+    fit.addEventListener('change', sync);
     var anim = 0, locked = false, lastWheel = 0;
     function stops() {
       var y = window.scrollY;
@@ -1458,6 +1463,7 @@ const homeSchema = {
       return true;
     }
     function onWheel(e) {
+      if (!on()) return;
       if (e.ctrlKey || Math.abs(e.deltaX) > Math.abs(e.deltaY) || Math.abs(e.deltaY) < 2) return;
       if (root.classList.contains('menu-open')) return;
       var dir = e.deltaY > 0 ? 1 : -1;
@@ -1468,6 +1474,7 @@ const homeSchema = {
     var KEYS = { PageDown: 1, ArrowDown: 1, PageUp: -1, ArrowUp: -1 };
     function onKey(e) {
       var t = e.target;
+      if (!on()) return;
       if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || root.classList.contains('menu-open')) return;
       if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) || t.closest('[role="slider"], [role="listbox"], [role="menu"], details'))) return;
       var dir = e.key === ' ' ? (/^(BUTTON|A|SUMMARY)$/.test(t && t.tagName) ? 0 : (e.shiftKey ? -1 : 1)) : KEYS[e.key];
@@ -1479,6 +1486,7 @@ const homeSchema = {
     document.addEventListener('astro:before-swap', function () {
       window.removeEventListener('wheel', onWheel);
       window.removeEventListener('keydown', onKey);
+      fit.removeEventListener('change', sync);
       cancelAnimationFrame(anim);
       root.classList.remove('home-paging');
     }, { once: true });
