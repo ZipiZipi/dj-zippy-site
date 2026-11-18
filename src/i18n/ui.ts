@@ -231,7 +231,7 @@ const en = {
     introHeading2: 'House Music Therapy',
     introQuote: ['Reads the room first', 'Plays second'],
     introBodyB:
-      "DJ Zippy (Veljko Nedeljković) is a Serbian house DJ. Three Exit Festival stages (2024–25), House Music Therapy nights at Ray Bar in Novi Sad, and house nights at Kaz'te, Krivi Put and Charlie Bar. Deep and French house to open, deep tech and minimal for the late hours.",
+      "DJ Zippy (Veljko Nedeljković) is a Serbian house DJ. Three Exit Festival stages, including the Dance Arena in 2025. House Music Therapy nights at Ray Bar in Novi Sad, and house nights at Kaz'te, Krivi Put and Charlie Bar. Deep and French house to open, deep tech and minimal for the late hours.",
     introBodyA: {
       before: "Zippy's open-format side: Core Memories at Lazino Tele and ",
       link: 'Izuvanje',
@@ -256,7 +256,7 @@ const en = {
     // The residency line follows the lead only while the residency is live:
     // AboutPage fills {venue}, {city} and {year} from the gig archive.
     lead:
-      'Serbian house and tech house DJ. First public set in a Smederevo café in 2022 and three Exit Festival stages by 2025.',
+      'Serbian house and tech house DJ. First public set in a Smederevo café in 2022 and three Exit Festival stages by 2025, the Dance Arena among them.',
     leadResidency: 'Resident at {venue} in {city} since {year}.',
     photoAlt: 'DJ Zippy, Serbian house DJ and creator of House Music Therapy.',
     book: 'Book Zippy',
@@ -722,7 +722,7 @@ const sr: Dict = {
     introHeading2: 'House Music Therapy',
     introQuote: ['Prvo čita publiku', 'Tek onda pušta'],
     introBodyB:
-      "DJ Zippy (Veljko Nedeljković) je srpski house DJ. Tri bine Exit festivala (2024–25), House Music Therapy večeri u Ray Baru u Novom Sadu i house večeri u Kaz'te, Krivom Putu i Charlie Baru. Deep i french house za početak, deep tech i minimal za kasne sate.",
+      "DJ Zippy (Veljko Nedeljković) je srpski house DJ. Tri bine Exit festivala, među njima i Dance Arena 2025. House Music Therapy večeri u Ray Baru u Novom Sadu i house večeri u Kaz'te, Krivom Putu i Charlie Baru. Deep i french house za početak, deep tech i minimal za kasne sate.",
     introBodyA: {
       before: 'Open format strana Zippyja: Core Memories u Lazinom Teletu i ',
       link: 'Izuvanje',
@@ -745,7 +745,7 @@ const sr: Dict = {
     heading1: 'O ',
     heading2: 'DJ Zippyju',
     lead:
-      'Srpski house i tech house DJ. Prvi javni nastup 2022. u jednom smederevskom kafiću i tri bine Exit festivala do 2025.',
+      'Srpski house i tech house DJ. Prvi javni nastup 2022. u jednom smederevskom kafiću i tri bine Exit festivala do 2025, među njima i Dance Arena.',
     leadResidency: 'Od {year}. ima rezidenciju u klubu {venue} ({city}).',
     photoAlt: 'DJ Zippy, srpski house DJ i tvorac House Music Therapy.',
     book: 'Rezerviši Zippyja',
