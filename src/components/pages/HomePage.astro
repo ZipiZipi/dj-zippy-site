@@ -228,15 +228,16 @@ const homeSchema = {
 // loops by sliding its track left by half its width, so half the track has to
 // be wider than the widest screen: a short list is repeated in each half. The
 // time goes by the letters in that half, so every tape runs at the same pace
-// (the venue tape at 57s for the old ten-venue list, the genre tape at 38s).
+// (the venue tape as fast as the old ten-venue list at 57s, the genre tape as
+// the old one at 38s).
 function tapeLoop(items: string[], minChars: number, secsPerChar: number) {
   const chars = items.join('').length;
   const repeat = Math.max(1, Math.ceil(minChars / chars));
   return { items, copies: repeat * 2, duration: `${Math.round(chars * repeat * secsPerChar)}s` };
 }
 const tapeSides = [
-  { key: 'b', venues: tapeLoop(t.home.venues, 150, 0.28), words: tapeLoop(t.home.tapeWords, 100, 0.333) },
-  { key: 'a', venues: tapeLoop(t.home.venuesA, 150, 0.28), words: tapeLoop(t.home.tapeWordsA, 100, 0.333) },
+  { key: 'b', venues: tapeLoop(t.home.venues, 150, 0.28), words: tapeLoop(t.home.tapeWords, 140, 0.333) },
+  { key: 'a', venues: tapeLoop(t.home.venuesA, 150, 0.28), words: tapeLoop(t.home.tapeWordsA, 140, 0.333) },
 ];
 ---
 
