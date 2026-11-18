@@ -6,7 +6,8 @@
 // Fees and other private columns of the sheet never come here.
 export const GIG_STATS = {
   asOf: '2026-10-31',
-  gigs: 130,
+  // every gig in the sheet, the first private party (2020) included
+  gigs: 131,
   // distinct public venues (private parties and weddings left out); shown as "40+"
   venues: 40,
   // Serbia, Greece, North Macedonia (Ohrid)
@@ -15,6 +16,7 @@ export const GIG_STATS = {
   exitStages: 3,
   // per year: all gigs, and how many were B side (house) by the sheet's genres
   years: {
+    '2020': { total: 1, b: 0 },
     '2022': { total: 11, b: 2 },
     '2023': { total: 12, b: 0 },
     '2024': { total: 26, b: 1 },
