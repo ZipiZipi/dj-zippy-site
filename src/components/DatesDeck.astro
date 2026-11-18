@@ -167,6 +167,8 @@ const strings = {
     text-align: left;
     transition: border-color 0.2s, background-color 0.2s, opacity 0.2s;
   }
+  /* the date on each pad: large and bright enough to read at a glance */
+  .deck__pad-date { font-size: 0.9375rem; font-weight: 700; line-height: 1; color: #fff; font-variant-numeric: tabular-nums; }
   .deck__pad:hover { border-color: rgba(255,255,255,0.28); background: rgba(255,255,255,0.06); }
   .deck__pad[aria-pressed="true"] { border-color: var(--side); background: rgba(255,255,255,0.07); }
   .deck__pad:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
@@ -232,7 +234,7 @@ const strings = {
         <button type="button" class="deck__pad" data-deck-pad={i} data-side={g.side} aria-pressed={i === 0 ? 'true' : 'false'}>
           <span class="flex items-center justify-between gap-2">
             <span class="side-key">{g.n}</span>
-            <span class="mono-caps text-[0.6875rem] text-gray-400">{g.short}</span>
+            <span class="deck__pad-date mono-caps">{g.short}</span>
           </span>
           <span class="mt-2.5 text-sm font-semibold text-white leading-snug">{g.title}</span>
           <span class="text-xs text-gray-400">{g.location}</span>
