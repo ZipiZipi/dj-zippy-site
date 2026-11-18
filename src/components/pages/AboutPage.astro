@@ -389,6 +389,12 @@ const aboutSchema = {
     .about-pick__label { font-size: 0.6875rem; color: #9ca3af; }
     .about-sides-grid { display: grid; gap: 1rem; margin-top: 2.25rem; }
     @media (min-width: 768px) { .about-sides-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    /* phones: only the picked side's card (B until A is picked); the picker
+       above swaps it. Both stay side by side from 768px. */
+    @media (max-width: 767px) {
+      html:not([data-side-pick="A"]) .about-side[data-side="A"],
+      html[data-side-pick="A"] .about-side[data-side="B"] { display: none; }
+    }
     @media (min-width: 1024px) { .about-sides-grid { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 1.25rem; } }
     .about-side[data-side="A"] { --side-rgb: var(--side-a-rgb); }
     .about-side[data-side="B"] { --side-rgb: var(--side-b-rgb); }
