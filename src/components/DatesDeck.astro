@@ -57,6 +57,7 @@ const showPreview = import.meta.env.DEV || gigs.some((g) => g.tracks.length > 0)
 const clientGigs = gigs.map(({ event, location, short, ...rest }) => rest);
 const strings = {
   cue: t.deck.cue, onNow: t.deck.onNow, played: t.deck.played, today: t.deck.today,
+  inDays: t.deck.inDays, inDaysOne: t.deck.inDaysOne, tomorrow: t.deck.tomorrow, inHours: t.deck.inHours, inMinutes: t.deck.inMinutes,
   preview: t.deck.preview, previewEmpty: t.deck.previewEmpty, soundOn: t.deck.soundOn, soundOff: t.deck.soundOff,
 };
 ---
@@ -98,7 +99,9 @@ const strings = {
     animation: deck-blink 0.484s steps(1) infinite alternate;   /* one beat at 124 BPM */
   }
   @keyframes deck-blink { 50% { opacity: 0.25; } }
-  .deck__count { color: var(--side); font-size: 0.8125rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  /* how far off the gig is ("In 3 days"): the biggest thing in the top row */
+  .deck__count { color: var(--side); font-size: 1.125rem; font-weight: 700; letter-spacing: 0.04em; line-height: 1.1; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  @media (min-width: 640px) { .deck__count { font-size: 1.375rem; } }
 
   .deck__main { display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem; }
   @media (min-width: 768px) { .deck__main { flex-direction: row; align-items: flex-end; justify-content: space-between; } }

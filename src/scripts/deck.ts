@@ -95,15 +95,24 @@ function initDeck() {
     return last;
   }
 
+  // How far off the selected gig is, in words: in so many days (counted in
+  // calendar days), tomorrow, or on the day itself the hours or minutes left.
+  // inDaysOne is the Serbian form for 21, 31… days ("za 21 dan").
   function tick() {
     const g = gigs[sel];
     if (!g) return;
-    const ms = g.startMs - Date.now();
-    if (ms <= 0) { count.textContent = Date.now() < g.endMs ? str.onNow : str.played; return; }
-    if (g.allDay) { count.textContent = `−${Math.ceil(ms / DAY)}d`; return; }
-    const s = Math.floor(ms / 1000);
-    const two = (n: number) => String(n).padStart(2, '0');
-    count.textContent = `−${Math.floor(s / 86400)}d ${two(Math.floor((s % 86400) / 3600))}:${two(Math.floor((s % 3600) / 60))}:${two(s % 60)}`;
+    const now = Date.now();
+    const ms = g.startMs - now;
+    if (ms <= 0) { count.textContent = now < g.endMs ? str.onNow : str.played; return; }
+    const midnight = (t: number) => { const d = new Date(t); d.setHours(0, 0, 0, 0); return d.getTime(); };
+    const days = Math.round((midnight(g.startMs) - midnight(now)) / DAY);
+    let text: string;
+    if (days >= 2) text = (days % 10 === 1 && days % 100 !== 11 ? str.inDaysOne : str.inDays).replace('{n}', String(days));
+    else if (days === 1) text = str.tomorrow;
+    else if (g.allDay) text = str.today;
+    else if (ms >= 3_600_000) text = str.inHours.replace('{n}', String(Math.floor(ms / 3_600_000)));
+    else text = str.inMinutes.replace('{n}', String(Math.max(1, Math.ceil(ms / 60_000))));
+    if (count.textContent !== text) count.textContent = text;
   }
   const timer = window.setInterval(() => {
     if (!root.isConnected) { clearInterval(timer); return; }   // page swapped by a view transition
