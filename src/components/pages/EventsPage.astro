@@ -517,7 +517,7 @@ const musicEventSchema = {
                 </ol>
                 {y.rest.length > 0 && (
                   <details class="year-more">
-                    <summary>{t.events.showAllYear.replace('{n}', String(y.rest.length))} <i class="fa-solid fa-chevron-right year-more__chevron" aria-hidden="true"></i></summary>
+                    <summary>{t.events.showAllYear} <i class="fa-solid fa-chevron-right year-more__chevron" aria-hidden="true"></i></summary>
                     <ol class="year-list">
                       {y.rest.map((e) => <PastGigRow lang={lang} event={e} />)}
                     </ol>
