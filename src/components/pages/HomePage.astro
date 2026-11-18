@@ -223,6 +223,21 @@ const homeSchema = {
     ...deckEvents,
   ],
 };
+
+// The "Played at" tapes, one pair per side (CSS shows the picked one). A tape
+// loops by sliding its track left by half its width, so half the track has to
+// be wider than the widest screen: a short list is repeated in each half. The
+// time goes by the letters in that half, so every tape runs at the same pace
+// (the venue tape at 57s for the old ten-venue list, the genre tape at 38s).
+function tapeLoop(items: string[], minChars: number, secsPerChar: number) {
+  const chars = items.join('').length;
+  const repeat = Math.max(1, Math.ceil(minChars / chars));
+  return { items, copies: repeat * 2, duration: `${Math.round(chars * repeat * secsPerChar)}s` };
+}
+const tapeSides = [
+  { key: 'b', venues: tapeLoop(t.home.venues, 150, 0.28), words: tapeLoop(t.home.tapeWords, 100, 0.333) },
+  { key: 'a', venues: tapeLoop(t.home.venuesA, 150, 0.28), words: tapeLoop(t.home.tapeWordsA, 100, 0.333) },
+];
 ---
 
 <Layout lang={lang} title={t.home.title} description={t.home.description}>
@@ -1027,25 +1042,28 @@ const homeSchema = {
     <div class="tape tape--main">
       <h2 id="played-at" class="tape__label">{t.home.playedAt}</h2>
       <div class="tape__viewport">
-        <div class="tape__track">
-          <ul class="tape__list">
-            {t.home.venues.map((v) => <li>{v}</li>)}
-          </ul>
-          <ul class="tape__list" aria-hidden="true">
-            {t.home.venues.map((v) => <li>{v}</li>)}
-          </ul>
-        </div>
+        {tapeSides.map((s) => (
+          <div class={`tape__track tape__track--${s.key}`} style={`animation-duration: ${s.venues.duration}`}>
+            {Array.from({ length: s.venues.copies }, (_, i) => (
+              <ul class="tape__list" aria-hidden={i > 0 ? 'true' : undefined}>
+                {s.venues.items.map((v) => <li>{v}</li>)}
+              </ul>
+            ))}
+          </div>
+        ))}
       </div>
     </div>
     <div class="tape tape--sub" aria-hidden="true">
       <div class="tape__viewport">
-        <div class="tape__track">
-          {[0, 1, 2, 3].map(() => (
-            <ul class="tape__list">
-              {t.home.tapeWords.map((w) => <li>{w}</li>)}
-            </ul>
-          ))}
-        </div>
+        {tapeSides.map((s) => (
+          <div class={`tape__track tape__track--${s.key}`} style={`animation-duration: ${s.words.duration}`}>
+            {Array.from({ length: s.words.copies }, () => (
+              <ul class="tape__list">
+                {s.words.items.map((w) => <li>{w}</li>)}
+              </ul>
+            ))}
+          </div>
+        ))}
       </div>
     </div>
     </div>

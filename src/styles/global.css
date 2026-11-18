@@ -250,6 +250,10 @@ html.anim-ready [data-reveal]:not(.in-view) {
   will-change: transform;
 }
 .tape--sub .tape__track { animation-duration: 38s; animation-direction: reverse; }
+/* one track per side: B until the visitor picks A */
+.tape__track--a { display: none; }
+html[data-side-pick="A"] .tape__track--a { display: flex; }
+html[data-side-pick="A"] .tape__track--b { display: none; }
 .tapes:hover .tape__track { animation-play-state: paused; }
 .tape__list { display: flex; list-style: none; margin: 0; padding: 0; }
 .tape__list li { display: flex; align-items: center; }
