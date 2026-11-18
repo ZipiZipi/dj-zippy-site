@@ -62,6 +62,12 @@ export const GET: APIRoute = async ({ locals, url }) => {
   }
 };
 
+// The date picked in the admin form (YYYY-MM-DD) as a timestamp at noon UTC,
+// or null when there is none. Mixes are listed newest first by created_at.
+function pickedDate(value: unknown): string | null {
+  return typeof value === 'string' && /^d{4}-d{2}-d{2}$/.test(value) ? `${value}T12:00:00.000Z` : null;
+}
+
 export const POST: APIRoute = async ({ request, locals }) => {
   try {
     if (request.method !== 'POST') return new Response(null, { status: 405 });
@@ -69,7 +75,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const db = locals.runtime.env.DB;
     const body = await request.json();
 
-    const { title, slug, genre, platform, link, description, cover_image, published, featured } = body;
+    const { title, slug, genre, platform, link, description, cover_image, published, featured, created_at } = body;
 
     if (!title || !slug || !platform || !link || !genre) {
       return new Response(
@@ -86,7 +92,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
     await db
       .prepare(query)
-      .bind(title, slug, genre, platform, link, 0, description || null, cover_image || null, published ? 1 : 0, featured ? 1 : 0, now, now)
+      .bind(title, slug, genre, platform, link, 0, description || null, cover_image || null, published ? 1 : 0, featured ? 1 : 0, pickedDate(created_at) ?? now, now)
       .run();
 
     return new Response(
@@ -112,16 +118,21 @@ export const PUT: APIRoute = async ({ request, locals, url }) => {
     const id = url.searchParams.get('id');
     if (!id) return new Response(JSON.stringify({ success: false, error: 'Missing id' }), { status: 400 });
 
-    const body = await request.json() as Partial<Mix> & { platform?: string; link?: string };
-    const { title, slug, genre, platform, link, description, cover_image, published, featured } = body;
+    const body = await request.json() as Partial<Mix> & { platform?: string; link?: string; created_at?: string | null };
+    const { title, slug, genre, platform, link, description, cover_image, published, featured, created_at } = body;
 
     if (!title || !slug || !platform || !link || !genre) {
       return new Response(JSON.stringify({ success: false, error: 'Missing required fields (title, platform, link, genre)' }), { status: 400 });
     }
 
+    // The date changes only when a different day is picked, so saving a mix
+    // keeps its place among others added the same day.
+    const date = pickedDate(created_at);
     await locals.runtime.env.DB.prepare(
-      `UPDATE mixes SET title=?, slug=?, genre=?, platform=?, link=?, description=?, cover_image=?, published=?, featured=?, updated_at=CURRENT_TIMESTAMP WHERE id=?`
-    ).bind(title, slug, genre, platform, link, description||null, cover_image||null, published?1:0, featured?1:0, id).run();
+      `UPDATE mixes SET title=?, slug=?, genre=?, platform=?, link=?, description=?, cover_image=?, published=?, featured=?,
+        created_at=CASE WHEN ? IS NOT NULL AND substr(created_at, 1, 10) <> substr(?, 1, 10) THEN ? ELSE created_at END,
+        updated_at=CURRENT_TIMESTAMP WHERE id=?`
+    ).bind(title, slug, genre, platform, link, description||null, cover_image||null, published?1:0, featured?1:0, date, date, date, id).run();
 
     return new Response(JSON.stringify({ success: true, message: 'Mix updated' }), { status: 200, headers: { 'Content-Type': 'application/json' } });
   } catch (error) {
