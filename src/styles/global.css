@@ -150,15 +150,28 @@
    site degrades gracefully when JS is off/fails) and only while the element has
    not yet been revealed — using :not(.in-view) avoids any competing opacity
    rules, so a revealed element simply returns to its default visible state. */
-/* Short and small on purpose: a long fade on a tall block (the mixes grid, the
-   events list) used to leave the screen black for a moment on a fast scroll. */
+/* Panels come in from the side the visitor scrolls from (data-from, set by
+   Layout.astro when a panel leaves the screen), and do it again every time
+   they come back. --reveal-delay staggers the parts of one panel.
+   A block taller than the screen (the mixes rail, the events list) reveals
+   once, short and small (.reveal--tall): a long fade on it used to leave the
+   screen black for a moment on a fast scroll. */
 [data-reveal] {
-  transition: opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1),
-              transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  --reveal-y: 36px;
+  --reveal-scale: 0.98;
+  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay, 0s),
+              transform 0.8s cubic-bezier(0.22, 1, 0.36, 1) var(--reveal-delay, 0s);
+}
+[data-reveal][data-from="above"] { --reveal-y: -36px; }
+[data-reveal].reveal--tall {
+  --reveal-y: 12px;
+  --reveal-scale: 1;
+  transition-duration: 0.45s;
+  transition-delay: 0s;
 }
 html.anim-ready [data-reveal]:not(.in-view) {
   opacity: 0;
-  transform: translateY(12px);
+  transform: translate3d(0, var(--reveal-y), 0) scale(var(--reveal-scale));
 }
 
 /* "Played at" festival tapes under the home hero: an orange tape with the
@@ -260,6 +273,38 @@ html.anim-ready [data-reveal]:not(.in-view) {
   from { transform: translateX(0); }
   to   { transform: translateX(-50%); }
 }
+/* The tapes unroll when they come on screen (and again when they come back):
+   the orange one from the left, the black one from the right a beat later.
+   --roll runs 0 → 1; the clip ends 40px outside the tape so its shadow is not
+   cut. A light band rides the unrolling edge, like the roll itself. Without
+   @property support the tapes simply appear. */
+@property --roll {
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 1;
+}
+.tape {
+  --roll: 1;
+  transition: --roll 1.1s cubic-bezier(0.65, 0, 0.35, 1);
+}
+.tape--sub { transition-delay: 0.3s; }
+html.anim-ready .tapes[data-unroll]:not(.in-view) .tape { --roll: 0; }
+.tape--main { clip-path: inset(-40px calc((1 - var(--roll)) * (100% + 40px) - 40px) -40px -40px); }
+.tape--sub { clip-path: inset(-40px -40px -40px calc((1 - var(--roll)) * (100% + 40px) - 40px)); }
+.tape::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 3;
+  width: 26px;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgb(0 0 0 / 0.4), rgb(255 255 255 / 0.55) 55%, rgb(0 0 0 / 0.45));
+  /* only while it rolls: fades in right after the start, out right before the end */
+  opacity: calc(min(var(--roll) * 14, 1) * min((1 - var(--roll)) * 14, 1));
+}
+.tape--main::after { left: calc(var(--roll) * 100% - 26px); }
+.tape--sub::after { right: calc(var(--roll) * 100% - 26px); transform: scaleX(-1); }
 
 /* Aurora — slow "breathing" glow behind the hero. Every layer reads the side
    variables, so the whole glow swaps with the side: mostly accent, a faint
@@ -287,6 +332,9 @@ html.anim-ready [data-reveal]:not(.in-view) {
   html.anim-ready [data-reveal]:not(.in-view) { opacity: 1; transform: none; }
   [data-reveal] { transition: none; }
   .tape__track { animation: none; }
+  html.anim-ready .tapes[data-unroll]:not(.in-view) .tape { --roll: 1; }
+  .tape { transition: none; }
+  .tape::after { display: none; }
   /* no auto-scroll, so let people swipe through the venues instead */
   .tape--main .tape__viewport { overflow-x: auto; scrollbar-width: none; }
   .aurora { animation: none; }

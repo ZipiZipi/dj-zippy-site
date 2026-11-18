@@ -874,7 +874,7 @@ const homeSchema = {
 
   <!-- "Played at" tapes. The first venue list is the one screen readers get;
        the loop copy and the black genre tape are decoration. -->
-  <section class="tapes bg-brand-black font-display" aria-labelledby="played-at">
+  <section class="tapes bg-brand-black font-display" aria-labelledby="played-at" data-unroll>
     <div class="tape tape--main">
       <h2 id="played-at" class="tape__label">{t.home.playedAt}</h2>
       <div class="tape__viewport">
@@ -905,7 +905,7 @@ const homeSchema = {
   <section id="dates" class="dates isolate relative bg-brand-black" aria-labelledby="dates-heading">
     <div class="container mx-auto px-6 sm:px-8 lg:px-12">
       <div class="max-w-4xl mx-auto">
-        <div class="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 sm:gap-6 mb-6 sm:mb-8">
+        <div class="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 sm:gap-6 mb-6 sm:mb-8" data-reveal>
           <div>
             <p class="eyebrow">{t.home.datesKicker}</p>
             <h2 id="dates-heading" class="section-title mt-3">{t.home.upcoming1}<span class="text-brand-orange">{t.home.upcoming2}</span></h2>
@@ -914,7 +914,7 @@ const homeSchema = {
         </div>
         {homeUpcoming.length === 0
           ? (
-            <div class="deck-idle" data-reveal>
+            <div class="deck-idle" data-reveal style="--reveal-delay: 0.12s">
               <p class="deck-idle__title font-display">{t.home.noUpcoming}</p>
               <div class="deck-idle__main">
                 <p class="deck-idle__hint">{t.events.noUpcomingHint}</p>
@@ -933,8 +933,8 @@ const homeSchema = {
               </div>
             </div>
           )
-          : <div data-reveal><DatesDeck lang={lang} events={homeUpcoming} /></div>}
-        <div class="mt-6 sm:mt-8 text-center">
+          : <div data-reveal style="--reveal-delay: 0.12s"><DatesDeck lang={lang} events={homeUpcoming} /></div>}
+        <div class="mt-6 sm:mt-8 text-center" data-reveal style="--reveal-delay: 0.24s">
           <a href={l('/events')} class="home-link mono-caps">{t.home.viewAllEvents} <span class="home-link__arrow" aria-hidden="true">→</span></a>
         </div>
       </div>
@@ -948,14 +948,14 @@ const homeSchema = {
        picks A, like the print on the sleeve. -->
   <section id="intro" class="liner isolate relative bg-brand-black" aria-labelledby="intro-heading">
     <div class="container mx-auto px-6 sm:px-8 lg:px-12">
-      <div class="liner__grid max-w-6xl mx-auto" data-reveal>
+      <div class="liner__grid max-w-6xl mx-auto">
         <div class="liner__text">
-          <div class="liner__head">
+          <div class="liner__head" data-reveal style="--reveal-delay: 0.1s">
             <p class="eyebrow">{t.home.introKicker}</p>
             <h2 id="intro-heading" class="liner__title section-title">{t.home.introHeading1}<span class="text-brand-side-b">{t.home.introHeading2}</span></h2>
             <p class="liner__quote">{t.home.introQuote.map((line) => <span>{line}<span class="liner__dot">.</span> </span>)}</p>
           </div>
-          <div class="liner__body">
+          <div class="liner__body" data-reveal style="--reveal-delay: 0.2s">
             <p class="liner__copy liner__copy--b">{t.home.introBodyB}</p>
             <p class="liner__copy liner__copy--a">{t.home.introBodyA.before}<a href="https://www.instagram.com/izuj_se" target="_blank" rel="noopener">{t.home.introBodyA.link}</a>{t.home.introBodyA.after}</p>
             <div class="liner__cta">
@@ -973,7 +973,7 @@ const homeSchema = {
           {/* The sleeve: his photo, printed like a cover, with the record sliding
               out of it (the label takes the accent colour). The print and the
               record are decoration; the photo carries the alt text. */}
-          <div class="liner__sleeve" data-liner-sleeve>
+          <div class="liner__sleeve" data-liner-sleeve data-reveal>
             <div class="liner__stage">
               <div class="liner__record" aria-hidden="true"><span class="liner__label"></span></div>
               <div class="liner__cover">
@@ -989,7 +989,7 @@ const homeSchema = {
             </div>
           </div>
           {/* Credits, as on the back of a sleeve. The plane is a small wink: he flies out for gigs. */}
-          <dl class="liner__credits">
+          <dl class="liner__credits" data-reveal style="--reveal-delay: 0.3s">
             {t.home.introCredits.map((c, i) => (
               <div>
                 <dt class="mono-caps">{c.label}</dt>

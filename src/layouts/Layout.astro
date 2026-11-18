@@ -157,21 +157,39 @@ const xDefault = alternates.find((a) => a.lang === 'en')!.href;
       function setupAnimations() {
         const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-        // Scroll-reveal
-        const revealEls = document.querySelectorAll('[data-reveal]');
+        // Scroll-reveal, both ways: a panel shows as soon as any part of it is
+        // on screen, and hides again once it is fully off screen, ready to
+        // come back from the side it left by (data-from). The tapes under the
+        // home hero (data-unroll) unroll the same way. A block taller than the
+        // screen reveals once (.reveal--tall), so a fast scroll never blanks it.
+        const revealEls = document.querySelectorAll('[data-reveal], [data-unroll]');
+        if (window.__zippyRevealIO) window.__zippyRevealIO.disconnect();
         if (reduce || !('IntersectionObserver' in window)) {
           revealEls.forEach((el) => el.classList.add('in-view'));
         } else {
+          const tall = (el) => el.offsetHeight > window.innerHeight * 0.9;
           const io = new IntersectionObserver((entries, obs) => {
             entries.forEach((e) => {
-              if (e.isIntersecting) { e.target.classList.add('in-view'); obs.unobserve(e.target); }
+              const el = e.target;
+              if (e.isIntersecting) {
+                el.classList.add('in-view');
+                if (el.classList.contains('reveal--tall')) obs.unobserve(el);
+              } else if (el.classList.contains('in-view')) {
+                el.dataset.from = e.boundingClientRect.top < 0 ? 'above' : 'below';
+                el.classList.remove('in-view');
+              }
             });
-          // Reveal as soon as any part is on screen (plus a small lead), rather
-          // than waiting for 12% of a possibly very tall block to scroll in.
-          }, { threshold: 0, rootMargin: '0px 0px 6% 0px' });
-          revealEls.forEach((el) => { if (!el.classList.contains('in-view')) io.observe(el); });
-          // Safety net: never leave content hidden if something misfires
-          setTimeout(() => revealEls.forEach((el) => el.classList.add('in-view')), 3000);
+          }, { threshold: 0 });
+          window.__zippyRevealIO = io;
+          revealEls.forEach((el) => {
+            if (el.hasAttribute('data-reveal')) el.classList.toggle('reveal--tall', tall(el));
+            io.observe(el);
+          });
+          // Safety net: never leave what is on screen hidden if something misfires
+          setTimeout(() => revealEls.forEach((el) => {
+            const r = el.getBoundingClientRect();
+            if (r.bottom > 0 && r.top < window.innerHeight) el.classList.add('in-view');
+          }), 3000);
         }
 
         if (reduce) return;
