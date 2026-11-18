@@ -577,6 +577,10 @@ const homeSchema = {
       .home-panel { padding-top: calc(var(--header-h, 4rem) + 0.5rem); padding-bottom: 0.75rem; }
       #highlights.hero-stage { padding-bottom: 0.75rem; }
     }
+    @media (min-width: 1024px) and (max-height: 700px) {
+      .dates .tapes { padding: 16px 0 18px; }
+      .dates .deck__main { margin-top: 0.375rem; }
+    }
 
     /* Nothing booked: the deck at rest. The same panel as DatesDeck, the line
        and the two things to do meanwhile where the gig and its calendar
