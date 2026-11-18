@@ -557,6 +557,9 @@ const homeSchema = {
     html:has(.home-panel) footer.book { scroll-snap-align: start; }
     /* with a mouse or trackpad, initPanelPaging() moves one panel per gesture */
     html.home-paging { scroll-snap-type: none !important; }
+    /* the parts that move on the home page get their own layer up front, so
+       starting a reveal or an unroll mid-scroll never has to build one */
+    .home-panel [data-reveal], .home-panel [data-exit], .home-panel .tape::before { will-change: transform, opacity; }
 
     /* A panel leaving the screen: its [data-exit] parts drift down a little and
        fade while the next panel slides over them, from the moment the panel's
