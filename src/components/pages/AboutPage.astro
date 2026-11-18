@@ -122,25 +122,16 @@ const path = [...new Set(past.map((e) => e.date.slice(0, 4)))].sort().map((year)
   let picks = ranked.slice(0, PER_YEAR);
   const open = ranked.find((x) => x.side === 'A');
   if (open && !picks.includes(open)) picks = [...picks.slice(0, PER_YEAR - 1), open];
-  // the year's count and its B/A split come from the sheet, plus newer database gigs
+  // The year's B/A split from the sheet, plus newer database gigs. Repeat
+  // open-format nights at the same venue count once a year here (aShown), so
+  // the timeline shows the move to the underground; the numbers at the top of
+  // the page keep every gig.
   const sheet = GIG_STATS.years[year];
   const extra = sheet ? gigs.filter((e) => e.date > GIG_STATS.asOf) : gigs;
-  const total = (sheet?.total ?? 0) + extra.length;
   const b = (sheet?.b ?? 0) + extra.filter((e) => eventSide(e) === 'B').length;
-  return { year, total, a: total - b, b, lines: picks.sort(byDate) };
+  const a = (sheet?.aShown ?? 0) + extra.filter((e) => eventSide(e) === 'A').length;
+  return { year, total: a + b, a, b, lines: picks.sort(byDate) };
 });
-// The move to the underground: the share of B side (house) nights per year,
-// for the small chart over the timeline and the line in its lead. The lead
-// runs from the year with the lowest share to the latest year.
-const shift = path.map((y) => ({ year: y.year, b: y.b, total: y.total, pct: y.total ? Math.round((y.b / y.total) * 100) : 0 }));
-const shiftNow = shift[shift.length - 1];
-const shiftLow = shift.slice(0, -1).reduce((m, s) => (s.pct < m.pct ? s : m), shift[0]);
-const showShift = shift.length > 1 && shiftNow.pct > shiftLow.pct;
-const shiftLine = showShift
-  ? t.about.pathShift.replace('{low}', String(shiftLow.pct)).replace('{lowYear}', shiftLow.year).replace('{now}', String(shiftNow.pct)).replace('{nowYear}', shiftNow.year)
-  : '';
-const shiftItem = (s: (typeof shift)[number]) =>
-  t.about.pathShiftItem.replace('{year}', s.year).replace('{b}', String(s.b)).replace('{n}', String(s.total)).replace('{p}', String(s.pct));
 // "2022–2026", written like the year spans on /events
 const pathSpan = path.length > 1 ? `${path[0].year}–${path[path.length - 1].year}` : path[0]?.year ?? '';
 
@@ -487,41 +478,6 @@ const aboutSchema = {
     .path-gig__tag.is-first { color: rgb(var(--alt-rgb)); }
     .about-path .rail__bar { margin-top: 2rem; }
 
-    /* --- The move to the underground: one thin bar per year, over the timeline --- */
-    .path-shift { margin-top: 1.5rem; max-width: 24rem; }
-    .path-shift figcaption { font-size: 0.6875rem; color: #9ca3af; }
-    .path-shift__bars { display: flex; gap: 0.5rem; margin-top: 0.75rem; }
-    .path-shift__col { position: relative; flex: 1 1 0; display: flex; flex-direction: column; align-items: center; outline: none; cursor: default; }
-    .path-shift__plot { position: relative; display: flex; align-items: flex-end; justify-content: center; width: 100%; height: 4.5rem; border-bottom: 1px solid rgba(255,255,255,0.16); }
-    .path-shift__bar { width: 1.125rem; height: max(2px, var(--h)); border-radius: 4px 4px 0 0; background: var(--side-b); transition: filter 0.2s; }
-    .path-shift__val { position: absolute; left: 0; right: 0; bottom: calc(var(--h) + 0.3rem); text-align: center; font-size: 0.75rem; font-weight: 700; color: #fff; }
-    .path-shift__year { margin-top: 0.45rem; font-size: 0.625rem; color: #9ca3af; transition: color 0.2s; }
-    .path-shift__tip {
-      position: absolute;
-      bottom: calc(100% + 0.35rem);
-      left: 50%;
-      z-index: 5;
-      padding: 0.35rem 0.6rem;
-      border-radius: 0.5rem;
-      border: 1px solid rgba(255,255,255,0.12);
-      background: #161616;
-      color: #fff;
-      font-size: 0.75rem;
-      white-space: nowrap;
-      opacity: 0;
-      pointer-events: none;
-      transform: translate(-50%, 4px);
-      transition: opacity 0.15s, transform 0.15s;
-    }
-    .path-shift__col:first-child .path-shift__tip { left: 0; transform: translate(0, 4px); }
-    .path-shift__col:last-child .path-shift__tip { left: auto; right: 0; transform: translate(0, 4px); }
-    .path-shift__col:hover .path-shift__tip, .path-shift__col:focus-visible .path-shift__tip { opacity: 1; transform: translate(-50%, 0); }
-    .path-shift__col:first-child:hover .path-shift__tip, .path-shift__col:first-child:focus-visible .path-shift__tip,
-    .path-shift__col:last-child:hover .path-shift__tip, .path-shift__col:last-child:focus-visible .path-shift__tip { transform: translate(0, 0); }
-    .path-shift__col:hover .path-shift__bar, .path-shift__col:focus-visible .path-shift__bar { filter: brightness(1.25); }
-    .path-shift__col:hover .path-shift__year, .path-shift__col:focus-visible .path-shift__year { color: #fff; }
-    .path-shift__col:focus-visible .path-shift__plot { outline: 2px solid #fff; outline-offset: 3px; border-radius: 4px; }
-
     /* --- FAQ: small, folded, at the bottom. The answers stay in the HTML. --- */
     .about-section--faq { padding: 3.5rem 0; }
     @media (min-width: 640px) { .about-section--faq { padding: 4.5rem 0; } }
@@ -738,27 +694,7 @@ const aboutSchema = {
             <div>
               <p class="eyebrow">{pathSpan}</p>
               <h2 class="section-title mt-3">{t.about.pathHeading1}<span class="text-brand-orange">{t.about.pathHeading2}</span></h2>
-              <p class="about-head__lead">{shiftLine && <>{shiftLine} </>}{t.about.pathLead}</p>
-              {/* One bar per year: the share of underground (B side) nights. The
-                  lowest year and the latest one carry their number; every bar
-                  tells its own on hover or focus. */}
-              {showShift && (
-                <figure class="path-shift">
-                  <figcaption class="mono-caps">{t.about.pathShiftTitle}</figcaption>
-                  <ol class="path-shift__bars">
-                    {shift.map((s) => (
-                      <li class="path-shift__col" tabindex="0" aria-label={shiftItem(s)} style={`--h:${s.pct}%`}>
-                        <span class="path-shift__plot" aria-hidden="true">
-                          {(s === shiftLow || s === shiftNow) && <span class="path-shift__val">{s.pct}%</span>}
-                          <span class="path-shift__bar"></span>
-                        </span>
-                        <span class="path-shift__year mono-caps" aria-hidden="true">{s.year}</span>
-                        <span class="path-shift__tip" aria-hidden="true">{shiftItem(s)}</span>
-                      </li>
-                    ))}
-                  </ol>
-                </figure>
-              )}
+              <p class="about-head__lead">{t.about.pathLead}</p>
             </div>
             <div class="about-path__nav">
               <a href={`${l('/events')}#past`} class="about-link">{t.about.pathAll} <span aria-hidden="true">→</span></a>
