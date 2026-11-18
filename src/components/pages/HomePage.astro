@@ -1402,16 +1402,18 @@ const homeSchema = {
   }
   document.addEventListener('astro:page-load', initPanelExit);
 
-  // Mouse or trackpad on a laptop or desktop: one wheel gesture (or PageDown,
+  // Mouse or trackpad, at any window size: one wheel gesture (or PageDown,
   // Space, the arrow keys) moves exactly one panel, with one long eased
   // scroll. CSS snapping restarts its move on every wheel notch, which
   // stutters on a quick flick; here the rest of the gesture (trackpad momentum
-  // included) is ignored until the move has landed. Touch screens keep the CSS
+  // included) is ignored until the move has landed. A panel taller than the
+  // window (a narrow window stacks it like a phone) scrolls normally until its
+  // end, and only then does a gesture move on. Touch screens keep the CSS
   // snapping. The booking footer, the last stop, scrolls normally inside, and
   // anything that scrolls on its own (a menu, a list) keeps its wheel.
   function initPanelPaging() {
     var root = document.documentElement;
-    var fit = window.matchMedia('(pointer: fine) and (min-width: 1024px) and (min-height: 560px)');
+    var fit = window.matchMedia('(pointer: fine)');
     var still = window.matchMedia('(prefers-reduced-motion: reduce)');
     if (!document.querySelector('.home-panel')) return;
     // on, off again when the window is resized past the limits
@@ -1420,12 +1422,16 @@ const homeSchema = {
     sync();
     fit.addEventListener('change', sync);
     var anim = 0, locked = false, lastWheel = 0;
-    function stops() {
+    // every panel and the footer, as page positions (top and bottom edge)
+    function panels() {
       var y = window.scrollY;
       var els = Array.prototype.slice.call(document.querySelectorAll('.home-panel'));
       var foot = document.querySelector('footer.book');
       if (foot) els.push(foot);
-      return els.map(function (el) { return Math.round(el.getBoundingClientRect().top + y); });
+      return els.map(function (el) {
+        var r = el.getBoundingClientRect();
+        return { top: Math.round(r.top + y), bottom: Math.round(r.bottom + y) };
+      });
     }
     function ease(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
     function release() {
@@ -1457,14 +1463,27 @@ const homeSchema = {
     }
     // true when the move was taken over (the caller then stops the native scroll)
     function page(dir) {
-      var s = stops(), y = window.scrollY, last = s[s.length - 1];
-      if (y > last - 2 && (dir > 0 || y > last + 2)) return false;
       if (locked) return true;
-      var max = root.scrollHeight - window.innerHeight, target;
-      if (dir > 0) { for (var i = 0; i < s.length; i++) if (s[i] > y + 2) { target = s[i]; break; } }
-      else { for (var j = s.length - 1; j >= 0; j--) if (s[j] < y - 2) { target = s[j]; break; } }
-      if (target === undefined) return false;
-      go(Math.min(target, max));
+      var ps = panels(), y = window.scrollY, vh = window.innerHeight;
+      var max = root.scrollHeight - vh, i = 0;
+      // the panel at the top of the window
+      for (var k = 0; k < ps.length; k++) if (ps[k].top <= y + 2) i = k;
+      var p = ps[i];
+      if (!p) return false;
+      if (dir > 0) {
+        // more of this panel below the window: scroll on normally
+        if (p.bottom > y + vh + 2) return false;
+        var next = ps[i + 1];
+        if (!next) return false;
+        go(Math.min(next.top, max));
+      } else {
+        // this panel starts above the window: scroll up normally to its top
+        if (p.top < y - 2) return false;
+        var prev = ps[i - 1];
+        if (!prev) return false;
+        // a tall panel above is entered at its end, where the scroll left it
+        go(Math.max(prev.top, Math.min(prev.bottom - vh, max)));
+      }
       return true;
     }
     function onWheel(e) {
