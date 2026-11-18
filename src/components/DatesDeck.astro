@@ -86,7 +86,13 @@ const strings = {
   @media (min-width: 640px) { .deck { padding: 1.75rem; } }
 
   .deck__top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; font-size: 0.6875rem; }
-  .deck__cue { color: rgba(255,255,255,0.65); }
+  /* the top row is the blinking LED and how far off the gig is ("In 3 days");
+     the cue line ("Cue 1 · A side · Open format") stays for screen readers
+     only: the colour and the pads below already say the side */
+  .deck__top { justify-content: flex-start; gap: 0.625rem; }
+  .deck__cue { color: rgba(255,255,255,0.65); display: inline-flex; align-items: center; }
+  .deck__cue .deck__led { margin-right: 0; }
+  .deck__cue [data-deck="cue"] { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
   .deck__led {
     display: inline-block;
     width: 7px;
