@@ -275,36 +275,31 @@ html.anim-ready [data-reveal]:not(.in-view) {
 }
 /* The tapes unroll when they come on screen (and again when they come back):
    the orange one from the left, the black one from the right a beat later.
-   --roll runs 0 → 1; the clip ends 40px outside the tape so its shadow is not
-   cut. A light band rides the unrolling edge, like the roll itself. Without
-   @property support the tapes simply appear. */
-@property --roll {
-  syntax: '<number>';
-  inherits: true;
-  initial-value: 1;
-}
-.tape {
-  --roll: 1;
-  transition: --roll 1.1s cubic-bezier(0.65, 0, 0.35, 1);
-}
-.tape--sub { transition-delay: 0.3s; }
-html.anim-ready .tapes[data-unroll]:not(.in-view) .tape { --roll: 0; }
-.tape--main { clip-path: inset(-40px calc((1 - var(--roll)) * (100% + 40px) - 40px) -40px -40px); }
-.tape--sub { clip-path: inset(-40px -40px -40px calc((1 - var(--roll)) * (100% + 40px) - 40px)); }
-.tape::after {
+   A cover in the page colour slides off each tape, with a light band on its
+   edge like the roll itself. It is a transform, so it runs on the compositor
+   and never repaints the tape while the page scrolls. Without JS nothing
+   covers the tapes. */
+.tape::before {
   content: '';
   position: absolute;
-  top: 0;
-  bottom: 0;
-  z-index: 3;
-  width: 26px;
+  inset: -2px -1px;
+  z-index: 4;
   pointer-events: none;
-  background: linear-gradient(90deg, rgb(0 0 0 / 0.4), rgb(255 255 255 / 0.55) 55%, rgb(0 0 0 / 0.45));
-  /* only while it rolls: fades in right after the start, out right before the end */
-  opacity: calc(min(var(--roll) * 14, 1) * min((1 - var(--roll)) * 14, 1));
+  background: linear-gradient(90deg, rgb(0 0 0 / 0.3) 0, rgb(255 255 255 / 0.45) 10px, rgb(0 0 0 / 0.5) 22px, #050505 26px);
+  transform: translate3d(101%, 0, 0);
+  transition: transform 1.1s cubic-bezier(0.65, 0, 0.35, 1);
 }
-.tape--main::after { left: calc(var(--roll) * 100% - 26px); }
-.tape--sub::after { right: calc(var(--roll) * 100% - 26px); transform: scaleX(-1); }
+.tape--sub::before {
+  background: linear-gradient(270deg, rgb(0 0 0 / 0.3) 0, rgb(255 255 255 / 0.35) 10px, rgb(0 0 0 / 0.5) 22px, #050505 26px);
+  transform: translate3d(-101%, 0, 0);
+  transition-delay: 0.3s;
+}
+/* off screen: covered again at once, ready to unroll next time */
+html.anim-ready .tapes[data-unroll]:not(.in-view) .tape::before {
+  transform: translate3d(0, 0, 0);
+  transition-duration: 0s;
+  transition-delay: 0s;
+}
 
 /* Aurora — slow "breathing" glow behind the hero. Every layer reads the side
    variables, so the whole glow swaps with the side: mostly accent, a faint
@@ -332,9 +327,7 @@ html.anim-ready .tapes[data-unroll]:not(.in-view) .tape { --roll: 0; }
   html.anim-ready [data-reveal]:not(.in-view) { opacity: 1; transform: none; }
   [data-reveal] { transition: none; }
   .tape__track { animation: none; }
-  html.anim-ready .tapes[data-unroll]:not(.in-view) .tape { --roll: 1; }
-  .tape { transition: none; }
-  .tape::after { display: none; }
+  .tape::before { display: none; }
   /* no auto-scroll, so let people swipe through the venues instead */
   .tape--main .tape__viewport { overflow-x: auto; scrollbar-width: none; }
   .aurora { animation: none; }

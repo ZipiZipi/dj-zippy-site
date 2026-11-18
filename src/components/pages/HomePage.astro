@@ -556,6 +556,25 @@ const homeSchema = {
     }
     html:has(.home-panel) footer.book { scroll-snap-align: start; }
 
+    /* A panel leaving the screen: its [data-exit] parts drift down a little and
+       fade while the next panel slides over them, from the moment the panel's
+       bottom edge passes the bottom of the screen until it is gone. A
+       scroll-driven animation: it follows the scroll position on the
+       compositor, so it keeps the screen's frame rate and plays backwards when
+       scrolling up. Browsers without it get initPanelExit() below. */
+    .home-panel { view-timeline: --panel block; }
+    @keyframes panel-exit { to { opacity: 0.08; transform: translate3d(0, 18vh, 0) scale(0.95); } }
+    @keyframes panel-exit-light { to { opacity: 0; } }
+    @supports (animation-timeline: view()) {
+      [data-exit] {
+        animation: panel-exit cubic-bezier(0.45, 0, 0.55, 1) both;
+        animation-timeline: --panel;
+        animation-range: contain 100% cover 100%;
+      }
+      .hero-light[data-exit] { animation-name: panel-exit-light; }
+    }
+    @media (prefers-reduced-motion: reduce) { [data-exit] { animation: none; } }
+
     /* Upcoming dates: the tapes on top of the panel, then the deck */
     .dates .tapes { padding: 22px 0 24px; margin-bottom: clamp(0.5rem, 2.5vh, 2rem); }
     .dates__tools { display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem 1.25rem; }
@@ -1341,21 +1360,24 @@ const homeSchema = {
     }, { threshold: 0.5 });
     io.observe(sleeve);
   }
-  // A panel leaving the screen: from the moment its bottom edge passes the
-  // bottom of the screen until it is gone, its [data-exit] parts drift down a
-  // little and fade (the next panel slides over them). Tied to the scroll
-  // position, so it runs the same way back when scrolling up.
+  // Fallback for browsers without scroll-driven animations (the CSS above does
+  // it on the compositor everywhere else): the same exit, set per frame. All
+  // positions are read first and the styles written after, so a frame never
+  // forces the layout twice.
   function initPanelExit() {
+    if (window.CSS && CSS.supports && CSS.supports('animation-timeline: view()')) return;
     var els = Array.prototype.slice.call(document.querySelectorAll('[data-exit]'));
     if (!els.length || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     var raf = 0;
     function update() {
       raf = 0;
       var vh = window.innerHeight;
-      els.forEach(function (el) {
-        var host = el.closest('section') || el.parentElement;
-        var r = host.getBoundingClientRect();
-        var p = Math.min(1, Math.max(0, 1 - r.bottom / vh));
+      var ps = els.map(function (el) {
+        var r = (el.closest('section') || el.parentElement).getBoundingClientRect();
+        return Math.min(1, Math.max(0, 1 - r.bottom / vh));
+      });
+      els.forEach(function (el, i) {
+        var p = ps[i];
         if (p === 0) { el.style.opacity = ''; el.style.transform = ''; return; }
         var e = p * p * (3 - 2 * p);
         el.style.opacity = (1 - e * 0.92).toFixed(3);
