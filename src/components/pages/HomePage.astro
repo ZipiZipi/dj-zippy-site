@@ -704,9 +704,14 @@ const homeSchema = {
     .liner__copy { max-width: 37rem; font-size: 1rem; line-height: 1.7; color: rgb(255 255 255 / 0.74); text-wrap: pretty; }
     @media (min-width: 768px) { .liner__copy { font-size: 1.0625rem; line-height: 1.75; } }
 
-    /* One text per side: B until the visitor picks A (like the sleeve print) */
-    .liner__copy--a { display: none; }
+    /* One heading, motto and text per side: B until the visitor picks A
+       (like the sleeve print). Hidden ones are out of the reading order too. */
+    .liner__title .liner__name--a, .liner__quote--a, .liner__copy--a { display: none; }
+    html[data-side-pick="A"] .liner__title .liner__name--a,
+    html[data-side-pick="A"] .liner__quote--a,
     html[data-side-pick="A"] .liner__copy--a { display: block; }
+    html[data-side-pick="A"] .liner__title .liner__name--b,
+    html[data-side-pick="A"] .liner__quote--b,
     html[data-side-pick="A"] .liner__copy--b { display: none; }
     .liner__copy a { color: #fff; text-decoration: underline; text-decoration-color: rgb(var(--side-a-rgb)); text-underline-offset: 0.2em; }
     .liner__copy a:hover, .liner__copy a:focus-visible { color: rgb(var(--side-a-rgb)); }
@@ -1094,8 +1099,9 @@ const homeSchema = {
         <div class="liner__text">
           <div class="liner__head" data-reveal style="--reveal-delay: 0.1s">
             <p class="eyebrow">{t.home.introKicker}</p>
-            <h2 id="intro-heading" class="liner__title section-title">{t.home.introHeading1}<span class="text-brand-side-b">{t.home.introHeading2}</span></h2>
-            <p class="liner__quote">{t.home.introQuote.map((line) => <span>{line}<span class="liner__dot">.</span> </span>)}</p>
+            <h2 id="intro-heading" class="liner__title section-title">{t.home.introHeading1}<span class="liner__name--b text-brand-side-b">{t.home.introHeading2}</span><span class="liner__name--a text-brand-side-a">{t.home.introHeading2A}</span></h2>
+            <p class="liner__quote liner__quote--b">{t.home.introQuote.map((line) => <span>{line}<span class="liner__dot">.</span> </span>)}</p>
+            <p class="liner__quote liner__quote--a">{t.home.introQuoteA.map((line) => <span>{line}<span class="liner__dot">.</span> </span>)}</p>
           </div>
           <div class="liner__body" data-reveal style="--reveal-delay: 0.2s">
             <p class="liner__copy liner__copy--b">{t.home.introBodyB}</p>

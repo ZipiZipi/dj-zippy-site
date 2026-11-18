@@ -236,6 +236,9 @@ const en = {
     introHeading1: 'The selector behind ',
     introHeading2: 'House Music Therapy',
     introQuote: ['Reads the room first', 'Plays second'],
+    // the same heading and motto when the A side is picked
+    introHeading2A: 'Core Memories',
+    introQuoteA: ['Knows every chorus', 'Plays it right on time'],
     introBodyB:
       "DJ Zippy (Veljko Nedeljković) is a Serbian house DJ. Three Exit Festival stages, including the Dance Arena in 2025. House Music Therapy nights at Ray Bar in Novi Sad, and house nights at Kaz'te, Krivi Put and Charlie Bar. Deep and French house to open, deep tech and minimal for the late hours.",
     introBodyA: {
@@ -734,6 +737,8 @@ const sr: Dict = {
     introHeading1: 'Selektor iza ',
     introHeading2: 'House Music Therapy',
     introQuote: ['Prvo čita publiku', 'Tek onda pušta'],
+    introHeading2A: 'Core Memories',
+    introQuoteA: ['Zna svaki refren', 'Pušta ga baš kad treba'],
     introBodyB:
       "DJ Zippy (Veljko Nedeljković) je srpski house DJ. Tri bine Exit festivala, među njima i Dance Arena 2025. House Music Therapy večeri u Ray Baru u Novom Sadu i house večeri u Kaz'te, Krivom Putu i Charlie Baru. Deep i french house za početak, deep tech i minimal za kasne sate.",
     introBodyA: {
