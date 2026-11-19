@@ -54,7 +54,7 @@ const c = COPY[lang];
 
 <section class="cc" data-consent hidden role="dialog" aria-modal="false" aria-label={c.label} aria-describedby="cc-body">
   <div class="cc__card">
-    <p class="cc__kicker"><span class="cc__dot" aria-hidden="true"></span>{c.title}</p>
+    <p class="cc__kicker">{c.title}</p>
     <p class="cc__body" id="cc-body">
       {c.body} <a class="cc__link" href={localize('/privacy', lang)}>{c.policy}</a>
     </p>
@@ -210,7 +210,6 @@ const c = COPY[lang];
     text-transform: uppercase;
     color: var(--cc-accent);
   }
-  .cc__dot { width: 0.4rem; height: 0.4rem; border-radius: 999px; background: var(--cc-alt); box-shadow: 0 0 10px var(--cc-alt); }
   .cc__body { margin: 0; font-size: 0.875rem; line-height: 1.55; color: #c8c8c8; }
   .cc__link { color: #fff; text-decoration: underline; text-decoration-color: var(--cc-accent); text-underline-offset: 3px; white-space: nowrap; }
   .cc__link:hover { color: var(--cc-accent); }
