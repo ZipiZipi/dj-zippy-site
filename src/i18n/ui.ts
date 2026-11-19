@@ -419,6 +419,7 @@ const en = {
     subheading2: 'Mixes',
     subheading3: ' & Playlists',
     lead: 'Every House Music Therapy session. YouTube, MixCloud, Spotify, SoundCloud, and Deezer.',
+    photoAlt: 'DJ Zippy at the decks, seen from behind, facing the crowd at the AS FM Stage, Exit Festival 2024',
     filterLabel: 'Filter mixes by platform',
     featuredBadge: 'FEATURED',
     listenNow: 'Listen Now',
@@ -480,6 +481,7 @@ const en = {
     groups: {
       danceArena: { caption: 'Exit Festival · Dance Arena', place: 'Novi Sad · 2025' },
       studentsStage: { caption: 'Exit Festival · Students Stage', place: 'Novi Sad · 2025' },
+      asfm: { caption: 'Exit Festival · AS FM Stage', place: 'Novi Sad · 2024' },
       kult: { caption: 'Club Kult', place: 'Belgrade · 2025' },
       paleta: { caption: 'Paleta', place: 'Novi Sad · 2026' },
       capital: { caption: 'Capital Night Club', place: 'Lefkada, Greece · 2024' },
@@ -508,6 +510,7 @@ const en = {
       'exit-2025-students-stage-03': 'DJ Zippy laughing behind the decks on the Students Stage',
       'exit-2025-students-stage-04': 'DJ Zippy mixing on the Students Stage in purple light',
       'exit-2025-students-stage-05': 'DJ Zippy leaning over the decks on the Students Stage',
+      'exit-2024-as-fm-stage': 'Over DJ Zippy’s shoulder to the crowd at the AS FM Stage, Exit Festival 2024',
       'club-kult-2025-01': 'DJ Zippy under the KULT ceiling lights at Club Kult in Belgrade',
       'club-kult-2025-02': 'DJ Zippy mixing in red light at Club Kult',
       'paleta-2026': 'DJ Zippy with headphones at the decks in Paleta, Novi Sad',
@@ -528,7 +531,7 @@ const en = {
     backHome: 'Back to Homepage',
     schemaName: 'DJ Zippy Photo Gallery',
     schemaDesc:
-      'Live photos of DJ Zippy, Serbian house DJ, 2024–2026: Exit Festival Dance Arena and Students Stage, Club Kult, Lazino Tele, Paleta, London Pub, Hangar Ohrid and Capital Night Club Lefkada.',
+      'Live photos of DJ Zippy, Serbian house DJ, 2024–2026: Exit Festival Dance Arena, Students Stage and AS FM Stage, Club Kult, Lazino Tele, Paleta, London Pub, Hangar Ohrid and Capital Night Club Lefkada.',
   },
 
   notFound: {
@@ -959,6 +962,7 @@ const sr: Dict = {
     subheading2: 'miksevi',
     subheading3: ' i plejliste',
     lead: 'Svaka House Music Therapy sesija. YouTube, MixCloud, Spotify, SoundCloud i Deezer.',
+    photoAlt: 'DJ Zippy za pultom, s leđa, okrenut ka publici na AS FM bini, Exit festival 2024',
     filterLabel: 'Filtriraj mikseve po platformi',
     featuredBadge: 'IZDVOJENO',
     listenNow: 'Slušaj',
@@ -1018,6 +1022,7 @@ const sr: Dict = {
     groups: {
       danceArena: { caption: 'Exit festival · Dance Arena', place: 'Novi Sad · 2025' },
       studentsStage: { caption: 'Exit festival · Studentska bina', place: 'Novi Sad · 2025' },
+      asfm: { caption: 'Exit festival · AS FM bina', place: 'Novi Sad · 2024' },
       kult: { caption: 'Club Kult', place: 'Beograd · 2025' },
       paleta: { caption: 'Paleta', place: 'Novi Sad · 2026' },
       capital: { caption: 'Capital Night Club', place: 'Lefkada, Grčka · 2024' },
@@ -1045,6 +1050,7 @@ const sr: Dict = {
       'exit-2025-students-stage-03': 'DJ Zippy se smeje iza pulta na Studentskoj bini',
       'exit-2025-students-stage-04': 'DJ Zippy miksuje na Studentskoj bini u ljubičastom svetlu',
       'exit-2025-students-stage-05': 'DJ Zippy nagnut nad pultom na Studentskoj bini',
+      'exit-2024-as-fm-stage': 'Preko ramena DJ Zippyja ka publici na AS FM bini, Exit festival 2024',
       'club-kult-2025-01': 'DJ Zippy ispod KULT svetala na plafonu u Club Kultu u Beogradu',
       'club-kult-2025-02': 'DJ Zippy miksuje u crvenom svetlu u Club Kultu',
       'paleta-2026': 'DJ Zippy sa slušalicama za pultom u Paleti, Novi Sad',
@@ -1065,7 +1071,7 @@ const sr: Dict = {
     backHome: 'Nazad na početnu',
     schemaName: 'Foto galerija DJ Zippyja',
     schemaDesc:
-      'Fotografije DJ Zippyja, srpskog house DJ-a, sa nastupa 2024–2026: Dance Arena i Studentska bina na Exit festivalu, Club Kult, Lazino Tele, Paleta, London Pub, Hangar Ohrid i Capital Night Club na Lefkadi.',
+      'Fotografije DJ Zippyja, srpskog house DJ-a, sa nastupa 2024–2026: Dance Arena, Studentska i AS FM bina na Exit festivalu, Club Kult, Lazino Tele, Paleta, London Pub, Hangar Ohrid i Capital Night Club na Lefkadi.',
   },
 
   notFound: {

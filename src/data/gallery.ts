@@ -1,4 +1,4 @@
-// Gallery photos, in the order the page shows them: B side first (Exit, Kult,
+// Gallery photos, in the order the page shows them: B side first (Exit 2025, Exit 2024, Kult,
 // Paleta, Capital), then A side (Lazino Tele, Hangar, London Pub).
 //
 // Files live in public/images/gallery/ as dj-zippy-<slug>.webp (long side
@@ -10,6 +10,7 @@
 export type GalleryGroup =
   | 'danceArena'
   | 'studentsStage'
+  | 'asfm'
   | 'kult'
   | 'paleta'
   | 'capital'
@@ -24,6 +25,7 @@ export type GalleryGroup =
 export const galleryPlaces: Record<GalleryGroup, { venue: string; city: string; country: string; date: string }> = {
   danceArena: { venue: 'Exit Festival, Dance Arena', city: 'Novi Sad', country: 'RS', date: '2025-07-13' },
   studentsStage: { venue: 'Exit Festival, Students Stage', city: 'Novi Sad', country: 'RS', date: '2025-07' },
+  asfm: { venue: 'Exit Festival, AS FM Stage', city: 'Novi Sad', country: 'RS', date: '2024-07-12' },
   kult: { venue: 'Club Kult', city: 'Belgrade', country: 'RS', date: '2025-11-20' },
   paleta: { venue: 'Paleta', city: 'Novi Sad', country: 'RS', date: '2026-04-30' },
   capital: { venue: 'Capital Night Club', city: 'Lefkada', country: 'GR', date: '2024-07-23' },
@@ -66,6 +68,8 @@ export const galleryPhotos: GalleryPhoto[] = [
   { slug: 'exit-2025-students-stage-03', group: 'studentsStage', w: 1065, h: 1600, tw: 399, th: 600, credit: SKILLA },
   { slug: 'exit-2025-students-stage-04', group: 'studentsStage', w: 1065, h: 1600, tw: 399, th: 600, credit: SKILLA },
   { slug: 'exit-2025-students-stage-05', group: 'studentsStage', w: 1205, h: 1600, tw: 452, th: 600 },
+  // a frame from Zippy's own video of the set (archive: 1_Nastupi/2024-07-12 Exit 2024)
+  { slug: 'exit-2024-as-fm-stage', group: 'asfm', w: 1600, h: 900, tw: 600, th: 338 },
   { slug: 'club-kult-2025-01', group: 'kult', w: 1200, h: 1600, tw: 450, th: 600 },
   { slug: 'club-kult-2025-02', group: 'kult', w: 1600, h: 1200, tw: 600, th: 450 },
   { slug: 'paleta-2026', group: 'paleta', w: 1200, h: 1600, tw: 450, th: 600 },

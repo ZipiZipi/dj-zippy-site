@@ -218,10 +218,34 @@ const mixSchema = {
       .mix-card__art, .mix-card__info, .mix-card__glyph { transition: none; }
       .mix-card:hover .mix-card__art, .mix-card--bare:hover .mix-card__glyph { transform: none; }
     }
+    .mixes-hero__bg { position: absolute; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; }
+    .mixes-hero__bg img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 40%; }
+    .mixes-hero__bg::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 55% at 50% 58%, rgb(5 5 5 / 0.72), rgb(5 5 5 / 0.35) 70%, transparent),
+        linear-gradient(to bottom, rgb(5 5 5 / 0.55) 0%, rgb(5 5 5 / 0.2) 30%, rgb(5 5 5 / 0.45) 70%, #050505 100%);
+    }
   </style>
 
-  <section class="isolate relative min-h-[40vh] flex flex-col items-center justify-center bg-brand-black pt-24 sm:pt-28 pb-10 sm:pb-12 overflow-hidden">
-    <div class="aurora absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[60vw] rounded-full pointer-events-none"></div>
+  <section class="mixes-hero isolate relative min-h-[56vh] flex flex-col items-center justify-center bg-brand-black pt-24 sm:pt-28 pb-10 sm:pb-12 overflow-hidden">
+    {/* A frame from Zippy's video of the AS FM Stage set (Exit 2024) behind the
+        heading, as on About: darkened in the middle where the words sit, faded
+        to the page black at the bottom */}
+    <div class="mixes-hero__bg">
+      <img
+        src="/images/mixes/dj-zippy-exit-2024-as-fm-stage.webp"
+        srcset="/images/mixes/dj-zippy-exit-2024-as-fm-stage-1000.webp 1000w, /images/mixes/dj-zippy-exit-2024-as-fm-stage.webp 2000w"
+        sizes="100vw"
+        alt={t.mixes.photoAlt}
+        width="2000"
+        height="1125"
+        fetchpriority="high"
+        decoding="async"
+      />
+    </div>
     <div class="container mx-auto px-6 sm:px-8 lg:px-12 text-center z-30">
       <nav aria-label={t.breadcrumb.label} class="mb-6">
         <ol class="flex justify-center items-center space-x-2 text-sm text-gray-400">
