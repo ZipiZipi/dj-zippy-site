@@ -431,10 +431,12 @@ html[data-side-pick="B"] [data-side-item="A"] { display: none !important; }
 .rail__nav:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
 .rail__bar { position: relative; height: 3px; margin-top: 1.25rem; border-radius: 3px; background: rgba(255,255,255,0.1); }
 .rail__bar > * { position: absolute; top: 0; left: 0; height: 100%; border-radius: 3px; background: rgb(var(--accent-rgb)); will-change: transform; }
-.rail:not(.rail--js) .rail__nav,
 .rail:not(.rail--js) .rail__bar,
-.rail[data-rail-fits] .rail__nav,
 .rail[data-rail-fits] .rail__bar { display: none; }
+/* arrows with nothing to scroll keep their place (invisible), so the controls
+   beside them (the A/B filter) never jump sideways when a side is picked */
+.rail:not(.rail--js) .rail__nav,
+.rail[data-rail-fits] .rail__nav { visibility: hidden; pointer-events: none; }
 
 /* === Calendar buttons (CalendarActions.astro) === */
 .cal-btn {

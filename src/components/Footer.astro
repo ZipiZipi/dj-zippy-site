@@ -280,7 +280,7 @@ const socials = [
     -webkit-mask-image: linear-gradient(to bottom, transparent, #000 9rem);
     mask-image: linear-gradient(to bottom, transparent, #000 9rem);
   }
-  @media (min-width: 640px) { .book { padding-top: 5.5rem; } }
+  @media (min-width: 640px) { .book { padding-top: 3.5rem; } }
   /* While the cookie card (CookieConsent.astro) is open it covers the bottom of
      the screen; room under the footer lets the send button and the bottom row
      still scroll up above it. */
@@ -294,7 +294,7 @@ const socials = [
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
       grid-template-areas: "intro direct" "desk desk";
       column-gap: 3rem;
-      row-gap: 2.5rem;
+      row-gap: 1.75rem;
       align-items: end;
     }
   }
@@ -395,22 +395,23 @@ const socials = [
     background: radial-gradient(ellipse 70% 50% at 10% 0%, rgb(var(--book-rgb) / 0.1), transparent 70%);
   }
   .book-desk > * { position: relative; }
-  @media (min-width: 640px) { .book-desk { padding: 1.75rem; } }
+  @media (min-width: 640px) { .book-desk { padding: 1.5rem 1.75rem; } }
 
-  .book-desk__top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; font-size: 0.6875rem; color: rgb(255 255 255 / 0.62); }
+  .book-desk__top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; font-size: 0.6875rem; color: rgb(255 255 255 / 0.62); }
 
   .book-desk__body { display: grid; gap: 2.25rem; }
-  @container book (min-width: 50rem) {
+  .book-set { container-type: inline-size; min-width: 0; }
+  @container book (min-width: 38rem) {
     .book-desk__body { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0; }
-    .book-set { padding-right: 2.25rem; }
-    .book-details { padding-left: 2.25rem; border-left: 1px solid rgb(255 255 255 / 0.07); }
+    .book-set { padding-right: 1.75rem; }
+    .book-details { padding-left: 1.75rem; border-left: 1px solid rgb(255 255 255 / 0.07); }
     /* side by side with the set, the message box takes up the spare height */
     .book-fields { flex: 1; }
     .book-field--grow { flex: 1; display: flex; flex-direction: column; }
     .book-field--grow > .book-input { flex: 1; }
   }
   .book-group { min-width: 0; margin: 0; padding: 0; border: 0; }
-  .book-step { display: flex; align-items: center; gap: 0.625rem; margin-bottom: 0.875rem; padding: 0; font-size: 0.6875rem; color: rgb(255 255 255 / 0.62); }
+  .book-step { display: flex; align-items: center; gap: 0.625rem; margin-bottom: 0.625rem; padding: 0; font-size: 0.6875rem; color: rgb(255 255 255 / 0.62); }
   .book-step__n { color: rgb(var(--book-alt-rgb)); }
 
   /* 01 · the side pads */
@@ -439,8 +440,8 @@ const socials = [
   .book-pad__name { font-size: 0.9375rem; font-weight: 600; line-height: 1.25; color: #fff; }
 
   /* 02 · the night: waveform, fader, genres, line */
-  .book-night { margin-top: 1.75rem; }
-  .book-wave { display: flex; align-items: center; gap: 2px; height: 3.25rem; }
+  .book-night { margin-top: 1.25rem; }
+  .book-wave { display: flex; align-items: center; gap: 2px; height: 2.5rem; }
   .book-wave i {
     flex: 1 1 0;
     min-width: 1px;
@@ -539,7 +540,7 @@ const socials = [
   .book-desk[data-book-side="any"] .book-genres .book-genres__key { display: inline-flex; }
   /* one row: the names shrink with the desk, and slide sideways if they still do not fit */
   .book-genres { min-width: 0; }
-  .book-genres ul { display: flex; flex-wrap: nowrap; white-space: nowrap; overflow-x: auto; scrollbar-width: none; min-width: 0; font-size: clamp(0.75rem, 2.25cqi, 0.9375rem); font-weight: 600; line-height: 1.4; }
+  .book-genres ul { display: flex; flex-wrap: nowrap; white-space: nowrap; overflow-x: auto; scrollbar-width: none; min-width: 0; font-size: clamp(0.6875rem, 3.1cqi, 0.9375rem); font-weight: 600; line-height: 1.4; }
   .book-genres ul::-webkit-scrollbar { display: none; }
   .book-genres li { color: rgb(255 255 255 / 0.75); transition: color 0.25s; }
   /* the slash goes after each genre, so a wrapped line ends on one instead of starting with it */
@@ -555,7 +556,7 @@ const socials = [
   .book-details__body { container: book-details / inline-size; display: flex; flex-direction: column; flex: 1; }
   .book-fields { display: flex; flex-direction: column; gap: 0.75rem; }
   .book-fields__pair { display: grid; gap: 0.75rem; }
-  @container book-details (min-width: 26rem) {
+  @container book-details (min-width: 17rem) {
     .book-fields__pair { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 0.875rem; }
   }
   /* The label sits inside the field. An empty field shows it like a placeholder;
@@ -601,7 +602,7 @@ const socials = [
   .book-input:user-invalid { border-color: rgb(248 113 113 / 0.7); }
   textarea.book-input { min-height: 5.5rem; resize: vertical; }
 
-  .book-send-row { display: flex; flex-direction: column; align-items: stretch; gap: 0.875rem; margin-top: auto; padding-top: 1.5rem; }
+  .book-send-row { display: flex; flex-direction: column; align-items: stretch; gap: 0.875rem; margin-top: auto; padding-top: 1rem; }
   @container book-details (min-width: 26rem) {
     .book-send-row { flex-direction: row; align-items: center; }
     /* next to the status line the button keeps one size and one line in every state */
