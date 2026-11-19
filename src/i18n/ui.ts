@@ -50,7 +50,7 @@ const en = {
     // side: B = underground (House Music Therapy), A = open format; see eventSide()
     eventDescription: (title: string, location: string, side: 'A' | 'B' = 'B') =>
       `DJ Zippy (Zippy) performing live at ${title} in ${location}. ${side === 'A' ? 'Open format night.' : 'House Music Therapy.'}`,
-    ogImageAlt: 'DJ Zippy with headphones — Serbian house DJ, House Music Therapy',
+    ogImageAlt: 'DJ Zippy with headphones, Serbian house DJ, House Music Therapy',
   },
 
   langSwitch: {
@@ -86,7 +86,7 @@ const en = {
     heading1: "Let's ",
     heading2: 'Connect',
     blurb:
-      'Available for club nights, festivals and private events — bringing House Music Therapy to your event.',
+      'Available for club nights, festivals and private events. House Music Therapy, brought to your event.',
     raProfile: 'Resident Advisor Profile',
     name: 'Name',
     venue: 'Venue/Event',
@@ -97,7 +97,7 @@ const en = {
     sending: 'Sending...',
     sent: 'Sent ✓',
     error: 'Not sent',
-    subject: 'DJ Zippy — Booking Request',
+    subject: 'DJ Zippy: Booking Request',
     copyright: (year: number) => `© ${year} DJ Zippy. All Rights Reserved. House Music Therapy.`,
     allLinks: 'All Links',
     sideLabel: 'Which side?',
@@ -139,6 +139,8 @@ const en = {
     map: 'Map',
     checkCalendar: 'Check my calendar',
     saveDate: 'Save the date',
+    // the one calendar button: its menu checks your calendar or saves the date
+    calendar: 'Calendar',
     calGoogle: 'Google Calendar',
     calIcs: 'Apple or Outlook',
     calSubscribe: 'Subscribe to all dates',
@@ -149,6 +151,9 @@ const en = {
     tomorrow: 'Tomorrow',
     inHours: 'In {n} h',
     inMinutes: 'In {n} min',
+    // the ticking countdown: days, hours, minutes, seconds
+    units: ['d', 'h', 'm', 's'],
+    startsIn: 'Starts in',
     scrub: 'Timeline of upcoming dates',
     cueLabel: 'Cue {n}: {title}, {date}',
     preview: 'Preview',
@@ -236,9 +241,9 @@ const en = {
     ],
     tapeWords: ['Deep Tech', 'Minimal', 'Deep House', 'French House', 'Groove', 'Disco', 'Funk', 'Jazz'],
     tapeWordsA: ['R&B', 'Disco', 'Funk', '2000s', 'Pop', 'Hip-hop', 'Trap'],
-    kicker: 'Serbian House DJ',
-    // the same line on the other side of the hero title
-    kickerA: 'Serbian Open Format DJ',
+    // over the hero title, the same on both sides; the genre is the line under it
+    kicker: 'Serbian DJ',
+    kickerA: 'Serbian DJ',
     // "The selector": the back of his record. Heading, a two-line motto (each
     // line gets its full stop from the template), the bio for search engines
     // (one per side: the page shows the side the visitor has picked) and the
@@ -374,9 +379,9 @@ const en = {
       {
         q: 'Where is DJ Zippy from?',
         aHtml:
-          'DJ Zippy is a DJ from Serbia who plays across the country and abroad — from Exit Festival in Novi Sad and clubs in Belgrade and Smederevo to summer club nights in Greece.',
+          'DJ Zippy is a DJ from Serbia who plays across the country and abroad: from Exit Festival in Novi Sad and clubs in Belgrade and Smederevo to summer club nights in Greece.',
         aText:
-          'DJ Zippy is a DJ from Serbia who plays across the country and abroad — from Exit Festival in Novi Sad and clubs in Belgrade and Smederevo to summer club nights in Greece.',
+          'DJ Zippy is a DJ from Serbia who plays across the country and abroad: from Exit Festival in Novi Sad and clubs in Belgrade and Smederevo to summer club nights in Greece.',
       },
       {
         q: 'How can I book DJ Zippy for an event?',
@@ -542,8 +547,8 @@ const en = {
     description:
       'Official links for DJ Zippy, Serbian house DJ: House Music Therapy mixes, Spotify, SoundCloud, YouTube, Resident Advisor, gigs and bookings.',
     ogDescription:
-      'All official DJ Zippy links — streaming, socials, events and bookings. House Music Therapy by a Serbian house DJ.',
-    twitterDescription: 'All official DJ Zippy links — streaming, socials, events and bookings.',
+      'All official DJ Zippy links: streaming, socials, events and bookings. House Music Therapy by a Serbian house DJ.',
+    twitterDescription: 'All official DJ Zippy links: streaming, socials, events and bookings.',
     avatarAlt: 'Zippy (DJ Zippy) - House Music Therapy Profile',
     tagline: 'Serbian house DJ',
     // The two sides, B first: House Music Therapy leads, Core Memories follows
@@ -612,7 +617,7 @@ const sr: Dict = {
       'House Music Therapy - DJ brend koji bira frekvencije, groove i vodi kroz putovanje house muzikom.',
     eventDescription: (title: string, location: string, side: 'A' | 'B' = 'B') =>
       `DJ Zippy (Zippy) uživo: ${title}, ${location}. ${side === 'A' ? 'Open format veče.' : 'House Music Therapy.'}`,
-    ogImageAlt: 'DJ Zippy sa slušalicama — srpski house DJ, House Music Therapy',
+    ogImageAlt: 'DJ Zippy sa slušalicama, srpski house DJ, House Music Therapy',
   },
 
   langSwitch: {
@@ -650,7 +655,7 @@ const sr: Dict = {
     heading1: 'Hajde da se ',
     heading2: 'čujemo',
     blurb:
-      'Dostupan za klupske nastupe, festivale i privatne žurke — House Music Therapy stiže na tvoj event.',
+      'Dostupan za klupske nastupe, festivale i privatne žurke. House Music Therapy dolazi na tvoju žurku.',
     raProfile: 'Resident Advisor profil',
     name: 'Ime',
     venue: 'Klub/Event',
@@ -661,7 +666,7 @@ const sr: Dict = {
     sending: 'Šaljem...',
     sent: 'Poslato ✓',
     error: 'Nije poslato',
-    subject: 'DJ Zippy — Upit za nastup',
+    subject: 'DJ Zippy: Upit za nastup',
     copyright: (year: number) => `© ${year} DJ Zippy. Sva prava zadržana. House Music Therapy.`,
     allLinks: 'Svi linkovi',
     sideLabel: 'Koja strana?',
@@ -699,6 +704,7 @@ const sr: Dict = {
     map: 'Mapa',
     checkCalendar: 'Proveri kalendar',
     saveDate: 'Sačuvaj datum',
+    calendar: 'Kalendar',
     calGoogle: 'Google kalendar',
     calIcs: 'Apple ili Outlook',
     calSubscribe: 'Prati sve nastupe',
@@ -708,6 +714,8 @@ const sr: Dict = {
     tomorrow: 'Sutra',
     inHours: 'Za {n} h',
     inMinutes: 'Za {n} min',
+    units: ['d', 'h', 'm', 's'],
+    startsIn: 'Počinje za',
     scrub: 'Vremenska linija narednih nastupa',
     cueLabel: 'Cue {n}: {title}, {date}',
     preview: 'Preview',
@@ -788,8 +796,8 @@ const sr: Dict = {
     ],
     tapeWords: ['Deep Tech', 'Minimal', 'Deep House', 'French House', 'Groove', 'Disco', 'Funk', 'Jazz'],
     tapeWordsA: ['R&B', 'Disco', 'Funk', '2000-te', 'Pop', 'Hip-hop', 'Trep'],
-    kicker: 'Srpski house DJ',
-    kickerA: 'Srpski open format DJ',
+    kicker: 'Srpski DJ',
+    kickerA: 'Srpski DJ',
     datesKicker: 'Uživo',
     introKicker: 'Beleške sa omota',
     introHeading1: 'Selektor iza ',
@@ -911,9 +919,9 @@ const sr: Dict = {
       {
         q: 'Odakle je DJ Zippy?',
         aHtml:
-          'DJ Zippy je DJ iz Srbije koji svira širom zemlje i van nje — od Exit festivala u Novom Sadu i klubova u Beogradu i Smederevu do letnjih klupskih večeri u Grčkoj.',
+          'DJ Zippy je DJ iz Srbije koji svira širom zemlje i van nje: od Exit festivala u Novom Sadu i klubova u Beogradu i Smederevu do letnjih klupskih večeri u Grčkoj.',
         aText:
-          'DJ Zippy je DJ iz Srbije koji svira širom zemlje i van nje — od Exit festivala u Novom Sadu i klubova u Beogradu i Smederevu do letnjih klupskih večeri u Grčkoj.',
+          'DJ Zippy je DJ iz Srbije koji svira širom zemlje i van nje: od Exit festivala u Novom Sadu i klubova u Beogradu i Smederevu do letnjih klupskih večeri u Grčkoj.',
       },
       {
         q: 'Kako mogu da rezervišem DJ Zippyja za event?',
@@ -1076,8 +1084,8 @@ const sr: Dict = {
     description:
       'Zvanični linkovi DJ Zippyja, srpskog house DJ-a: House Music Therapy miksevi, Spotify, SoundCloud, YouTube, Resident Advisor, nastupi i booking.',
     ogDescription:
-      'Svi zvanični linkovi DJ Zippyja — striming, mreže, nastupi i booking. House Music Therapy srpskog house DJ-a.',
-    twitterDescription: 'Svi zvanični linkovi DJ Zippyja — striming, mreže, nastupi i booking.',
+      'Svi zvanični linkovi DJ Zippyja: striming, mreže, nastupi i booking. House Music Therapy srpskog house DJ-a.',
+    twitterDescription: 'Svi zvanični linkovi DJ Zippyja: striming, mreže, nastupi i booking.',
     avatarAlt: 'Zippy (DJ Zippy) - House Music Therapy profil',
     tagline: 'Srpski house DJ',
     mainLabel: 'Glavni linkovi',

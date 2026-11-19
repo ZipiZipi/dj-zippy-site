@@ -84,6 +84,38 @@ function initDeck() {
     ph.setAttribute('aria-valuetext', label);
   }
 
+  // Picking a date (a cue or a pad) glides the playhead there instead of
+  // jumping: the bars light up or go dark one by one on the way, and the bars
+  // around the date kick when it lands.
+  let glide = 0;
+  function glideTo(to: number) {
+    cancelAnimationFrame(glide);
+    const from = p;
+    const dist = Math.abs(to - from);
+    if (dist < 0.002) { setPlayhead(to); hit(to); return; }
+    const dur = 380 + 420 * Math.min(1, dist * 1.6);
+    const t1 = performance.now();
+    const ease = (x: number) => 1 - Math.pow(1 - x, 3);
+    const step = (now: number) => {
+      const k = Math.min(1, (now - t1) / dur);
+      setPlayhead(from + (to - from) * ease(k));
+      if (k < 1) glide = requestAnimationFrame(step);
+      else hit(to);
+    };
+    glide = requestAnimationFrame(step);
+  }
+  function hit(at: number) {
+    const c = at * N;
+    bars.forEach((b, i) => {
+      const off = Math.abs(i + 0.5 - c);
+      if (off > 6) return;
+      b.classList.remove('is-hit');
+      b.style.setProperty('--d', `${(off * 0.035).toFixed(3)}s`);
+      void b.offsetWidth;   // restart the animation
+      b.classList.add('is-hit');
+    });
+  }
+
   /** The next visible gig from the playhead on; the last one once the playhead is past them all. */
   function gigAt(v: number): number {
     let last = -1;
@@ -95,24 +127,30 @@ function initDeck() {
     return last;
   }
 
-  // How far off the selected gig is, in words: in so many days (counted in
-  // calendar days), tomorrow, or on the day itself the hours or minutes left.
-  // inDaysOne is the Serbian form for 21, 31… days ("za 21 dan").
+  // A countdown to the selected gig that ticks every second: "2d 05h 12m 33s".
+  // The days drop off on the last day. Once it starts: "On now", then "Played".
+  const units = (str.units || 'd,h,m,s').split(',');
+  const pad2 = (n: number) => String(n).padStart(2, '0');
+  let shown = '';
   function tick() {
     const g = gigs[sel];
     if (!g) return;
     const now = Date.now();
     const ms = g.startMs - now;
-    if (ms <= 0) { count.textContent = now < g.endMs ? str.onNow : str.played; return; }
-    const midnight = (t: number) => { const d = new Date(t); d.setHours(0, 0, 0, 0); return d.getTime(); };
-    const days = Math.round((midnight(g.startMs) - midnight(now)) / DAY);
-    let text: string;
-    if (days >= 2) text = (days % 10 === 1 && days % 100 !== 11 ? str.inDaysOne : str.inDays).replace('{n}', String(days));
-    else if (days === 1) text = str.tomorrow;
-    else if (g.allDay) text = str.today;
-    else if (ms >= 3_600_000) text = str.inHours.replace('{n}', String(Math.floor(ms / 3_600_000)));
-    else text = str.inMinutes.replace('{n}', String(Math.max(1, Math.ceil(ms / 60_000))));
-    if (count.textContent !== text) count.textContent = text;
+    if (ms <= 0) {
+      const text = now < g.endMs ? str.onNow : str.played;
+      if (shown !== text) { count.textContent = text; shown = text; count.removeAttribute('aria-label'); }
+      return;
+    }
+    const total = Math.floor(ms / 1000);
+    const d = Math.floor(total / 86_400), h = Math.floor(total / 3600) % 24, m = Math.floor(total / 60) % 60, sec = total % 60;
+    const parts: [string, string][] = [[pad2(h), units[1]], [pad2(m), units[2]], [pad2(sec), units[3]]];
+    if (d > 0) parts.unshift([String(d), units[0]]);
+    const key = parts.map((x) => x.join('')).join(' ');
+    if (key === shown) return;
+    shown = key;
+    count.innerHTML = parts.map(([n, u]) => `${n}<small>${u}</small>`).join('');
+    count.setAttribute('aria-label', `${str.startsIn} ${key}`);
   }
   const timer = window.setInterval(() => {
     if (!root.isConnected) { clearInterval(timer); return; }   // page swapped by a view transition
@@ -126,7 +164,7 @@ function initDeck() {
     root!.dataset.side = g.side;
     cue.textContent = `${str.cue} ${g.n} · ${g.sideText}`;
     title.textContent = g.title;
-    nameEl.textContent = g.name ? ` — ${g.name}` : '';
+    nameEl.textContent = g.name;
     meta.textContent = g.meta;
     sound.textContent = g.sound;
     pads.forEach((el, n) => el.setAttribute('aria-pressed', n === i ? 'true' : 'false'));
@@ -135,7 +173,7 @@ function initDeck() {
       el.hidden = n !== i;
       if (n !== i) el.querySelector<HTMLDetailsElement>('details[open]')?.removeAttribute('open');
     });
-    if (opts.move) setPlayhead(posOf(g));
+    if (opts.move) glideTo(posOf(g));
     tick();
     player.load(g, opts.play);
   }
@@ -167,7 +205,7 @@ function initDeck() {
       strip.classList.toggle('is-empty', tracks.length === 0);
       const tr = tracks[ti];
       if (label) label.textContent = tracks.length ? `${str.preview} ${ti + 1}/${tracks.length} · ${sideShort}` : `${str.preview} · ${sideShort}`;
-      if (track) track.textContent = tr ? `${tr.artist} — ${tr.title}` : str.previewEmpty;
+      if (track) track.textContent = tr ? `${tr.artist} · ${tr.title}` : str.previewEmpty;
       if (muteBtn) muteBtn.setAttribute('aria-pressed', muted ? 'true' : 'false');
       if (muteText) muteText.textContent = muted ? str.soundOff : str.soundOn;
     }
@@ -240,6 +278,7 @@ function initDeck() {
 
   // --- scrubbing ---
   function scrubTo(v: number, intent: Intent) {
+    cancelAnimationFrame(glide);
     setPlayhead(v);
     const i = gigAt(p);
     if (i >= 0 && i !== sel) select(i, { move: false, play: intent });

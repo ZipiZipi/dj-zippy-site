@@ -208,8 +208,6 @@ const musicEventSchema = {
     .upcoming-row__name { display: block; margin-top: 0.2rem; line-height: 1.3; }
     .upcoming-row__dash { display: none; }
     .upcoming-row__next { display: flex; align-items: center; gap: 0.45rem; margin-bottom: 0.4rem; font-size: 0.625rem; color: rgb(var(--alt-rgb)); }
-    .upcoming-row__led { width: 6px; height: 6px; flex-shrink: 0; border-radius: 50%; background: currentColor; box-shadow: 0 0 8px 1px currentColor; animation: ev-blink 0.484s steps(1) infinite alternate; }   /* one beat at 124 BPM */
-    @keyframes ev-blink { 50% { opacity: 0.25; } }
     .upcoming-row__sound { display: flex; align-items: flex-start; gap: 0.5rem; margin-top: 0.5rem; line-height: 1.375rem; }
     /* the smallest phones: a slimmer date column leaves the venue more room */
     @media (max-width: 359px) {
@@ -227,6 +225,7 @@ const musicEventSchema = {
       .upcoming-row__title { font-size: 1.125rem; }
       .upcoming-row__name { display: inline; margin: 0; }
       .upcoming-row__dash { display: inline; }
+      .upcoming-row__name { margin-left: 0.4em; }
     }
     @media (min-width: 1024px) { .upcoming-row { column-gap: 1.75rem; padding: 1.25rem 1.5rem; } }
 
@@ -371,7 +370,7 @@ const musicEventSchema = {
     .year-panel:has([data-side-none]) { display: none; }
 
     @media (prefers-reduced-motion: reduce) {
-      .upcoming-row__led, .year-more[open] > ol { animation: none; }
+      .year-more[open] > ol { animation: none; }
     }
   </style>
 
@@ -395,8 +394,7 @@ const musicEventSchema = {
         <SideFilter lang={lang} />
 
         <div class="ev-head mt-12 sm:mt-14">
-          <div>
-            <p class="eyebrow">{t.home.datesKicker}</p>
+          <div>
             <h2 class="section-title mt-3">{t.events.upcoming1}<span class="text-brand-orange">{t.events.upcoming2}</span></h2>
           </div>
           {upcoming.length > 0 && (
@@ -442,8 +440,8 @@ const musicEventSchema = {
                   <span class="upcoming-row__yr mono-caps">{year}</span>
                 </time>
                 <div class="upcoming-row__head">
-                  {isNext && <p class="upcoming-row__next mono-caps"><span class="upcoming-row__led" aria-hidden="true"></span>{nextLabel}</p>}
-                  <h3 class="upcoming-row__title font-display font-bold text-white">{venueName(e.title)}{night && <span class="upcoming-row__name font-body font-normal text-gray-300 text-sm sm:text-base"><span class="upcoming-row__dash"> — </span>{night}</span>}</h3>
+                  {isNext && <p class="upcoming-row__next mono-caps">{nextLabel}</p>}
+                  <h3 class="upcoming-row__title font-display font-bold text-white">{night || venueName(e.title)}{night && <span class="upcoming-row__name font-body font-normal text-gray-300 text-sm sm:text-base"><span class="upcoming-row__dash"> </span>{venueName(e.title)}</span>}</h3>
                 </div>
                 <div class="upcoming-row__body">
                   <p class="text-sm text-gray-400">{[placeName(e.location, lang), time].filter(Boolean).join(' · ')}</p>
@@ -470,8 +468,6 @@ const musicEventSchema = {
       <div class="max-w-6xl mx-auto">
         <div class="ev-head">
           <div>
-            {/* the years the archive covers (the picked side's years once one is picked) */}
-            {span.all && <p class="eyebrow side-n"><span data-n="all">{span.all}</span><span data-n="A">{span.A}</span><span data-n="B">{span.B}</span></p>}
             <h2 class="section-title mt-3">{t.events.past1}<span class="text-gray-400">{t.events.past2}</span></h2>
           </div>
         </div>

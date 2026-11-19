@@ -101,12 +101,12 @@ function pathLines(gigs: UIEvent[]): PathLine[] {
     const line = lines.get(key);
     if (!line) {
       lines.set(key, {
-        date: e.date, title: venueName(head), stages: rest.length ? [rest.join(' — ')] : [],
+        date: e.date, title: venueName(head), stages: rest.length ? [rest.join(' · ')] : [],
         location: placeName(e.location, lang), side: eventSide(e), tag, first: isFirst(e), weight,
       });
       continue;
     }
-    if (rest.length) line.stages.push(rest.join(' — '));
+    if (rest.length) line.stages.push(rest.join(' · '));
     if (isFirst(e) || !line.tag) {
       line.tag = tag || line.tag;
       line.first = line.first || isFirst(e);
@@ -436,8 +436,6 @@ const aboutSchema = {
     .about-side[data-side="B"] .about-side__status,
     :root[data-side-pick="A"] .about-side[data-side="A"] .about-side__status { display: inline-flex; }
     :root[data-side-pick="A"] .about-side[data-side="B"] .about-side__status { display: none; }
-    .about-side__led { width: 7px; height: 7px; border-radius: 50%; background: var(--side); box-shadow: 0 0 8px 1px var(--side); animation: about-blink 0.484s steps(1) infinite alternate; }   /* one beat at 124 BPM */
-    @keyframes about-blink { 50% { opacity: 0.25; } }
     .about-side__name { font-size: clamp(1.5rem, 7.4vw, 2.25rem); font-weight: 800; line-height: 1.05; color: var(--side); text-wrap: balance; }
     @media (min-width: 768px) { .about-side__name { font-size: clamp(1.75rem, 3.6vw, 2.75rem); } }
     .about-side__body { max-width: 34rem; font-size: 1rem; line-height: 1.65; color: rgba(255,255,255,0.75); }
@@ -513,7 +511,7 @@ const aboutSchema = {
 
     @media (prefers-reduced-motion: reduce) {
       .faq-item__icon::before, .faq-item__icon::after { transition: none; }
-      .about-side__led, .faq-item[open] .faq-item__body { animation: none; }
+      .faq-item[open] .faq-item__body { animation: none; }
     }
   </style>
 
@@ -599,8 +597,7 @@ const aboutSchema = {
   <section id="bio" class="about-section border-t border-white/5">
     <div class="container mx-auto px-6 sm:px-8 lg:px-12">
       <div class="about-bio" data-reveal>
-        <div>
-          <p class="eyebrow">{t.about.badge}</p>
+        <div>
           <h2 class="about-bio__title font-display">
             {t.about.subheading1}{' '}<br />{t.about.subheading2}<span class="text-brand-orange">{t.about.subheading3}</span>
           </h2>
@@ -650,8 +647,7 @@ const aboutSchema = {
   <section id="sides" class="about-section border-t border-white/5">
     <div class="container mx-auto px-6 sm:px-8 lg:px-12">
       <div class="about-head--split">
-        <div>
-          <p class="eyebrow">{t.about.sidesLabel}</p>
+        <div>
           <h2 class="section-title mt-3">{t.about.sidesHeading1}<span class="text-brand-orange">{t.about.sidesHeading2}</span></h2>
           <p class="about-head__lead">{t.about.sidesLead}</p>
         </div>
@@ -671,7 +667,7 @@ const aboutSchema = {
           <article class="about-side" data-side={s.side} aria-labelledby={`about-side-${s.side}`}>
             <div class="about-side__top">
               <p class="about-side__kind mono-caps"><span class="side-key" aria-hidden="true">{s.side}</span>{s.key} · {s.kind}</p>
-              <p class="about-side__status mono-caps" aria-hidden="true"><span class="about-side__led"></span>{t.about.sideOn}</p>
+              <p class="about-side__status mono-caps" aria-hidden="true">{t.about.sideOn}</p>
             </div>
             <h3 id={`about-side-${s.side}`} class="about-side__name font-display">{s.name}</h3>
             <p class="about-side__body">{s.body}</p>
@@ -697,8 +693,7 @@ const aboutSchema = {
       <div class="container mx-auto px-6 sm:px-8 lg:px-12">
         <div class="rail about-path" data-rail data-reveal>
           <div class="about-head--split">
-            <div>
-              <p class="eyebrow">{pathSpan}</p>
+            <div>
               <h2 class="section-title mt-3">{t.about.pathHeading1}<span class="text-brand-orange">{t.about.pathHeading2}</span></h2>
               <p class="about-head__lead">{t.about.pathLead}</p>
             </div>
@@ -753,8 +748,7 @@ const aboutSchema = {
   <section id="faq" class="about-section about-section--faq border-t border-white/5">
     <div class="container mx-auto px-6 sm:px-8 lg:px-12">
       <div class="about-faq" data-reveal>
-        <div>
-          <p class="eyebrow">{t.about.faqLabel}</p>
+        <div>
           <h2 class="about-faq__title font-display">{t.about.faqHeading1}<span class="text-brand-orange">{t.about.faqHeading2}</span></h2>
         </div>
         <div class="about-faq__cols">

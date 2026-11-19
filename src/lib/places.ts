@@ -37,9 +37,12 @@ const VENUES: Record<string, string> = {
 
 const squash = (name: string) => name.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '');
 
-/** The venue as it writes its own name ("RayBar" in the data reads "Ray Bar"). */
+/**
+ * The venue as it writes its own name ("RayBar" in the data reads "Ray Bar").
+ * A stage is set off with a middle dot, never a dash: "Exit Festival · Dance Arena".
+ */
 export function venueName(title: string): string {
-  return VENUES[squash(title)] ?? title.trim();
+  return (VENUES[squash(title)] ?? title.trim()).replace(/\s+[—–-]\s+/g, ' · ');
 }
 
 // What a gig was, in Serbian. The admin and the sheet take these notes in
@@ -65,15 +68,14 @@ export function subtitleText(sub: string | undefined, lang: Lang): string {
 }
 
 /**
- * A gig's name as the pages show it and the structured data gives it: the venue,
- * then the night's own name if it has one ("Lazino Tele — Core Memories"). The
- * House Music Therapy brand is never used as a name (see eventSound()).
+ * A gig's name as the pages show it and the structured data gives it: the
+ * night's own name if it has one, then the venue ("Core Memories · Lazino Tele").
+ * The House Music Therapy brand is never used as a name (see eventSound()).
  */
 export function eventName(e: UIEvent, lang: Lang): string {
   const venue = venueName(e.title);
   const night = subtitleText(eventSound(e).name, lang);
-  if (!night) return venue;
-  return venue.includes('—') ? `${venue}, ${night}` : `${venue} — ${night}`;
+  return night ? `${night} · ${venue}` : venue;
 }
 
 // Countries the gigs have been in, as a map search wants them.
@@ -90,7 +92,7 @@ const MAP_QUERIES: Record<string, string> = {};
  * computers. Exit's stages all point at the festival itself.
  */
 export function mapUrl(e: UIEvent): string | undefined {
-  const venue = venueName(e.title).split('—')[0].trim();
+  const venue = venueName(e.title).split(' · ')[0].trim();
   const city = (e.location ?? '').trim();
   if (!venue && !city) return undefined;
   const query = MAP_QUERIES[squash(venue)]

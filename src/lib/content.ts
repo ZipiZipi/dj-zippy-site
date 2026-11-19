@@ -33,11 +33,11 @@ export const EVENTS_FALLBACK: UIEvent[] = [
   { slug: "event-charlie-bar-2026", date: "2026-01-10", time: "", title: "Charlie Bar", subtitle: "House Techno Session", location: "Smederevo", country: "RS", status: "past", featured: false },
   { slug: "event-kult-2025", date: "2025-11-20", time: "", title: "Club Kult", subtitle: "House Groove Tech Set", location: "Belgrade", country: "RS", status: "past", featured: true },
   { slug: "event-toucan-2025", date: "2025-08-19", time: "", title: "Toucan Nightclub", subtitle: "", location: "Zakynthos", country: "GR", status: "past", featured: true },
-  { slug: "event-exit-dance-arena-2025", date: "2025-07-12", time: "", title: "Exit Festival — Dance Arena", subtitle: "First Dance Arena Set", location: "Novi Sad", country: "RS", status: "past", featured: true },
-  { slug: "event-exit-students-2025", date: "2025-07-12", time: "", title: "Exit Festival — Students Stage", subtitle: "Late-Night House Set", location: "Novi Sad", country: "RS", status: "past", featured: true },
+  { slug: "event-exit-dance-arena-2025", date: "2025-07-12", time: "", title: "Exit Festival · Dance Arena", subtitle: "First Dance Arena Set", location: "Novi Sad", country: "RS", status: "past", featured: true },
+  { slug: "event-exit-students-2025", date: "2025-07-12", time: "", title: "Exit Festival · Students Stage", subtitle: "Late-Night House Set", location: "Novi Sad", country: "RS", status: "past", featured: true },
   { slug: "event-borisov-atelje-2024", date: "2024-09-07", time: "", title: "Borisov Atelje", subtitle: "", location: "Petrovaradin", country: "RS", status: "past", featured: true },
   { slug: "event-capital-nightclub-2024", date: "2024-07-23", time: "", title: "Capital Night Club", subtitle: "", location: "Lefkada", country: "GR", status: "past", featured: true },
-  { slug: "event-exit-asfm-2024", date: "2024-07-12", time: "", title: "Exit Festival — AS FM Stage", subtitle: "First Major Festival Stage", location: "Novi Sad", country: "RS", status: "past", featured: true },
+  { slug: "event-exit-asfm-2024", date: "2024-07-12", time: "", title: "Exit Festival · AS FM Stage", subtitle: "First Major Festival Stage", location: "Novi Sad", country: "RS", status: "past", featured: true },
   { slug: "event-kst-2024", date: "2024-04-09", time: "", title: "Klub Studenata Tehnike", subtitle: "", location: "Belgrade", country: "RS", status: "past", featured: false },
   { slug: "event-kc-lab-2023", date: "2023-09-02", time: "", title: "Kulturni Centar LAB", subtitle: "Silent Disco Party", location: "Novi Sad", country: "RS", status: "past", featured: false },
   { slug: "event-krivi-put-2022", date: "2022-07-30", time: "", title: "Cafe Krivi Put", subtitle: "First Public Party", location: "Smederevo", country: "RS", status: "past", featured: false },
@@ -250,7 +250,7 @@ export function mixFallbackIcon(platform: string): string {
 }
 
 export const MIXES_FALLBACK: UIMix[] = [
-  { slug: 'ray-bar-live-mc', title: 'Zippy Live At Ray', genre: 'House / Tech House', description: "DJ Zippy's live set recorded at RAY BAR in Novi Sad — full audio on MixCloud.", platform: 'mixcloud', link: 'https://www.mixcloud.com/zovumezippy/zippy-live-at-ray/', thumbnail: '', featured: false, alt: "DJ Zippy live at RAY BAR - MixCloud set" },
+  { slug: 'ray-bar-live-mc', title: 'Zippy Live At Ray', genre: 'House / Tech House', description: "DJ Zippy's live set recorded at RAY BAR in Novi Sad · full audio on MixCloud.", platform: 'mixcloud', link: 'https://www.mixcloud.com/zovumezippy/zippy-live-at-ray/', thumbnail: '', featured: false, alt: "DJ Zippy live at RAY BAR - MixCloud set" },
   { slug: 'ray-bar-2yrs', title: 'ZIPPY Live @ RAY BAR 2 YRS', genre: 'House / Tech House', description: "DJ Zippy's live set from RAY BAR's 2nd anniversary night in Novi Sad.", platform: 'youtube', link: 'https://www.youtube.com/watch?v=nCtGqbvYe38', thumbnail: 'https://img.youtube.com/vi/nCtGqbvYe38/maxresdefault.jpg', featured: false, alt: "DJ Zippy live at RAY BAR 2 years anniversary - house and tech house set" },
   { slug: 'letsmixit-contest', title: 'House Music Therapy / #LetsMixIt Contest', genre: 'House / Tech House', description: "DJ Zippy's high-energy rooftop set recorded in Novi Sad for the #LetsMixIt competition.", platform: 'youtube', link: 'https://www.youtube.com/watch?v=IzkAZcbyCSI', thumbnail: 'https://img.youtube.com/vi/IzkAZcbyCSI/maxresdefault.jpg', featured: true, alt: "DJ Zippy's Let's Mix It Submission - House and Tech House mix" },
   { slug: 'deep-tech-grooves-yt', title: 'House Music Therapy / Deep & Tech Grooves', genre: 'Deep House / Tech House', description: "DJ Zippy's curated mix blending deep basslines with rhythmic tech house elements.", platform: 'youtube', link: 'https://www.youtube.com/watch?v=c1M_dMg_CcU', thumbnail: 'https://img.youtube.com/vi/c1M_dMg_CcU/maxresdefault.jpg', featured: true, alt: "DJ Zippy's House Therapy Session - Deep House mix" },
@@ -258,20 +258,23 @@ export const MIXES_FALLBACK: UIMix[] = [
   { slug: 'exit-2024-asfm-full', title: 'EXIT 2024 | AS FM Stage Full Show', genre: 'Tech House', description: "DJ Zippy's complete high-energy audio recording from the Exit Festival performance.", platform: 'mixcloud', link: 'https://www.mixcloud.com/zovumezippy/exit-2024-zippy-live-at-as-fm-stage-full-show/', thumbnail: '', featured: true, alt: "DJ Zippy's House Music Therapy - MixCloud set" },
   { slug: 'deep-tech-grooves-mc', title: 'House Music Therapy / Deep & Tech Grooves (MixCloud)', genre: 'Deep Tech', description: "DJ Zippy's mix focused on sophisticated, deeper layers of house music.", platform: 'mixcloud', link: 'https://www.mixcloud.com/zovumezippy/house-music-therapy-with-dj-zippy-deep-and-tech-grooves/', thumbnail: '', featured: true, alt: "DJ Zippy's Deep & Tech Grooves - MixCloud set" },
   { slug: 'singing-forest-mc', title: 'House Music Therapy / Live from Singing Forest', genre: 'House / Organic House', description: "DJ Zippy's live set recorded in Singing Forest, blending house rhythms with a jazzy vibe.", platform: 'mixcloud', link: 'https://www.mixcloud.com/zovumezippy/house-music-therapy-with-dj-zippy-live-from-singing-forest/', thumbnail: '', featured: false, alt: "DJ Zippy's Live from Singing Forest - MixCloud set" },
-  { slug: 'letsmixit-soundcloud', title: 'Zippy — #LetsMixIt DJ Takmičenje', genre: 'House / Tech House', description: "DJ Zippy's competition entry for the LetsMixIt DJ contest — full set on SoundCloud.", platform: 'soundcloud', link: 'https://soundcloud.com/zovumezippy/zippy-letsmixit-dj-takmicenje', thumbnail: '', featured: false, alt: "Zippy LetsMixIt DJ Takmicenje - SoundCloud" },
-  { slug: 'house-therapy-3-sc', title: 'House Music Therapy #3 / Live from Singing Forest', genre: 'House / Organic House', description: "Full House Therapy session #3 recorded live in Singing Forest — available on SoundCloud.", platform: 'soundcloud', link: 'https://soundcloud.com/zovumezippy/dj-zippy-house-therapy-3-live-from-singing-forest', thumbnail: '', featured: false, alt: "DJ Zippy House Therapy 3 Live from Singing Forest - SoundCloud" },
+  { slug: 'letsmixit-soundcloud', title: 'Zippy · #LetsMixIt DJ Takmičenje', genre: 'House / Tech House', description: "DJ Zippy's competition entry for the LetsMixIt DJ contest · full set on SoundCloud.", platform: 'soundcloud', link: 'https://soundcloud.com/zovumezippy/zippy-letsmixit-dj-takmicenje', thumbnail: '', featured: false, alt: "Zippy LetsMixIt DJ Takmicenje - SoundCloud" },
+  { slug: 'house-therapy-3-sc', title: 'House Music Therapy #3 / Live from Singing Forest', genre: 'House / Organic House', description: "Full House Therapy session #3 recorded live in Singing Forest · available on SoundCloud.", platform: 'soundcloud', link: 'https://soundcloud.com/zovumezippy/dj-zippy-house-therapy-3-live-from-singing-forest', thumbnail: '', featured: false, alt: "DJ Zippy House Therapy 3 Live from Singing Forest - SoundCloud" },
   { slug: 'playlist-hmt-spotify', title: 'House Music Therapy with DJ Zippy', genre: 'Spotify Playlist', description: "DJ Zippy's selection of tracks that never leave his USB.", platform: 'spotify', link: 'https://open.spotify.com/playlist/1760y5mR1hdF7PdnAErYRA', thumbnail: '', featured: false, alt: "DJ Zippy's Selector Choice House - Spotify playlist" },
   { slug: 'playlist-guilty-spotify', title: 'Guilty Trep Pleasures with DJ Zippy', genre: 'Spotify Playlist', description: "DJ Zippy's playlist for when the lights go down and the mood gets darker.", platform: 'spotify', link: 'https://open.spotify.com/playlist/17bauJGzLkXVRa89n3WEF0', thumbnail: '', featured: false, alt: "DJ Zippy's Afterhours guilty pleasure - Spotify playlist" },
   { slug: 'playlist-hmt-deezer', title: 'House Music Therapy with DJ Zippy', genre: 'Deezer Playlist', description: "DJ Zippy's House Music Therapy selection on Deezer.", platform: 'deezer', link: 'https://www.deezer.com/en/playlist/15339042363', thumbnail: '', featured: false, alt: "DJ Zippy's House Music Therapy - Deezer playlist" },
 ];
 
+/** No em dash on the site: a spaced one in typed-in text reads as a middle dot. */
+const noEmDash = (s: string) => s.replace(/\s+—\s+/g, ' · ').replace(/—/g, '-');
+
 function mapMix(row: any): UIMix {
   return {
     id: row.id,
     slug: row.slug,
-    title: row.title,
+    title: noEmDash(row.title ?? ''),
     genre: row.genre ?? '',
-    description: row.description ?? '',
+    description: noEmDash(row.description ?? ''),
     platform: (row.platform ?? 'youtube') as Platform,
     link: row.link ?? '',
     thumbnail: row.cover_image ?? '',

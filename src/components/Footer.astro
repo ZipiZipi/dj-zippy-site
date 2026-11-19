@@ -80,8 +80,7 @@ const socials = [
   <div class="container mx-auto px-6 sm:px-8 lg:px-12">
     <div class="max-w-6xl mx-auto">
       <div class="book__grid">
-        <div class="book__intro" data-reveal>
-          <p class="eyebrow">{t.footer.kicker}</p>
+        <div class="book__intro" data-reveal>
           <h2 id="contact-heading" class="section-title mt-3">{t.footer.heading1}<span class="text-brand-orange">{t.footer.heading2}</span></h2>
           <p class="book__blurb">{t.footer.blurb}</p>
         </div>
@@ -146,7 +145,7 @@ const socials = [
           <input type="checkbox" name="botcheck" class="hidden" style="display:none" tabindex="-1" autocomplete="off" aria-hidden="true" />
 
           <div class="book-desk__top mono-caps">
-            <span id="cf-title" class="book-desk__title"><span class="book-led" aria-hidden="true"></span>{t.footer.deskTitle}</span>
+            <span id="cf-title" class="book-desk__title">{t.footer.deskTitle}</span>
             <span class="book-readout" data-book-readout aria-hidden="true">{t.sides.b} · {t.room.peak}</span>
           </div>
 
@@ -216,16 +215,16 @@ const socials = [
                   <div class="book-fields__pair">
                     <div class="book-field">
                       <label for="cf-name" class="mono-caps">{t.footer.name}</label>
-                      <input type="text" id="cf-name" name="name" autocomplete="name" enterkeyhint="next" required class="book-input" />
+                      <input type="text" id="cf-name" name="name" autocomplete="name" enterkeyhint="next" placeholder=" " required class="book-input" />
                     </div>
                     <div class="book-field">
                       <label for="cf-email" class="mono-caps">{t.footer.email}</label>
-                      <input type="email" id="cf-email" name="email" autocomplete="email" inputmode="email" enterkeyhint="next" required class="book-input" />
+                      <input type="email" id="cf-email" name="email" autocomplete="email" inputmode="email" enterkeyhint="next" placeholder=" " required class="book-input" />
                     </div>
                   </div>
                   <div class="book-field">
                     <label for="cf-venue" class="mono-caps">{t.footer.venue}</label>
-                    <input type="text" id="cf-venue" name="venue" autocomplete="organization" enterkeyhint="next" required class="book-input" />
+                    <input type="text" id="cf-venue" name="venue" autocomplete="organization" enterkeyhint="next" placeholder=" " required class="book-input" />
                   </div>
                   <div class="book-field book-field--grow">
                     <label for="cf-message" class="mono-caps">{t.footer.messageLabel}</label>
@@ -404,16 +403,6 @@ const socials = [
   @media (min-width: 640px) { .book-desk { padding: 1.75rem; } }
 
   .book-desk__top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; font-size: 0.6875rem; color: rgb(255 255 255 / 0.62); }
-  .book-led {
-    display: inline-block;
-    width: 7px;
-    height: 7px;
-    margin-right: 0.55rem;
-    border-radius: 50%;
-    background: rgb(var(--book-rgb));
-    box-shadow: 0 0 8px 1px rgb(var(--book-rgb));
-    vertical-align: 1px;
-  }
   .book-readout { color: rgb(var(--book-rgb)); text-align: right; }
   @container book (max-width: 26rem) { .book-readout { display: none; } }
 
@@ -604,7 +593,31 @@ const socials = [
   @container book-details (min-width: 26rem) {
     .book-fields__pair { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 0.875rem; }
   }
-  .book-field > label { display: block; margin-bottom: 0.5rem; font-size: 0.6875rem; color: rgb(255 255 255 / 0.62); }
+  /* The label sits inside the field. An empty field shows it like a placeholder;
+     typing (or focus) moves it up to the top edge, where it stays readable. The
+     inputs carry placeholder=" " so :placeholder-shown can tell empty from filled.
+     Without :has() the label simply stays at the top. */
+  .book-field { position: relative; }
+  .book-field > label {
+    position: absolute;
+    z-index: 1;
+    left: 1rem;
+    right: 1rem;
+    top: 0.6rem;
+    margin: 0;
+    font-size: 0.625rem;
+    line-height: 1.2;
+    color: rgb(255 255 255 / 0.55);
+    pointer-events: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: top 0.2s, font-size 0.2s, color 0.2s;
+  }
+  .book-field:not(.book-field--grow):has(> .book-input:placeholder-shown:not(:focus)) > label { top: 1.3rem; font-size: 0.75rem; color: rgb(255 255 255 / 0.5); }
+  .book-field:has(> .book-input:focus) > label { color: rgb(var(--book-rgb)); }
+  .book-field > .book-input { padding: 1.5rem 1rem 0.55rem; }
+  @media (prefers-reduced-motion: reduce) { .book-field > label { transition: none; } }
   .book-input {
     display: block;
     width: 100%;

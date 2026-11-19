@@ -68,7 +68,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const accessJwt = context.request.headers.get('Cf-Access-Jwt-Assertion');
   if (!accessJwt) {
     return new Response(
-      'Forbidden — this area is protected by Cloudflare Access. ' +
+      'Forbidden: this area is protected by Cloudflare Access. ' +
       'Ensure the Access application covers both /admin and /api/admin.',
       { status: 403, headers: { 'Content-Type': 'text/plain' } },
     );

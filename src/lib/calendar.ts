@@ -6,6 +6,7 @@
 // Apple Calendar / Outlook and for the subscribable feed of all upcoming dates.
 
 import { eventInterval, eventSound, type UIEvent } from './content';
+import { venueName } from './places';
 
 /** Gig times are typed in as local club time. Every venue so far is in Serbia. */
 const VENUE_TZ = 'Europe/Belgrade';
@@ -55,8 +56,9 @@ function dayAfter(date: string): string {
   return d.toISOString().slice(0, 10);
 }
 
+/** The night's own name first, then the venue: "Izuvanje · Ray Bar · DJ Zippy". */
 export function calendarTitle(e: UIEvent): string {
-  return `DJ Zippy @ ${e.title}`;
+  return [eventSound(e).name, venueName(e.title), 'DJ Zippy'].filter(Boolean).join(' · ');
 }
 
 function calendarDetails(e: UIEvent, pageUrl: string): string {

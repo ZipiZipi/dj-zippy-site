@@ -8,7 +8,7 @@
 import { eventSound, eventSide, type UIEvent } from '../lib/content';
 import { eventTimes } from '../lib/calendar';
 import { previewsFor, PREVIEW_SECONDS } from '../lib/previews';
-import { placeName } from '../lib/places';
+import { placeName, venueName } from '../lib/places';
 import CalendarActions from './CalendarActions.astro';
 import { useTranslations, type Lang } from '../i18n/utils';
 
@@ -26,7 +26,10 @@ const gigs = events.map((e, i) => {
   const sound = eventSound(e);
   const side = eventSide(e);
   const weekday = t.home.weekdays[new Date(Date.UTC(+y, +mo - 1, +d)).getUTCDay()];
-  const from = (e.time ?? '').split(' - ')[0].trim();
+  const [from = '', to = ''] = (e.time ?? '').split(' - ').map((s) => s.trim());
+  // "21:00-01:00", or just the start when the end is not known
+  const hours = from && to ? `${from}-${to}` : from;
+  const venue = venueName(e.title);
   const sideShort = side === 'A' ? t.sides.a : t.sides.b;
   // one spelling per language ("Beograd" on /sr, "Belgrade" on /), as on /events
   const place = placeName(e.location, lang);
@@ -36,11 +39,14 @@ const gigs = events.map((e, i) => {
     side,
     sideShort,
     sideText: `${sideShort} · ${side === 'A' ? t.sides.aLabel : t.sides.bLabel}`,
-    title: e.title,
-    name: sound.name,
+    // the night's own name first, then the venue ("Izuvanje", "Ray Bar")
+    title: sound.name || venue,
+    name: sound.name ? venue : '',
+    venue,
+    hours,
     location: place,
     short: `${d}.${mo}`,
-    meta: [`${weekday} ${d}.${mo}`, from, place].filter(Boolean).join(' · '),
+    meta: [`${weekday} ${d}.${mo}`, hours, place].filter(Boolean).join(' · '),
     sound: sound.openFormat ? t.sides.aLabel : sound.genres.join(' · '),
     ...eventTimes(e),
     tracks: previewsFor(e).map((tr) => ({
@@ -54,10 +60,10 @@ const first = gigs[0];
 // in local dev it is always there so the empty state can be seen.
 const showPreview = import.meta.env.DEV || gigs.some((g) => g.tracks.length > 0);
 
-const clientGigs = gigs.map(({ event, location, short, ...rest }) => rest);
+const clientGigs = gigs.map(({ event, location, short, venue, hours, ...rest }) => rest);
 const strings = {
   cue: t.deck.cue, onNow: t.deck.onNow, played: t.deck.played, today: t.deck.today,
-  inDays: t.deck.inDays, inDaysOne: t.deck.inDaysOne, tomorrow: t.deck.tomorrow, inHours: t.deck.inHours, inMinutes: t.deck.inMinutes,
+  units: t.deck.units.join(','), startsIn: t.deck.startsIn,
   preview: t.deck.preview, previewEmpty: t.deck.previewEmpty, soundOn: t.deck.soundOn, soundOff: t.deck.soundOff,
 };
 ---
@@ -86,48 +92,38 @@ const strings = {
   @media (min-width: 640px) { .deck { padding: 1.75rem; } }
 
   .deck__top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; font-size: 0.6875rem; }
-  /* the top row is the blinking LED and how far off the gig is ("In 3 days");
-     the cue line ("Cue 1 · A side · Open format") stays for screen readers
-     only: the colour and the pads below already say the side */
+  /* the top row is the countdown to the gig, ticking every second; the cue line
+     ("Cue 1 · B side") stays for screen readers only: the colour and the pads
+     below already say the side */
   .deck__top { justify-content: flex-start; gap: 0.625rem; }
-  .deck__cue { color: rgba(255,255,255,0.65); display: inline-flex; align-items: center; }
-  .deck__cue .deck__led { margin-right: 0; }
   .deck__cue [data-deck="cue"] { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
-  .deck__led {
-    display: inline-block;
-    width: 7px;
-    height: 7px;
-    margin-right: 0.5rem;
-    border-radius: 50%;
-    background: var(--side);
-    box-shadow: 0 0 8px 1px var(--side);
-    vertical-align: 1px;
-    animation: deck-blink 0.484s steps(1) infinite alternate;   /* one beat at 124 BPM */
-  }
-  @keyframes deck-blink { 50% { opacity: 0.25; } }
-  /* how far off the gig is ("In 3 days"): the biggest thing in the top row */
   .deck__count { color: var(--side); font-size: 1.125rem; font-weight: 700; letter-spacing: 0.04em; line-height: 1.1; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .deck__count small { font-size: 0.62em; font-weight: 600; margin-left: 0.08em; margin-right: 0.45em; opacity: 0.75; }
+  .deck__count small:last-child { margin-right: 0; }
   @media (min-width: 640px) { .deck__count { font-size: 1.375rem; } }
 
   .deck__main { display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem; }
   @media (min-width: 768px) { .deck__main { flex-direction: row; align-items: flex-end; justify-content: space-between; } }
   .deck__title { font-size: 1.5rem; line-height: 1.15; }
   @media (min-width: 640px) { .deck__title { font-size: 2rem; } }
-  .deck__name { font-family: inherit; font-weight: 400; font-size: 0.6em; color: rgba(255,255,255,0.7); }
+  .deck__name { font-family: inherit; font-weight: 400; font-size: 0.6em; color: rgba(255,255,255,0.7); margin-left: 0.5em; }
 
   /* Waveform timeline. Cue markers sit in the strip above the bars. */
   .deck__wave {
     position: relative;
     height: 5.75rem;
     margin: 1.5rem 0 2rem;
-    padding-top: 1.75rem;
+    padding-top: 2.375rem;   /* the cue keys (22px, a bit more when picked, with a ring) stay clear of the bars */
     cursor: ew-resize;
     touch-action: pan-y;
     user-select: none;
     -webkit-user-select: none;
   }
   .deck__bars { display: flex; align-items: center; gap: 2px; height: 100%; }
-  .deck__bars i { flex: 1; min-width: 1px; height: var(--h, 30%); border-radius: 2px; background: rgba(255,255,255,0.14); transition: background-color 0.25s; }
+  .deck__bars i { flex: 1; min-width: 1px; height: var(--h, 30%); border-radius: 2px; background: rgba(255,255,255,0.14); transition: background-color 0.25s; transform-origin: center; }
+  /* picking another date: the bars around it kick, one after another */
+  .deck__bars i.is-hit { animation: deck-hit 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both; animation-delay: var(--d, 0s); }
+  @keyframes deck-hit { 0% { transform: scaleY(1); } 35% { transform: scaleY(1.35); } 100% { transform: scaleY(1); } }
   .deck__bars i.on { background: var(--side); }
   .deck__wave.is-scrubbing .deck__bars i { transition: none; }
   .deck__mark { position: absolute; top: 0; z-index: 2; transform: translateX(-50%); transition: opacity 0.2s; }
@@ -138,7 +134,7 @@ const strings = {
   .deck__mark:focus-visible { outline: none; }
   .deck__mark:focus-visible .side-key { outline: 2px solid #fff; outline-offset: 2px; }
   .deck__mark.is-off { opacity: 0.22; pointer-events: none; }
-  .deck__ph { position: absolute; top: 1.5rem; bottom: -0.25rem; left: 0; z-index: 3; width: 2px; margin-left: -1px; border-radius: 2px; background: #fff; outline: none; }
+  .deck__ph { position: absolute; top: 2.125rem; bottom: -0.25rem; left: 0; z-index: 3; width: 2px; margin-left: -1px; border-radius: 2px; background: #fff; outline: none; }
   .deck__ph::after { content: ''; position: absolute; left: 50%; bottom: -5px; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%; background: #fff; }
   .deck__ph:focus-visible::after { box-shadow: 0 0 0 3px #0b0b0b, 0 0 0 5px #fff; }
   .deck__ph span { position: absolute; top: calc(100% + 0.6rem); left: 50%; transform: translateX(-50%); font-size: 0.6875rem; color: #fff; white-space: nowrap; }
@@ -184,20 +180,20 @@ const strings = {
   .deck__pad.is-off { opacity: 0.3; cursor: default; }
 
   @media (prefers-reduced-motion: reduce) {
-    .deck__led, .deck__preview.is-playing .deck__eq i { animation: none; }
+    .deck__preview.is-playing .deck__eq i { animation: none; }
     .deck__bars i, .deck__mark .side-key { transition: none; }
   }
 </style>
 
 <div class="deck" id="deck" data-side={first.side} data-lang={lang} data-gigs={JSON.stringify(clientGigs)} data-strings={JSON.stringify(strings)}>
   <div class="deck__top mono-caps">
-    <span class="deck__cue"><span class="deck__led" aria-hidden="true"></span><span data-deck="cue">{t.deck.cue} {first.n} · {first.sideText}</span></span>
+    <span class="deck__cue"><span data-deck="cue">{t.deck.cue} {first.n} · {first.sideText}</span></span>
     <span class="deck__count" data-deck="count" role="timer" aria-live="off"></span>
   </div>
 
   <div class="deck__main">
     <div class="min-w-0">
-      <h3 class="deck__title font-display font-bold"><span data-deck="title">{first.title}</span><span class="deck__name" data-deck="name">{first.name ? ` — ${first.name}` : ''}</span></h3>
+      <h3 class="deck__title font-display font-bold"><span data-deck="title">{first.title}</span><span class="deck__name" data-deck="name">{first.name}</span></h3>
       <p class="mt-2 text-sm sm:text-base text-white" data-deck="meta">{first.meta}</p>
       <p class="mt-1 text-sm text-gray-400" data-deck="sound">{first.sound}</p>
     </div>
@@ -246,8 +242,8 @@ const strings = {
             <span class="deck__pad-date mono-caps">{g.short}</span>
           </span>
           <span class="mt-2.5 text-sm font-semibold text-white leading-snug">{g.title}</span>
-          <span class="deck__pad-place text-xs text-gray-400">{g.location}</span>
-          <span class="mono-caps mt-1.5 text-[0.6875rem]" style="color:var(--side)">{g.sideText}</span>
+          <span class="deck__pad-place text-xs text-gray-400">{g.name ? `${g.name} · ${g.location}` : g.location}</span>
+          {g.hours && <span class="deck__pad-hours mono-caps mt-1.5 text-[0.6875rem]" style="color:var(--side)">{g.hours}</span>}
         </button>
       </li>
     ))}
