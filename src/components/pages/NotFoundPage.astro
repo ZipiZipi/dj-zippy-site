@@ -165,6 +165,8 @@ const trackGaps = [64, 36];
     }
     .nf__deck { width: 100%; max-width: 30rem; justify-self: end; }
     .nf__actions { justify-content: flex-start; }
+    /* sized by its half of the screen, so "404" never runs past the column */
+    .nf__title { font-size: clamp(4.75rem, 11vw, 8.5rem); }
   }
   /* phones on their side: the same two columns, smaller */
   @media (max-height: 500px) and (orientation: landscape) {

@@ -209,6 +209,13 @@ const musicEventSchema = {
     .upcoming-row__dash { display: none; }
     .upcoming-row__next { display: flex; align-items: center; gap: 0.45rem; margin-bottom: 0.4rem; font-size: 0.625rem; color: rgb(var(--alt-rgb)); }
     .upcoming-row__sound { display: flex; align-items: flex-start; gap: 0.5rem; margin-top: 0.5rem; line-height: 1.375rem; }
+    /* narrow phones: the map and calendar buttons stack down the right side of
+       the whole row, so a long night name ("Core Memories") keeps its width
+       and never runs under them */
+    @media (max-width: 399px) {
+      .upcoming-row { grid-template-areas: "date head cal" "date body cal"; }
+      .upcoming-row__cal { flex-direction: column; }
+    }
     /* the smallest phones: a slimmer date column leaves the venue more room */
     @media (max-width: 359px) {
       .upcoming-row { column-gap: 0.75rem; padding: 0.75rem; }
