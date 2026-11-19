@@ -347,12 +347,6 @@ const aboutSchema = {
     .about-title--short { font-size: clamp(1.75rem, calc((100vw - 3rem) / 8.4), 4.25rem); }
     @media (min-width: 1024px), (min-width: 768px) and (orientation: landscape) { .about-title--short { font-size: clamp(2.5rem, 5.3vw, 6rem); } }
     .about-title--short .about-title__pre { display: inline; vertical-align: baseline; margin: 0; font-size: 1em; font-weight: 900; letter-spacing: inherit; text-transform: none; color: rgba(255,255,255,0.38); }
-
-    /* B · House Music Therapy   A · Core Memories */
-    .about-tags { display: flex; flex-wrap: wrap; gap: 0.25rem 1.25rem; margin-top: 1rem; }
-    .about-tag { display: inline-flex; align-items: center; gap: 0.55rem; min-height: 2rem; font-size: 0.6875rem; color: rgba(255,255,255,0.82); transition: color 0.2s; }
-    @media (min-width: 640px) { .about-tags { gap: 0.4rem 1.5rem; margin-top: 1.25rem; } .about-tag { font-size: 0.75rem; } }
-    .about-tag:hover { color: var(--side); }
     .about-tag:focus-visible { outline: 2px solid #fff; outline-offset: 3px; border-radius: 0.4rem; }
 
     .about-lead { max-width: 34rem; font-size: 1.0625rem; line-height: 1.6; color: rgba(255,255,255,0.82); text-wrap: pretty; }
@@ -567,17 +561,6 @@ const aboutSchema = {
             <h1 class={`about-title font-display${t.about.heading1.trim().length <= 2 ? ' about-title--short' : ''}`}>
               <span class="about-title__pre">{t.about.heading1}</span><span class="about-title__name">{t.about.heading2}</span>
             </h1>
-            <ul class="about-tags" aria-label={t.about.sidesLabel}>
-              {sides.map((s) => (
-                <li data-side={s.side}>
-                  <a href="#sides" class="about-tag mono-caps">
-                    <span class="side-key" aria-hidden="true">{s.side}</span>
-                    <span class="sr-only">{s.key}:</span>
-                    {s.name}
-                  </a>
-                </li>
-              ))}
-            </ul>
           </div>
 
           <div class="about-hero__body">
