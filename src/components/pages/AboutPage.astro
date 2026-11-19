@@ -17,6 +17,8 @@ const t = useTranslations(lang);
 const l = (path: string) => localize(path, lang);
 
 const pageUrl = `https://zippydj.com${l('/about')}`;
+const HERO_SRCSET = '/images/about/dj-zippy-exit-2025-dance-arena-1500.webp 1500w, /images/about/dj-zippy-exit-2025-dance-arena.webp 3000w';
+const HERO_SIZES = '(min-width: 1024px) 86vw, 100vw';
 const RA_URL = 'https://ra.co/dj/zippy-2';
 
 // The visible FAQ and the FAQPage node are generated from the same entries, so
@@ -161,6 +163,18 @@ const aboutSchema = {
       'inLanguage': htmlLang[lang],
       'mainEntity': { '@id': 'https://zippydj.com/#person' },
       'isPartOf': { '@id': 'https://zippydj.com/#website' },
+      // the hero photo: Exit 2025, Dance Arena (Jovana Semiz)
+      'primaryImageOfPage': {
+        '@type': 'ImageObject',
+        'contentUrl': 'https://zippydj.com/images/about/dj-zippy-exit-2025-dance-arena.webp',
+        'width': 3000,
+        'height': 1600,
+        'caption': t.about.photoAlt,
+        'creator': { '@type': 'Person', 'name': 'Jovana Semiz' },
+        'creditText': 'Jovana Semiz',
+        'dateCreated': '2025-07-13',
+        'contentLocation': { '@type': 'Place', 'name': 'Exit Festival, Dance Arena', 'address': { '@type': 'PostalAddress', 'addressLocality': 'Novi Sad', 'addressCountry': 'RS' } },
+      },
     },
     {
       '@type': ['Person', 'MusicGroup'],
@@ -210,7 +224,7 @@ const aboutSchema = {
 };
 ---
 
-<Layout lang={lang} title={t.about.title} description={t.about.description} activePage="about" preloadImage="/images/about/dj-zippy-exit-2025-dance-arena.webp">
+<Layout lang={lang} title={t.about.title} description={t.about.description} activePage="about" preloadImage="/images/about/dj-zippy-exit-2025-dance-arena.webp" preloadSrcset={HERO_SRCSET} preloadSizes={HERO_SIZES} ogImage="https://zippydj.com/images/about/og-dj-zippy-about.jpg" ogImageAlt={t.about.photoAlt}>
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(aboutSchema)} />
 
   <style is:global>
@@ -536,8 +550,8 @@ const aboutSchema = {
     <div class="about-hero__bg">
       <img
         src="/images/about/dj-zippy-exit-2025-dance-arena.webp"
-        srcset="/images/about/dj-zippy-exit-2025-dance-arena-1500.webp 1500w, /images/about/dj-zippy-exit-2025-dance-arena.webp 3000w"
-        sizes="(min-width: 1024px) 86vw, 100vw"
+        srcset={HERO_SRCSET}
+        sizes={HERO_SIZES}
         alt={t.about.photoAlt}
         width="3000"
         height="1600"

@@ -19,6 +19,9 @@ interface Props {
   lang?: Lang;
   /** An image that is above the fold on this page (e.g. the About portrait). */
   preloadImage?: string;
+  /** srcset / sizes of that photo, so the preload fetches the same file the <img> picks */
+  preloadSrcset?: string;
+  preloadSizes?: string;
   /** og:type; a blog post is an `article`. */
   ogType?: 'website' | 'article' | 'profile';
 }
@@ -36,6 +39,8 @@ const {
   ogImageAlt = t.schema.ogImageAlt,
   noindex = false,
   preloadImage,
+  preloadSrcset,
+  preloadSizes,
   ogType = 'website',
 } = Astro.props;
 
@@ -92,8 +97,8 @@ const xDefault = alternates.find((a) => a.lang === 'en')!.href;
     <meta name="twitter:image" content={ogImage} />
     <meta name="twitter:image:alt" content={ogImageAlt} />
 
-    <!-- Only pages with a photo above the fold ask for this (About) -->
-    {preloadImage && <link rel="preload" as="image" href={preloadImage} fetchpriority="high" />}
+    <!-- Only pages with a photo above the fold ask for this (About, Mixes) -->
+    {preloadImage && <link rel="preload" as="image" href={preloadImage} imagesrcset={preloadSrcset} imagesizes={preloadSizes} fetchpriority="high" />}
 
     <!-- Fonts: self-hosted (src/styles/fonts.css). Only Unbounded is preloaded:
          it sets every heading and the hero title, the usual LCP element. Inter

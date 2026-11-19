@@ -35,9 +35,9 @@ const PORTRAIT = '/images/dj-zippy-house-music-dj.webp';
 const pages: { path: string; priority: string; changefreq: string; sources?: Source[]; edited?: string; images?: string[] }[] = [
   { path: '/', priority: '1.0', changefreq: 'weekly', sources: ['events', 'mixes'], images: [PORTRAIT] },
   { path: '/events', priority: '0.9', changefreq: 'weekly', sources: ['events'] },
-  { path: '/mixes', priority: '0.9', changefreq: 'weekly', sources: ['mixes'] },
-  { path: '/about', priority: '0.8', changefreq: 'monthly', images: [PORTRAIT] },
-  { path: '/gallery', priority: '0.6', changefreq: 'monthly', edited: '2026-11-18', images: [...galleryPhotos.map((p) => photoSrc(p.slug)), PORTRAIT] },
+  { path: '/mixes', priority: '0.9', changefreq: 'weekly', sources: ['mixes'], images: ['/images/mixes/dj-zippy-exit-2024-as-fm-stage.webp'] },
+  { path: '/about', priority: '0.8', changefreq: 'monthly', edited: '2026-11-19', images: ['/images/about/dj-zippy-exit-2025-dance-arena.webp'] },
+  { path: '/gallery', priority: '0.6', changefreq: 'monthly', edited: '2026-11-19', images: [...galleryPhotos.map((p) => photoSrc(p.slug)), PORTRAIT] },
   { path: '/links', priority: '0.6', changefreq: 'monthly' },
 ];
 

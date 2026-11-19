@@ -21,6 +21,8 @@ const initialPlatform = 'youtube';
 // place once there is something on both sides.
 const bothSides = new Set(mixes.map(mixSide)).size > 1;
 
+// the hero photo (AS FM Stage, Exit 2024): the preload asks for the same file the <img> picks
+const HERO_SRCSET = '/images/mixes/dj-zippy-exit-2024-as-fm-stage-1000.webp 1000w, /images/mixes/dj-zippy-exit-2024-as-fm-stage.webp 2000w';
 const pageUrl = `https://zippydj.com${l('/mixes')}`;
 const isPlaylist = (m: UIMix) => m.platform === 'spotify' || m.platform === 'deezer';
 const sets = mixes.filter((m) => !isPlaylist(m));
@@ -46,7 +48,18 @@ const mixSchema = {
       "name": t.mixes.schemaName,
       "description": t.mixes.schemaDesc,
       "inLanguage": htmlLang[lang],
-      "about": { "@id": "https://zippydj.com/#person" }
+      "about": { "@id": "https://zippydj.com/#person" },
+      // the hero photo: a frame from Zippy's own video, AS FM Stage, Exit 2024
+      "primaryImageOfPage": {
+        "@type": "ImageObject",
+        "contentUrl": "https://zippydj.com/images/mixes/dj-zippy-exit-2024-as-fm-stage.webp",
+        "width": 2000,
+        "height": 1125,
+        "caption": t.mixes.photoAlt,
+        "creator": { "@id": "https://zippydj.com/#person" },
+        "dateCreated": "2024-07-12",
+        "contentLocation": { "@type": "Place", "name": "Exit Festival, AS FM Stage", "address": { "@type": "PostalAddress", "addressLocality": "Novi Sad", "addressCountry": "RS" } }
+      }
     },
     ...(sets.length ? [{
       "@type": "ItemList",
@@ -78,7 +91,7 @@ const mixSchema = {
 };
 ---
 
-<Layout lang={lang} title={t.mixes.title} description={t.mixes.description} activePage="mixes">
+<Layout lang={lang} title={t.mixes.title} description={t.mixes.description} activePage="mixes" preloadImage="/images/mixes/dj-zippy-exit-2024-as-fm-stage.webp" preloadSrcset={HERO_SRCSET} preloadSizes="100vw" ogImage="https://zippydj.com/images/mixes/og-dj-zippy-mixes.jpg" ogImageAlt={t.mixes.photoAlt}>
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(mixSchema)} />
 
   <style is:global>
@@ -237,7 +250,7 @@ const mixSchema = {
     <div class="mixes-hero__bg">
       <img
         src="/images/mixes/dj-zippy-exit-2024-as-fm-stage.webp"
-        srcset="/images/mixes/dj-zippy-exit-2024-as-fm-stage-1000.webp 1000w, /images/mixes/dj-zippy-exit-2024-as-fm-stage.webp 2000w"
+        srcset={HERO_SRCSET}
         sizes="100vw"
         alt={t.mixes.photoAlt}
         width="2000"
