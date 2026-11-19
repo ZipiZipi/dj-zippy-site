@@ -545,10 +545,10 @@ html[data-side-pick="B"] [data-side-item="A"] { display: none !important; }
   height: 1.5rem;
   border-radius: 999px;
   background: var(--side-b);
-  transform: translateX(100%);
+  transform: none;
   transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.35s;
 }
-html[data-side-pick="A"] .side-flip::before { transform: none; background: var(--side-a); }
+html[data-side-pick="A"] .side-flip::before { transform: translateX(100%); background: var(--side-a); }
 .side-flip [data-face] {
   position: relative;
   display: inline-flex;

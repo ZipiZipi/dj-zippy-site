@@ -79,15 +79,14 @@ const socials = [
 <footer id="contact" class="book" aria-labelledby="contact-heading">
   <div class="container mx-auto px-6 sm:px-8 lg:px-12">
     <div class="max-w-6xl mx-auto">
-      <div class="book__grid">
-        <div class="book__intro" data-reveal>
-          <h2 id="contact-heading" class="section-title mt-3">{t.footer.heading1}<span class="text-brand-orange">{t.footer.heading2}</span></h2>
-          <p class="book__blurb">{t.footer.blurb}</p>
-        </div>
-
-        {/* the direct lines come before the form in the page, as they do on wider
-            screens (beside the heading), so the keyboard follows the screen there;
-            phones show the form first and the direct lines under it */}
+      {/* One panel: the heading and the direct lines on the left, the booking
+          desk on the right (stacked on phones). On wide screens the desk first
+          shows only the set (side, part of the night); "03 Details" opens it
+          across the whole panel and the left side folds away, the arrow in the
+          desk's top bar brings it back. Without JS everything stays open. */}
+      <div class="book-panel" data-book-panel data-reveal>
+        <div class="book-panel__side" id="contact-side">
+          <h2 id="contact-heading" class="section-title">{t.footer.heading1}<span class="text-brand-orange">{t.footer.heading2}</span></h2>
         <div class="book__direct">
           <ul class="book-rows">
             <li class="book-row">
@@ -118,6 +117,7 @@ const socials = [
             </li>
           </ul>
         </div>
+        </div>
 
         <form
           id="contact-form"
@@ -127,8 +127,6 @@ const socials = [
           class="book-desk"
           aria-labelledby="cf-title"
           data-astro-reload
-          data-reveal
-          style="--reveal-delay: 0.12s"
           data-book-strings={JSON.stringify(strings)}
           data-sending={t.footer.sending}
           data-sent={t.footer.sent}
@@ -145,6 +143,9 @@ const socials = [
           <input type="checkbox" name="botcheck" class="hidden" style="display:none" tabindex="-1" autocomplete="off" aria-hidden="true" />
 
           <div class="book-desk__top mono-caps">
+            <button type="button" class="book-back" data-book-back aria-label={`${t.footer.heading1}${t.footer.heading2}`} title={`${t.footer.heading1}${t.footer.heading2}`} aria-controls="contact-side">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6" /></svg>
+            </button>
             <span id="cf-title" class="book-desk__title">{t.footer.deskTitle}</span>
           </div>
 
@@ -194,12 +195,15 @@ const socials = [
                     </ul>
                   </div>
                 ))}
-                <p class="book-line" data-book-line>{t.room.B.lines[START]}</p>
                 <input type="hidden" name="genres" value="" disabled />
               </fieldset>
+              <button type="button" class="book-next mono-caps" data-book-next aria-controls="cf-details-group" aria-expanded="false">
+                <span class="book-step__n" aria-hidden="true">03</span>{t.footer.detailsLabel}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
+              </button>
             </div>
 
-            <div class="book-details" role="group" aria-labelledby="cf-details">
+            <div class="book-details" id="cf-details-group" role="group" aria-labelledby="cf-details">
               <p id="cf-details" class="book-step mono-caps"><span class="book-step__n" aria-hidden="true">03</span>{t.footer.detailsLabel}</p>
               <div class="book-details__body">
                 <div class="book-fields">
@@ -286,21 +290,104 @@ const socials = [
      still scroll up above it. */
   :root:has([data-consent]:not([hidden])) .book { padding-bottom: 21rem; }
 
-  .book__grid { display: grid; gap: 2.5rem; grid-template-areas: "intro" "desk" "direct"; }
-  .book__intro { grid-area: intro; }
-  .book__direct { grid-area: direct; }
-  @media (min-width: 768px) {
-    .book__grid {
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      grid-template-areas: "intro direct" "desk desk";
-      column-gap: 3rem;
-      row-gap: 1.75rem;
-      align-items: end;
-    }
+  /* The panel: heading and direct lines, then the desk (side by side from 1024px).
+     Its light follows the side picked in the desk, like the desk itself. */
+  .book-panel {
+    --book-rgb: var(--side-b-rgb);
+    position: relative;
+    display: grid;
+    padding: 1.25rem;
+    border-radius: 1.5rem;
+    border: 1px solid var(--line, rgb(255 255 255 / 0.09));
+    background: linear-gradient(180deg, #141414, #0b0b0b);
+    box-shadow: 0 40px 70px -40px rgb(0 0 0 / 0.95), inset 0 1px 0 rgb(255 255 255 / 0.06);
   }
-  @media (min-width: 1024px) { .book__grid { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); } }
-  .book__blurb { max-width: 34rem; margin-top: 1rem; font-size: 1rem; line-height: 1.6; color: rgb(255 255 255 / 0.62); text-wrap: pretty; }
-  @media (min-width: 640px) { .book__blurb { font-size: 1.0625rem; } }
+  .book-panel:has(.book-desk[data-book-side="A"]) { --book-rgb: var(--side-a-rgb); }
+  .book-panel:has(.book-desk[data-book-side="any"]) { --book-rgb: var(--accent-rgb); }
+  .book-panel:has(.book-desk:not([data-book-side]) input[data-side-choice="A"]:checked) { --book-rgb: var(--side-a-rgb); }
+  /* a wash of the side's colour from the top left, like a lit display */
+  .book-panel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: radial-gradient(ellipse 60% 60% at 6% 0%, rgb(var(--book-rgb) / 0.1), transparent 70%);
+  }
+  .book-panel > * { position: relative; min-width: 0; }
+  @media (min-width: 640px) { .book-panel { padding: 1.75rem 2rem; } }
+  .book-panel__side .section-title { margin: 0 0 1.25rem; }
+  /* stacked: a hairline between the direct lines and the desk */
+  .book-desk { margin-top: 1.75rem; padding-top: 1.75rem; border-top: 1px solid rgb(255 255 255 / 0.07); }
+
+  @media (min-width: 1024px) {
+    .book-panel {
+      grid-template-columns: minmax(0, 20rem) minmax(0, 1fr);
+      transition: grid-template-columns 0.55s var(--ease-out, cubic-bezier(0.22, 1, 0.36, 1));
+    }
+    .book-panel__side {
+      overflow: clip;
+      overflow-clip-margin: 6px;
+      padding-right: 2rem;
+      border-right: 1px solid rgb(255 255 255 / 0.07);
+      transition: opacity 0.35s 0.1s, padding 0.55s var(--ease-out, ease-out), border-color 0.35s;
+    }
+    /* the content keeps its width while the column folds, so nothing rewraps */
+    .book-panel__side > * { width: 18rem; }
+    .book-desk { margin-top: 0; padding-top: 0; border-top: 0; padding-left: 2rem; transition: padding 0.55s var(--ease-out, ease-out); }
+
+    /* open: the desk takes the whole panel */
+    .book-panel.is-open { grid-template-columns: minmax(0, 0rem) minmax(0, 1fr); }
+    .book-panel.is-open .book-panel__side {
+      opacity: 0;
+      visibility: hidden;
+      padding-right: 0;
+      border-right-color: transparent;
+      transition: opacity 0.2s, visibility 0s 0.55s, padding 0.55s var(--ease-out, ease-out), border-color 0.2s;
+    }
+    .book-panel.is-open .book-desk { padding-left: 0; }
+    .book-panel.is-open .book-details { animation: book-open 0.45s 0.2s var(--ease-out, ease-out) both; }
+
+    /* closed (only once the script runs): just the set, and the way on to the details */
+    .book-panel.is-ready:not(.is-open) .book-desk__body { grid-template-columns: minmax(0, 1fr); }
+    .book-panel.is-ready:not(.is-open) .book-set { padding-right: 0; }
+    .book-panel.is-ready:not(.is-open) .book-details { display: none; }
+    .book-panel.is-ready:not(.is-open) .book-next { display: inline-flex; }
+    .book-panel.is-ready.is-open .book-back { display: inline-flex; }
+  }
+  @keyframes book-open { from { opacity: 0; transform: translateX(1.5rem); } }
+
+  /* "03 Details" under the set, and the arrow back to the direct lines */
+  .book-next, .book-back { display: none; }
+  .book-next {
+    align-items: center;
+    gap: 0.625rem;
+    margin-top: 1.25rem;
+    padding: 0.75rem 1.125rem;
+    border-radius: 999px;
+    border: 1px solid rgb(var(--book-rgb) / 0.55);
+    font-size: 0.6875rem;
+    color: #fff;
+    transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+  }
+  .book-next svg { width: 1rem; height: 1rem; transition: transform 0.25s var(--ease-out, ease-out); }
+  .book-next:hover { background: rgb(var(--book-rgb)); border-color: rgb(var(--book-rgb)); color: #050505; }
+  .book-next:hover .book-step__n { color: #050505; }
+  .book-next:hover svg { transform: translateX(3px); }
+  .book-back {
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    margin-block: -0.5rem;
+    border-radius: 999px;
+    border: 1px solid rgb(255 255 255 / 0.12);
+    color: rgb(255 255 255 / 0.75);
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .book-back svg { width: 1rem; height: 1rem; }
+  .book-back:hover { color: #fff; border-color: rgb(255 255 255 / 0.3); }
+  .book-next:focus-visible, .book-back:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 
   /* Direct lines: a small spec sheet, label on the left */
   .book-rows { border-top: 1px solid var(--line, rgb(255 255 255 / 0.09)); }
@@ -371,33 +458,16 @@ const socials = [
   .book-desk {
     --book-rgb: var(--side-b-rgb);
     --book-alt-rgb: var(--side-a-rgb);
-    grid-area: desk;
     container: book / inline-size;
     position: relative;
-    padding: 1.125rem;
-    border-radius: 1.5rem;
-    border: 1px solid var(--line, rgb(255 255 255 / 0.09));
-    background: linear-gradient(180deg, #141414, #0b0b0b);
-    box-shadow: 0 40px 70px -40px rgb(0 0 0 / 0.95), inset 0 1px 0 rgb(255 255 255 / 0.06);
   }
   .book-desk[data-book-side="A"] { --book-rgb: var(--side-a-rgb); --book-alt-rgb: var(--side-b-rgb); }
   .book-desk[data-book-side="any"] { --book-rgb: var(--accent-rgb); --book-alt-rgb: var(--alt-rgb); }
   /* before the script runs (or without it) the checked pad sets the colours */
   .book-desk:not([data-book-side]):has(input[data-side-choice="A"]:checked) { --book-rgb: var(--side-a-rgb); --book-alt-rgb: var(--side-b-rgb); }
   .book-desk:not([data-book-side]):has(input[data-side-choice="any"]:checked) { --book-rgb: var(--accent-rgb); --book-alt-rgb: var(--alt-rgb); }
-  /* a wash of the side's colour from the top left, like a lit display */
-  .book-desk::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    pointer-events: none;
-    background: radial-gradient(ellipse 70% 50% at 10% 0%, rgb(var(--book-rgb) / 0.1), transparent 70%);
-  }
-  .book-desk > * { position: relative; }
-  @media (min-width: 640px) { .book-desk { padding: 1.5rem 1.75rem; } }
 
-  .book-desk__top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; font-size: 0.6875rem; color: rgb(255 255 255 / 0.62); }
+  .book-desk__top { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; font-size: 0.6875rem; color: rgb(255 255 255 / 0.62); }
 
   .book-desk__body { display: grid; gap: 2.25rem; }
   .book-set { container-type: inline-size; min-width: 0; }
@@ -563,9 +633,6 @@ const socials = [
   .book-genres li:not(:last-child)::after { content: '/'; margin: 0 0.45em; color: rgb(255 255 255 / 0.16); font-weight: 400; }
   .book-desk.is-live .book-genres li { color: rgb(255 255 255 / 0.45); }
   .book-desk.is-live .book-genres li.on { color: #fff; }
-  .book-line { min-height: 2.9em; margin-top: 0.75rem; font-size: 0.9375rem; line-height: 1.45; color: rgb(255 255 255 / 0.78); }
-  @container book (max-width: 26rem) { .book-line { min-height: 4.35em; } }
-  .book-desk:not(.is-live) .book-line { visibility: hidden; }
 
   /* 03 · details */
   .book-details { display: flex; flex-direction: column; min-width: 0; }
@@ -686,11 +753,10 @@ const socials = [
      around the desk, so the heading, the whole desk and the bottom row fit one
      screen (on the home page the footer is the last panel) */
   @media (min-width: 768px) and (max-height: 820px) {
-    .book__grid { row-gap: 1.125rem; }
     .book-row { min-height: 0; padding: 0.125rem 0; }
     .book-row__value { min-height: 2.25rem; }
     .book-social { width: 2.25rem; height: 2.25rem; }
-    .book-desk { padding: 1.125rem 1.5rem; }
+    .book-panel { padding: 1.125rem 1.5rem; }
     .book-desk__top { margin-bottom: 0.5rem; }
     .book-night { margin-top: 0.875rem; }
     .book-fader { height: 3.75rem; }
@@ -698,9 +764,9 @@ const socials = [
     .book__bottom { margin-top: 1.5rem; padding-top: 0.75rem; }
   }
   @media (min-width: 768px) and (max-height: 720px) {
-    .book-desk { padding-block: 1rem; }
+    .book-panel { padding-block: 1rem; }
     .book-wave { height: 2.25rem; }
-    .book-genres, .book-line { margin-top: 0.5rem; }
+    .book-genres { margin-top: 0.5rem; }
     .book__legal a, .book__legal button { min-height: 2rem; }
   }
 
@@ -825,4 +891,30 @@ const socials = [
     });
   }
   document.addEventListener('astro:page-load', initContactForm);
+
+  // Wide screens: "03 Details" opens the desk across the panel and folds the
+  // direct lines away; the arrow in the desk's top bar brings them back.
+  // CSS shows both buttons only from 1024px, and only once this has run.
+  function initPanel() {
+    const panel = document.querySelector<HTMLElement>('[data-book-panel]');
+    if (!panel || panel.dataset.panelBound) return;
+    panel.dataset.panelBound = '1';
+    const next = panel.querySelector<HTMLButtonElement>('[data-book-next]');
+    const back = panel.querySelector<HTMLButtonElement>('[data-book-back]');
+    const side = panel.querySelector<HTMLElement>('.book-panel__side');
+    if (!next || !back || !side) return;
+    const wide = window.matchMedia('(min-width: 1024px)');
+    const sync = () => { side.inert = wide.matches && panel.classList.contains('is-open'); };
+    const set = (open: boolean) => {
+      panel.classList.toggle('is-open', open);
+      next.setAttribute('aria-expanded', String(open));
+      sync();
+      (open ? panel.querySelector<HTMLElement>('#cf-name') : next)?.focus({ preventScroll: true });
+    };
+    next.addEventListener('click', () => set(true));
+    back.addEventListener('click', () => set(false));
+    wide.addEventListener('change', sync);
+    panel.classList.add('is-ready');
+  }
+  document.addEventListener('astro:page-load', initPanel);
 </script>
