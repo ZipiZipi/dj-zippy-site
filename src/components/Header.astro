@@ -104,11 +104,6 @@ const bookHref = '#contact';
       </ol>
     </nav>
     <div class="mobile-menu__foot" style={`--i: ${pages.length}`}>
-      <!-- Which side the site is on right now: the A/B flip up in the bar changes it -->
-      <p class="mobile-menu__side">
-        <span class="mobile-menu__side-b" data-side="B"><span class="side-key">B</span><span class="mono-caps">{t.sides.b} · {t.sides.bLabel}</span></span>
-        <span class="mobile-menu__side-a" data-side="A"><span class="side-key">A</span><span class="mono-caps">{t.sides.a} · {t.sides.aLabel}</span></span>
-      </p>
       <div class="mobile-menu__actions">
         <a href={bookHref} class="btn btn--primary mobile-menu__book">{t.nav.book}</a>
         <LanguageSwitcher lang={lang} class="lang-menu" />
@@ -225,7 +220,7 @@ const bookHref = '#contact';
     transition: color 0.2s, background-color 0.2s, border-color 0.2s, transform 0.25s var(--ease-out);
   }
 
-  /* The flip's hover label, under the bar (mouse only; the phone menu says it in words) */
+  /* The flip's hover label, under the bar (mouse only) */
   .side-flip__tip {
     position: absolute;
     top: calc(100% + 0.75rem);
@@ -388,19 +383,6 @@ const bookHref = '#contact';
     display: grid;
     gap: 1rem;
   }
-  .mobile-menu__side {
-    margin: 0;
-    font-size: 0.6875rem;
-    color: rgb(255 255 255 / 0.62);
-  }
-  .mobile-menu__side > span {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.625rem;
-  }
-  .mobile-menu__side-a,
-  :global(html[data-side-pick='A']) .mobile-menu__side-b { display: none !important; }
-  :global(html[data-side-pick='A']) .mobile-menu__side-a { display: inline-flex !important; }
   .mobile-menu__actions {
     display: flex;
     align-items: center;
