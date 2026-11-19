@@ -397,12 +397,6 @@ const musicEventSchema = {
           <div>
             <h2 class="section-title mt-3">{t.events.upcoming1}<span class="text-brand-orange">{t.events.upcoming2}</span></h2>
           </div>
-          {upcoming.length > 0 && (
-            <a class="ev-note mono-caps" href={feedUrl}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16" /><circle cx="5" cy="19" r="1" /></svg>
-              {t.deck.calSubscribe}
-            </a>
-          )}
         </div>
         <div class="space-y-3" data-reveal data-side-list>
           {/* Nothing booked: the line, and the two things to do meanwhile (the

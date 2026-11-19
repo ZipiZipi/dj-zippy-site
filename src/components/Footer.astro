@@ -228,7 +228,7 @@ const socials = [
                   </div>
                   <div class="book-field book-field--grow">
                     <label for="cf-message" class="mono-caps">{t.footer.messageLabel}</label>
-                    <textarea id="cf-message" name="message" rows="4" placeholder={t.footer.message} required class="book-input"></textarea>
+                    <textarea id="cf-message" name="message" rows="3" placeholder={t.footer.message} required class="book-input"></textarea>
                   </div>
                 </div>
                 <div class="book-send-row">
@@ -282,8 +282,12 @@ const socials = [
     z-index: -1;
     pointer-events: none;
     background:
-      radial-gradient(ellipse 60% 70% at 8% 0%, rgb(var(--accent-rgb) / 0.12), transparent 70%),
-      radial-gradient(ellipse 34% 50% at 96% 0%, rgb(var(--alt-rgb) / 0.08), transparent 70%);
+      radial-gradient(ellipse 60% 60% at 8% 22%, rgb(var(--accent-rgb) / 0.12), transparent 70%),
+      radial-gradient(ellipse 34% 50% at 96% 18%, rgb(var(--alt-rgb) / 0.08), transparent 70%);
+    /* fades in from the top edge, so the light never ends in a hard line
+       where the section above meets the footer */
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 9rem);
+    mask-image: linear-gradient(to bottom, transparent, #000 9rem);
   }
   @media (min-width: 640px) { .book { padding-top: 5.5rem; } }
   /* While the cookie card (CookieConsent.astro) is open it covers the bottom of
@@ -573,8 +577,8 @@ const socials = [
   /* 03 · details */
   .book-details { display: flex; flex-direction: column; min-width: 0; }
   .book-details__body { container: book-details / inline-size; display: flex; flex-direction: column; flex: 1; }
-  .book-fields { display: flex; flex-direction: column; gap: 1rem; }
-  .book-fields__pair { display: grid; gap: 1rem; }
+  .book-fields { display: flex; flex-direction: column; gap: 0.75rem; }
+  .book-fields__pair { display: grid; gap: 0.75rem; }
   @container book-details (min-width: 26rem) {
     .book-fields__pair { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 0.875rem; }
   }
@@ -588,7 +592,7 @@ const socials = [
     z-index: 1;
     left: 1rem;
     right: 1rem;
-    top: 0.6rem;
+    top: 0.5rem;
     margin: 0;
     font-size: 0.625rem;
     line-height: 1.2;
@@ -599,9 +603,9 @@ const socials = [
     text-overflow: ellipsis;
     transition: top 0.2s, font-size 0.2s, color 0.2s;
   }
-  .book-field:not(.book-field--grow):has(> .book-input:placeholder-shown:not(:focus)) > label { top: 1.3rem; font-size: 0.75rem; color: rgb(255 255 255 / 0.5); }
+  .book-field:not(.book-field--grow):has(> .book-input:placeholder-shown:not(:focus)) > label { top: 1.05rem; font-size: 0.75rem; color: rgb(255 255 255 / 0.5); }
   .book-field:has(> .book-input:focus) > label { color: rgb(var(--book-rgb)); }
-  .book-field > .book-input { padding: 1.5rem 1rem 0.55rem; }
+  .book-field > .book-input { padding: 1.3rem 1rem 0.4rem; line-height: 1.25; }
   @media (prefers-reduced-motion: reduce) { .book-field > label { transition: none; } }
   .book-input {
     display: block;
@@ -619,7 +623,7 @@ const socials = [
   .book-input:hover { border-color: rgb(255 255 255 / 0.2); }
   .book-input:focus, .book-input:focus-visible { outline: none; border-color: rgb(var(--book-rgb)); background: rgb(0 0 0 / 0.5); box-shadow: 0 0 0 3px rgb(var(--book-rgb) / 0.2); }
   .book-input:user-invalid { border-color: rgb(248 113 113 / 0.7); }
-  textarea.book-input { min-height: 7.25rem; resize: vertical; }
+  textarea.book-input { min-height: 5.5rem; resize: vertical; }
 
   .book-send-row { display: flex; flex-direction: column; align-items: stretch; gap: 0.875rem; margin-top: auto; padding-top: 1.5rem; }
   @container book-details (min-width: 26rem) {

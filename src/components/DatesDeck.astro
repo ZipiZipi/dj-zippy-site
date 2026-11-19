@@ -19,6 +19,10 @@ interface Props {
 }
 
 const { lang, events } = Astro.props as Props;
+
+// Cities as the pads write them when a pad is narrow ("Ray Bar · NS")
+const CITY_SHORT: Record<string, string> = { 'novi sad': 'NS', beograd: 'BG', belgrade: 'BG', smederevo: 'SD' };
+const cityShort = (city: string) => CITY_SHORT[city.trim().toLowerCase()] ?? city;
 const t = useTranslations(lang);
 
 const gigs = events.map((e, i) => {
@@ -137,7 +141,8 @@ const strings = {
   .deck__ph { position: absolute; top: 2.125rem; bottom: -0.25rem; left: 0; z-index: 3; width: 2px; margin-left: -1px; border-radius: 2px; background: #fff; outline: none; }
   .deck__ph::after { content: ''; position: absolute; left: 50%; bottom: -5px; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%; background: #fff; }
   .deck__ph:focus-visible::after { box-shadow: 0 0 0 3px #0b0b0b, 0 0 0 5px #fff; }
-  .deck__ph span { position: absolute; top: calc(100% + 0.6rem); left: 50%; transform: translateX(-50%); font-size: 0.6875rem; color: #fff; white-space: nowrap; }
+  /* the date under the playhead: tight under the dot, so it clears the pads below */
+  .deck__ph span { position: absolute; top: calc(100% + 0.4rem); left: 50%; transform: translateX(-50%); font-size: 0.6875rem; line-height: 1; color: #fff; white-space: nowrap; }
   .deck__ph[data-edge="start"] span { left: -4px; transform: none; }
   .deck__ph[data-edge="end"] span { left: auto; right: -4px; transform: none; }
 
@@ -171,6 +176,13 @@ const strings = {
     background: rgba(255,255,255,0.035);
     text-align: left;
     transition: border-color 0.2s, background-color 0.2s, opacity 0.2s;
+  }
+  /* a narrow pad writes the city short (Novi Sad = NS, Beograd = BG, Smederevo = SD) */
+  .deck__pads > li { container-type: inline-size; }
+  .deck__pad-short { display: none; }
+  @container (max-width: 12rem) {
+    .deck__pad-full { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
+    .deck__pad-short { display: inline; }
   }
   /* the date on each pad: large and bright enough to read at a glance */
   .deck__pad-date { font-size: 0.9375rem; font-weight: 700; line-height: 1; color: #fff; font-variant-numeric: tabular-nums; }
@@ -242,7 +254,10 @@ const strings = {
             <span class="deck__pad-date mono-caps">{g.short}</span>
           </span>
           <span class="mt-2.5 text-sm font-semibold text-white leading-snug">{g.title}</span>
-          <span class="deck__pad-place text-xs text-gray-400">{g.name ? `${g.name} · ${g.location}` : g.location}</span>
+          <span class="deck__pad-place text-xs text-gray-400">
+            <span class="deck__pad-full">{g.name ? `${g.name} · ${g.location}` : g.location}</span>
+            <span class="deck__pad-short" aria-hidden="true">{g.name ? `${g.name} · ${cityShort(g.location)}` : cityShort(g.location)}</span>
+          </span>
           {g.hours && <span class="deck__pad-hours mono-caps mt-1.5 text-[0.6875rem]" style="color:var(--side)">{g.hours}</span>}
         </button>
       </li>
