@@ -156,7 +156,7 @@ const socials = [
                 <div class="book-sides">
                   {sidePads.map((o) => (
                     <label class="book-pad" data-side={o.key}>
-                      <input type="radio" name="side" value={o.value} data-side-choice={o.key} checked={o.key === 'B'} class="book-pad__input" />
+                      <input type="radio" name="side" value={o.value} data-side-choice={o.key} checked={o.key === 'B'} required class="book-pad__input" />
                       <span class="book-pad__face">
                         <span class="side-key" aria-hidden="true">{o.key}</span>
                         <span class="book-pad__text">
@@ -167,13 +167,6 @@ const socials = [
                       </span>
                     </label>
                   ))}
-                  <label class="book-pad book-pad--any">
-                    <input type="radio" name="side" value="Not sure yet" data-side-choice="any" class="book-pad__input" />
-                    <span class="book-pad__face">
-                      <span class="side-key book-pad__both" aria-hidden="true"><span>A</span><span>B</span></span>
-                      <span class="book-pad__name">{t.footer.sideAny}</span>
-                    </span>
-                  </label>
                 </div>
               </fieldset>
 
@@ -427,7 +420,6 @@ const socials = [
   /* 01 · the side pads */
   .book-sides { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.625rem; }
   .book-pad { position: relative; display: block; cursor: pointer; }
-  .book-pad--any { grid-column: 1 / -1; --side: rgb(var(--accent-rgb)); }
   .book-pad__input { position: absolute; top: 0; left: 0; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
   .book-pad__face {
     position: relative;
@@ -448,15 +440,6 @@ const socials = [
   .book-pad__text { display: flex; flex-direction: column; min-width: 0; }
   .book-pad__name { font-size: 0.9375rem; font-weight: 600; line-height: 1.25; color: #fff; }
   .book-pad__note { margin-top: 0.25rem; font-size: 0.75rem; line-height: 1.35; color: rgb(255 255 255 / 0.55); }
-  .book-pad--any .book-pad__face { flex-direction: row; align-items: center; gap: 0.75rem; padding: 0.625rem 2rem 0.625rem 0.875rem; }
-  .book-pad--any .book-pad__face > .side-key { margin: 0; }
-  .book-pad--any .book-pad__name { font-size: 0.875rem; font-weight: 500; color: rgb(255 255 255 / 0.8); }
-  .book-pad--any .book-pad__input:checked + .book-pad__face .book-pad__name { color: #fff; }
-  /* "not sure yet": a key that is half of each side */
-  .book-pad .book-pad__both { width: auto; padding: 0; overflow: hidden; background: none; }
-  .book-pad__both span { display: inline-flex; align-items: center; justify-content: center; width: 1.125rem; height: 100%; }
-  .book-pad__both span:first-child { background: var(--side-a); }
-  .book-pad__both span:last-child { background: var(--side-b); }
   /* a narrow desk: one pad per row, key on the left */
   @container book (max-width: 24rem) {
     .book-sides { grid-template-columns: minmax(0, 1fr); }
