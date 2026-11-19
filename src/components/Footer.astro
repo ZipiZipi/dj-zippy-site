@@ -146,7 +146,6 @@ const socials = [
 
           <div class="book-desk__top mono-caps">
             <span id="cf-title" class="book-desk__title">{t.footer.deskTitle}</span>
-            <span class="book-readout" data-book-readout aria-hidden="true">{t.sides.b} · {t.room.peak}</span>
           </div>
 
           <div class="book-desk__body">
@@ -399,8 +398,6 @@ const socials = [
   @media (min-width: 640px) { .book-desk { padding: 1.75rem; } }
 
   .book-desk__top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; font-size: 0.6875rem; color: rgb(255 255 255 / 0.62); }
-  .book-readout { color: rgb(var(--book-rgb)); text-align: right; }
-  @container book (max-width: 26rem) { .book-readout { display: none; } }
 
   .book-desk__body { display: grid; gap: 2.25rem; }
   @container book (min-width: 50rem) {
@@ -540,10 +537,13 @@ const socials = [
   .book-genres + .book-genres { margin-top: 0.5rem; }
   .book-genres .book-genres__key { display: none; transform: translateY(0.2rem); }
   .book-desk[data-book-side="any"] .book-genres .book-genres__key { display: inline-flex; }
-  .book-genres ul { display: flex; flex-wrap: wrap; row-gap: 0.25rem; font-size: 0.9375rem; font-weight: 600; line-height: 1.4; }
+  /* one row: the names shrink with the desk, and slide sideways if they still do not fit */
+  .book-genres { min-width: 0; }
+  .book-genres ul { display: flex; flex-wrap: nowrap; white-space: nowrap; overflow-x: auto; scrollbar-width: none; min-width: 0; font-size: clamp(0.75rem, 2.25cqi, 0.9375rem); font-weight: 600; line-height: 1.4; }
+  .book-genres ul::-webkit-scrollbar { display: none; }
   .book-genres li { color: rgb(255 255 255 / 0.75); transition: color 0.25s; }
   /* the slash goes after each genre, so a wrapped line ends on one instead of starting with it */
-  .book-genres li:not(:last-child)::after { content: '/'; margin: 0 0.55rem; color: rgb(255 255 255 / 0.16); font-weight: 400; }
+  .book-genres li:not(:last-child)::after { content: '/'; margin: 0 0.45em; color: rgb(255 255 255 / 0.16); font-weight: 400; }
   .book-desk.is-live .book-genres li { color: rgb(255 255 255 / 0.45); }
   .book-desk.is-live .book-genres li.on { color: #fff; }
   .book-line { min-height: 2.9em; margin-top: 0.75rem; font-size: 0.9375rem; line-height: 1.45; color: rgb(255 255 255 / 0.78); }

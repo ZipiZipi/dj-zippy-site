@@ -319,8 +319,8 @@ const musicEventSchema = {
     .year-list { display: grid; gap: 0.125rem; }
     .past-row {
       display: grid;
-      grid-template-columns: 1.375rem 3rem minmax(0, 1fr);
-      grid-template-areas: "key date title";
+      grid-template-columns: 3rem minmax(0, 1fr);
+      grid-template-areas: "date title";
       align-items: center;
       column-gap: 0.75rem;
       row-gap: 0.25rem;
@@ -329,17 +329,18 @@ const musicEventSchema = {
       border: 1px solid transparent;
       transition: background-color 0.2s, border-color 0.2s;
     }
-    .past-row > .side-key { grid-area: key; }
     .past-row__date { grid-area: date; font-size: 0.6875rem; color: rgba(255,255,255,0.5); white-space: nowrap; }
     .past-row__title { grid-area: title; min-width: 0; }
+    /* the night's name in the side's colour says the side (no A/B key) */
+    .past-row__night { color: var(--side); }
     .past-row:hover { background-color: rgba(255,255,255,0.05); }
     .past-row--hi { margin: 0.25rem 0; padding: 0.875rem 0.625rem; background-color: rgba(255,255,255,0.035); }
     .past-row--hi:hover { border-color: var(--side); background-color: rgba(255,255,255,0.05); }
     @media (max-width: 359px) {
-      .past-row { grid-template-columns: 1.375rem minmax(0, 1fr); grid-template-areas: "key date" ". title"; }
+      .past-row { grid-template-columns: minmax(0, 1fr); grid-template-areas: "date" "title"; }
     }
     @media (min-width: 640px) {
-      .past-row { grid-template-columns: 1.375rem 3.5rem minmax(0, 1fr); column-gap: 0.875rem; padding-inline: 0.75rem; }
+      .past-row { grid-template-columns: 3.5rem minmax(0, 1fr); column-gap: 0.875rem; padding-inline: 0.75rem; }
     }
 
     .year-more > summary {
@@ -439,8 +440,7 @@ const musicEventSchema = {
                 </div>
                 <div class="upcoming-row__body">
                   <p class="text-sm text-gray-400">{[placeName(e.location, lang), time].filter(Boolean).join(' · ')}</p>
-                  <div class="upcoming-row__sound text-xs sm:text-sm font-semibold text-gray-200">
-                    <span class="side-key" aria-hidden="true">{side}</span>
+                  <div class="upcoming-row__sound text-xs font-semibold text-gray-300">
                     <span class="sr-only">{side === 'A' ? t.sides.a : t.sides.b}:</span>
                     {sound.openFormat
                       ? <span style="color:var(--side-a)">{t.events.openFormat}</span>

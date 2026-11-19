@@ -500,7 +500,7 @@ const aboutSchema = {
     .path-gig__stages { margin-top: 0.15rem; font-size: 0.8125rem; line-height: 1.4; color: rgba(255,255,255,0.7); }
     .path-gig__meta { margin-top: 0.35rem; font-size: 0.6875rem; line-height: 1.4; color: #9ca3af; }
     .path-gig__tag { margin-top: 0.25rem; font-size: 0.6875rem; line-height: 1.4; color: #9ca3af; }
-    .path-gig__tag.is-first { color: rgb(var(--alt-rgb)); }
+    .path-gig__tag.is-first { color: var(--side); }
     .about-path .rail__bar { margin-top: 2rem; }
 
     /* --- FAQ: small, folded, at the bottom. The answers stay in the HTML. --- */
@@ -685,7 +685,7 @@ const aboutSchema = {
         {sides.map((s) => (
           <article class="about-side" data-side={s.side} aria-labelledby={`about-side-${s.side}`}>
             <div class="about-side__top">
-              <p class="about-side__kind mono-caps"><span class="side-key" aria-hidden="true">{s.side}</span>{s.key} · {s.kind}</p>
+              <p class="about-side__kind mono-caps"><span class="sr-only">{s.key} · </span>{s.kind}</p>
               <p class="about-side__status mono-caps" aria-hidden="true">{t.about.sideOn}</p>
             </div>
             <h3 id={`about-side-${s.side}`} class="about-side__name font-display">{s.name}</h3>

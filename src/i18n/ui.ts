@@ -175,10 +175,10 @@ const en = {
     genresLabel: 'Genres for this part of the night',
     anyLine: 'Not sure yet? Describe the crowd in your message and he will suggest the side that fits.',
     B: {
-      genres: ['Jazz', 'Funk', 'Disco', 'Deep House', 'French House', 'Groove', 'Minimal', 'Deep Tech'],
+      genres: ['Jazz', 'Funk', 'Disco', 'French House', 'Groove', 'Minimal', 'Deep Tech'],
       lines: [
         'Jazz, funk and disco while people walk in: warm, patient, never in a hurry.',
-        'Deep and French house with a groove that keeps the floor locked in.',
+        'French house and groove that keep the floor locked in.',
         'Minimal and deep tech for the last ones standing, right into the after-hours.',
       ],
     },
@@ -736,10 +736,10 @@ const sr: Dict = {
     genresLabel: 'Žanrovi za ovaj deo večeri',
     anyLine: 'Još ne znaš? Opiši publiku u poruci i on će predložiti stranu koja joj odgovara.',
     B: {
-      genres: ['Jazz', 'Funk', 'Disco', 'Deep House', 'French House', 'Groove', 'Minimal', 'Deep Tech'],
+      genres: ['Jazz', 'Funk', 'Disco', 'French House', 'Groove', 'Minimal', 'Deep Tech'],
       lines: [
         'Jazz, funk i disco dok ljudi ulaze: toplo, strpljivo, bez žurbe.',
-        'Deep i French house sa groove-om koji drži podijum na okupu.',
+        'French house i groove koji drže podijum na okupu.',
         'Minimal i deep tech za one koji ostaju do kraja, pravo u after.',
       ],
     },

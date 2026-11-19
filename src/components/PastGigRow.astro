@@ -17,19 +17,19 @@ const { day, month } = dateParts(e.date, lang);
 const side = eventSide(e);
 const sideText = side === 'A' ? `${t.sides.a} · ${t.sides.aLabel}` : `${t.sides.b} · ${t.sides.bLabel}`;
 const title = venueName(e.title);
-const where = [placeName(e.location, lang), subtitleText(e.subtitle, lang)].filter(Boolean).join(' · ');
+const place = placeName(e.location, lang);
+const night = subtitleText(e.subtitle, lang);
 ---
 
 <li class={`past-row ${e.featured ? 'past-row--hi' : ''}`} data-side-item={side} data-side={side}>
-  <span class="side-key" aria-hidden="true">{side}</span>
   <time class="past-row__date mono-caps" datetime={e.date}>{day} {month}</time>
   {e.featured ? (
     <div class="past-row__title">
       <h4 class="font-display font-bold text-white text-base sm:text-lg leading-tight">{title}</h4>
-      {where && <p class="mt-1 text-sm text-gray-400">{where}</p>}
+      {(place || night) && <p class="mt-1 text-sm text-gray-400">{place}{place && night && ' · '}{night && <span class="past-row__night">{night}</span>}</p>}
     </div>
   ) : (
-    <h4 class="past-row__title text-sm sm:text-[0.9375rem] leading-snug font-normal text-white">{title}{where && <span class="text-gray-400"> · {where}</span>}</h4>
+    <h4 class="past-row__title text-sm sm:text-[0.9375rem] leading-snug font-normal text-white">{title}{place && <span class="text-gray-400"> · {place}</span>}{night && <span class="past-row__night"> · {night}</span>}</h4>
   )}
   <span class="sr-only">{sideText}</span>
 </li>
