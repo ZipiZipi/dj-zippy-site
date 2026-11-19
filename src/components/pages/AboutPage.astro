@@ -210,7 +210,7 @@ const aboutSchema = {
 };
 ---
 
-<Layout lang={lang} title={t.about.title} description={t.about.description} activePage="about" preloadImage="/images/gallery/dj-zippy-exit-2025-dance-arena-01.webp">
+<Layout lang={lang} title={t.about.title} description={t.about.description} activePage="about" preloadImage="/images/about/dj-zippy-exit-2025-dance-arena.webp">
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(aboutSchema)} />
 
   <style is:global>
@@ -264,11 +264,12 @@ const aboutSchema = {
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
     }
 
-    /* The Exit photo behind the hero. His face must never sit under the words.
-       In the photo the face is at about 52% across and 30-45% down.
+    /* The Exit photo behind the hero (Jovana Semiz-8, full resolution, the
+       roof cut off: 3000x1600). His face must never sit under the words: in
+       this crop it is at about 47-55% across and 10-30% down.
        Phones and portrait tablets: the photo is a band at the top, under the
        header, and the words start below his face (38vw down: the face ends at
-       about 24vw once the band is lifted 6vw), running over the darkened lower half.
+       about 16vw under the header), running over the darkened lower half.
        Split layout: the photo is 86vw wide (cover was ~100%) and pushed 6vw past
        the right edge, so the face lands at ~62-67% across; the words end by
        ~58% at every width from 1024px up. A fade to black on the left keeps
@@ -276,7 +277,7 @@ const aboutSchema = {
     .about-hero__bg { position: absolute; inset: 0; z-index: -2; overflow: hidden; pointer-events: none; }
     .about-hero__bg img {
       position: absolute;
-      top: calc(var(--header-h, 4rem) - 6vw);
+      top: var(--header-h, 4rem);
       left: 0;
       width: 100%;
       height: auto;
@@ -287,14 +288,14 @@ const aboutSchema = {
       content: '';
       position: absolute;
       inset: 0;
-      background: linear-gradient(to bottom, rgb(5 5 5 / 0.35) 0%, rgb(5 5 5 / 0) calc(var(--header-h, 4rem) + 12vw), rgb(5 5 5 / 0.55) calc(var(--header-h, 4rem) + 40vw), rgb(5 5 5 / 0.85) calc(var(--header-h, 4rem) + 62vw));
+      background: linear-gradient(to bottom, rgb(5 5 5 / 0.35) 0%, rgb(5 5 5 / 0) calc(var(--header-h, 4rem) + 6vw), rgb(5 5 5 / 0.6) calc(var(--header-h, 4rem) + 26vw), rgb(5 5 5 / 0.88) calc(var(--header-h, 4rem) + 50vw));
     }
     .about-hero__light::before { display: none; }
-    section.about-hero { padding-top: calc(var(--header-h, 4rem) + 32vw); }
+    section.about-hero { padding-top: calc(var(--header-h, 4rem) + 22vw); }
     @media (min-width: 1024px), (min-width: 768px) and (orientation: landscape) {
       section.about-hero { padding-top: 7rem; }
       .about-hero__bg img {
-        top: -6vw;
+        top: var(--header-h, 4rem);
         left: auto;
         right: -6vw;
         width: 86vw;
@@ -540,12 +541,12 @@ const aboutSchema = {
     {/* The photo is the hero's background; the words run over its dark side */}
     <div class="about-hero__bg">
       <img
-        src="/images/gallery/dj-zippy-exit-2025-dance-arena-01.webp"
-        srcset="/images/gallery/dj-zippy-exit-2025-dance-arena-01-600.webp 600w, /images/gallery/dj-zippy-exit-2025-dance-arena-01.webp 1600w"
-        sizes="100vw"
+        src="/images/about/dj-zippy-exit-2025-dance-arena.webp"
+        srcset="/images/about/dj-zippy-exit-2025-dance-arena-1500.webp 1500w, /images/about/dj-zippy-exit-2025-dance-arena.webp 3000w"
+        sizes="(min-width: 1024px) 86vw, 100vw"
         alt={t.about.photoAlt}
-        width="1600"
-        height="1067"
+        width="3000"
+        height="1600"
         fetchpriority="high"
         decoding="async"
       />
