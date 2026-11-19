@@ -184,6 +184,8 @@ const strings = {
     .deck__pad-full { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
     .deck__pad-short { display: inline; }
   }
+  /* the pad's number is quiet: the waveform's cue keys already carry it */
+  .deck__pad .side-key { width: auto; height: auto; min-width: 0; padding: 0; border-radius: 0; background: none; color: var(--side); font-size: 0.6875rem; font-weight: 700; opacity: 0.8; }
   /* the date on each pad: large and bright enough to read at a glance */
   .deck__pad-date { font-size: 0.9375rem; font-weight: 700; line-height: 1; color: #fff; font-variant-numeric: tabular-nums; }
   .deck__pad:hover { border-color: rgba(255,255,255,0.28); background: rgba(255,255,255,0.06); }
