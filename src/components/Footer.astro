@@ -538,15 +538,11 @@ const socials = [
   .book-genres + .book-genres { margin-top: 0.5rem; }
   .book-genres .book-genres__key { display: none; transform: translateY(0.2rem); }
   .book-desk[data-book-side="any"] .book-genres .book-genres__key { display: inline-flex; }
-  /* one row: the names shrink with the desk, and slide sideways if they still do not fit */
+  /* One row where it can be: the names shrink with the column. Where even the
+     smallest size does not fit, the list wraps; a name is never cut off. */
   .book-genres { min-width: 0; }
-  .book-genres ul { display: flex; flex-wrap: nowrap; white-space: nowrap; overflow-x: auto; scrollbar-width: none; min-width: 0; font-size: clamp(0.6875rem, 3.1cqi, 0.9375rem); font-weight: 600; line-height: 1.4; }
-  .book-genres ul::-webkit-scrollbar { display: none; }
-  /* a column too narrow for one row: two rows beat names hidden off the edge */
-  @container (max-width: 24rem) {
-    .book-genres ul { flex-wrap: wrap; white-space: normal; overflow: visible; row-gap: 0.15rem; }
-    .book-genres li { white-space: nowrap; }
-  }
+  .book-genres ul { display: flex; flex-wrap: wrap; row-gap: 0.15rem; min-width: 0; font-size: clamp(0.6875rem, 3.1cqi, 0.9375rem); font-weight: 600; line-height: 1.4; }
+  .book-genres li { white-space: nowrap; }
   .book-genres li { color: rgb(255 255 255 / 0.75); transition: color 0.25s; }
   /* the slash goes after each genre, so a wrapped line ends on one instead of starting with it */
   .book-genres li:not(:last-child)::after { content: '/'; margin: 0 0.45em; color: rgb(255 255 255 / 0.16); font-weight: 400; }
