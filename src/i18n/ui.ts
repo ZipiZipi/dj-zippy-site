@@ -86,7 +86,7 @@ const en = {
     heading1: "Let's ",
     heading2: 'Connect',
     blurb:
-      'Available for club nights, festivals and private events. House Music Therapy, brought to your event.',
+      'Booking available for club nights, festivals and private events. House Music Therapy, brought to your event.',
     raProfile: 'Resident Advisor Profile',
     name: 'Name',
     venue: 'Venue/Event',
@@ -284,7 +284,7 @@ const en = {
     lead:
       'Serbian house and tech house DJ. First public set in a Smederevo café in 2022 and three Exit Festival stages by 2025, the Dance Arena among them.',
     leadResidency: 'Resident at {venue} in {city} since {year}.',
-    photoAlt: 'DJ Zippy, Serbian house DJ and creator of House Music Therapy.',
+    photoAlt: 'DJ Zippy playing the Dance Arena at Exit Festival 2025.',
     book: 'Book Zippy',
     raProfile: 'Resident Advisor',
     // The numbers under the lead, counted from the gig archive (same counting as /events)
@@ -655,7 +655,7 @@ const sr: Dict = {
     heading1: 'Hajde da se ',
     heading2: 'čujemo',
     blurb:
-      'Dostupan za klupske nastupe, festivale i privatne žurke. House Music Therapy dolazi na tvoju žurku.',
+      'Booking dostupan za klupske nastupe, festivale i privatne žurke. House Music Therapy dolazi na tvoju žurku.',
     raProfile: 'Resident Advisor profil',
     name: 'Ime',
     venue: 'Klub/Event',
@@ -831,7 +831,7 @@ const sr: Dict = {
     lead:
       'Srpski house i tech house DJ. Prvi javni nastup 2022. u jednom smederevskom kafiću i tri bine Exit festivala do 2025, među njima i Dance Arena.',
     leadResidency: 'Od {year}. ima rezidenciju u klubu {venue} ({city}).',
-    photoAlt: 'DJ Zippy, srpski house DJ i tvorac House Music Therapy.',
+    photoAlt: 'DJ Zippy nastupa na Dance Areni, Exit festival 2025.',
     book: 'Rezerviši Zippyja',
     raProfile: 'Resident Advisor',
     statExit: 'Bine Exit festivala',

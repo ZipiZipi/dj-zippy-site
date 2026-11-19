@@ -210,7 +210,7 @@ const aboutSchema = {
 };
 ---
 
-<Layout lang={lang} title={t.about.title} description={t.about.description} activePage="about" preloadImage="/images/dj-zippy-house-music-dj.webp">
+<Layout lang={lang} title={t.about.title} description={t.about.description} activePage="about" preloadImage="/images/gallery/dj-zippy-exit-2025-dance-arena-01.webp">
   <script slot="head" type="application/ld+json" set:html={JSON.stringify(aboutSchema)} />
 
   <style is:global>
@@ -359,7 +359,7 @@ const aboutSchema = {
       background: linear-gradient(135deg, rgb(var(--accent-rgb)), rgb(var(--accent-rgb) / 0.22) 42%, rgba(255,255,255,0.12) 68%, rgb(var(--alt-rgb) / 0.55));
       box-shadow: 0 34px 70px -30px rgb(var(--accent-rgb) / 0.5), 0 24px 40px -22px rgba(0,0,0,0.9);
     }
-    .about-photo__img { display: block; width: 100%; height: auto; aspect-ratio: 1; border-radius: calc(1.25rem - 2px); background: #050505; }
+    .about-photo__img { display: block; width: 100%; height: auto; aspect-ratio: 1; object-fit: cover; object-position: 52% 40%; border-radius: calc(1.25rem - 2px); background: #050505; }
 
     /* --- Bio and fact sheet --- */
     .about-bio { display: grid; gap: 3rem; }
@@ -578,10 +578,12 @@ const aboutSchema = {
           <figure class="about-photo">
             <span class="about-photo__frame">
               <img
-                src="/images/dj-zippy-house-music-dj.webp"
+                src="/images/gallery/dj-zippy-exit-2025-dance-arena-01.webp"
+                srcset="/images/gallery/dj-zippy-exit-2025-dance-arena-01-600.webp 600w, /images/gallery/dj-zippy-exit-2025-dance-arena-01.webp 1600w"
+                sizes="(min-width: 1024px) 420px, 80vw"
                 alt={t.about.photoAlt}
-                width="800"
-                height="800"
+                width="1600"
+                height="1067"
                 fetchpriority="high"
                 decoding="async"
                 class="about-photo__img"
