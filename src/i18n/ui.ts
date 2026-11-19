@@ -109,7 +109,7 @@ const en = {
     sideANote: 'Core Memories',
     detailsLabel: 'Details',
     sentNote: 'Thanks, the request is in. DJ Zippy will get back to you by email.',
-    errorNote: 'That did not go through. Try again, or write to veljkoned@gmail.com.',
+    errorNote: 'That did not go through. Try again, or write to booking@zippydj.com.',
     emailShort: 'Email',
     profile: 'Profile',
     follow: 'Follow',
@@ -386,9 +386,9 @@ const en = {
       {
         q: 'How can I book DJ Zippy for an event?',
         aHtml:
-          'Bookings for clubs, private events and festivals go through <a href="mailto:veljkoned@gmail.com" class="text-brand-orange hover:text-white">veljkoned@gmail.com</a> or the <a href="{contact}" class="text-brand-orange hover:text-white">contact form</a>.',
+          'Bookings for clubs, private events and festivals go through <a href="mailto:booking@zippydj.com" class="text-brand-orange hover:text-white">booking@zippydj.com</a> or the <a href="{contact}" class="text-brand-orange hover:text-white">contact form</a>.',
         aText:
-          'Bookings for clubs, private events and festivals go through veljkoned@gmail.com or the contact form at https://zippydj.com/#contact.',
+          'Bookings for clubs, private events and festivals go through booking@zippydj.com or the contact form at https://zippydj.com/#contact.',
       },
       {
         q: 'What is House Music Therapy?',
@@ -680,7 +680,7 @@ const sr: Dict = {
     sideANote: 'Core Memories',
     detailsLabel: 'Detalji',
     sentNote: 'Hvala, upit je stigao. DJ Zippy će ti se javiti na email.',
-    errorNote: 'Nije prošlo. Pokušaj ponovo ili piši na veljkoned@gmail.com.',
+    errorNote: 'Nije prošlo. Pokušaj ponovo ili piši na booking@zippydj.com.',
     emailShort: 'Email',
     profile: 'Profil',
     follow: 'Prati',
@@ -929,9 +929,9 @@ const sr: Dict = {
       {
         q: 'Kako mogu da rezervišem DJ Zippyja za event?',
         aHtml:
-          'Booking za klubove, privatne žurke i festivale ide preko <a href="mailto:veljkoned@gmail.com" class="text-brand-orange hover:text-white">veljkoned@gmail.com</a> ili preko <a href="{contact}" class="text-brand-orange hover:text-white">kontakt forme</a>.',
+          'Booking za klubove, privatne žurke i festivale ide preko <a href="mailto:booking@zippydj.com" class="text-brand-orange hover:text-white">booking@zippydj.com</a> ili preko <a href="{contact}" class="text-brand-orange hover:text-white">kontakt forme</a>.',
         aText:
-          'Booking za klubove, privatne žurke i festivale ide preko veljkoned@gmail.com ili preko kontakt forme na https://zippydj.com/sr#contact.',
+          'Booking za klubove, privatne žurke i festivale ide preko booking@zippydj.com ili preko kontakt forme na https://zippydj.com/sr#contact.',
       },
       {
         q: 'Šta je House Music Therapy?',

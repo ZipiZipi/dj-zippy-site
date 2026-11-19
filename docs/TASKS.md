@@ -49,7 +49,7 @@ u isto vreme, jer se izmene sudaraju. Najsigurnije je raditi ih redom i commit-o
 | [ ] | T18 Off-site profili: isti bio svuda (checklist) | 🔴 P0 | Sonnet 5.5 | low | `docs/offsite-profiles.md` (novi) |
 | [x] 2026-10-01 | T19 Wikidata + MusicBrainz dopune — unos radio Claude kroz Chrome uz potvrdu. MusicBrainz: aliasi „Zippy DJ“ i „Zipi“ (search hint), legal name „Veljko Nedeljković“, veza ka Wikidata Q138220521, tagovi house / tech house / techno / deep house. Wikidata: sr-el labela, opis „srpski house DJ i selektor“ i aliasi; reference (P854) na occupation (RA profil) te na citizenship i svih 5 žanrova (zippydj.com). Ostaje samo Spotify artist ID, tek kad postoji artist profil. | 🟡 P2 | Sonnet 5.5 | medium | ručno, uz uputstvo |
 | [ ] | T20 EPK (press kit) stranica za bukere | 🟠 P1 | Opus 5.5 | high | `src/pages/epk.astro`, `sr/epk.astro`, `EpkPage.astro`, `ui.ts` |
-| [ ] | T21 booking@zippydj.com + Google Ads label | 🟠 P1 | Sonnet 5.5 | low | `Footer.astro`, `ui.ts`, schema, `llms.txt` |
+| [~] 2026-11-19 | T21 booking@zippydj.com (urađeno; ostaje Google Ads label) | 🟠 P1 | Sonnet 5.5 | low | `Footer.astro`, `ui.ts`, schema, `llms.txt` |
 | [ ] | T22 Ostaci iz 2026-09-30: MixCloud slike, GTM tag, Inter | 🟡 P2 | Sonnet 5.5 | medium | D1 `mixes`, GTM (ručno), `global.css` |
 | [x] 2026-10-01 | T23 Hero: nova scena umesto narandžasto-belog gradijenta | 🔴 P0 | Opus 5.5 | high | `HomePage.astro`, `global.css` |
 | [ ] | T24 Plava kao druga boja: open format strana | 🟠 P1 | Sonnet 5.5 | medium | `tailwind.config.mjs`, `global.css`, `HomePage.astro`, `EventsPage.astro`, `AboutPage.astro` |
