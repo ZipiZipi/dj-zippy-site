@@ -340,6 +340,19 @@ function initDeck() {
   setPlayhead((now - t0) / span);
   select(Math.max(0, gigAt(p)), { move: false, play: 'none' });
   applyPick();
+  // The playhead starts on today; once the deck comes into view it glides to
+  // the selected gig, so the waveform and the pads never disagree.
+  const toSelected = () => { if (sel >= 0 && Math.abs(p - posOf(gigs[sel])) > 0.002) glideTo(posOf(gigs[sel])); };
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      if (!entries.some((e) => e.isIntersecting)) return;
+      io.disconnect();
+      window.setTimeout(toSelected, 250);
+    }, { threshold: 0.35 });
+    io.observe(wave);
+  } else {
+    setPlayhead(posOf(gigs[sel]));
+  }
 }
 
 document.addEventListener('astro:page-load', initDeck);
