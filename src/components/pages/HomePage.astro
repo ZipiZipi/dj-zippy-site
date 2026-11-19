@@ -930,7 +930,7 @@ const tapeSides = [
       <div class="hero-flip" id="hero-flip">
         <div class="hero-flip__inner">
           <div class="hero-flip__face">
-            <!-- One H1 that reads "ZIPPY. — Serbian House DJ"; flex-col-reverse lifts
+            <!-- One H1 that reads "ZIPPY., Serbian House DJ"; flex-col-reverse lifts
                  the kicker above the name without changing the reading order. -->
             <h1 class="font-display flex flex-col-reverse items-center mb-0">
               <span class="hero-name block text-5xl md:text-7xl lg:text-9xl font-black leading-none" style="text-shadow:0 2px 34px rgba(0,0,0,0.55), 0 1px 2px rgba(0,0,0,0.6);">ZIPPY<span class="hero-side-b">.</span></span>
@@ -1176,10 +1176,10 @@ const tapeSides = [
     var pos = 0;           // continuous position
     var target = 0;        // where the current animation will rest
     var active = -1;       // index of the object at the front
-    var anim = null;       // { to, amp, start, tau } — exponential ease-out towards `to`
+    var anim = null;       // { to, amp, start, tau }, exponential ease-out towards `to`
     var raf = 0;
     var announce = false;  // read the new object out once the turn settles
-    var refocus = null;    // 'item' | 'dot' — move keyboard focus once settled
+    var refocus = null;    // 'item' | 'dot', move keyboard focus once settled
 
     function wrap(i) { return ((i % n) + n) % n; }
     // same radius as --ring-r in the CSS; the scale is read from --ring-k

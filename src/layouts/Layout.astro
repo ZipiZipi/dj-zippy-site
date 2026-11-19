@@ -65,7 +65,7 @@ const xDefault = alternates.find((a) => a.lang === 'en')!.href;
     <meta name="description" content={description} />
     {!noindex && <link rel="canonical" href={canonicalURL} />}
 
-    <!-- hreflang — English at /, Serbian under /sr -->
+    <!-- hreflang, English at /, Serbian under /sr -->
     {!noindex && alternates.map((a) => <link rel="alternate" hreflang={htmlLang[a.lang]} href={a.href} />)}
     {!noindex && <link rel="alternate" hreflang="x-default" href={xDefault} />}
 
@@ -112,7 +112,7 @@ const xDefault = alternates.find((a) => a.lang === 'en')!.href;
     <meta name="apple-mobile-web-app-title" content="Zippy" />
     <link rel="manifest" href="/images/site.webmanifest" />
 
-    <!-- Font Awesome (self-hosted subset — only the icons this site uses) -->
+    <!-- Font Awesome (self-hosted subset, only the icons this site uses) -->
     <link rel="stylesheet" href="/fonts/fa/fa-subset.css" />
 
     <slot name="head" />

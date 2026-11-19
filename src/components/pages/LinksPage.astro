@@ -1,5 +1,5 @@
 ---
-// Standalone link-in-bio page — no site nav or footer, and no Tailwind, so the
+// Standalone link-in-bio page, no site nav or footer, and no Tailwind, so the
 // language toggle here is styled with the page's own CSS rather than reusing
 // <LanguageSwitcher />.
 import Analytics from '../Analytics.astro';
@@ -430,7 +430,7 @@ const xDefault = alternates.find((a) => a.lang === 'en')!.href;
 
     <!-- Background video (540×960, ~0.7 MB, no audio). The poster is its own
          first frame, so the hand-off is seamless. The source is attached by the
-         script below — skipped on Save-Data / 2G and for visitors who asked for
+         script below: skipped on Save-Data / 2G and for visitors who asked for
          reduced motion, where the still poster stays. -->
     <div class="bg-ambient" aria-hidden="true"></div>
     <video
@@ -470,7 +470,7 @@ const xDefault = alternates.find((a) => a.lang === 'en')!.href;
       <header>
         <div class="avatar-ring">
           {/* Above the fold and the only real image on the page, so it is
-              preloaded and loads eagerly at high priority — otherwise it queues
+              preloaded and loads eagerly at high priority: otherwise it queues
               behind the background video and the ring sits empty for a beat. */}
           <img
             src="/images/dj-zippy-house-music-dj.webp"
