@@ -50,7 +50,9 @@ const gigs = events.map((e, i) => {
     hours,
     location: place,
     short: `${d}.${mo}`,
-    meta: [`${weekday} ${d}.${mo}`, hours, place].filter(Boolean).join(' · '),
+    // each part keeps together (no-break spaces), so a narrow deck wraps the
+    // line between "SAT 21.11", "21:00-01:00" and "Novi Sad", never inside one
+    meta: [`${weekday} ${d}.${mo}`, hours, place].filter(Boolean).map((s) => s.replace(/ /g, ' ')).join(' · '),
     sound: sound.openFormat ? t.sides.aLabel : sound.genres.join(' · '),
     ...eventTimes(e),
     tracks: previewsFor(e).map((tr) => ({

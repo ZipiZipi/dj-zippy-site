@@ -542,10 +542,36 @@ const tapeSides = [
       scroll-snap-align: start;
     }
     .home-panel__inner { width: 100%; }
-    /* touch screens snap firmly from panel to panel: every panel fits the
-       screen (the footer, taller, scrolls inside) */
+    /* touch screens snap firmly from panel to panel, one panel per swipe
+       however hard the flick: every panel fits the screen (the footer, taller
+       on a phone, scrolls inside) */
     html:has(.home-panel) { scroll-snap-type: y mandatory; }
+    .home-panel { scroll-snap-stop: always; }
     html:has(.home-panel) footer.book { scroll-snap-align: start; }
+    /* Panels carry the header's height in their own padding, so they snap,
+       and links to them (#contact) land, exactly at their top. The page-wide
+       scroll-padding for the fixed header (global.css) would otherwise let a
+       panel rest up to 80px off, the one above showing under the header. */
+    .home-panel,
+    html:has(.home-panel) footer.book { scroll-margin-top: calc(-1 * (var(--header-h, 4rem) + 1rem)); }
+
+    /* The booking footer is the last panel: at least a screen tall, its
+       content clear of the header, the desk centred in the room left and the
+       bottom row at the foot of the screen. Taller than the window (a phone,
+       a short window) it scrolls inside, as any panel would. */
+    html:has(.home-panel) footer.book {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      min-height: 100svh;
+      padding-top: calc(var(--header-h, 4rem) + clamp(0.5rem, 2vh, 2rem));
+      padding-bottom: clamp(0.5rem, 1.5vh, 1.25rem);
+    }
+    html:has(.home-panel) footer.book > .container { flex: 1 0 auto; display: flex; flex-direction: column; }
+    html:has(.home-panel) footer.book > .container > div { flex: 1 0 auto; display: flex; flex-direction: column; width: 100%; }
+    html:has(.home-panel) footer.book .book__grid { margin-block: auto; }
+    html:has(.home-panel) footer.book .book__intro h2 { margin-top: 0; }
+    html:has(.home-panel) footer.book .book__bottom { margin-top: clamp(1rem, 6vh - 1.5rem, 3rem); padding-top: clamp(0.75rem, 2vh, 1.25rem); }
     /* with a mouse or trackpad, initPanelPaging() moves one panel per gesture */
     html.home-paging { scroll-snap-type: none !important; }
     /* the parts that move on the home page get their own layer up front, so
@@ -599,6 +625,23 @@ const tapeSides = [
       .dates .deck__main { margin-top: 0.375rem; }
       .dates .deck { padding-top: 1rem; }
       .dates .deck__wave { margin-bottom: 1.75rem; }
+    }
+    /* very short windows (a laptop with the browser's bars, a window on half
+       the screen's height): the tapes closer, a lower waveform, the pads
+       without the place (the deck above names it), and the sleeve sized by
+       the height left for it */
+    @media (min-width: 1024px) and (max-height: 640px) {
+      .dates .tapes { padding: 8px 0 10px; margin-bottom: 0.25rem; }
+      .dates .dates__head { margin-bottom: 0.625rem; }
+      .dates .deck__wave { height: 4rem; margin: 0.625rem 0 1.5rem; padding-top: 1.875rem; }
+      .dates .deck__mark::after { top: 1.125rem; height: 2.875rem; }
+      .dates .deck__ph { top: 1.625rem; }
+      .dates .deck__pad { padding: 0.5rem 0.75rem; }
+      .dates .deck__pad-place { display: none; }
+    }
+    /* there "all dates" would wrap the heading row to two lines (Events is in the menu) */
+    @media (min-width: 1024px) and (max-width: 1279px) and (max-height: 640px) {
+      .dates__tools .home-link { display: none; }
     }
 
     /* Nothing booked: the deck at rest. The same panel as DatesDeck, the line
@@ -716,7 +759,9 @@ const tapeSides = [
        to the right, so the stage leaves a quarter of the width free for it. */
     .liner__sleeve { position: relative; width: min(100%, 22rem); }
     @media (min-width: 640px) { .liner__sleeve { width: clamp(17rem, 44vw, 25rem); } }
-    @media (min-width: 1024px) { .liner__sleeve { width: 100%; } }
+    /* the column's width, or less on a short window: the height left after the
+       header, the panel's padding and the credits, as the stage is 74.5% of it */
+    @media (min-width: 1024px) { .liner__sleeve { width: min(100%, calc((100svh - 14.5rem) / 0.745)); } }
     .liner__stage { position: relative; width: 74.5%; aspect-ratio: 1; }
     /* The booth light behind it, as in the hero: warm where the record comes
        out, cool on the far corner. Each glow is a circle that fades out exactly
@@ -837,6 +882,11 @@ const tapeSides = [
       transition: transform 0.5s var(--ease-out, ease);
     }
     .liner__credits > div:hover .liner__plane { transform: translate(3px, -3px) rotate(45deg); }
+    /* short laptop windows: the credits closer together (after the rules above, so they win) */
+    @media (min-width: 1024px) and (max-height: 700px) {
+      .liner__credits { margin-top: 1.25rem; }
+      .liner__credits > div { padding: 0.5rem 0; }
+    }
 
     /* === Narrow windows: phones, tablets, a laptop window on half the screen ===
        Every panel still fits the window, like the hero: tighter spacing, the
@@ -911,6 +961,66 @@ const tapeSides = [
       .dates .deck__wave { height: 3.375rem; padding-top: 1.875rem; }
       .dates .deck__mark::after { top: 1rem; height: 2.375rem; }
       .dates .deck__ph { top: 1.625rem; }
+    }
+
+    /* the narrowest phones (320px, the first iPhone SE): the headings one size
+       down so they keep to one line, the black tape left out, the two buttons
+       in one row, the copy a size smaller */
+    @media (max-width: 359px) {
+      .dates #dates-heading { font-size: 1.375rem; }
+      .dates .tape--sub { display: none; }
+      .dates .deck { padding: 0.875rem; }
+      .dates .deck__title { font-size: 1.25rem; }
+      .dates [data-deck="meta"] { font-size: 0.8125rem; }
+      .dates .deck__wave { height: 3rem; margin-bottom: 1.375rem; }
+      .dates .deck__mark::after { height: 2rem; }
+      .dates .deck__pad { padding: 0.5rem 0.625rem; }
+      .liner__grid { row-gap: 0.625rem; }
+      .liner__sleeve { width: min(40vw, 21vh); }
+      .liner__title { font-size: 1.25rem; }
+      .liner__quote { margin-top: 0.5rem; font-size: 1rem; }
+      .liner__copy { font-size: 0.875rem; line-height: 1.55; }
+      .liner__cta { gap: 0.5rem; }
+      .liner__cta .btn { padding-inline: 0.875rem; }
+    }
+
+    /* === A phone on its side (and any window under 500px tall) ===
+       Each panel still fits: the hero's ring smaller and without its caption
+       (the objects carry their own names), the dates without the tapes and
+       the pads (the cues on the waveform pick a gig, the deck shows it), and
+       the selector beside a small sleeve, without the motto and the credits. */
+    @media (orientation: landscape) and (max-height: 500px) {
+      .home-panel { padding-top: calc(var(--header-h, 4rem) + 0.375rem); padding-bottom: 0.5rem; }
+
+      .hero-flip .hero-name { font-size: min(3rem, 14vh); }
+      .hero-flip .hero-sub { font-size: min(1.75rem, 6.5vh); }
+      .hero-kicker { margin-bottom: 0.25rem; }
+      .hero-side-tag { margin-top: 0.25rem; }
+      #highlights.hero-stage { padding-top: 0; padding-bottom: 0.25rem; }
+      .hring { --ring-k: 0.42; height: 124px; }
+      #ring-root > .mt-1 { display: none; }
+      #ring-root > .flex { margin-top: 0.125rem; }
+
+      .dates .tapes { display: none; }
+      .dates .dates__head { margin-bottom: 0.5rem; }
+      .dates #dates-heading { font-size: 1.5rem; }
+      .dates .deck { padding: 0.75rem 1rem; }
+      .dates .deck__main { margin-top: 0.25rem; }
+      .dates .deck__title { font-size: 1.25rem; }
+      .dates .deck__wave { height: 3rem; margin: 0.5rem 0 1.25rem; padding-top: 1.75rem; }
+      .dates .deck__mark::after { top: 1rem; height: 2rem; }
+      .dates .deck__ph { top: 1.5rem; }
+      .dates .deck__pads { display: none; }
+
+      .liner__grid { grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "media text"; column-gap: 1.5rem; align-items: center; }
+      .liner__media { display: block; grid-area: media; }
+      .liner__text { display: block; grid-area: text; }
+      .liner__sleeve { width: min(40vw, calc(46svh / 0.745)); }
+      .liner__credits, .liner__quote { display: none !important; }
+      .liner__title { font-size: 1.375rem; }
+      .liner__body { margin-top: 0.75rem; }
+      .liner__copy { font-size: 0.875rem; line-height: 1.5; }
+      .liner__cta { margin-top: 0.875rem; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -1382,7 +1492,12 @@ const tapeSides = [
       step(e.key === 'ArrowRight' ? 1 : -1);
     });
 
-    window.addEventListener('resize', render);
+    // a ring from an earlier visit (the page was swapped since) lets go of the window
+    function onResize() {
+      if (!ring.isConnected) { window.removeEventListener('resize', onResize); return; }
+      render();
+    }
+    window.addEventListener('resize', onResize);
     render();
   }
   // The hero title turns over to the other side while the mouse is on it. A
@@ -1468,29 +1583,42 @@ const tapeSides = [
       window.removeEventListener('resize', onScroll);
     }, { once: true });
   }
-  document.addEventListener('astro:page-load', initPanelExit);
 
-  // Mouse or trackpad, at any window size: one wheel gesture (or PageDown,
-  // Space, the arrow keys) moves exactly one panel, with one long eased
-  // scroll. CSS snapping restarts its move on every wheel notch, which
-  // stutters on a quick flick; here the rest of the gesture (trackpad momentum
-  // included) is ignored until the move has landed. A panel taller than the
-  // window (a narrow window stacks it like a phone) scrolls normally until its
-  // end, and only then does a gesture move on. Touch screens keep the CSS
-  // snapping. The booking footer, the last stop, scrolls normally inside, and
-  // anything that scrolls on its own (a menu, a list) keeps its wheel.
+  // Mouse, trackpad and keys, at any window size: one gesture moves exactly
+  // one panel, with one long eased scroll.
+  //
+  // A gesture is a run of wheel events: a trackpad swipe with the momentum
+  // after it, or a burst of mouse notches. It ends after a short pause, when
+  // the direction changes, or when the deltas, which only fade during
+  // momentum, climb back up: a new swipe on top of the old momentum. So a
+  // second swipe counts at once, however long the first one coasts, and the
+  // momentum of one swipe never moves a second panel. A swipe made during a
+  // move runs as soon as the move lands; one the other way turns back at once.
+  //
+  // The page itself never scrolls natively here (not even the last pixels of
+  // momentum or a slanted swipe), so it cannot drift off a panel's edge. A
+  // panel taller than the window (the booking footer, or any panel on a very
+  // short window) glides inside and stops at its edges; the next gesture
+  // moves on. Anything that scrolls on its own (a menu, a text box, a row of
+  // pads) keeps its wheel. Touch screens keep CSS snapping; a laptop's touch
+  // screen switches to it on the first touch and back on the next wheel.
+  // After a resize the window lands back on the panel it was showing.
   function initPanelPaging() {
     var root = document.documentElement;
-    var fit = window.matchMedia('(pointer: fine)');
-    var still = window.matchMedia('(prefers-reduced-motion: reduce)');
+    // one instance at a time: an inline script can run again on a later visit
+    if (window.__zippyPagingOff) window.__zippyPagingOff();
     if (!document.querySelector('.home-panel')) return;
-    // on, off again when the window is resized past the limits
-    function on() { return fit.matches && !still.matches; }
+    var fine = window.matchMedia('(pointer: fine)');
+    var still = window.matchMedia('(prefers-reduced-motion: reduce)');
+    var touched = false;
+    function on() { return fine.matches && !still.matches && !touched; }
     function sync() { root.classList.toggle('home-paging', on()); }
     sync();
-    fit.addEventListener('change', sync);
-    var anim = 0, locked = false, lastWheel = 0;
-    // every panel and the footer, as page positions (top and bottom edge)
+
+    var GAP = 200;      // ms of quiet that ends a gesture
+    var TRIGGER = 6;    // px a gesture travels before it counts (a resting finger does not)
+
+    // --- the panels and the footer, as page positions ---
     function panels() {
       var y = window.scrollY;
       var els = Array.prototype.slice.call(document.querySelectorAll('.home-panel'));
@@ -1501,25 +1629,133 @@ const tapeSides = [
         return { top: Math.round(r.top + y), bottom: Math.round(r.bottom + y) };
       });
     }
-    function ease(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
-    function release() {
-      if (performance.now() - lastWheel < 220) { setTimeout(release, 80); return; }
-      locked = false;
+    function maxY() { return Math.max(0, root.scrollHeight - window.innerHeight); }
+    // where the top of the window can sit inside panel p: one point for a
+    // panel that fits the window, a stretch for a taller one
+    function span(p) {
+      var max = maxY(), lo = Math.min(p.top, max);
+      return { lo: lo, hi: Math.max(lo, Math.min(p.bottom - window.innerHeight, max)) };
     }
-    function go(to) {
-      var from = window.scrollY, dist = to - from;
-      if (Math.abs(dist) < 2) return;
-      var dur = Math.min(1050, 700 + Math.abs(dist) * 0.2), t0 = performance.now();
-      locked = true;
-      cancelAnimationFrame(anim);
-      function frame(now) {
-        var t = Math.min(1, (now - t0) / dur);
-        window.scrollTo({ top: from + dist * ease(t), behavior: 'instant' });
-        if (t < 1) anim = requestAnimationFrame(frame);
-        else { anim = 0; release(); }
+    // the panel at the top of the window (a top edge up to 2px below it counts)
+    function at(ps, y) {
+      var i = 0;
+      for (var k = 0; k < ps.length; k++) if (ps[k].top <= y + 2) i = k;
+      return i;
+    }
+    // What a gesture does from y: { to, i } moves to panel i (or back onto
+    // this one when the window sits between two), { lo, hi, i } glides inside
+    // a tall panel, null does nothing (the first or the last stop).
+    function plan(y, dir) {
+      var ps = panels();
+      if (!ps.length) return null;
+      var i = at(ps, y), s = span(ps[i]), tall = s.hi > s.lo + 2;
+      if (dir > 0) {
+        if (tall && y < s.hi - 1) return { lo: s.lo, hi: s.hi, i: i };
+        return ps[i + 1] ? { to: span(ps[i + 1]).lo, i: i + 1 } : null;
       }
-      anim = requestAnimationFrame(frame);
+      if (tall && y > s.lo + 1) return { lo: s.lo, hi: s.hi, i: i };
+      if (y > s.lo + 2) return { to: s.lo, i: i };
+      // a tall panel above is entered at its end
+      return ps[i - 1] ? { to: span(ps[i - 1]).hi, i: i - 1 } : null;
     }
+
+    function jump(y) { window.scrollTo({ top: y, behavior: 'instant' }); }
+
+    // --- a move to another panel: one eased scroll ---
+    var mv = null, raf = 0, queued = 0;
+    var cur = 0, curOff = 0;   // the panel on screen, and how far into it (a tall one)
+    function ease(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
+    function go(to, i) {
+      glideStop();
+      cancelAnimationFrame(raf);
+      raf = 0;
+      cur = i;
+      curOff = 0;
+      var from = window.scrollY, dist = to - from;
+      if (Math.abs(dist) < 1) { mv = null; return; }
+      mv = { from: from, to: to, i: i, dir: dist > 0 ? 1 : -1, t0: performance.now(), dur: Math.min(1000, 640 + Math.abs(dist) * 0.22) };
+      raf = requestAnimationFrame(frame);
+    }
+    function frame(now) {
+      var t = Math.min(1, Math.max(0, (now - mv.t0) / mv.dur));
+      jump(mv.from + (mv.to - mv.from) * ease(t));
+      if (t < 1) { raf = requestAnimationFrame(frame); return; }
+      raf = 0;
+      mv = null;
+      if (queued) {
+        var p = plan(window.scrollY, queued);
+        queued = 0;
+        if (p && p.to !== undefined) go(p.to, p.i);
+      }
+    }
+    function moveStop() { cancelAnimationFrame(raf); raf = 0; mv = null; queued = 0; }
+
+    // --- a glide inside a tall panel: the wheel's distance, eased, clamped ---
+    var glide = null, graf = 0;
+    function glideBy(delta, lo, hi) {
+      if (!glide) glide = { y: window.scrollY, to: window.scrollY, last: performance.now() };
+      glide.to = Math.max(lo, Math.min(hi, glide.to + delta));
+      if (!graf) graf = requestAnimationFrame(glideFrame);
+    }
+    function glideFrame(now) {
+      graf = 0;
+      if (!glide) return;
+      var dt = Math.min(48, Math.max(0, now - glide.last));
+      glide.last = now;
+      glide.y += (glide.to - glide.y) * (1 - Math.exp(-dt / 80));
+      if (Math.abs(glide.to - glide.y) < 0.5) glide.y = glide.to;
+      jump(glide.y);
+      if (glide.y !== glide.to) graf = requestAnimationFrame(glideFrame);
+      else glide = null;
+    }
+    function glideStop() { cancelAnimationFrame(graf); graf = 0; glide = null; }
+
+    // --- telling gestures apart ---
+    var g = { last: -1e9, start: 0, dir: 0, peak: 0, low: 0, prev: 0, rise: 0, sum: 0, mode: '', lo: 0, hi: 0 };
+    // true when this wheel event starts a new gesture
+    function track(d, dir, now) {
+      var fresh = now - g.last > GAP || dir !== g.dir;
+      if (!fresh) {
+        if (d > g.prev * 1.02) g.rise++;
+        else if (d < g.prev * 0.98) g.rise = 0;
+        // Momentum only fades. Once it has faded well under its peak, deltas
+        // that climb two events in a row, well clear of the low point, are a
+        // new swipe (a single jump is just two events arriving as one).
+        var faded = g.low < g.peak * 0.3;
+        if (faded && now - g.start > 120 && g.rise >= 2 && d > Math.max(g.low * 2.5, 6)) fresh = true;
+        else if (!faded && d >= g.peak) { g.peak = d; g.low = d; }
+        else if (d < g.low) g.low = d;
+      }
+      if (fresh) { g.start = now; g.peak = d; g.low = d; g.rise = 0; g.sum = 0; g.mode = ''; }
+      g.prev = d;
+      g.last = now;
+      g.dir = dir;
+      g.sum += d;
+      return fresh;
+    }
+
+    // --- one gesture (or key press) in direction dir ---
+    // amount: how far it asks to scroll inside a tall panel. Returns what the
+    // rest of a wheel gesture does: 'glide' goes on gliding, 'done' is spent.
+    function act(dir, amount) {
+      if (mv) {
+        if (dir === mv.dir) { queued = dir; return 'done'; }
+        var b = plan(mv.to, dir);
+        queued = 0;
+        if (b && b.to !== undefined) go(b.to, b.i);
+        return 'done';
+      }
+      var p = plan(glide ? glide.to : window.scrollY, dir);
+      if (!p) return 'done';
+      if (p.to !== undefined) { go(p.to, p.i); return 'done'; }
+      cur = p.i;
+      g.lo = p.lo;
+      g.hi = p.hi;
+      glideBy(amount, p.lo, p.hi);
+      return 'glide';
+    }
+
+    // something under the pointer that scrolls on its own
     function ownScroll(el, dir) {
       for (; el && el !== document.body && el !== root; el = el.parentElement) {
         var oy = getComputedStyle(el).overflowY;
@@ -1529,61 +1765,138 @@ const tapeSides = [
       }
       return false;
     }
-    // true when the move was taken over (the caller then stops the native scroll)
-    function page(dir) {
-      if (locked) return true;
-      var ps = panels(), y = window.scrollY, vh = window.innerHeight;
-      var max = root.scrollHeight - vh, i = 0;
-      // the panel at the top of the window
-      for (var k = 0; k < ps.length; k++) if (ps[k].top <= y + 2) i = k;
-      var p = ps[i];
-      if (!p) return false;
-      if (dir > 0) {
-        // more of this panel below the window: scroll on normally
-        if (p.bottom > y + vh + 2) return false;
-        var next = ps[i + 1];
-        if (!next) return false;
-        go(Math.min(next.top, max));
-      } else {
-        // this panel starts above the window: scroll up normally to its top
-        if (p.top < y - 2) return false;
-        var prev = ps[i - 1];
-        if (!prev) return false;
-        // a tall panel above is entered at its end, where the scroll left it
-        go(Math.max(prev.top, Math.min(prev.bottom - vh, max)));
+    function ownScrollX(el) {
+      for (; el && el !== document.body && el !== root; el = el.parentElement) {
+        var ox = getComputedStyle(el).overflowX;
+        if ((ox === 'auto' || ox === 'scroll') && el.scrollWidth > el.clientWidth + 1) return el;
       }
-      return true;
+      return null;
     }
+
     function onWheel(e) {
+      if (e.ctrlKey || root.classList.contains('menu-open')) return;
+      // back from a touch screen to the trackpad or mouse
+      if (touched && fine.matches) { touched = false; sync(); }
       if (!on()) return;
-      if (e.ctrlKey || Math.abs(e.deltaX) > Math.abs(e.deltaY) || Math.abs(e.deltaY) < 2) return;
-      if (root.classList.contains('menu-open')) return;
-      var dir = e.deltaY > 0 ? 1 : -1;
+      var k = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? window.innerHeight : 1;
+      var dx = e.deltaX * k, dy = e.deltaY * k;
+      if (Math.abs(dx) > Math.abs(dy)) {
+        // sideways: the ring turns on it (its own handler), a row of pads
+        // scrolls, and the page never drifts on the small vertical part
+        if (e.defaultPrevented) return;
+        var row = ownScrollX(e.target);
+        e.preventDefault();
+        if (row) row.scrollLeft += dx;
+        return;
+      }
+      if (!dy) return;
+      var dir = dy > 0 ? 1 : -1;
       if (ownScroll(e.target, dir)) return;
-      lastWheel = performance.now();
-      if (page(dir)) e.preventDefault();
+      e.preventDefault();
+      track(Math.abs(dy), dir, e.timeStamp || performance.now());
+      if (g.mode === 'done') return;
+      if (g.mode === 'glide') { glideBy(dy, g.lo, g.hi); return; }
+      if (g.sum < TRIGGER) return;
+      g.mode = act(dir, g.sum * dir);
     }
-    var KEYS = { PageDown: 1, ArrowDown: 1, PageUp: -1, ArrowUp: -1 };
+
     function onKey(e) {
       var t = e.target;
-      if (!on()) return;
-      if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || root.classList.contains('menu-open')) return;
+      if (!on() || e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || root.classList.contains('menu-open')) return;
       if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) || t.closest('[role="slider"], [role="listbox"], [role="menu"], details'))) return;
-      var dir = e.key === ' ' ? (/^(BUTTON|A|SUMMARY)$/.test(t && t.tagName) ? 0 : (e.shiftKey ? -1 : 1)) : KEYS[e.key];
-      if (!dir) return;
-      if (page(dir)) e.preventDefault();
+      var vh = window.innerHeight, key = e.key, dir = 0, amount = 0;
+      if (key === ' ') {
+        if (/^(BUTTON|A|SUMMARY)$/.test(t && t.tagName)) return;
+        dir = e.shiftKey ? -1 : 1;
+        amount = vh * 0.85;
+      } else if (key === 'PageDown' || key === 'PageUp') {
+        dir = key === 'PageDown' ? 1 : -1;
+        amount = vh * 0.85;
+      } else if (key === 'ArrowDown' || key === 'ArrowUp') {
+        dir = key === 'ArrowDown' ? 1 : -1;
+        amount = 120;
+      } else if (key === 'Home' || key === 'End') {
+        var ps = panels();
+        if (!ps.length) return;
+        e.preventDefault();
+        if (key === 'Home') go(0, 0);
+        else go(maxY(), ps.length - 1);
+        return;
+      } else return;
+      e.preventDefault();
+      act(dir, amount * dir);
     }
+
+    // --- the panel on screen, kept for the resize below ---
+    var lastW = window.innerWidth, lastH = window.innerHeight, sraf = 0;
+    function onScroll() {
+      if (mv || glide || sraf) return;
+      sraf = requestAnimationFrame(function () {
+        sraf = 0;
+        // a scroll that the window's new size caused says nothing about where the visitor was
+        if (mv || glide || window.innerWidth !== lastW || window.innerHeight !== lastH) return;
+        var ps = panels(), y = window.scrollY, c = y + window.innerHeight / 2, i = 0;
+        for (var k = 0; k < ps.length; k++) if (ps[k].top <= c) i = k;
+        if (!ps[i]) return;
+        cur = i;
+        curOff = Math.max(0, y - ps[i].top);
+      });
+    }
+    // during and after a resize: back on the panel that was on screen
+    var rraf = 0, rt = 0;
+    function realign() {
+      if (!on()) return;
+      if (mv) { cur = mv.i; curOff = 0; }
+      moveStop();
+      glideStop();
+      g.mode = 'done';
+      var ps = panels();
+      if (!ps.length) return;
+      var i = Math.min(cur, ps.length - 1), s = span(ps[i]);
+      jump(Math.max(s.lo, Math.min(s.hi, ps[i].top + curOff)));
+    }
+    function onResize() {
+      if (!rraf) rraf = requestAnimationFrame(function () { rraf = 0; realign(); });
+      clearTimeout(rt);
+      rt = setTimeout(function () { realign(); lastW = window.innerWidth; lastH = window.innerHeight; }, 180);
+    }
+
+    function onTouch() {
+      if (touched) return;
+      touched = true;
+      moveStop();
+      glideStop();
+      sync();
+    }
+
     window.addEventListener('wheel', onWheel, { passive: false });
     window.addEventListener('keydown', onKey);
-    document.addEventListener('astro:before-swap', function () {
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onResize);
+    window.addEventListener('touchstart', onTouch, { passive: true });
+    fine.addEventListener('change', sync);
+    still.addEventListener('change', sync);
+    function off() {
       window.removeEventListener('wheel', onWheel);
       window.removeEventListener('keydown', onKey);
-      fit.removeEventListener('change', sync);
-      cancelAnimationFrame(anim);
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onResize);
+      window.removeEventListener('touchstart', onTouch);
+      fine.removeEventListener('change', sync);
+      still.removeEventListener('change', sync);
+      document.removeEventListener('astro:before-swap', off);
+      moveStop();
+      glideStop();
+      cancelAnimationFrame(sraf);
+      cancelAnimationFrame(rraf);
+      clearTimeout(rt);
       root.classList.remove('home-paging');
-    }, { once: true });
+      if (window.__zippyPagingOff === off) window.__zippyPagingOff = null;
+    }
+    window.__zippyPagingOff = off;
+    document.addEventListener('astro:before-swap', off);
+    onScroll();
   }
-  document.addEventListener('astro:page-load', initPanelPaging);
 
   // The liner photo is decoded while the page is idle, so its first paint
   // (on the way to the liner panel) does not cost a frame mid-move.
@@ -1597,9 +1910,20 @@ const tapeSides = [
     if ('requestIdleCallback' in window) requestIdleCallback(run, { timeout: 2500 });
     else setTimeout(run, 1500);
   }
-  document.addEventListener('astro:page-load', predecodeLiner);
-  document.addEventListener('astro:page-load', initLiner);
-  document.addEventListener('astro:page-load', initHeroRing);
-  document.addEventListener('astro:page-load', initHeroFlip);
+  // Registered once. This inline script runs again when the home page is
+  // visited again, and every run used to add another round of listeners (two
+  // pagers on one wheel). The functions are looked up by name, so the newest
+  // run's versions are the ones called.
+  if (!window.__zippyHomeInit) {
+    window.__zippyHomeInit = true;
+    document.addEventListener('astro:page-load', function () {
+      initPanelExit();
+      initPanelPaging();
+      predecodeLiner();
+      initLiner();
+      initHeroRing();
+      initHeroFlip();
+    });
+  }
   </script>
 </Layout>

@@ -18,6 +18,10 @@
     /* height of the fixed header bar (Header.astro) */
     --header-h: 4rem;
   }
+  /* a phone on its side: a slimmer bar leaves the page more of the little height there is */
+  @media (orientation: landscape) and (max-height: 500px) {
+    :root { --header-h: 3.25rem; }
+  }
 
   html {
     /* anchor jumps (#contact) and keyboard focus stop below the fixed header */
